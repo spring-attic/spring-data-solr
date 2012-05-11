@@ -18,9 +18,13 @@ package com.google.soldockr.core;
 import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.springframework.data.domain.Page;
+
+import com.google.soldockr.core.query.Query;
 
 public interface SolrOperations {
   
@@ -43,6 +47,12 @@ public interface SolrOperations {
   UpdateResponse addDocument(SolrInputDocument document);
   
   UpdateResponse addDocuments(Collection<SolrInputDocument> documents);
+  
+  QueryResponse executeQuery(Query query);
+  
+  <T> T executeObjectQuery(Query query, Class<T> clazz);
+  
+  <T> Page<T> executeListQuery(Query query, Class<T> clazz);
   
 
 }
