@@ -15,23 +15,23 @@
  */
 package com.google.soldockr;
 
-public class ApiUsageExecption extends SolDockRException {
+public class ApiUsageException extends SolDockRException {
 
   private static final long serialVersionUID = 3697733372257568538L;
 
-  public ApiUsageExecption() {
+  public ApiUsageException() {
     super();
   }
 
-  public ApiUsageExecption(String message, Throwable cause) {
+  public ApiUsageException(String message, Throwable cause) {
     super(message, cause);
   }
 
-  public ApiUsageExecption(String message) {
+  public ApiUsageException(String message) {
     super(message);
   }
 
-  public ApiUsageExecption(Throwable cause) {
+  public ApiUsageException(Throwable cause) {
     super(cause);
   }
   
