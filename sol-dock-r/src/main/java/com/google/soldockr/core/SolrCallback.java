@@ -15,34 +15,13 @@
  */
 package com.google.soldockr.core;
 
-import java.util.Collection;
+import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.client.solrj.response.UpdateResponse;
-import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.client.solrj.SolrServerException;
 
-public interface SolrOperations {
+public interface SolrCallback<T> {
   
-  /**
-   * Get the underlying SolrServer instance
-   * @return
-   */
-  SolrServer getSolrServer();
-  
-  /**
-   * Execute ping against solrServer and return duration in msec
-   * @return 
-   */
-  SolrPingResponse executePing();
-  
-  UpdateResponse addBean(Object obj);
-  
-  UpdateResponse addBeans(Collection<?> beans);
-  
-  UpdateResponse addDocument(SolrInputDocument document);
-  
-  UpdateResponse addDocuments(Collection<SolrInputDocument> documents);
-  
+  T doInSolr(SolrServer solrServer) throws SolrServerException, IOException;
 
 }
