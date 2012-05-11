@@ -110,6 +110,10 @@ public class SimpleQuery implements Query {
     this.groupByFields.add(field);
     return (T) this;
   }
+  
+  public final  <T extends Query> T addGroupByField(String fieldname) {
+   return addGroupByField(new SimpleField(fieldname));
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -127,12 +131,12 @@ public class SimpleQuery implements Query {
   }
 
   @Override
-  public Iterable<Field> getGroupByFields() {
+  public List<Field> getGroupByFields() {
     return Collections.unmodifiableList(this.groupByFields);
   }
 
   @Override
-  public Iterable<Field> getProjectionOnFields() {
+  public List<Field> getProjectionOnFields() {
     return Collections.unmodifiableList(this.projectionOnFields);
   }
 

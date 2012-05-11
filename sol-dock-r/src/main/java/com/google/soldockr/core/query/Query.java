@@ -15,6 +15,8 @@
  */
 package com.google.soldockr.core.query;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 
 public interface Query {
@@ -33,9 +35,9 @@ public interface Query {
   
   Pageable getPageRequest();
   
-  Iterable<Field> getGroupByFields();
+  List<Field> getGroupByFields();
   
-  Iterable<Field> getProjectionOnFields();
+  List<Field> getProjectionOnFields();
   
   FacetOptions getFacetOptions();
   
