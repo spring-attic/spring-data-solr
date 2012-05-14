@@ -48,10 +48,10 @@ public class SimpleSolrServerFactory implements SolrServerFactory, DisposableBea
 
   public SimpleSolrServerFactory(SolrServer solrServer, String core, Credentials credentials, String authPolicy) {
     Assert.notNull(solrServer, "SolrServer must not be null");
-    if(authPolicy != null) {
+    if (authPolicy != null) {
       Assert.hasText(authPolicy);
     }
-    
+
     this.core = core;
     this.solrServer = solrServer;
     this.credentials = credentials;
@@ -85,30 +85,31 @@ public class SimpleSolrServerFactory implements SolrServerFactory, DisposableBea
   }
 
   private void appendAuthentication(Credentials credentials, String authPolicy, SolrServer solrServer) {
-    assertSolrServerInstance(solrServer);
-    HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
+    if (assertSolrServerInstance(solrServer)) {
+      HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
 
-    if (credentials != null && StringUtils.isNotBlank(authPolicy) && assertHttpClientInstance(httpSolrServer.getHttpClient())) {
-      AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrServer.getHttpClient();
-      httpClient.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), credentials);    
-      httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Arrays.asList(authPolicy));      
+      if (credentials != null && StringUtils.isNotBlank(authPolicy) && assertHttpClientInstance(httpSolrServer.getHttpClient())) {
+        AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrServer.getHttpClient();
+        httpClient.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), credentials);
+        httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Arrays.asList(authPolicy));
+      }
     }
   }
 
   private boolean assertSolrServerInstance(SolrServer solrServer) {
-    Assert.isInstanceOf(HttpSolrServer.class, solrServer, "SolrServer has to be derivate of HttpSolrServer in order to append core.");
-    return true;
+    return (solrServer instanceof HttpSolrServer);
   }
-  
+
   private boolean assertHttpClientInstance(HttpClient httpClient) {
-    Assert.isInstanceOf(HttpSolrServer.class, solrServer, "HttpClient has to be derivate of AbstractHttpClient in order to allow authentication.");
+    Assert.isInstanceOf(HttpSolrServer.class, solrServer,
+        "HttpClient has to be derivate of AbstractHttpClient in order to allow authentication.");
     return true;
   }
 
   @Override
   public void destroy() throws Exception {
-    if(solrServer != null && solrServer instanceof HttpSolrServer) {    
-      ((HttpSolrServer)solrServer).shutdown();
+    if (solrServer != null && solrServer instanceof HttpSolrServer) {
+      ((HttpSolrServer) solrServer).shutdown();
     }
   }
 

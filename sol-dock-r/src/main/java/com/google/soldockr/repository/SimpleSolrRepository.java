@@ -132,7 +132,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @Override
   public void delete(Iterable<? extends T> entities) {
-    // TODO Auto-generated method stub
+        // TODO Auto-generated method stub
     throw new NotImplementedException();
   }
 

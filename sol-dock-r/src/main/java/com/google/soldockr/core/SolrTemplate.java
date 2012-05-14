@@ -46,7 +46,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   private static final QueryParser DEFAULT_QUERY_PARSER = new QueryParser();
 
   private SolrServerFactory solrServerFactory;
-  private QueryParser queryParser;
+  private QueryParser queryParser = DEFAULT_QUERY_PARSER;
 
   public SolrTemplate(SolrServer solrServer, String core) {
     this(new SimpleSolrServerFactory(solrServer, core));
@@ -177,12 +177,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     Assert.notNull(query, "Query must not be null");
 
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-    LOGGER.debug("Executing query '" + solrQuery + "' againes solr.");
+   LOGGER.debug("Executing query '" + solrQuery + "' againes solr.");
 
     return executeSolrQuery(solrQuery);
   }
 
-  public final QueryResponse executeSolrQuery(final SolrQuery solrQuery) {
+  final QueryResponse executeSolrQuery(final SolrQuery solrQuery) {
     return execute(new SolrCallback<QueryResponse>() {
       @Override
       public QueryResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
