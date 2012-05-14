@@ -40,19 +40,24 @@ public interface SolrOperations {
    */
   SolrPingResponse executePing();
   
-  UpdateResponse addBean(Object obj);
+  UpdateResponse executeAddBean(Object obj);
   
-  UpdateResponse addBeans(Collection<?> beans);
+  UpdateResponse executeAddBeans(Collection<?> beans);
   
-  UpdateResponse addDocument(SolrInputDocument document);
+  UpdateResponse executeAddDocument(SolrInputDocument document);
   
-  UpdateResponse addDocuments(Collection<SolrInputDocument> documents);
+  UpdateResponse executeAddDocuments(Collection<SolrInputDocument> documents);
+  
+  UpdateResponse executeDelete(Query query);
+  
+  UpdateResponse executeDeleteById(String id);
   
   QueryResponse executeQuery(Query query);
   
   <T> T executeObjectQuery(Query query, Class<T> clazz);
   
   <T> Page<T> executeListQuery(Query query, Class<T> clazz);
-  
 
+  void executeCommit();
+  
 }

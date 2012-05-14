@@ -81,7 +81,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
-  public UpdateResponse addBean(final Object objectToAdd) {
+  public UpdateResponse executeAddBean(final Object objectToAdd) {
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -91,7 +91,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
-  public UpdateResponse addBeans(final Collection<?> beansToAdd) {
+  public UpdateResponse executeAddBeans(final Collection<?> beansToAdd) {
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -101,7 +101,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
-  public UpdateResponse addDocument(final SolrInputDocument documentToAdd) {
+  public UpdateResponse executeAddDocument(final SolrInputDocument documentToAdd) {
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -111,11 +111,34 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
-  public UpdateResponse addDocuments(final Collection<SolrInputDocument> documentsToAdd) {
+  public UpdateResponse executeAddDocuments(final Collection<SolrInputDocument> documentsToAdd) {
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
         return solrServer.add(documentsToAdd);
+      }
+    });
+  }
+  
+  @Override
+  public UpdateResponse executeDelete(Query query) {
+    Assert.notNull(query, "Query must not be null.");
+    final String queryString = this.queryParser.getQueryString(query);
+    
+    return execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.deleteByQuery(queryString);
+      }
+    });
+  }
+  
+  @Override
+  public UpdateResponse executeDeleteById(final String id) {
+    return execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.deleteById(id);
       }
     });
   }
@@ -186,4 +209,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     }
   }
 
+  @Override
+  public void executeCommit() {
+    execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.commit();
+      }
+    });
+  }
+
+
+
+  
 }

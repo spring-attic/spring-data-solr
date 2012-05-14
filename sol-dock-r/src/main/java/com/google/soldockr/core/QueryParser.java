@@ -47,7 +47,7 @@ public class QueryParser {
     return solrQuery;
   }
 
-  private String getQueryString(Query query) {
+  public String getQueryString(Query query) {
     return query.getCriteria().createQueryString();
   }
 

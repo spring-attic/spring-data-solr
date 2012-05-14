@@ -76,7 +76,7 @@ public class SolrTemplateTest {
   @Test
   public void testAddBean() throws IOException, SolrServerException {
     Mockito.when(solrServerMock.addBean(Mockito.anyObject())).thenReturn(new UpdateResponse());
-    UpdateResponse updateResponse = solrTemplate.addBean(SIMPLE_OBJECT);
+    UpdateResponse updateResponse = solrTemplate.executeAddBean(SIMPLE_OBJECT);
     Assert.assertNotNull(updateResponse);
     Mockito.verify(solrServerMock, Mockito.times(1)).addBean(Mockito.eq(SIMPLE_OBJECT));
   }
@@ -85,7 +85,7 @@ public class SolrTemplateTest {
   public void testAddBeans() throws IOException, SolrServerException {
     Mockito.when(solrServerMock.addBeans(Mockito.anyCollection())).thenReturn(new UpdateResponse());
     List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l), new SimpleJavaObject("3", 3l));
-    UpdateResponse updateResponse = solrTemplate.addBeans(collection);
+    UpdateResponse updateResponse = solrTemplate.executeAddBeans(collection);
     Assert.assertNotNull(updateResponse);
     Mockito.verify(solrServerMock, Mockito.times(1)).addBeans(Mockito.eq(collection));
   }
@@ -93,7 +93,7 @@ public class SolrTemplateTest {
   @Test
   public void testAddDocument() throws IOException, SolrServerException {
     Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
-    UpdateResponse updateResponse = solrTemplate.addDocument(SIMPLE_DOCUMENT);
+    UpdateResponse updateResponse = solrTemplate.executeAddDocument(SIMPLE_DOCUMENT);
     Assert.assertNotNull(updateResponse);
     Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT));
   }
@@ -102,9 +102,17 @@ public class SolrTemplateTest {
   public void testAddDocuments() throws IOException, SolrServerException {
     Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
     List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
-    UpdateResponse updateResponse = solrTemplate.addDocuments(collection);
+    UpdateResponse updateResponse = solrTemplate.executeAddDocuments(collection);
     Assert.assertNotNull(updateResponse);
     Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection));
+  }
+  
+  @Test
+  public void testCommit() throws SolrServerException, IOException {
+    Mockito.when(solrServerMock.commit()).thenReturn(new UpdateResponse());
+    solrTemplate.executeCommit();
+    Mockito.verify(solrServerMock, Mockito.times(1)).commit();
+    
   }
   
 }

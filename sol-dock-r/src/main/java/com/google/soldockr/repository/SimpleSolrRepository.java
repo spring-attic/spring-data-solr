@@ -15,22 +15,29 @@
  */
 package com.google.soldockr.repository;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
+import com.google.soldockr.ApiUsageException;
 import com.google.soldockr.core.SolrOperations;
 import com.google.soldockr.core.query.Criteria;
 import com.google.soldockr.core.query.SimpleQuery;
 
-public class SimpleSolrRepository<T, ID extends Serializable> implements SolrRepository<T, ID> {
+public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
+  private static final String DEFAULT_ID_FIELD = "id";
+  
   private SolrOperations solrOperations;
+  private String idFieldName = DEFAULT_ID_FIELD;
 
   public SimpleSolrRepository() {}
 
@@ -41,8 +48,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrRep
   }
 
   @SuppressWarnings("unchecked")
-  public T findOne(ID id) {
-    return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria("id").is(id)), returnedClass());
+  public T findOne(String id) {
+    return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), returnedClass());
   }
 
   @SuppressWarnings("unchecked")
@@ -69,10 +76,79 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrRep
     return solrOperations;
   }
 
+  @Field
   public final void setSolrOperations(SolrOperations template) {
     Assert.notNull("SolrOperations must not be null.");
     
     this.solrOperations = template;
+  }
+
+  @Override
+  public T save(T entity) {
+    this.solrOperations.executeAddBean(entity);
+    this.solrOperations.executeCommit();
+    return entity;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Iterable<T> save(Iterable<? extends T> entities) {
+    Assert.notNull(entities, "Cannot insert null as a List");
+    if(!(entities instanceof Collection<?>)) {
+      throw new ApiUsageException("Entities have to be inside a collection");
+    }
+    
+    this.solrOperations.executeAddBeans((Collection<? extends T>)entities);
+    this.solrOperations.executeCommit();
+    return (Iterable<T>) entities;
+  }
+
+  @Override
+  public boolean exists(String id) {
+    return findOne(id)!=null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Iterable<T> findAll() {     
+    return this.solrOperations.executeListQuery(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)), returnedClass());
+  }
+
+  @Override
+  public void delete(String id) {
+    this.solrOperations.executeDeleteById(id);
+    this.solrOperations.executeCommit();
+  }
+
+  @Override
+  public void delete(T entity) {
+    SolrInputDocument solrInputDocument = this.solrOperations.getSolrServer().getBinder().toSolrInputDocument(entity);
+    Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field id");
+    Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be null");
+    
+    this.solrOperations.executeDeleteById(solrInputDocument.getField(idFieldName).getValue().toString());
+    this.solrOperations.executeCommit();
+  }
+
+  @Override
+  public void delete(Iterable<? extends T> entities) {
+    // TODO Auto-generated method stub
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public void deleteAll() {
+    this.solrOperations.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+    this.solrOperations.executeCommit();
+  }
+
+  public final String getIdFieldName() {
+    return idFieldName;
+  }
+
+  public final void setIdFieldName(String idFieldName) {
+    Assert.notNull(idFieldName, "ID Field cannot be null.");
+    this.idFieldName = idFieldName;
   }
 
 }

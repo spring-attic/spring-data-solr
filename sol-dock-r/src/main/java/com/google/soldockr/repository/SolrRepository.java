@@ -15,15 +15,13 @@
  */
 package com.google.soldockr.repository;
 
-import java.io.Serializable;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
 @NoRepositoryBean
-public interface SolrRepository <T, ID extends Serializable> extends Repository<T, ID> {
+public interface SolrRepository <T> extends Repository<T, String> {
   
   /**
    * Returns the single instance with matching id
@@ -31,7 +29,7 @@ public interface SolrRepository <T, ID extends Serializable> extends Repository<
    * @param id The unique identifier for retrieving the entity
    * @return null if not found
    */
-  T findOne(ID id);
+  T findOne(String id);
 
   /**
    * Returns a {@link Page} of entities meeting the paging restriction
