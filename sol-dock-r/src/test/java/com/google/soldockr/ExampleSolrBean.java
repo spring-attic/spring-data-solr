@@ -18,6 +18,7 @@ package com.google.soldockr;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.solr.client.solrj.beans.Field;
 
 public class ExampleSolrBean {
@@ -36,7 +37,7 @@ public class ExampleSolrBean {
 
   @Field
   private boolean inStock;
-  
+
   public ExampleSolrBean() {
     this.category = new ArrayList<String>();
   }
@@ -92,6 +93,10 @@ public class ExampleSolrBean {
 
   public void setInStock(boolean inStock) {
     this.inStock = inStock;
+  }
+
+  public boolean equals(Object obj) {
+    return EqualsBuilder.reflectionEquals(this, obj);
   }
 
 }

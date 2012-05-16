@@ -16,11 +16,9 @@
 package com.google.soldockr.repository;
 
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
@@ -36,28 +34,36 @@ import com.google.soldockr.core.query.SimpleQuery;
 public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   private static final String DEFAULT_ID_FIELD = "id";
-  
+
   private SolrOperations solrOperations;
   private String idFieldName = DEFAULT_ID_FIELD;
+  private Class<T> entityClass;
 
   public SimpleSolrRepository() {}
 
   public SimpleSolrRepository(SolrOperations solrOperations) {
-    Assert.notNull(solrOperations, "SolrOperations must not be null.");
-    
-    this.solrOperations = solrOperations;
+    this.setSolrOperations(solrOperations);
   }
 
-  @SuppressWarnings("unchecked")
+  public SimpleSolrRepository(SolrOperations solrOperations, Class<T> entityClass) {
+    this(solrOperations);
+
+    this.setEntityClass(entityClass);
+  }
+
   public T findOne(String id) {
-    return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), returnedClass());
+    return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
 
-  @SuppressWarnings("unchecked")
+  @Override
+  public Iterable<T> findAll() {
+    return this.findAll(new PageRequest(0, (int) this.count()));
+  }
+
   @Override
   public Page<T> findAll(Pageable pageable) {
     return getSolrOperations().executeListQuery(
-        new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable), returnedClass());
+        new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable), getEntityClass());
   }
 
   @Override
@@ -67,22 +73,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     return response.getResults().getNumFound();
   }
 
-  @SuppressWarnings("rawtypes")
-  private Class returnedClass() {
-    Class<? extends Type> interfaces = getClass().getGenericInterfaces()[0].getClass();
-    ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericInterfaces()[0].getClass().getGenericSuperclass();
-    return (Class) parameterizedType.getActualTypeArguments()[0];
-  }
-
   public final SolrOperations getSolrOperations() {
     return solrOperations;
-  }
-
-  @Field
-  public final void setSolrOperations(SolrOperations template) {
-    Assert.notNull("SolrOperations must not be null.");
-    
-    this.solrOperations = template;
   }
 
   @Override
@@ -96,24 +88,18 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   @Override
   public Iterable<T> save(Iterable<? extends T> entities) {
     Assert.notNull(entities, "Cannot insert null as a List");
-    if(!(entities instanceof Collection<?>)) {
+    if (!(entities instanceof Collection<?>)) {
       throw new ApiUsageException("Entities have to be inside a collection");
     }
-    
-    this.solrOperations.executeAddBeans((Collection<? extends T>)entities);
+
+    this.solrOperations.executeAddBeans((Collection<? extends T>) entities);
     this.solrOperations.executeCommit();
     return (Iterable<T>) entities;
   }
 
   @Override
   public boolean exists(String id) {
-    return findOne(id)!=null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Iterable<T> findAll() {     
-    return this.solrOperations.executeListQuery(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)), returnedClass());
+    return findOne(id) != null;
   }
 
   @Override
@@ -127,14 +113,14 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     SolrInputDocument solrInputDocument = this.solrOperations.getSolrServer().getBinder().toSolrInputDocument(entity);
     Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field id");
     Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be null");
-    
+
     this.solrOperations.executeDeleteById(solrInputDocument.getField(idFieldName).getValue().toString());
     this.solrOperations.executeCommit();
   }
 
   @Override
   public void delete(Iterable<? extends T> entities) {
-        // TODO Auto-generated method stub
+    // TODO Auto-generated method stub
     throw new NotImplementedException();
   }
 
@@ -151,6 +137,39 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   public final void setIdFieldName(String idFieldName) {
     Assert.notNull(idFieldName, "ID Field cannot be null.");
     this.idFieldName = idFieldName;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private Class<T> resolveReturnedClassFromGernericType() {
+    ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
+    return (Class<T>) parameterizedType.getActualTypeArguments()[0];
+  }
+
+  public Class<T> getEntityClass() {
+    if (!isEntityClassSet()) {
+      try {
+        this.entityClass = resolveReturnedClassFromGernericType();
+      } catch (Exception e) {
+        new ApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
+      }
+    }
+    return entityClass;
+  }
+
+  private boolean isEntityClassSet() {
+    return entityClass != null;
+  }
+
+  public final void setEntityClass(Class<T> entityClass) {
+    Assert.notNull(entityClass, "EntityClass must not be null.");
+
+    this.entityClass = entityClass;
+  }
+
+  public final void setSolrOperations(SolrOperations solrOperations) {
+    Assert.notNull(solrOperations, "SolrOperations must not be null.");
+
+    this.solrOperations = solrOperations;
   }
 
 }

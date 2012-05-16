@@ -15,77 +15,79 @@
  */
 package com.google.soldockr.repository;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Assert;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.CoreContainer;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.util.ResourceUtils;
-import org.xml.sax.SAXException;
 
+import com.google.soldockr.AbstractITestWithEmbeddedSolrServer;
+import com.google.soldockr.ExampleSolrBean;
 import com.google.soldockr.core.SolrTemplate;
-import com.google.soldockr.core.query.Criteria;
-import com.google.soldockr.core.query.SimpleQuery;
 
-public class ITestSimpleSolrRepository {
-
-  private static SolrServer solrServer;
-  private SolrTemplate solrTemplate;
+public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServer {
   
-  @BeforeClass
-  public static void init() throws IOException, ParserConfigurationException, SAXException {
-    System.setProperty("solr.solr.home", StringUtils.remove(ResourceUtils.getURL("classpath:com/google/soldockr").toString(), "file:/"));
-    CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-    CoreContainer coreContainer = initializer.initialize();
-    solrServer = new EmbeddedSolrServer(coreContainer, "");
-  }
-
+  private ExampleSolrBeanRepository repository;
+  
   @Before
-  public void setUp() throws IOException, ParserConfigurationException, SAXException {
-     solrTemplate = new SolrTemplate(solrServer, null);
-  }
-  
-  @After
-  public void tearDown() {
-    solrTemplate.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
-    solrTemplate.executeCommit();
+  public void setUp() {
+    repository = new ExampleSolrBeanRepository();
+    repository.setSolrOperations(new SolrTemplate(solrServer, null));
   }
   
   @Test
-  public void testBeanLifecycle() {
-    ExampleSolrBean toInsert = new ExampleSolrBean("1", "bean_001", "category_1");
+  public void testBeanLifecyle() {
+    ExampleSolrBean toInsert = createDefaultExampleBean();
+    ExampleSolrBean savedBean = repository.save(toInsert);
     
-    solrTemplate.executeAddBean(toInsert);
-    ExampleSolrBean recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-    Assert.assertNull(recalled);
-    solrTemplate.executeCommit();
+    Assert.assertSame(toInsert, savedBean);
     
-    recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-    Assert.assertEquals(toInsert.getId(), recalled.getId());
+    Assert.assertTrue(repository.exists(savedBean.getId()));
     
-    solrTemplate.executeDeleteById(toInsert.getId());
-    recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-    Assert.assertEquals(toInsert.getId(), recalled.getId());
+    ExampleSolrBean retrieved = repository.findOne(savedBean.getId());
+    Assert.assertNotNull(retrieved);
+    Assert.assertEquals(savedBean, retrieved);
     
-    solrTemplate.executeCommit();
-    recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-    Assert.assertNull(recalled);
-  } 
-
-  @Ignore
-  public void testPing() throws SolrServerException, IOException {
-    solrTemplate.executePing();
+    Assert.assertEquals(1, repository.count());
+    
+    Assert.assertTrue(repository.exists(savedBean.getId()));
+    
+    repository.delete(savedBean);
+    
+    Assert.assertEquals(0, repository.count());
+    retrieved = repository.findOne(savedBean.getId());
+    Assert.assertNull(retrieved);
+  }
+  
+  @Test
+  public void testListFunctions() {
+    int objectCount = 100;
+    List<ExampleSolrBean> toInsert = new ArrayList<ExampleSolrBean>(objectCount);
+    for(int i = 0; i<100; i++) {
+      toInsert.add(createExampleBeanWithId(Integer.toString(i)));
+    }
+    
+    repository.save(toInsert);
+    
+    Assert.assertEquals(objectCount, repository.count());
+    
+    int counter = 0;
+    for(ExampleSolrBean retrievedBean : repository.findAll()) {
+      Assert.assertEquals(toInsert.get(counter), retrievedBean);
+      counter++;
+      if(counter > objectCount) {
+        Assert.fail("More beans return than added!");
+      }
+    }
+    
+    repository.delete(toInsert.get(0));
+    Assert.assertEquals(99, repository.count());
+    
+    repository.deleteAll();
+    
+    Assert.assertEquals(0, repository.count());
   }
 
 }

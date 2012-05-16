@@ -49,7 +49,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
   @Test
   public void testBeanLifecycle() {
-    ExampleSolrBean toInsert = new ExampleSolrBean("1", "bean_001", "category_1");
+    ExampleSolrBean toInsert = createDefaultExampleBean();
 
     solrTemplate.executeAddBean(toInsert);
     ExampleSolrBean recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
