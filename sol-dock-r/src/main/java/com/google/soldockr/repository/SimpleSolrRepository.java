@@ -16,6 +16,7 @@
 package com.google.soldockr.repository;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -68,7 +69,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @SuppressWarnings("rawtypes")
   private Class returnedClass() {
-    ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
+    Class<? extends Type> interfaces = getClass().getGenericInterfaces()[0].getClass();
+    ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericInterfaces()[0].getClass().getGenericSuperclass();
     return (Class) parameterizedType.getActualTypeArguments()[0];
   }
 

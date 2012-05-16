@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.soldockr.repository;
+package com.google.soldockr;
 
 import java.util.ArrayList;
 import java.util.List;
