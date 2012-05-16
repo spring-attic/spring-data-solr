@@ -101,13 +101,13 @@ public class SimpleSolrServerFactory implements SolrServerFactory, DisposableBea
   }
 
   private boolean assertHttpClientInstance(HttpClient httpClient) {
-    Assert.isInstanceOf(HttpSolrServer.class, solrServer,
+    Assert.isInstanceOf(AbstractHttpClient.class, httpClient,
         "HttpClient has to be derivate of AbstractHttpClient in order to allow authentication.");
     return true;
   }
 
   @Override
-  public void destroy() throws Exception {
+  public void destroy() {
     if (solrServer != null && solrServer instanceof HttpSolrServer) {
       ((HttpSolrServer) solrServer).shutdown();
     }

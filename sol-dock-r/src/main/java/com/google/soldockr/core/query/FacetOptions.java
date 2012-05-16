@@ -59,7 +59,7 @@ public class FacetOptions {
    }
   }
   
-  public FacetOptions addFacetOnField(Field field) {
+  public final FacetOptions addFacetOnField(Field field) {
     Assert.notNull(field, "Cannot facet on null field.");
     Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname.");
     
@@ -67,7 +67,7 @@ public class FacetOptions {
     return this;
   }
   
-  public FacetOptions addFacetOnField(String fieldname) {
+  public final FacetOptions addFacetOnField(String fieldname) {
     addFacetOnField(new SimpleField(fieldname));
     return this;
   }

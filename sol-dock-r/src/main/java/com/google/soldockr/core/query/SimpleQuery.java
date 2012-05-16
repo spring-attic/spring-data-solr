@@ -46,7 +46,7 @@ public class SimpleQuery implements Query {
   
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends Query> T addCriteria(Criteria criteria) {
+  public final <T extends Query> T addCriteria(Criteria criteria) {
     Assert.notNull(criteria, "Cannot add null criteria.");
     Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
     Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
@@ -70,12 +70,12 @@ public class SimpleQuery implements Query {
     return (T) this;
   }
   
-  public  <T extends Query> T addProjectionOnField(String fieldname) {
+  public final <T extends Query> T addProjectionOnField(String fieldname) {
     return this.addProjectionOnField(new SimpleField(fieldname));
   }
   
   @SuppressWarnings("unchecked")
-  public  <T extends Query> T addProjectionOnFields(Field... fields) {
+  public final <T extends Query> T addProjectionOnFields(Field... fields) {
     Assert.notEmpty(fields, "Cannot add projection on null/empty field list.");
     for(Field field: fields) {
       addProjectionOnField(field);
@@ -84,7 +84,7 @@ public class SimpleQuery implements Query {
   }
   
   @SuppressWarnings("unchecked")
-  public  <T extends Query> T addProjectionOnFields(String... fieldnames) {
+  public final <T extends Query> T addProjectionOnFields(String... fieldnames) {
     Assert.notEmpty(fieldnames, "Cannot add projection on null/empty field list.");
     for(String fieldname: fieldnames) {
       addProjectionOnField(fieldname);
@@ -117,7 +117,7 @@ public class SimpleQuery implements Query {
 
   @SuppressWarnings("unchecked")
   @Override
-  public  <T extends Query> T setFacetOptions(FacetOptions facetOptions) {
+  public final <T extends Query> T setFacetOptions(FacetOptions facetOptions) {
     if(facetOptions != null) {
       Assert.isTrue(facetOptions.hasFields(), "Cannot set facet options having no fields.");
     }
