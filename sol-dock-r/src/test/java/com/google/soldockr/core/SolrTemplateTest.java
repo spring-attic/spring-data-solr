@@ -34,6 +34,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.soldockr.SolDockRException;
+import com.google.soldockr.SolrServerFactory;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,7 +56,7 @@ public class SolrTemplateTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void testNullServerFactory() {
-    new SolrTemplate(null);
+    new SolrTemplate((SolrServerFactory)null);
   }
 
   @Test

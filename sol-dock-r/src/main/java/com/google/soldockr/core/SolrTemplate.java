@@ -46,6 +46,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   private SolrServerFactory solrServerFactory;
   private QueryParser queryParser = DEFAULT_QUERY_PARSER;
+  
+  public SolrTemplate(SolrServer solrServer) {
+    this(solrServer, null);
+  }
 
   public SolrTemplate(SolrServer solrServer, String core) {
     this(new SimpleSolrServerFactory(solrServer, core));
@@ -163,9 +167,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     Assert.notNull(query, "Query must not be null.");
     Assert.notNull(clazz, "Target class must not be null.");
 
-    // queryParser.assertNoFacets(query);
-
     QueryResponse response = executeQuery(query);
+    //TODO: implement the following for grouping results
     // if (query.hasGroupBy() && query.getGroupBy().size() > 1) {
     // return SolrResultHelper.flattenGroupedQueryResult(query, response, clazz, getSolrServer().getBinder());
     // }
@@ -218,7 +221,4 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     });
   }
 
-
-
-  
 }
