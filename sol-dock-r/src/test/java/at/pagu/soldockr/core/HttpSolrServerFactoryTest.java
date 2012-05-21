@@ -29,9 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import at.pagu.soldockr.core.SimpleSolrServerFactory;
+import at.pagu.soldockr.core.HttpSolrServerFactory;
 
-public class SimpleSolrServerFactoryTest {
+public class HttpSolrServerFactoryTest {
   
   private static final String URL = "http://solr.server.url";
   private SolrServer solrServer;
@@ -48,7 +48,7 @@ public class SimpleSolrServerFactoryTest {
   
   @Test
   public void testInitFactory() {
-    SimpleSolrServerFactory factory = new SimpleSolrServerFactory(solrServer);
+    HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer);
     Assert.assertNull(factory.getCore());
     Assert.assertEquals(solrServer, factory.getSolrServer());
     Assert.assertEquals(URL, ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
@@ -56,27 +56,27 @@ public class SimpleSolrServerFactoryTest {
   
   @Test
   public void testInitFactoryWithCore() throws MalformedURLException {
-    SimpleSolrServerFactory factory = new SimpleSolrServerFactory(solrServer, "core");
+    HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core");
     Assert.assertEquals(URL + "/core", ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
 
-    factory = new SimpleSolrServerFactory(new HttpSolrServer(URL + "/"), "core");
+    factory = new HttpSolrServerFactory(new HttpSolrServer(URL + "/"), "core");
     Assert.assertEquals(URL + "/core", ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
   }
   
   @Test
   public void testInitFactoryWithEmptyCore() {
-    SimpleSolrServerFactory factory = new SimpleSolrServerFactory(solrServer, StringUtils.EMPTY);
+    HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, StringUtils.EMPTY);
     Assert.assertEquals(URL, ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInitFactoryWithNullServer() {
-    new SimpleSolrServerFactory(null);
+    new HttpSolrServerFactory(null);
   }
   
   @Test
   public void testInitFactoryWithAuthentication() {
-    SimpleSolrServerFactory factory = new SimpleSolrServerFactory(solrServer, "core", new UsernamePasswordCredentials("username", "password"), "BASIC");
+    HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core", new UsernamePasswordCredentials("username", "password"), "BASIC");
 
     AbstractHttpClient solrHttpClient = (AbstractHttpClient)((HttpSolrServer) factory.getSolrServer()).getHttpClient();
     Assert.assertNotNull(solrHttpClient.getCredentialsProvider().getCredentials(AuthScope.ANY));
@@ -88,7 +88,7 @@ public class SimpleSolrServerFactoryTest {
  
   @Test(expected = IllegalArgumentException.class)
   public void testInitFactoryWithoutAuthenticationSchema() {
-    new SimpleSolrServerFactory(solrServer, "core",new UsernamePasswordCredentials("username", "password"), "");
+    new HttpSolrServerFactory(solrServer, "core",new UsernamePasswordCredentials("username", "password"), "");
   }
 
 }

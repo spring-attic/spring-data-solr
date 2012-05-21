@@ -52,7 +52,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   public SolrTemplate(SolrServer solrServer, String core) {
-    this(new SimpleSolrServerFactory(solrServer, core));
+    this(new HttpSolrServerFactory(solrServer, core));
   }
 
   public SolrTemplate(SolrServerFactory solrServerFactory) {

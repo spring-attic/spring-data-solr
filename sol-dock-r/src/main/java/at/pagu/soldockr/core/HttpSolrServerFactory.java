@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.SolrServerFactory;
 
-public class SimpleSolrServerFactory implements SolrServerFactory, DisposableBean {
+public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean {
 
   private static final String SLASH = "/";
   private final SolrServer solrServer;
@@ -38,15 +38,15 @@ public class SimpleSolrServerFactory implements SolrServerFactory, DisposableBea
   private final Credentials credentials;
   private final String authPolicy;
 
-  public SimpleSolrServerFactory(SolrServer solrServer) {
+  public HttpSolrServerFactory(SolrServer solrServer) {
     this(solrServer, null);
   }
 
-  public SimpleSolrServerFactory(SolrServer solrServer, String core) {
+  public HttpSolrServerFactory(SolrServer solrServer, String core) {
     this(solrServer, core, null, null);
   }
 
-  public SimpleSolrServerFactory(SolrServer solrServer, String core, Credentials credentials, String authPolicy) {
+  public HttpSolrServerFactory(SolrServer solrServer, String core, Credentials credentials, String authPolicy) {
     Assert.notNull(solrServer, "SolrServer must not be null");
     if (authPolicy != null) {
       Assert.hasText(authPolicy);
