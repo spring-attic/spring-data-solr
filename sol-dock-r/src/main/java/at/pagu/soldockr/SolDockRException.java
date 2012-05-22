@@ -15,6 +15,9 @@
  */
 package at.pagu.soldockr;
 
+/**
+ * Base class for any fault caused by the sol-dock-r API
+ */
 public class SolDockRException extends RuntimeException {
 
   private static final long serialVersionUID = 6804126293038414970L;

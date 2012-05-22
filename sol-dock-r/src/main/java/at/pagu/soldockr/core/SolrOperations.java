@@ -27,37 +27,83 @@ import org.springframework.data.domain.Page;
 import at.pagu.soldockr.core.query.Query;
 
 public interface SolrOperations {
-  
+
   /**
    * Get the underlying SolrServer instance
+   * 
    * @return
    */
   SolrServer getSolrServer();
-  
+
   /**
    * Execute ping against solrServer and return duration in msec
-   * @return 
+   * 
+   * @return
    */
   SolrPingResponse executePing();
-  
+
+  /**
+   * Execute add operation against solr
+   * 
+   * @param obj
+   * @return
+   */
   UpdateResponse executeAddBean(Object obj);
-  
+
+  /**
+   * Add a collection of beans to solr
+   * 
+   * @param beans
+   * @return
+   */
   UpdateResponse executeAddBeans(Collection<?> beans);
-  
+
   UpdateResponse executeAddDocument(SolrInputDocument document);
-  
+
   UpdateResponse executeAddDocuments(Collection<SolrInputDocument> documents);
-  
+
+  /**
+   * Find and delete all objects matching the provided Query
+   * 
+   * @param query
+   * @return
+   */
   UpdateResponse executeDelete(Query query);
-  
+
+  /**
+   * Detele the one object with provided id
+   * 
+   * @param id
+   * @return
+   */
   UpdateResponse executeDeleteById(String id);
-  
+
+  /**
+   * Execute query against Solr
+   * 
+   * @param query
+   * @return
+   */
   QueryResponse executeQuery(Query query);
-  
+
+  /**
+   * Execute the query against solr and return the first returned object
+   * 
+   * @param query
+   * @param clazz
+   * @return the first matching object
+   */
   <T> T executeObjectQuery(Query query, Class<T> clazz);
-  
+
+  /**
+   * Execute the query against solr and retrun result as {@link Page}
+   * 
+   * @param query
+   * @param clazz
+   * @return
+   */
   <T> Page<T> executeListQuery(Query query, Class<T> clazz);
 
   void executeCommit();
-  
+
 }

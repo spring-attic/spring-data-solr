@@ -29,6 +29,11 @@ import org.xml.sax.SAXException;
 
 import at.pagu.soldockr.SolrServerFactory;
 
+/**
+ * The EmbeddedSolrServerFactory allows hosting of an SolrServer instance in embedded mode.
+ * Configuration files are loaded via {@link ResourceUtils}, therefore it is possible to place them in classpath.
+ * Use this class for Testing. It is not recommended for production.
+ */
 public class EmbeddedSolrServerFactory implements SolrServerFactory {
 
   private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
@@ -39,6 +44,13 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
     this.solrServer = createPathConfiguredSolrServer(path);
   }
 
+  /**
+   * @param path Any Path expression valid for use with {@link ResourceUtils}
+   * @return new instance of {@link EmbeddedSolrServer}
+   * @throws ParserConfigurationException
+   * @throws IOException
+   * @throws SAXException
+   */
   public EmbeddedSolrServer createPathConfiguredSolrServer(String path) throws ParserConfigurationException, IOException, SAXException {
     String solrHome = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 

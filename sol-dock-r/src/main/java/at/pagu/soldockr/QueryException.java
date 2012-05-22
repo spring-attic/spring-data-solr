@@ -15,6 +15,11 @@
  */
 package at.pagu.soldockr;
 
+
+/**
+ * QueryException indicates a fault while executing a Query against solr.
+ * SolrExeption is wrapped within the QueryException.
+ */
 public class QueryException extends SolDockRException {
 
   private static final long serialVersionUID = -1358167909638012314L;

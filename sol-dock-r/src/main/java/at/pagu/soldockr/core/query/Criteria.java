@@ -27,6 +27,10 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.ApiUsageException;
 
+/**
+ * Criteria is the central class when constructing queries.
+ * It follows more or less a fluent API style, which allows to easily chain together multiple criteria.
+ */
 public class Criteria {
 
   public static final String WILDCARD = "*";
@@ -48,10 +52,20 @@ public class Criteria {
 
   public Criteria() {}
 
+  /**
+   * Creates a new Criteria for the Filed with provided name
+   * 
+   * @param fieldname
+   */
   public Criteria(String fieldname) {
     this(new SimpleField(fieldname));
   }
 
+  /**
+   * Creates a new Criteria for the given field
+   * 
+   * @param field
+   */
   public Criteria(Field field) {
     Assert.notNull(field, "Field for criteria must not be null");
     Assert.hasText(field.getName(), "Field.name for criteria must not be null/empty");
@@ -70,32 +84,74 @@ public class Criteria {
     this.field = field;
   }
 
+  /**
+   * Static factory method to create a new Criteria for field with given name
+   * 
+   * @param field
+   * @return
+   */
   public static Criteria where(String field) {
     return where(new SimpleField(field));
   }
 
+  /**
+   * Static factory method to create a new Criteria for provided field
+   * 
+   * @param field
+   * @return
+   */
   public static Criteria where(Field field) {
     return new Criteria(field);
   }
 
+  /**
+   * Chain using AND
+   * 
+   * @param field
+   * @return
+   */
   public Criteria and(Field field) {
     return new Criteria(this.criteriaChain, field);
   }
 
+  /**
+   * Chain using AND
+   * 
+   * @param field
+   * @return
+   */
   public Criteria and(String fieldname) {
     return new Criteria(this.criteriaChain, fieldname);
   }
 
+  /**
+   * Chain using AND
+   * 
+   * @param field
+   * @return
+   */
   public Criteria and(Criteria criteria) {
     this.criteriaChain.add(criteria);
     return this;
   }
 
+  /**
+   * Chain using AND
+   * 
+   * @param field
+   * @return
+   */
   public Criteria and(Criteria... criterias) {
     this.criteriaChain.addAll(Arrays.asList(criterias));
     return this;
   }
 
+  /**
+   * Chain using OR
+   * 
+   * @param field
+   * @return
+   */
   public Criteria or(Field field) {
     return new Criteria(this.criteriaChain, field) {
       @Override
@@ -105,38 +161,78 @@ public class Criteria {
     };
   }
 
+  /**
+   * Chain using OR
+   * 
+   * @param field
+   * @return
+   */
   public Criteria or(String fieldname) {
     return or(new SimpleField(fieldname));
   }
 
+  /**
+   * Crates new CriteriaEntry without any wildcards
+   * 
+   * @param o
+   * @return
+   */
   public Criteria is(Object o) {
     criteria.add(new CriteriaEntry("$equals", o));
     return this;
   }
 
+  /**
+   * Crates new CriteriaEntry with leading and trailing wildcards
+   * 
+   * @param o
+   * @return
+   */
   public Criteria contains(String s) {
     assertNoBlankInWildcardedQuery(s, true, true);
     criteria.add(new CriteriaEntry("$contains", s));
     return this;
   }
 
+  /**
+   * Crates new CriteriaEntry with leading wildcard
+   * 
+   * @param o
+   * @return
+   */
   public Criteria startsWith(String s) {
     assertNoBlankInWildcardedQuery(s, true, false);
     criteria.add(new CriteriaEntry("$startsWith", s));
     return this;
   }
 
+  /**
+   * Crates new CriteriaEntry with trailing wildcards
+   * 
+   * @param o
+   * @return
+   */
   public Criteria endsWith(String s) {
     assertNoBlankInWildcardedQuery(s, false, true);
     criteria.add(new CriteriaEntry("$endsWith", s));
     return this;
   }
 
+  /**
+   * Crates new CriteriaEntry allowing native solr expressions
+   * 
+   * @param o
+   * @return
+   */
   public Criteria expression(String s) {
     criteria.add(new CriteriaEntry("$expression", s));
     return this;
   }
-  
+
+  /**
+   * get the QueryString used for executing query 
+   * @return
+   */
   public String createQueryString() {
     StringBuilder query = new StringBuilder(StringUtils.EMPTY);
 
@@ -177,12 +273,11 @@ public class Criteria {
     return queryFragment.toString();
   }
 
-
   private String processCriteriaEntry(String key, Object value) {
-    if(value == null) {
+    if (value == null) {
       return null;
     }
-    
+
     // do not filter espressions
     if (StringUtils.equals("$expression", key)) {
       return value.toString();
@@ -235,7 +330,7 @@ public class Criteria {
   public String getConjunctionOperator() {
     return AND_OPERATOR;
   }
-  
+
   List<Criteria> getCriteriaChain() {
     return this.criteriaChain;
   }

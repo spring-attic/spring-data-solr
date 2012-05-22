@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
@@ -31,8 +32,22 @@ import at.pagu.soldockr.core.query.FacetOptions;
 import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.Query;
 
+/**
+ * The QueryParser takes a sol-dock-r Query and returns a SolrQuery.
+ * All Query parameters are translated into the according SolrQuery fields.
+ * <b>Example:</b> <code>
+ * Query query = new SimpleQuery(new Criteria("field_1").is("value_1").and("field_2").startsWith("value_2")).addProjection("field_3").setPageRequest(new PageRequest(0, 10));
+ * </code> Will be parsed to a SolrQuery that outputs the following <code>
+ * q=field_1%3Avalue_1+AND+field_2%3Avalue_2*&fl=field_3&start=0&rows=10
+ * </code>
+ */
 public class QueryParser {
 
+  /**
+   * Convert given Query into a SolrQuery executable via {@link SolrServer}
+   * @param query
+   * @return
+   */
   public final SolrQuery constructSolrQuery(Query query) {
     Assert.notNull(query, "Cannot construct solrQuery from null value.");
     Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
@@ -47,6 +62,12 @@ public class QueryParser {
     return solrQuery;
   }
 
+  /**
+   * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
+   * 
+   * @param query
+   * @return String representation of query without faceting, pagination, projection...
+   */
   public String getQueryString(Query query) {
     return query.getCriteria().createQueryString();
   }

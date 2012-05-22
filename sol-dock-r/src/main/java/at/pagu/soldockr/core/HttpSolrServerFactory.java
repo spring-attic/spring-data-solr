@@ -30,6 +30,11 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.SolrServerFactory;
 
+/**
+ * The HttpSolrServerFactory configures an {@link HttpSolrServer} to work with the provided core.
+ * If provided Credentials eg. (@link UsernamePasswordCredentials} and AuthPolicy (eg. BASIC, DIGEST,...) will be applied to the underlying
+ * HttpClient.
+ */
 public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean {
 
   private static final String SLASH = "/";

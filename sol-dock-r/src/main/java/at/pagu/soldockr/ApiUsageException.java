@@ -15,6 +15,11 @@
  */
 package at.pagu.soldockr;
 
+
+/**
+ * ApiUsageExcetion indicates a miss use of the sol-dock-r API.
+ *
+ */
 public class ApiUsageException extends SolDockRException {
 
   private static final long serialVersionUID = 3697733372257568538L;
