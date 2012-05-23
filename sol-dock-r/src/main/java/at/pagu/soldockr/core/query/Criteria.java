@@ -25,6 +25,8 @@ import java.util.ListIterator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
+import ch.qos.logback.classic.Logger;
+
 import at.pagu.soldockr.ApiUsageException;
 
 /**
@@ -46,6 +48,8 @@ public class Criteria {
       "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\"};
 
   private Field field;
+  private float boost = Float.NaN;
+  
   private ArrayList<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
   private LinkedHashSet<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
@@ -217,6 +221,44 @@ public class Criteria {
     criteria.add(new CriteriaEntry("$endsWith", s));
     return this;
   }
+  
+  /**
+   * Crates new CriteriaEntry with trailing -
+   * 
+   * @param s
+   * @return
+   */
+  public Criteria isNot(String s) { 
+    criteria.add(new CriteriaEntry("$isNot", s));
+    return this;
+  }
+  
+  /**
+   * Crates new CriteriaEntry with trailing ~
+   * 
+   * @param s
+   * @return
+   */
+  public Criteria fuzzy(String s) {
+    return fuzzy(s, Float.NaN);
+  }
+  
+  /**
+   * Crates new CriteriaEntry with trailing ~ followed by levensteinDistance
+   * 
+   * @param s
+   * @param levenshteinDistance
+   * @return
+   */
+  public Criteria fuzzy(String s, float levenshteinDistance) {
+    if(levenshteinDistance != Float.NaN) {
+      if(levenshteinDistance < 0 || levenshteinDistance > 1) {
+        throw new ApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
+      }
+    }
+    criteria.add(new CriteriaEntry("$fuzzy#"+levenshteinDistance, s));
+    return this;
+  }
 
   /**
    * Crates new CriteriaEntry allowing native solr expressions
@@ -226,6 +268,14 @@ public class Criteria {
    */
   public Criteria expression(String s) {
     criteria.add(new CriteriaEntry("$expression", s));
+    return this;
+  }
+  
+  public Criteria boost(float boost) {
+    if(boost < 0) {
+      throw new ApiUsageException("Boost must not be negative.");
+    }
+    this.boost = boost;
     return this;
   }
 
@@ -270,6 +320,9 @@ public class Criteria {
     if (!singeEntryCriteria) {
       queryFragment.append(")");
     }
+    if(!Float.isNaN(chainedCriteria.boost)) {
+      queryFragment.append("^"+chainedCriteria.boost);
+    }
     return queryFragment.toString();
   }
 
@@ -292,6 +345,17 @@ public class Criteria {
     }
     if (StringUtils.equals("$endsWith", key)) {
       return WILDCARD + filteredValue;
+    }
+    if (StringUtils.equals("$isNot", key)) {
+      return "-" + filteredValue;
+    }
+    if(StringUtils.startsWith(key, "$fuzzy")) {
+      String sDistance = StringUtils.substringAfter(key, "$fuzzy#");
+      float distance = Float.NaN;
+      if(StringUtils.isNotBlank(sDistance)) {
+        distance = Float.parseFloat(sDistance);
+      }
+      return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance );
     }
 
     return filteredValue.toString();

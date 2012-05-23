@@ -131,4 +131,50 @@ public class CriteriaTest {
     Criteria criteria = new Criteria("field_1").is("with \"quote");
     Assert.assertEquals("field_1:\"with \\\"quote\"", criteria.createQueryString());
   }
+  
+  @Test
+  public void testIsNot() {
+    Criteria criteria = new Criteria("field_1").isNot("value_1");
+    Assert.assertEquals("field_1:-value_1", criteria.createQueryString());
+  }
+  
+  @Test
+  public void testFuzzy() {
+    Criteria criteria = new Criteria("field_1").fuzzy("value_1");
+    Assert.assertEquals("field_1:value_1~", criteria.createQueryString());
+  }
+  
+  @Test
+  public void testFuzzyWithDistance() {
+    Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
+    Assert.assertEquals("field_1:value_1~0.5", criteria.createQueryString());
+  }
+  
+  @Test(expected=ApiUsageException.class)
+  public void testFuzzyWithNegativeDistance() {
+    new Criteria("field_1").fuzzy("value_1", -0.5f);
+  }
+  
+  @Test(expected=ApiUsageException.class)
+  public void testFuzzyWithTooHighDistance() {
+    new Criteria("field_1").fuzzy("value_1", 1.5f);
+  }
+  
+  @Test
+  public void testBoost() {
+    Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
+    Assert.assertEquals("field_1:value_1^2.0", criteria.createQueryString());
+  }
+  
+  @Test
+  public void testBoostMultipleValues() {
+    Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f);
+    Assert.assertEquals("field_1:(value_1 value_2)^2.0", criteria.createQueryString());
+  }
+  
+  @Test
+  public void testBoostMultipleCriteriasValues() {
+    Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
+    Assert.assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3", criteria.createQueryString());
+  }
 }
