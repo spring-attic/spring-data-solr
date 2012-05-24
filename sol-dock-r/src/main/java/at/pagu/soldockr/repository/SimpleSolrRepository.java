@@ -16,9 +16,9 @@
 package at.pagu.soldockr.repository;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
@@ -120,8 +120,10 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @Override
   public void delete(Iterable<? extends T> entities) {
-    // TODO Auto-generated method stub
-    throw new NotImplementedException();
+    ArrayList list = new ArrayList();
+    org.apache.commons.collections.CollectionUtils.addAll(list, entities.iterator());
+    //this.solrOperations.deleteBeans(list);
+    this.solrOperations.executeCommit();
   }
 
   @Override
