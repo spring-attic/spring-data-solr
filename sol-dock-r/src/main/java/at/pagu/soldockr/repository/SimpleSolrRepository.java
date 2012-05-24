@@ -18,10 +18,12 @@ package at.pagu.soldockr.repository;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
@@ -55,8 +57,13 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public Iterable<T> findAll() {
+    int itemCount = (int) this.count();
+    if(itemCount == 0) {
+      return (Page<T>) new PageImpl(Collections.EMPTY_LIST);
+    }
     return this.findAll(new PageRequest(0, (int) this.count()));
   }
 
