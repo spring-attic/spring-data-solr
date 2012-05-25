@@ -175,4 +175,39 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>code-upload</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.googlecode.maven-gcu-plugin</groupId>
+            <artifactId>maven-gcu-plugin</artifactId>
+            <version>1.1</version>
+            <executions>
+              <execution>
+                <id>gcode-upload</id>
+                <goals>
+                  <goal>upload</goal>
+                </goals>
+                <phase>install</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <uploads>
+                <upload>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</file>
+                  <summary>${project.name} sources bundle ${project.version}</summary>
+                  <labels>
+                    <label>Featured</label>
+                    <label>Type-Archive</label>
+                  </labels>
+                </upload>
+              </uploads>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
