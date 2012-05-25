@@ -54,6 +54,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     this.setEntityClass(entityClass);
   }
 
+  @Override
   public T findOne(String id) {
     return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
@@ -62,7 +63,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   @Override
   public Iterable<T> findAll() {
     int itemCount = (int) this.count();
-    if(itemCount == 0) {
+    if (itemCount == 0) {
       return (Page<T>) new PageImpl(Collections.EMPTY_LIST);
     }
     return this.findAll(new PageRequest(0, (int) this.count()));
@@ -81,12 +82,10 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     return response.getResults().getNumFound();
   }
 
-  public final SolrOperations getSolrOperations() {
-    return solrOperations;
-  }
-
   @Override
   public T save(T entity) {
+    Assert.notNull(entity, "Cannot save 'null' entity.");
+
     this.solrOperations.executeAddBean(entity);
     this.solrOperations.executeCommit();
     return entity;
@@ -95,7 +94,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   @SuppressWarnings("unchecked")
   @Override
   public Iterable<T> save(Iterable<? extends T> entities) {
-    Assert.notNull(entities, "Cannot insert null as a List");
+    Assert.notNull(entities, "Cannot insert 'null' as a List.");
+
     if (!(entities instanceof Collection<?>)) {
       throw new ApiUsageException("Entities have to be inside a collection");
     }
@@ -112,6 +112,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @Override
   public void delete(String id) {
+    Assert.notNull(id, "Cannot delete entity with id 'null'.");
+
     this.solrOperations.executeDeleteById(id);
     this.solrOperations.executeCommit();
   }
@@ -119,14 +121,17 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   @SuppressWarnings("unchecked")
   @Override
   public void delete(T entity) {
-   Assert.notNull(entity, "Cannot delete 'null' entity.");
-   delete(Arrays.asList(entity));
+    Assert.notNull(entity, "Cannot delete 'null' entity.");
+
+    delete(Arrays.asList(entity));
   }
 
   @Override
   public void delete(Iterable<? extends T> entities) {
+    Assert.notNull(entities, "Cannot delete 'null' list.");
+
     ArrayList<String> idsToDelete = new ArrayList<String>();
-    for(T entity : entities) {
+    for (T entity : entities) {
       idsToDelete.add(extractIdFromBean(entity));
     }
     this.solrOperations.executeDeleteById(idsToDelete);
@@ -138,18 +143,6 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     this.solrOperations.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
     this.solrOperations.executeCommit();
   }
-  
-  private String extractIdFromBean(T entity) {
-    SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);
-    return extractIdFromSolrInputDocument(solrInputDocument);
-  }
-  
-  private String extractIdFromSolrInputDocument(SolrInputDocument solrInputDocument) {
-    Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field '"+idFieldName+"' in SolrDocument.");
-    Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
-    
-    return solrInputDocument.getField(idFieldName).getValue().toString();
-  }
 
   public final String getIdFieldName() {
     return idFieldName;
@@ -157,6 +150,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   public final void setIdFieldName(String idFieldName) {
     Assert.notNull(idFieldName, "ID Field cannot be null.");
+
     this.idFieldName = idFieldName;
   }
 
@@ -191,6 +185,22 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     Assert.notNull(solrOperations, "SolrOperations must not be null.");
 
     this.solrOperations = solrOperations;
+  }
+
+  public final SolrOperations getSolrOperations() {
+    return solrOperations;
+  }
+
+  private String extractIdFromBean(T entity) {
+    SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);
+    return extractIdFromSolrInputDocument(solrInputDocument);
+  }
+
+  private String extractIdFromSolrInputDocument(SolrInputDocument solrInputDocument) {
+    Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field '" + idFieldName + "' in SolrDocument.");
+    Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
+
+    return solrInputDocument.getField(idFieldName).getValue().toString();
   }
 
 }
