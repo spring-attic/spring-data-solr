@@ -29,6 +29,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -110,11 +111,43 @@ public class SolrTemplateTest {
   }
   
   @Test
+  public void testDeleteById() throws IOException, SolrServerException {
+    Mockito.when(solrServerMock.deleteById(Mockito.anyString())).thenReturn(new UpdateResponse());
+    UpdateResponse updateResponse = solrTemplate.executeDeleteById("1");
+    Assert.assertNotNull(updateResponse);
+    Mockito.verify(solrServerMock, Mockito.times(1)).deleteById(Mockito.eq("1"));
+  }
+  
+  @Test
+  public void testDeleteByIdWithCollection() throws IOException, SolrServerException {
+    Mockito.when(solrServerMock.deleteById(Mockito.anyListOf(String.class))).thenReturn(new UpdateResponse());
+    List<String> idsToDelete = Arrays.asList("1", "2");
+    UpdateResponse updateResponse = solrTemplate.executeDeleteById(idsToDelete);
+    Assert.assertNotNull(updateResponse);
+    
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<String>> captor = (ArgumentCaptor<List<String>>) (Object) ArgumentCaptor.forClass(List.class);
+    
+    Mockito.verify(solrServerMock, Mockito.times(1)).deleteById(captor.capture());
+    
+    Assert.assertEquals(idsToDelete.size(), captor.getValue().size());
+    for(String s : idsToDelete) {
+      Assert.assertTrue(captor.getValue().contains(s));
+    }
+  }
+  
+  @Test
   public void testCommit() throws SolrServerException, IOException {
     Mockito.when(solrServerMock.commit()).thenReturn(new UpdateResponse());
     solrTemplate.executeCommit();
     Mockito.verify(solrServerMock, Mockito.times(1)).commit();
-    
+  }
+  
+  @Test
+  public void testRollback() throws SolrServerException, IOException {
+    Mockito.when(solrServerMock.rollback()).thenReturn(new UpdateResponse());
+    solrTemplate.executeRollback();
+    Mockito.verify(solrServerMock, Mockito.times(1)).rollback();
   }
   
 }

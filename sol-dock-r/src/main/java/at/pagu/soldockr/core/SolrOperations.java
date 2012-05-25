@@ -58,8 +58,20 @@ public interface SolrOperations {
    */
   UpdateResponse executeAddBeans(Collection<?> beans);
 
+  /**
+   * Add a solrj input document to solr
+   * 
+   * @param document
+   * @return
+   */
   UpdateResponse executeAddDocument(SolrInputDocument document);
 
+  /**
+   * Add multiple solrj input documents to solr
+   * 
+   * @param documents
+   * @return
+   */
   UpdateResponse executeAddDocuments(Collection<SolrInputDocument> documents);
 
   /**
@@ -77,6 +89,14 @@ public interface SolrOperations {
    * @return
    */
   UpdateResponse executeDeleteById(String id);
+  
+  /**
+   * Delete objects with given ids
+   * 
+   * @param id
+   * @return
+   */
+  UpdateResponse executeDeleteById(Collection<String> id);
 
   /**
    * Execute query against Solr
@@ -104,6 +124,22 @@ public interface SolrOperations {
    */
   <T> Page<T> executeListQuery(Query query, Class<T> clazz);
 
+  /**
+   * Send commit command
+   */
   void executeCommit();
+
+  /**
+   * send rollback command
+   */
+  void executeRollback();
+  
+  /**
+   * Convert given bean into a solrj InputDocument
+   * 
+   * @param bean
+   * @return
+   */
+  SolrInputDocument convertBeanToSolrInputDocument(Object bean);
 
 }

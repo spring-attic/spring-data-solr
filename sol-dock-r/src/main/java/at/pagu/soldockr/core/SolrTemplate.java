@@ -16,7 +16,9 @@
 package at.pagu.soldockr.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -46,7 +48,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   private SolrServerFactory solrServerFactory;
   private QueryParser queryParser = DEFAULT_QUERY_PARSER;
-  
+
   public SolrTemplate(SolrServer solrServer) {
     this(solrServer, null);
   }
@@ -56,7 +58,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   public SolrTemplate(SolrServerFactory solrServerFactory) {
-    Assert.notNull(solrServerFactory, "SolrServerFactory must not be null.");
+    Assert.notNull(solrServerFactory, "SolrServerFactory must not be 'null'.");
     Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
 
     this.solrServerFactory = solrServerFactory;
@@ -122,12 +124,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
       }
     });
   }
-  
+
   @Override
   public UpdateResponse executeDelete(Query query) {
-    Assert.notNull(query, "Query must not be null.");
-    final String queryString = this.queryParser.getQueryString(query);
+    Assert.notNull(query, "Query must not be 'null'.");
     
+    final String queryString = this.queryParser.getQueryString(query);
+
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -135,9 +138,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
       }
     });
   }
-  
+
   @Override
   public UpdateResponse executeDeleteById(final String id) {
+    Assert.notNull(id, "Cannot delete 'null' id.");
+    
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -147,9 +152,22 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
+  public UpdateResponse executeDeleteById(Collection<String> ids) {
+    Assert.notNull(ids, "Cannot delete 'null' collection.");
+    
+    final List<String> toBeDeleted = new ArrayList<String>(ids);
+    return execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.deleteById(toBeDeleted);
+      }
+    });
+  }
+
+  @Override
   public <T> T executeObjectQuery(Query query, Class<T> clazz) {
-    Assert.notNull(query, "Query must not be null.");
-    Assert.notNull(clazz, "Target class must not be null.");
+    Assert.notNull(query, "Query must not be 'null'.");
+    Assert.notNull(clazz, "Target class must not be 'null'.");
 
     query.setPageRequest(new PageRequest(0, 1));
     QueryResponse response = executeQuery(query);
@@ -164,11 +182,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   public <T> Page<T> executeListQuery(Query query, Class<T> clazz) {
-    Assert.notNull(query, "Query must not be null.");
-    Assert.notNull(clazz, "Target class must not be null.");
+    Assert.notNull(query, "Query must not be 'null'.");
+    Assert.notNull(clazz, "Target class must not be 'null'.");
 
     QueryResponse response = executeQuery(query);
-    //TODO: implement the following for grouping results
+    // TODO: implement the following for grouping results
     // if (query.hasGroupBy() && query.getGroupBy().size() > 1) {
     // return SolrResultHelper.flattenGroupedQueryResult(query, response, clazz, getSolrServer().getBinder());
     // }
@@ -176,10 +194,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   public final QueryResponse executeQuery(Query query) {
-    Assert.notNull(query, "Query must not be null");
+    Assert.notNull(query, "Query must not be 'null'");
 
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-   LOGGER.debug("Executing query '" + solrQuery + "' againes solr.");
+    LOGGER.debug("Executing query '" + solrQuery + "' againes solr.");
 
     return executeSolrQuery(solrQuery);
   }
@@ -194,13 +212,40 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
+  public void executeCommit() {
+    execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.commit();
+      }
+    });
+  }
+
+  @Override
+  public void executeRollback() {
+    execute(new SolrCallback<UpdateResponse>() {
+      @Override
+      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        return solrServer.rollback();
+      }
+    });
+  }
+  
+  @Override
+  public SolrInputDocument convertBeanToSolrInputDocument(Object bean) {
+    Assert.notNull(getSolrServer().getBinder(), "Cannot convert without binder set.");
+    
+    return getSolrServer().getBinder().toSolrInputDocument(bean);
+  }
+
+  @Override
   public final SolrServer getSolrServer() {
     return solrServerFactory.getSolrServer();
   }
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    // TODO Auto-generated method stub
+    //future use
   }
 
   @Override
@@ -209,16 +254,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
       LOGGER.warn("QueryParser not set, using default one.");
       queryParser = DEFAULT_QUERY_PARSER;
     }
-  }
-
-  @Override
-  public void executeCommit() {
-    execute(new SolrCallback<UpdateResponse>() {
-      @Override
-      public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-        return solrServer.commit();
-      }
-    });
   }
 
 }

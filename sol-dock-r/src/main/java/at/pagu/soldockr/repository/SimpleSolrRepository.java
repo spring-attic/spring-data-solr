@@ -17,6 +17,7 @@ package at.pagu.soldockr.repository;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -115,21 +116,20 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     this.solrOperations.executeCommit();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void delete(T entity) {
-    SolrInputDocument solrInputDocument = this.solrOperations.getSolrServer().getBinder().toSolrInputDocument(entity);
-    Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field id");
-    Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be null");
-
-    this.solrOperations.executeDeleteById(solrInputDocument.getField(idFieldName).getValue().toString());
-    this.solrOperations.executeCommit();
+   Assert.notNull(entity, "Cannot delete 'null' entity.");
+   delete(Arrays.asList(entity));
   }
 
   @Override
   public void delete(Iterable<? extends T> entities) {
-    ArrayList list = new ArrayList();
-    org.apache.commons.collections.CollectionUtils.addAll(list, entities.iterator());
-    //this.solrOperations.deleteBeans(list);
+    ArrayList<String> idsToDelete = new ArrayList<String>();
+    for(T entity : entities) {
+      idsToDelete.add(extractIdFromBean(entity));
+    }
+    this.solrOperations.executeDeleteById(idsToDelete);
     this.solrOperations.executeCommit();
   }
 
@@ -137,6 +137,18 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   public void deleteAll() {
     this.solrOperations.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
     this.solrOperations.executeCommit();
+  }
+  
+  private String extractIdFromBean(T entity) {
+    SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);
+    return extractIdFromSolrInputDocument(solrInputDocument);
+  }
+  
+  private String extractIdFromSolrInputDocument(SolrInputDocument solrInputDocument) {
+    Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field '"+idFieldName+"' in SolrDocument.");
+    Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
+    
+    return solrInputDocument.getField(idFieldName).getValue().toString();
   }
 
   public final String getIdFieldName() {
