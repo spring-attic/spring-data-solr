@@ -15,6 +15,7 @@
  */
 package at.pagu.soldockr.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import at.pagu.soldockr.ApiUsageException;
 import at.pagu.soldockr.core.query.FacetOptions;
 import at.pagu.soldockr.core.query.Field;
+import at.pagu.soldockr.core.query.FilterQuery;
 import at.pagu.soldockr.core.query.Query;
 
 /**
@@ -45,6 +47,7 @@ public class QueryParser {
 
   /**
    * Convert given Query into a SolrQuery executable via {@link SolrServer}
+   * 
    * @param query
    * @return
    */
@@ -58,7 +61,7 @@ public class QueryParser {
     appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
     appendGroupByFields(solrQuery, query.getGroupByFields());
     appendFacetingOnFields(solrQuery, query);
-
+    appendFilterQuery(solrQuery, query.getFilterQueries());
     return solrQuery;
   }
 
@@ -68,7 +71,10 @@ public class QueryParser {
    * @param query
    * @return String representation of query without faceting, pagination, projection...
    */
-  public String getQueryString(Query query) {
+  public String getQueryString(FilterQuery query) {
+    if(query.getCriteria() == null) {
+      return null;
+    }
     return query.getCriteria().createQueryString();
   }
 
@@ -121,5 +127,34 @@ public class QueryParser {
     for (Field field : fields) {
       solrQuery.add(GroupParams.GROUP_FIELD, field.getName());
     }
+  }
+
+  private void appendFilterQuery(SolrQuery solrQuery, List<FilterQuery> filterQueries) {
+    if (CollectionUtils.isEmpty(filterQueries)) {
+      return;
+    }
+    ArrayList<String> filterQueryStrings = getFilterQueryStrings(filterQueries);
+
+    if (!filterQueryStrings.isEmpty()) {
+      solrQuery.setFilterQueries(convertFilterQueryStringsToArray(filterQueryStrings));
+    }
+  }
+
+  private String[] convertFilterQueryStringsToArray(ArrayList<String> filterQueryStrings) {
+    String[] strResult = new String[filterQueryStrings.size()];
+    filterQueryStrings.toArray(strResult);
+    return strResult;
+  }
+
+  private ArrayList<String> getFilterQueryStrings(List<FilterQuery> filterQueries) {
+    ArrayList<String> filterQueryStrings = new ArrayList<String>(filterQueries.size());
+
+    for (FilterQuery filterQuery : filterQueries) {
+      String filterQueryString = getQueryString(filterQuery);
+      if (StringUtils.isNotBlank(filterQueryString)) {
+        filterQueryStrings.add(filterQueryString);
+      }
+    }
+    return filterQueryStrings;
   }
 }

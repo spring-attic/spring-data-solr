@@ -15,32 +15,10 @@
  */
 package at.pagu.soldockr.core.query;
 
-import java.util.List;
-
-import org.springframework.data.domain.Pageable;
-
-public interface Query extends FilterQuery {
+public interface FilterQuery {
   
-  int DEFAULT_PAGE_SIZE = 10;
-   
-  <T extends Query> T addProjectionOnField(Field field);
+  <T extends FilterQuery> T addCriteria(Criteria criteria);
   
-  <T extends Query> T setPageRequest(Pageable pageable);
-  
-  <T extends Query> T addGroupByField(Field field);
-  
-  <T extends Query> T setFacetOptions(FacetOptions facetOptions);
-  
-  <T extends Query> T addFilterQuery(Query query);
-  
-  List<FilterQuery> getFilterQueries();
-  
-  Pageable getPageRequest();
-  
-  List<Field> getGroupByFields();
-  
-  List<Field> getProjectionOnFields();
-  
-  FacetOptions getFacetOptions();
+  Criteria getCriteria();
 
 }

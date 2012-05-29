@@ -24,15 +24,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
 public class SimpleQuery implements Query {
-  
+
   public static final Pageable DEFAULT_PAGE = new PageRequest(0, DEFAULT_PAGE_SIZE);
-  
+
   private Criteria criteria;
   private List<Field> projectionOnFields = new ArrayList<Field>(0);
   private List<Field> groupByFields = new ArrayList<Field>(0);
+  private List<FilterQuery> filterQueries  = new ArrayList<FilterQuery>(0);;
   private FacetOptions facetOptions;
   private Pageable pageable = DEFAULT_PAGE;
-  
+
   public SimpleQuery() {}
 
   public SimpleQuery(Criteria criteria) {
@@ -43,14 +44,14 @@ public class SimpleQuery implements Query {
     this.addCriteria(criteria);
     this.pageable = pageable;
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
-  public final <T extends Query> T addCriteria(Criteria criteria) {
+  public final <T extends FilterQuery> T addCriteria(Criteria criteria) {
     Assert.notNull(criteria, "Cannot add null criteria.");
     Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
     Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
-    
+
     if (this.criteria == null) {
       this.criteria = criteria;
     } else {
@@ -59,34 +60,33 @@ public class SimpleQuery implements Query {
     return (T) this;
   }
 
-
   @SuppressWarnings("unchecked")
   @Override
-  public final  <T extends Query> T addProjectionOnField(Field field) {
+  public final <T extends Query> T addProjectionOnField(Field field) {
     Assert.notNull(field, "Field for projection must not be null.");
     Assert.hasText(field.getName(), "Field.name for projection must not be null/empty.");
 
     this.projectionOnFields.add(field);
     return (T) this;
   }
-  
+
   public final <T extends Query> T addProjectionOnField(String fieldname) {
     return this.addProjectionOnField(new SimpleField(fieldname));
   }
-  
+
   @SuppressWarnings("unchecked")
   public final <T extends Query> T addProjectionOnFields(Field... fields) {
     Assert.notEmpty(fields, "Cannot add projection on null/empty field list.");
-    for(Field field: fields) {
+    for (Field field : fields) {
       addProjectionOnField(field);
     }
     return (T) this;
   }
-  
+
   @SuppressWarnings("unchecked")
   public final <T extends Query> T addProjectionOnFields(String... fieldnames) {
     Assert.notEmpty(fieldnames, "Cannot add projection on null/empty field list.");
-    for(String fieldname: fieldnames) {
+    for (String fieldname : fieldnames) {
       addProjectionOnField(fieldname);
     }
     return (T) this;
@@ -94,31 +94,31 @@ public class SimpleQuery implements Query {
 
   @SuppressWarnings("unchecked")
   @Override
-  public final  <T extends Query> T setPageRequest(Pageable pageable) {
+  public final <T extends Query> T setPageRequest(Pageable pageable) {
     Assert.notNull(pageable);
-    
+
     this.pageable = pageable;
     return (T) this;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public final  <T extends Query> T addGroupByField(Field field) {
+  public final <T extends Query> T addGroupByField(Field field) {
     Assert.notNull(field, "Field for grouping must not be null.");
     Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty.");
 
     this.groupByFields.add(field);
     return (T) this;
   }
-  
-  public final  <T extends Query> T addGroupByField(String fieldname) {
-   return addGroupByField(new SimpleField(fieldname));
+
+  public final <T extends Query> T addGroupByField(String fieldname) {
+    return addGroupByField(new SimpleField(fieldname));
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public final <T extends Query> T setFacetOptions(FacetOptions facetOptions) {
-    if(facetOptions != null) {
+    if (facetOptions != null) {
       Assert.isTrue(facetOptions.hasFields(), "Cannot set facet options having no fields.");
     }
     this.facetOptions = facetOptions;
@@ -144,9 +144,21 @@ public class SimpleQuery implements Query {
   public FacetOptions getFacetOptions() {
     return this.facetOptions;
   }
-  
+
   public Criteria getCriteria() {
     return this.criteria;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Query> T addFilterQuery(Query filterQuery) {
+    this.filterQueries.add(filterQuery);
+    return (T) this;
+  }
+
+  @Override
+  public List<FilterQuery> getFilterQueries() {
+    return Collections.unmodifiableList(this.filterQueries);
   }
 
 }

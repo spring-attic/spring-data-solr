@@ -133,6 +133,25 @@ public class QueryParserTest {
     solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertEquals("count", solrQuery.getFacetSortString());
   }
+  
+  @Test
+  public void testWithFilterQuery() {
+    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleQuery(new Criteria("filter_field").is("filter_value")));
+    SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+    
+    String [] filterQueries = solrQuery.getFilterQueries();
+    Assert.assertEquals(1, filterQueries.length);
+    Assert.assertEquals("filter_field:filter_value", filterQueries[0]);
+  }
+  
+  @Test
+  public void testWithEmptyFilterQuery() {
+    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleQuery());
+    SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+    
+    Assert.assertNull(solrQuery.getFilterQueries());
+  }
+  
 
   private void assertFactingPresent(SolrQuery solrQuery, String expected) {
     Assert.assertEquals(expected, solrQuery.get(FacetParams.FACET_FIELD));
@@ -177,5 +196,7 @@ public class QueryParserTest {
     Assert.assertNotNull(solrQuery.get(GroupParams.GROUP_MAIN));
     Assert.assertEquals(expected, solrQuery.get(GroupParams.GROUP_FIELD));
   }
+  
+  
 
 }
