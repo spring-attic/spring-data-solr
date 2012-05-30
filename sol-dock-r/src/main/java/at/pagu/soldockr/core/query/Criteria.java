@@ -17,11 +17,11 @@ package at.pagu.soldockr.core.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -48,10 +48,10 @@ public class Criteria {
 
   private Field field;
   private float boost = Float.NaN;
-  
+
   private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
-  private HashSet<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
+  private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
 
   public Criteria() {}
 
@@ -220,18 +220,18 @@ public class Criteria {
     criteria.add(new CriteriaEntry("$endsWith", s));
     return this;
   }
-  
+
   /**
    * Crates new CriteriaEntry with trailing -
    * 
    * @param s
    * @return
    */
-  public Criteria isNot(String s) { 
+  public Criteria isNot(String s) {
     criteria.add(new CriteriaEntry("$isNot", s));
     return this;
   }
-  
+
   /**
    * Crates new CriteriaEntry with trailing ~
    * 
@@ -241,7 +241,7 @@ public class Criteria {
   public Criteria fuzzy(String s) {
     return fuzzy(s, Float.NaN);
   }
-  
+
   /**
    * Crates new CriteriaEntry with trailing ~ followed by levensteinDistance
    * 
@@ -250,12 +250,12 @@ public class Criteria {
    * @return
    */
   public Criteria fuzzy(String s, float levenshteinDistance) {
-    if(levenshteinDistance != Float.NaN) {
-      if(levenshteinDistance < 0 || levenshteinDistance > 1) {
+    if (levenshteinDistance != Float.NaN) {
+      if (levenshteinDistance < 0 || levenshteinDistance > 1) {
         throw new ApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
       }
     }
-    criteria.add(new CriteriaEntry("$fuzzy#"+levenshteinDistance, s));
+    criteria.add(new CriteriaEntry("$fuzzy#" + levenshteinDistance, s));
     return this;
   }
 
@@ -269,9 +269,9 @@ public class Criteria {
     criteria.add(new CriteriaEntry("$expression", s));
     return this;
   }
-  
+
   public Criteria boost(float boost) {
-    if(boost < 0) {
+    if (boost < 0) {
       throw new ApiUsageException("Boost must not be negative.");
     }
     this.boost = boost;
@@ -279,7 +279,8 @@ public class Criteria {
   }
 
   /**
-   * get the QueryString used for executing query 
+   * get the QueryString used for executing query
+   * 
    * @return
    */
   public String createQueryString() {
@@ -319,8 +320,8 @@ public class Criteria {
     if (!singeEntryCriteria) {
       queryFragment.append(")");
     }
-    if(!Float.isNaN(chainedCriteria.boost)) {
-      queryFragment.append("^"+chainedCriteria.boost);
+    if (!Float.isNaN(chainedCriteria.boost)) {
+      queryFragment.append("^" + chainedCriteria.boost);
     }
     return queryFragment.toString();
   }
@@ -348,13 +349,13 @@ public class Criteria {
     if (StringUtils.equals("$isNot", key)) {
       return "-" + filteredValue;
     }
-    if(StringUtils.startsWith(key, "$fuzzy")) {
+    if (StringUtils.startsWith(key, "$fuzzy")) {
       String sDistance = StringUtils.substringAfter(key, "$fuzzy#");
       float distance = Float.NaN;
-      if(StringUtils.isNotBlank(sDistance)) {
+      if (StringUtils.isNotBlank(sDistance)) {
         distance = Float.parseFloat(sDistance);
       }
-      return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance );
+      return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance);
     }
 
     return filteredValue.toString();
