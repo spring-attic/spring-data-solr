@@ -133,21 +133,21 @@ public class QueryParser {
     if (CollectionUtils.isEmpty(filterQueries)) {
       return;
     }
-    ArrayList<String> filterQueryStrings = getFilterQueryStrings(filterQueries);
+    List<String> filterQueryStrings = getFilterQueryStrings(filterQueries);
 
     if (!filterQueryStrings.isEmpty()) {
       solrQuery.setFilterQueries(convertFilterQueryStringsToArray(filterQueryStrings));
     }
   }
 
-  private String[] convertFilterQueryStringsToArray(ArrayList<String> filterQueryStrings) {
+  private String[] convertFilterQueryStringsToArray(List<String> filterQueryStrings) {
     String[] strResult = new String[filterQueryStrings.size()];
     filterQueryStrings.toArray(strResult);
     return strResult;
   }
 
-  private ArrayList<String> getFilterQueryStrings(List<FilterQuery> filterQueries) {
-    ArrayList<String> filterQueryStrings = new ArrayList<String>(filterQueries.size());
+  private List<String> getFilterQueryStrings(List<FilterQuery> filterQueries) {
+    List<String> filterQueryStrings = new ArrayList<String>(filterQueries.size());
 
     for (FilterQuery filterQuery : filterQueries) {
       String filterQueryString = getQueryString(filterQuery);

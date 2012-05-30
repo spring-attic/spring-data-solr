@@ -17,6 +17,7 @@ package at.pagu.soldockr.core.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,9 +49,9 @@ public class Criteria {
   private Field field;
   private float boost = Float.NaN;
   
-  private ArrayList<Criteria> criteriaChain = new ArrayList<Criteria>(1);
+  private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
-  private LinkedHashSet<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
+  private HashSet<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
 
   public Criteria() {}
 
@@ -360,7 +361,7 @@ public class Criteria {
   }
 
   private Object filterCriteriaValue(Object criteriaValue) {
-    if (criteriaValue == null || !(criteriaValue instanceof String)) {
+    if (!(criteriaValue instanceof String)) {
       return criteriaValue;
     }
     String value = escapeCriteriaValue((String) criteriaValue);

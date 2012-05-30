@@ -113,7 +113,7 @@ public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean 
 
   @Override
   public void destroy() {
-    if (solrServer != null && solrServer instanceof HttpSolrServer) {
+    if (solrServer instanceof HttpSolrServer) {
       ((HttpSolrServer) solrServer).shutdown();
     }
   }

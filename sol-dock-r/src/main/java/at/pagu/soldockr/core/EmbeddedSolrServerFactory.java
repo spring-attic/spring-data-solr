@@ -51,7 +51,7 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
    * @throws IOException
    * @throws SAXException
    */
-  public EmbeddedSolrServer createPathConfiguredSolrServer(String path) throws ParserConfigurationException, IOException, SAXException {
+  public final EmbeddedSolrServer createPathConfiguredSolrServer(String path) throws ParserConfigurationException, IOException, SAXException {
     String solrHome = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
     if (StringUtils.isBlank(solrHome)) {
