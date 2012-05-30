@@ -16,6 +16,7 @@
 package at.pagu.soldockr.repository;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -154,10 +155,23 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     this.idFieldName = idFieldName;
   }
 
-  @SuppressWarnings({"unchecked"})
+ 
+  @SuppressWarnings("unchecked")
   private Class<T> resolveReturnedClassFromGernericType() {
-    ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
-    return (Class<T>) parameterizedType.getActualTypeArguments()[0];
+      ParameterizedType parameterizedType = resolveReturnedClassFromGernericType(getClass());
+      return (Class<T>) parameterizedType.getActualTypeArguments()[0];
+  }
+  
+  private ParameterizedType resolveReturnedClassFromGernericType(Class<?> clazz) {
+      Object genericSuperclass = clazz.getGenericSuperclass();
+      if (genericSuperclass instanceof ParameterizedType) {
+          ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+          Type rawtype = parameterizedType.getRawType();
+          if (SimpleSolrRepository.class.equals(rawtype)) {
+              return parameterizedType;
+          }
+      }
+      return resolveReturnedClassFromGernericType(clazz.getSuperclass());
   }
 
   public Class<T> getEntityClass() {
