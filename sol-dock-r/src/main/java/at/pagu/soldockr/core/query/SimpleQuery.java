@@ -23,14 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
-public class SimpleQuery implements Query {
+public class SimpleQuery extends SimpleFilterQuery implements Query {
 
   public static final Pageable DEFAULT_PAGE = new PageRequest(0, DEFAULT_PAGE_SIZE);
 
-  private Criteria criteria;
   private List<Field> projectionOnFields = new ArrayList<Field>(0);
   private List<Field> groupByFields = new ArrayList<Field>(0);
-  private List<FilterQuery> filterQueries  = new ArrayList<FilterQuery>(0);;
+  private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
   private FacetOptions facetOptions;
   private Pageable pageable = DEFAULT_PAGE;
 
@@ -41,23 +40,8 @@ public class SimpleQuery implements Query {
   }
 
   public SimpleQuery(Criteria criteria, Pageable pageable) {
-    this.addCriteria(criteria);
+    super(criteria);
     this.pageable = pageable;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public final <T extends FilterQuery> T addCriteria(Criteria criteria) {
-    Assert.notNull(criteria, "Cannot add null criteria.");
-    Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
-    Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
-
-    if (this.criteria == null) {
-      this.criteria = criteria;
-    } else {
-      this.criteria.and(criteria);
-    }
-    return (T) this;
   }
 
   @SuppressWarnings("unchecked")
@@ -145,13 +129,9 @@ public class SimpleQuery implements Query {
     return this.facetOptions;
   }
 
-  public Criteria getCriteria() {
-    return this.criteria;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends Query> T addFilterQuery(Query filterQuery) {
+  public <T extends Query> T addFilterQuery(FilterQuery filterQuery) {
     this.filterQueries.add(filterQuery);
     return (T) this;
   }

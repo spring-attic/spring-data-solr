@@ -25,11 +25,11 @@ import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 
 import at.pagu.soldockr.ApiUsageException;
-import at.pagu.soldockr.core.QueryParser;
 import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.FacetOptions;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleField;
+import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
 public class QueryParserTest {
@@ -136,7 +136,7 @@ public class QueryParserTest {
   
   @Test
   public void testWithFilterQuery() {
-    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleQuery(new Criteria("filter_field").is("filter_value")));
+    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleFilterQuery(new Criteria("filter_field").is("filter_value")));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
     
     String [] filterQueries = solrQuery.getFilterQueries();

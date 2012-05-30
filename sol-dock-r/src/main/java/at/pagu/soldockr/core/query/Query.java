@@ -31,7 +31,7 @@ public interface Query extends FilterQuery {
   
   <T extends Query> T setFacetOptions(FacetOptions facetOptions);
   
-  <T extends Query> T addFilterQuery(Query query);
+  <T extends Query> T addFilterQuery(FilterQuery query);
   
   List<FilterQuery> getFilterQueries();
   
