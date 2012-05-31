@@ -39,8 +39,10 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.SolDockRException;
 import at.pagu.soldockr.SolrServerFactory;
+import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
+import at.pagu.soldockr.core.query.result.FacetPage;
 
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -129,7 +131,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   @Override
   public UpdateResponse executeDelete(SolDockRQuery query) {
     Assert.notNull(query, "Query must not be 'null'.");
-    
+
     final String queryString = this.queryParser.getQueryString(query);
 
     return execute(new SolrCallback<UpdateResponse>() {
@@ -143,7 +145,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   @Override
   public UpdateResponse executeDeleteById(final String id) {
     Assert.notNull(id, "Cannot delete 'null' id.");
-    
+
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -155,7 +157,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   @Override
   public UpdateResponse executeDeleteById(Collection<String> ids) {
     Assert.notNull(ids, "Cannot delete 'null' collection.");
-    
+
     final List<String> toBeDeleted = new ArrayList<String>(ids);
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
@@ -193,7 +195,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     // }
     return new PageImpl<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
   }
-  
+
+  @Override
+  public <T> FacetPage<T> executeFacetQuery(FacetQuery query, Class<T> clazz) {
+    Assert.notNull(query, "Query must not be 'null'.");
+    Assert.notNull(clazz, "Target class must not be 'null'.");
+    
+    QueryResponse response = executeQuery(query);
+    
+    FacetPage<T> page = new FacetPage<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
+    page.addAllFacetResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));  
+    
+    return page;
+  }
 
   public final QueryResponse executeQuery(SolDockRQuery query) {
     Assert.notNull(query, "Query must not be 'null'");
@@ -232,11 +246,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
       }
     });
   }
-  
+
   @Override
   public SolrInputDocument convertBeanToSolrInputDocument(Object bean) {
     Assert.notNull(getSolrServer().getBinder(), "Cannot convert without binder set.");
-    
+
     return getSolrServer().getBinder().toSolrInputDocument(bean);
   }
 
@@ -247,7 +261,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
-    //future use
+    // future use
   }
 
   @Override

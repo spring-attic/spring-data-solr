@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package at.pagu.soldockr.core.query;
+package at.pagu.soldockr.core.query.result;
 
-public interface FacetQuery extends Query {
+import at.pagu.soldockr.core.query.Field;
 
-  /**
-   * Faceting options to apply when exectuing query
-   * 
-   * @param facetOptions
-   * @return
-   */
-  <T extends SolDockRQuery> T setFacetOptions(FacetOptions facetOptions);
+public interface FacetEntry {
 
-  /**
-   * 
-   * @return
-   */
-  FacetOptions getFacetOptions();
-  
-  boolean hasFacetOptions();
+  Field getField();
+
+  long getValueCount();
+
+  String getValue();
 
 }

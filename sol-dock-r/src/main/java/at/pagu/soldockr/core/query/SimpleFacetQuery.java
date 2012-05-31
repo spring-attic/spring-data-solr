@@ -49,4 +49,9 @@ public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
     return this.facetOptions;
   }
 
+  @Override
+  public boolean hasFacetOptions() {
+    return this.getFacetOptions() != null;
+  }
+
 }

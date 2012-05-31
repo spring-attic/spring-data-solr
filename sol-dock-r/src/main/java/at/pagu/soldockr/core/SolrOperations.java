@@ -24,8 +24,10 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 
+import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
+import at.pagu.soldockr.core.query.result.FacetPage;
 
 public interface SolrOperations {
 
@@ -124,6 +126,17 @@ public interface SolrOperations {
    * @return
    */
   <T> Page<T> executeListQuery(Query query, Class<T> clazz);
+  
+  
+  /**
+   * Execute a facet query against solr 
+   * facet result will be returned along with query result within the FacetPage
+   * 
+   * @param query
+   * @param clazz
+   * @return
+   */
+  <T> FacetPage<T> executeFacetQuery(FacetQuery query, Class<T> clazz);
 
   /**
    * Send commit command

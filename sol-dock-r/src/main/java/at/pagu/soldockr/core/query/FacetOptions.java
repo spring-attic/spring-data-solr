@@ -37,6 +37,7 @@ public class FacetOptions {
   private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
   private int facetLimit = DEFAULT_FACET_LIMIT;
   private FacetSort facetSort = DEFAULT_FACET_SORT;
+  private Pageable pageable;
   
   public FacetOptions() {
   }
@@ -106,7 +107,12 @@ public class FacetOptions {
   }
   
   public Pageable getPageable() {
-    return new PageRequest(0, facetLimit);
+    return this.pageable != null ? this.pageable : new PageRequest(0, facetLimit);
+  }
+  
+  public FacetOptions setPageable(Pageable pageable) {
+    this.pageable = pageable;
+    return this;
   }
   
   public boolean hasFields() {

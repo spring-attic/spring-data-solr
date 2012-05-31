@@ -16,6 +16,8 @@
 package at.pagu.soldockr.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -25,14 +27,19 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.domain.Page;
 import org.xml.sax.SAXException;
 
 import at.pagu.soldockr.AbstractITestWithEmbeddedSolrServer;
 import at.pagu.soldockr.ExampleSolrBean;
-import at.pagu.soldockr.core.SolrTemplate;
 import at.pagu.soldockr.core.query.Criteria;
+import at.pagu.soldockr.core.query.FacetOptions;
+import at.pagu.soldockr.core.query.FacetQuery;
+import at.pagu.soldockr.core.query.SimpleFacetQuery;
+import at.pagu.soldockr.core.query.SimpleField;
 import at.pagu.soldockr.core.query.SimpleQuery;
-
+import at.pagu.soldockr.core.query.result.FacetEntry;
+import at.pagu.soldockr.core.query.result.FacetPage;
 
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
@@ -73,6 +80,39 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
   @Test
   public void testPing() throws SolrServerException, IOException {
     solrTemplate.executePing();
+  }
+
+  @Test
+  public void testRollback() {
+    ExampleSolrBean toInsert = createDefaultExampleBean();
+    solrTemplate.executeAddBean(toInsert);
+    ExampleSolrBean recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+    Assert.assertNull(recalled);
+
+    solrTemplate.executeRollback();
+    recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+    Assert.assertNull(recalled);
+  }
+
+  @Test
+  public void testFacetQuery() {
+    List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+    for (int i = 0; i < 10; i++) {
+      values.add(createExampleBeanWithId(Integer.toString(i)));
+    }
+    solrTemplate.executeAddBeans(values);
+    solrTemplate.executeCommit();
+
+    FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setFacetOptions(new FacetOptions()
+        .addFacetOnField("name"));
+    FacetPage<ExampleSolrBean> page = solrTemplate.executeFacetQuery(q, ExampleSolrBean.class);
+
+    Page<FacetEntry> facetPage = page.getFacetResult(new SimpleField("name"));
+    for (FacetEntry entry : facetPage) {
+      Assert.assertNotNull(entry.getValue());
+      Assert.assertEquals("name", entry.getField().getName());
+      Assert.assertEquals(1l, entry.getValueCount());
+    }
   }
 
 }
