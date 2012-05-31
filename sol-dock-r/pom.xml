@@ -177,6 +177,20 @@
 
   <profiles>
     <profile>
+      <id>jar-with-dependencies</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.3</version>
+            <configuration>
+              <descriptor>src/main/assembly/jar-with-dependencies.descriptor.xml</descriptor>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>code-upload</id>
       <build>
         <plugins>
