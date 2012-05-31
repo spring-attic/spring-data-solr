@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
 import at.pagu.soldockr.ApiUsageException;
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.query.Criteria;
+import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
 public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
@@ -141,7 +142,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @Override
   public void deleteAll() {
-    this.solrOperations.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+    this.solrOperations.executeDelete(new SimpleFilterQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
     this.solrOperations.executeCommit();
   }
 
@@ -155,23 +156,22 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     this.idFieldName = idFieldName;
   }
 
- 
   @SuppressWarnings("unchecked")
   private Class<T> resolveReturnedClassFromGernericType() {
-      ParameterizedType parameterizedType = resolveReturnedClassFromGernericType(getClass());
-      return (Class<T>) parameterizedType.getActualTypeArguments()[0];
+    ParameterizedType parameterizedType = resolveReturnedClassFromGernericType(getClass());
+    return (Class<T>) parameterizedType.getActualTypeArguments()[0];
   }
-  
+
   private ParameterizedType resolveReturnedClassFromGernericType(Class<?> clazz) {
-      Object genericSuperclass = clazz.getGenericSuperclass();
-      if (genericSuperclass instanceof ParameterizedType) {
-          ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
-          Type rawtype = parameterizedType.getRawType();
-          if (SimpleSolrRepository.class.equals(rawtype)) {
-              return parameterizedType;
-          }
+    Object genericSuperclass = clazz.getGenericSuperclass();
+    if (genericSuperclass instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+      Type rawtype = parameterizedType.getRawType();
+      if (SimpleSolrRepository.class.equals(rawtype)) {
+        return parameterizedType;
       }
-      return resolveReturnedClassFromGernericType(clazz.getSuperclass());
+    }
+    return resolveReturnedClassFromGernericType(clazz.getSuperclass());
   }
 
   public Class<T> getEntityClass() {

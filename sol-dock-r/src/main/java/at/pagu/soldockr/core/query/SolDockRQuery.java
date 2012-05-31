@@ -15,28 +15,25 @@
  */
 package at.pagu.soldockr.core.query;
 
-import java.util.List;
+/**
+ * Common interface for any Query 
+ *
+ */
+public interface SolDockRQuery {
 
-import org.springframework.data.domain.Pageable;
+  /**
+   * Append criteria to query.
+   * Criteria must not be null, nor point to a field with null value.
+   * 
+   * @param criteria
+   * @return
+   */
+  <T extends SolDockRQuery> T addCriteria(Criteria criteria);
 
-public interface Query extends SolDockRQuery {
-  
-  int DEFAULT_PAGE_SIZE = 10;
-   
-  <T extends Query> T addProjectionOnField(Field field);
-  
-  <T extends Query> T setPageRequest(Pageable pageable);
-  
-  <T extends Query> T addGroupByField(Field field);
-   
-  <T extends Query> T addFilterQuery(FilterQuery query);
-  
-  List<FilterQuery> getFilterQueries();
-  
-  Pageable getPageRequest();
-  
-  List<Field> getGroupByFields();
-  
-  List<Field> getProjectionOnFields();
+  /**
+   * 
+   * @return
+   */
+  Criteria getCriteria();
 
 }

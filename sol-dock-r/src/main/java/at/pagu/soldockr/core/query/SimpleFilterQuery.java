@@ -15,36 +15,12 @@
  */
 package at.pagu.soldockr.core.query;
 
-import org.springframework.util.Assert;
-
-public class SimpleFilterQuery implements FilterQuery {
-
-  private Criteria criteria;
+public class SimpleFilterQuery extends AbstractQuery implements FilterQuery {
 
   public SimpleFilterQuery() {}
 
   public SimpleFilterQuery(Criteria criteria) {
-    this.addCriteria(criteria);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public final <T extends FilterQuery> T addCriteria(Criteria criteria) {
-    Assert.notNull(criteria, "Cannot add null criteria.");
-    Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
-    Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
-
-    if (this.criteria == null) {
-      this.criteria = criteria;
-    } else {
-      this.criteria.and(criteria);
-    }
-    return (T) this;
-  }
-
-  @Override
-  public Criteria getCriteria() {
-    return this.criteria;
+    super(criteria);
   }
 
 }

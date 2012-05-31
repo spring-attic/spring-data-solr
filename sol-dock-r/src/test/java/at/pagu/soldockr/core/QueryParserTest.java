@@ -27,7 +27,9 @@ import org.springframework.data.domain.PageRequest;
 import at.pagu.soldockr.ApiUsageException;
 import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.FacetOptions;
+import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Query;
+import at.pagu.soldockr.core.query.SimpleFacetQuery;
 import at.pagu.soldockr.core.query.SimpleField;
 import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
@@ -101,7 +103,7 @@ public class QueryParserTest {
 
   @Test
   public void testConstructSolrQueryWithSingleFacet() {
-    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1"));
+    Query query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1"));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertNotNull(solrQuery);
     assertQueryStringPresent(solrQuery);
@@ -113,7 +115,7 @@ public class QueryParserTest {
 
   @Test
   public void testConstructSolrQueryWithMultipleFacet() {
-    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1", "facet_2"));
+    FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1", "facet_2"));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertNotNull(solrQuery);
     assertQueryStringPresent(solrQuery);
@@ -125,7 +127,7 @@ public class QueryParserTest {
 
   @Test
   public void testConstructSolrQueryWithFacetSort() {
-    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1").setFacetSort(FacetOptions.FacetSort.INDEX));
+    FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1").setFacetSort(FacetOptions.FacetSort.INDEX));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertEquals("index", solrQuery.getFacetSortString());
 

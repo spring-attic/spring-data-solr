@@ -40,6 +40,7 @@ import org.springframework.util.Assert;
 import at.pagu.soldockr.SolDockRException;
 import at.pagu.soldockr.SolrServerFactory;
 import at.pagu.soldockr.core.query.Query;
+import at.pagu.soldockr.core.query.SolDockRQuery;
 
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -126,7 +127,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
-  public UpdateResponse executeDelete(Query query) {
+  public UpdateResponse executeDelete(SolDockRQuery query) {
     Assert.notNull(query, "Query must not be 'null'.");
     
     final String queryString = this.queryParser.getQueryString(query);
@@ -192,8 +193,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     // }
     return new PageImpl<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
   }
+  
 
-  public final QueryResponse executeQuery(Query query) {
+  public final QueryResponse executeQuery(SolDockRQuery query) {
     Assert.notNull(query, "Query must not be 'null'");
 
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);

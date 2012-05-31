@@ -93,19 +93,19 @@ public class SimpleQueryTest {
   @Test
   public void testAddFacetOptions() {
     FacetOptions facetOptions = new FacetOptions("field_1", "field_2");
-    SimpleQuery query = new SimpleQuery().setFacetOptions(facetOptions);
+    FacetQuery query = new SimpleFacetQuery().setFacetOptions(facetOptions);
     Assert.assertEquals(facetOptions, query.getFacetOptions());
   }
   
   @Test
   public void testAddFacetOptionsWithNullValue() {
-    SimpleQuery query = new SimpleQuery().setFacetOptions(null);
+    FacetQuery query = new SimpleFacetQuery().setFacetOptions(null);
     Assert.assertNull(query.getFacetOptions());
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void testAddFacetOptionsWithoutFacetFields() {
-    new SimpleQuery().setFacetOptions(new FacetOptions());
+    new SimpleFacetQuery().setFacetOptions(new FacetOptions());
   }
   
   @Test(expected = IllegalArgumentException.class)

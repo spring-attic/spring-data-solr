@@ -30,9 +30,11 @@ import org.springframework.util.CollectionUtils;
 
 import at.pagu.soldockr.ApiUsageException;
 import at.pagu.soldockr.core.query.FacetOptions;
+import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.FilterQuery;
 import at.pagu.soldockr.core.query.Query;
+import at.pagu.soldockr.core.query.SolDockRQuery;
 
 /**
  * The QueryParser takes a sol-dock-r Query and returns a SolrQuery.
@@ -51,19 +53,32 @@ public class QueryParser {
    * @param query
    * @return
    */
-  public final SolrQuery constructSolrQuery(Query query) {
+  public final SolrQuery constructSolrQuery(SolDockRQuery query) {
     Assert.notNull(query, "Cannot construct solrQuery from null value.");
     Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
 
     SolrQuery solrQuery = new SolrQuery();
     solrQuery.setParam(CommonParams.Q, getQueryString(query));
+    if(query instanceof Query) {
+      processQueryOptions(solrQuery, (Query)query);
+    }
+    if(query instanceof FacetQuery) {
+      processFacetOptions(solrQuery, (FacetQuery)query);
+    }
+    return solrQuery;
+  }
+  
+  private void processQueryOptions(SolrQuery solrQuery, Query query) {
     appendPagination(solrQuery, query.getPageRequest());
     appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
     appendGroupByFields(solrQuery, query.getGroupByFields());
-    appendFacetingOnFields(solrQuery, query);
     appendFilterQuery(solrQuery, query.getFilterQueries());
-    return solrQuery;
   }
+  
+  private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
+    appendFacetingOnFields(solrQuery, (FacetQuery)query);
+  }
+  
 
   /**
    * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
@@ -71,7 +86,7 @@ public class QueryParser {
    * @param query
    * @return String representation of query without faceting, pagination, projection...
    */
-  public String getQueryString(FilterQuery query) {
+  public String getQueryString(SolDockRQuery query) {
     if(query.getCriteria() == null) {
       return null;
     }
@@ -93,7 +108,7 @@ public class QueryParser {
     solrQuery.setParam(CommonParams.FL, StringUtils.join(fields, ","));
   }
 
-  private void appendFacetingOnFields(SolrQuery solrQuery, Query query) {
+  private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
     FacetOptions facetOptions = query.getFacetOptions();
     if (facetOptions == null || !facetOptions.hasFields()) {
       return;

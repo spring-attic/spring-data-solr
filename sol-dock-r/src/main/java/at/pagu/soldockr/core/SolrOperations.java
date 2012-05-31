@@ -25,6 +25,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 
 import at.pagu.soldockr.core.query.Query;
+import at.pagu.soldockr.core.query.SolDockRQuery;
 
 public interface SolrOperations {
 
@@ -80,7 +81,7 @@ public interface SolrOperations {
    * @param query
    * @return
    */
-  UpdateResponse executeDelete(Query query);
+  UpdateResponse executeDelete(SolDockRQuery query);
 
   /**
    * Detele the one object with provided id
@@ -104,7 +105,7 @@ public interface SolrOperations {
    * @param query
    * @return
    */
-  QueryResponse executeQuery(Query query);
+  QueryResponse executeQuery(SolDockRQuery query);
 
   /**
    * Execute the query against solr and return the first returned object

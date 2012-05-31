@@ -15,28 +15,20 @@
  */
 package at.pagu.soldockr.core.query;
 
-import java.util.List;
+public interface FacetQuery extends Query {
 
-import org.springframework.data.domain.Pageable;
+  /**
+   * Faceting options to apply when exectuing query
+   * 
+   * @param facetOptions
+   * @return
+   */
+  <T extends SolDockRQuery> T setFacetOptions(FacetOptions facetOptions);
 
-public interface Query extends SolDockRQuery {
-  
-  int DEFAULT_PAGE_SIZE = 10;
-   
-  <T extends Query> T addProjectionOnField(Field field);
-  
-  <T extends Query> T setPageRequest(Pageable pageable);
-  
-  <T extends Query> T addGroupByField(Field field);
-   
-  <T extends Query> T addFilterQuery(FilterQuery query);
-  
-  List<FilterQuery> getFilterQueries();
-  
-  Pageable getPageRequest();
-  
-  List<Field> getGroupByFields();
-  
-  List<Field> getProjectionOnFields();
+  /**
+   * 
+   * @return
+   */
+  FacetOptions getFacetOptions();
 
 }

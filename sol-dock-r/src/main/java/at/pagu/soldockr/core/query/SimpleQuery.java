@@ -23,14 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
-public class SimpleQuery extends SimpleFilterQuery implements Query {
+public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
   public static final Pageable DEFAULT_PAGE = new PageRequest(0, DEFAULT_PAGE_SIZE);
 
   private List<Field> projectionOnFields = new ArrayList<Field>(0);
   private List<Field> groupByFields = new ArrayList<Field>(0);
   private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
-  private FacetOptions facetOptions;
   private Pageable pageable = DEFAULT_PAGE;
 
   public SimpleQuery() {}
@@ -99,16 +98,6 @@ public class SimpleQuery extends SimpleFilterQuery implements Query {
     return addGroupByField(new SimpleField(fieldname));
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public final <T extends Query> T setFacetOptions(FacetOptions facetOptions) {
-    if (facetOptions != null) {
-      Assert.isTrue(facetOptions.hasFields(), "Cannot set facet options having no fields.");
-    }
-    this.facetOptions = facetOptions;
-    return (T) this;
-  }
-
   @Override
   public Pageable getPageRequest() {
     return this.pageable;
@@ -122,11 +111,6 @@ public class SimpleQuery extends SimpleFilterQuery implements Query {
   @Override
   public List<Field> getProjectionOnFields() {
     return Collections.unmodifiableList(this.projectionOnFields);
-  }
-
-  @Override
-  public FacetOptions getFacetOptions() {
-    return this.facetOptions;
   }
 
   @SuppressWarnings("unchecked")

@@ -15,10 +15,6 @@
  */
 package at.pagu.soldockr.core.query;
 
-public interface FilterQuery {
+public interface FilterQuery extends SolDockRQuery {
   
-  <T extends FilterQuery> T addCriteria(Criteria criteria);
-  
-  Criteria getCriteria();
-
 }
