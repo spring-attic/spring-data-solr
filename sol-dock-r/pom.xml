@@ -7,8 +7,13 @@
   <artifactId>sol-dock-r</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
+  <inceptionYear>2012</inceptionYear>
+  <url>http://code.google.com/p/sol-dock-r/</url>
+  <name>Sol-Dock-R</name>
+  <description>Simplified access to apache solr on top of springframework</description>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.10</junit.version>
     <spring.version>3.1.1.RELEASE</spring.version>
     <slf4j.version>1.6.4</slf4j.version>
@@ -19,6 +24,25 @@
     <logback-classic.version>1.0.3</logback-classic.version>
     <mockito.version>1.9.0</mockito.version>
   </properties>
+  
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  
+  <scm>
+    <connection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</connection>
+    <developerConnection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</developerConnection>
+    <url>https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</url>
+  </scm>
+  
+  <issueManagement>
+    <system>Google Code Issue Tracking</system>
+    <url>http://code.google.com/p/sol-dock-r/issues/list</url>
+  </issueManagement>
 
   <dependencies>
     <!-- SPING DATA -->
@@ -213,7 +237,7 @@
                   <file>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</file>
                   <summary>${project.name} sources bundle ${project.version}</summary>
                   <labels>
-                    <label>Featured</label>
+                    <label>Snapshot</label>
                     <label>Type-Archive</label>
                   </labels>
                 </upload>
