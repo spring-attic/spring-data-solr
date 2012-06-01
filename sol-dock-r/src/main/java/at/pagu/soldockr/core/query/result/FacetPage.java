@@ -15,6 +15,8 @@
  */
 package at.pagu.soldockr.core.query.result;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import at.pagu.soldockr.core.query.Field;
+import at.pagu.soldockr.core.query.SimpleField;
 
 public class FacetPage<T> extends PageImpl<T> {
 
@@ -40,12 +43,12 @@ public class FacetPage<T> extends PageImpl<T> {
     super(content, pageable, total);
   }
 
-  public Page<FacetEntry> getFacetResult(Field field) {
+  public final Page<FacetEntry> getFacetResultPage(Field field) {
     Page<FacetEntry> page = facetResultPages.get(field.getName());
     return page != null ? page : new PageImpl<FacetEntry>(Collections.<FacetEntry> emptyList());
   }
 
-  public void addFacetResultPage(Page<FacetEntry> page, Field field) {
+  public final void addFacetResultPage(Page<FacetEntry> page, Field field) {
     facetResultPages.put(field.getName(), page);
   }
 
@@ -53,6 +56,21 @@ public class FacetPage<T> extends PageImpl<T> {
     for (Map.Entry<Field, Page<FacetEntry>> entry : pageMap.entrySet()) {
       addFacetResultPage(entry.getValue(), entry.getKey());
     }
+  }
+  
+  public Collection<Page<FacetEntry>> getFacetResultPages() {
+    return Collections.unmodifiableCollection(this.facetResultPages.values());
+  }
+  
+  public Collection<Field> getFacetFields() {
+    if(facetResultPages.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<Field> fields = new ArrayList<Field>(facetResultPages.size());
+    for(String fieldName : this.facetResultPages.keySet()) {
+      fields.add(new SimpleField(fieldName));
+    }
+    return fields;
   }
 
 }

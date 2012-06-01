@@ -37,29 +37,34 @@ import at.pagu.soldockr.core.query.result.FacetPage;
 import at.pagu.soldockr.core.query.result.SimpleFacetEntry;
 
 public class ResultHelper {
-  
+
+  private ResultHelper() {}
+
   static Map<Field, Page<FacetEntry>> convertFacetQueryResponseToFacetPageMap(FacetQuery query, QueryResponse response) {
     Assert.notNull(query, "Cannot convert response for 'null', query");
-    if(!query.hasFacetOptions() || response == null) {
+    
+    if (!query.hasFacetOptions() || response == null) {
       return Collections.emptyMap();
     }
     Map<Field, Page<FacetEntry>> facetResult = new HashMap<Field, Page<FacetEntry>>();
 
-    if (response.getFacetFields() != null) {
+    if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
       int initalPageSize = query.getFacetOptions().getPageable().getPageSize();
       for (FacetField facetField : response.getFacetFields()) {
-        if(facetField != null && StringUtils.isNotBlank(facetField.getName())) {
+        if (facetField != null && StringUtils.isNotBlank(facetField.getName())) {
           Field field = new SimpleField(facetField.getName());
-          if(CollectionUtils.isNotEmpty(facetField.getValues())) {
+          if (CollectionUtils.isNotEmpty(facetField.getValues())) {
             List<FacetEntry> pageEntries = new ArrayList<FacetEntry>(initalPageSize);
-            for(Count count : facetField.getValues()) {
-              if(count != null) {
+            for (Count count : facetField.getValues()) {
+              if (count != null) {
                 pageEntries.add(new SimpleFacetEntry(field, count.getName(), count.getCount()));
               }
             }
-            facetResult.put(field, new FacetPage<FacetEntry>(pageEntries, query.getFacetOptions().getPageable(), facetField.getValueCount()));
+            facetResult.put(field,
+                new FacetPage<FacetEntry>(pageEntries, query.getFacetOptions().getPageable(), facetField.getValueCount()));
           } else {
-            facetResult.put(field, new FacetPage<FacetEntry>(Collections.<FacetEntry>emptyList(), query.getFacetOptions().getPageable(), 0));
+            facetResult.put(field,
+                new FacetPage<FacetEntry>(Collections.<FacetEntry> emptyList(), query.getFacetOptions().getPageable(), 0));
           }
         }
       }

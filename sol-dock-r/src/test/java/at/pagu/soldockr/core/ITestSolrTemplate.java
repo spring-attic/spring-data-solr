@@ -104,13 +104,25 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
     solrTemplate.executeCommit();
 
     FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setFacetOptions(new FacetOptions()
-        .addFacetOnField("name"));
+        .addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
+
     FacetPage<ExampleSolrBean> page = solrTemplate.executeFacetQuery(q, ExampleSolrBean.class);
 
-    Page<FacetEntry> facetPage = page.getFacetResult(new SimpleField("name"));
+    for (Page<FacetEntry> facetResultPage : page.getFacetResultPages()) {
+      Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+    }
+
+    Page<FacetEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
     for (FacetEntry entry : facetPage) {
       Assert.assertNotNull(entry.getValue());
       Assert.assertEquals("name", entry.getField().getName());
+      Assert.assertEquals(1l, entry.getValueCount());
+    }
+
+    facetPage = page.getFacetResultPage(new SimpleField("id"));
+    for (FacetEntry entry : facetPage) {
+      Assert.assertNotNull(entry.getValue());
+      Assert.assertEquals("id", entry.getField().getName());
       Assert.assertEquals(1l, entry.getValueCount());
     }
   }

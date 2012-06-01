@@ -35,14 +35,14 @@ import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
 public class QueryParserTest {
-  
+
   private QueryParser queryParser;
-  
+
   @Before
-  public void setUp()  {
+  public void setUp() {
     this.queryParser = new QueryParser();
   }
-  
+
   @Test
   public void testConstructSimpleSolrQuery() {
     Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
@@ -122,12 +122,13 @@ public class QueryParserTest {
     assertPaginationNotPresent(solrQuery);
     assertProjectionNotPresent(solrQuery);
     assertGroupingNotPresent(solrQuery);
-    assertFactingPresent(solrQuery, "facet_1,facet_2");
+    assertFactingPresent(solrQuery, "facet_1", "facet_2");
   }
 
   @Test
   public void testConstructSolrQueryWithFacetSort() {
-    FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1").setFacetSort(FacetOptions.FacetSort.INDEX));
+    FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions("facet_1")
+        .setFacetSort(FacetOptions.FacetSort.INDEX));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertEquals("index", solrQuery.getFacetSortString());
 
@@ -135,28 +136,28 @@ public class QueryParserTest {
     solrQuery = queryParser.constructSolrQuery(query);
     Assert.assertEquals("count", solrQuery.getFacetSortString());
   }
-  
+
   @Test
   public void testWithFilterQuery() {
-    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleFilterQuery(new Criteria("filter_field").is("filter_value")));
+    Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleFilterQuery(new Criteria("filter_field")
+        .is("filter_value")));
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-    
-    String [] filterQueries = solrQuery.getFilterQueries();
+
+    String[] filterQueries = solrQuery.getFilterQueries();
     Assert.assertEquals(1, filterQueries.length);
     Assert.assertEquals("filter_field:filter_value", filterQueries[0]);
   }
-  
+
   @Test
   public void testWithEmptyFilterQuery() {
     Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleQuery());
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-    
+
     Assert.assertNull(solrQuery.getFilterQueries());
   }
-  
 
-  private void assertFactingPresent(SolrQuery solrQuery, String expected) {
-    Assert.assertEquals(expected, solrQuery.get(FacetParams.FACET_FIELD));
+  private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
+    Assert.assertArrayEquals(expected, solrQuery.getFacetFields());
   }
 
   private void assertFactingNotPresent(SolrQuery solrQuery) {
@@ -198,7 +199,5 @@ public class QueryParserTest {
     Assert.assertNotNull(solrQuery.get(GroupParams.GROUP_MAIN));
     Assert.assertEquals(expected, solrQuery.get(GroupParams.GROUP_FIELD));
   }
-  
-  
 
 }

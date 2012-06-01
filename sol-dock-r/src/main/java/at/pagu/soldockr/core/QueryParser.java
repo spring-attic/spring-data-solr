@@ -58,26 +58,25 @@ public class QueryParser {
 
     SolrQuery solrQuery = new SolrQuery();
     solrQuery.setParam(CommonParams.Q, getQueryString(query));
-    if(query instanceof Query) {
-      processQueryOptions(solrQuery, (Query)query);
+    if (query instanceof Query) {
+      processQueryOptions(solrQuery, (Query) query);
     }
-    if(query instanceof FacetQuery) {
-      processFacetOptions(solrQuery, (FacetQuery)query);
+    if (query instanceof FacetQuery) {
+      processFacetOptions(solrQuery, (FacetQuery) query);
     }
     return solrQuery;
   }
-  
+
   private void processQueryOptions(SolrQuery solrQuery, Query query) {
     appendPagination(solrQuery, query.getPageRequest());
     appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
     appendGroupByFields(solrQuery, query.getGroupByFields());
     appendFilterQuery(solrQuery, query.getFilterQueries());
   }
-  
+
   private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
-    appendFacetingOnFields(solrQuery, (FacetQuery)query);
+    appendFacetingOnFields(solrQuery, (FacetQuery) query);
   }
-  
 
   /**
    * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
@@ -86,7 +85,7 @@ public class QueryParser {
    * @return String representation of query without faceting, pagination, projection...
    */
   public String getQueryString(SolDockRQuery query) {
-    if(query.getCriteria() == null) {
+    if (query.getCriteria() == null) {
       return null;
     }
     return query.getCriteria().createQueryString();
@@ -113,7 +112,7 @@ public class QueryParser {
       return;
     }
     solrQuery.setFacet(true);
-    solrQuery.setParam(FacetParams.FACET_FIELD, StringUtils.join(facetOptions.getFacetOnFields(), ","));
+    solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
     solrQuery.setFacetMinCount(facetOptions.getFacetMinCount());
     solrQuery.setFacetLimit(facetOptions.getPageable().getPageSize());
     if (facetOptions.getPageable().getPageNumber() > 0) {
@@ -150,13 +149,21 @@ public class QueryParser {
     List<String> filterQueryStrings = getFilterQueryStrings(filterQueries);
 
     if (!filterQueryStrings.isEmpty()) {
-      solrQuery.setFilterQueries(convertFilterQueryStringsToArray(filterQueryStrings));
+      solrQuery.setFilterQueries(convertStringListToArray(filterQueryStrings));
     }
   }
 
-  private String[] convertFilterQueryStringsToArray(List<String> filterQueryStrings) {
-    String[] strResult = new String[filterQueryStrings.size()];
-    filterQueryStrings.toArray(strResult);
+  private String[] convertFieldListToStringArray(List<Field> fields) {
+    String[] strResult = new String[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
+      strResult[i] = fields.get(i).getName();
+    }
+    return strResult;
+  }
+
+  private String[] convertStringListToArray(List<String> listOfString) {
+    String[] strResult = new String[listOfString.size()];
+    listOfString.toArray(strResult);
     return strResult;
   }
 
