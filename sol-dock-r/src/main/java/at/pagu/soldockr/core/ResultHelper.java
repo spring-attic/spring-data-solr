@@ -36,7 +36,7 @@ import at.pagu.soldockr.core.query.result.FacetEntry;
 import at.pagu.soldockr.core.query.result.FacetPage;
 import at.pagu.soldockr.core.query.result.SimpleFacetEntry;
 
-public class ResultHelper {
+final class ResultHelper {
 
   private ResultHelper() {}
 
