@@ -82,6 +82,10 @@ public class Criteria {
   }
 
   protected Criteria(List<Criteria> criteriaChain, Field field) {
+    Assert.notNull(criteriaChain, "CriteriaChain must not be null");
+    Assert.notNull(field, "Field for criteria must not be null");
+    Assert.hasText(field.getName(), "Field.name for criteria must not be null/empty");
+    
     this.criteriaChain.addAll(criteriaChain);
     this.criteriaChain.add(this);
     this.field = field;
@@ -162,6 +166,25 @@ public class Criteria {
         return OR_OPERATOR;
       }
     };
+  }
+
+  /**
+   * Chain using OR
+   * 
+   * @param field
+   * @return
+   */
+  public Criteria or(Criteria criteria) {
+    Assert.notNull(criteria, "Cannot chain 'null' criteria.");
+    
+    Criteria orConnectedCritiera = new Criteria(this.criteriaChain, criteria.getField()) {
+      @Override
+      public String getConjunctionOperator() {
+        return OR_OPERATOR;
+      }
+    };
+    orConnectedCritiera.criteria.addAll(criteria.criteria);
+    return orConnectedCritiera;
   }
 
   /**

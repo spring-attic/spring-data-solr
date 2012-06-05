@@ -119,7 +119,15 @@ public class CriteriaTest {
     Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
     Assert.assertEquals("field_1:start* OR field_2:(*end start2*)", criteria.createQueryString());
   }
-
+  
+  @Test
+  public void testOrWithCriteria() {
+    Criteria criteria = new Criteria("field_1").startsWith("start");
+    Criteria orCriteria = new Criteria("field_2").endsWith("end").startsWith("start2");
+    criteria = criteria.or(orCriteria);
+    Assert.assertEquals("field_1:start* OR field_2:(*end start2*)", criteria.createQueryString());
+  }
+  
   @Test
   public void testCriteriaWithWhiteSpace() {
     Criteria criteria = new Criteria("field_1").is("white space");
