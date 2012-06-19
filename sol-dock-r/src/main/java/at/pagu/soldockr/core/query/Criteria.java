@@ -32,7 +32,7 @@ import at.pagu.soldockr.ApiUsageException;
  * Criteria is the central class when constructing queries.
  * It follows more or less a fluent API style, which allows to easily chain together multiple criteria.
  */
-public class Criteria {
+public class Criteria implements QueryStringHolder {
 
   public static final String WILDCARD = "*";
   public static final String CRITERIA_VALUE_SEPERATOR = " ";
@@ -85,7 +85,7 @@ public class Criteria {
     Assert.notNull(criteriaChain, "CriteriaChain must not be null");
     Assert.notNull(field, "Field for criteria must not be null");
     Assert.hasText(field.getName(), "Field.name for criteria must not be null/empty");
-    
+
     this.criteriaChain.addAll(criteriaChain);
     this.criteriaChain.add(this);
     this.field = field;
@@ -176,7 +176,7 @@ public class Criteria {
    */
   public Criteria or(Criteria criteria) {
     Assert.notNull(criteria, "Cannot chain 'null' criteria.");
-    
+
     Criteria orConnectedCritiera = new Criteria(this.criteriaChain, criteria.getField()) {
       @Override
       public String getConjunctionOperator() {
@@ -324,29 +324,37 @@ public class Criteria {
     return query.toString();
   }
 
-  private String createQueryFragmentForCriteria(Criteria chainedCriteria) {
+  protected String createQueryFragmentForCriteria(Criteria chainedCriteria) {
     StringBuilder queryFragment = new StringBuilder();
     Iterator<CriteriaEntry> it = chainedCriteria.criteria.iterator();
     boolean singeEntryCriteria = (chainedCriteria.criteria.size() == 1);
-    queryFragment.append(chainedCriteria.field.getName());
-    queryFragment.append(DELIMINATOR);
-    if (!singeEntryCriteria) {
-      queryFragment.append("(");
-    }
-    while (it.hasNext()) {
-      CriteriaEntry entry = it.next();
-      queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue()));
-      if (it.hasNext()) {
-        queryFragment.append(CRITERIA_VALUE_SEPERATOR);
+    if (chainedCriteria.field != null) {
+      queryFragment.append(chainedCriteria.field.getName());
+      queryFragment.append(DELIMINATOR);
+      if (!singeEntryCriteria) {
+        queryFragment.append("(");
       }
-    }
-    if (!singeEntryCriteria) {
-      queryFragment.append(")");
-    }
-    if (!Float.isNaN(chainedCriteria.boost)) {
-      queryFragment.append("^" + chainedCriteria.boost);
+      while (it.hasNext()) {
+        CriteriaEntry entry = it.next();
+        queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue()));
+        if (it.hasNext()) {
+          queryFragment.append(CRITERIA_VALUE_SEPERATOR);
+        }
+      }
+      if (!singeEntryCriteria) {
+        queryFragment.append(")");
+      }
+      if (!Float.isNaN(chainedCriteria.boost)) {
+        queryFragment.append("^" + chainedCriteria.boost);
+      }
+    } else {
+      return chainedCriteria.getQueryString();
     }
     return queryFragment.toString();
+  }
+
+  public String getQueryString() {
+    return field != null ? createQueryString() : "";
   }
 
   private String processCriteriaEntry(String key, Object value) {
@@ -447,7 +455,6 @@ public class Criteria {
     public void setValue(Object value) {
       this.value = value;
     }
-
   }
 
 }
