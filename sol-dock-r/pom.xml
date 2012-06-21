@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>at.pagu</groupId>
   <artifactId>sol-dock-r</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>jar</packaging>
   <inceptionYear>2012</inceptionYear>
   <url>http://code.google.com/p/sol-dock-r/</url>
-  <name>Sol-Dock-R</name>
+  <name>sol-dock-r</name>
   <description>Simplified access to apache solr on top of springframework</description>
 
   <properties>
