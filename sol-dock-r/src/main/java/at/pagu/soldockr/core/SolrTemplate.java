@@ -18,6 +18,7 @@ package at.pagu.soldockr.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -39,6 +40,9 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.SolDockRException;
 import at.pagu.soldockr.SolrServerFactory;
+import at.pagu.soldockr.core.convert.MappingSolrConverter;
+import at.pagu.soldockr.core.convert.SolrConverter;
+import at.pagu.soldockr.core.mapping.SimpleSolrMappingContext;
 import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
@@ -49,8 +53,18 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
   private static final QueryParser DEFAULT_QUERY_PARSER = new QueryParser();
 
+  @SuppressWarnings("serial")
+  private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
+    {
+      add(List.class.getName());
+      add(Collection.class.getName());
+      add(Iterator.class.getName());
+    }
+  };
+
   private SolrServerFactory solrServerFactory;
   private QueryParser queryParser = DEFAULT_QUERY_PARSER;
+  private final SolrConverter solrConverter;
 
   public SolrTemplate(SolrServer solrServer) {
     this(solrServer, null);
@@ -61,10 +75,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   public SolrTemplate(SolrServerFactory solrServerFactory) {
+    this(solrServerFactory, null);
+  }
+  
+  public SolrTemplate(SolrServerFactory solrServerFactory, SolrConverter solrConverter) {
     Assert.notNull(solrServerFactory, "SolrServerFactory must not be 'null'.");
     Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
-
+    
     this.solrServerFactory = solrServerFactory;
+    this.solrConverter = solrConverter == null? getDefaultSolrConverter(solrServerFactory) : solrConverter;
   }
 
   public <T> T execute(SolrCallback<T> action) {
@@ -90,6 +109,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   @Override
   public UpdateResponse executeAddBean(final Object objectToAdd) {
+    assertNoCollection(objectToAdd);
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -200,12 +220,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   public <T> FacetPage<T> executeFacetQuery(FacetQuery query, Class<T> clazz) {
     Assert.notNull(query, "Query must not be 'null'.");
     Assert.notNull(clazz, "Target class must not be 'null'.");
-    
+
     QueryResponse response = executeQuery(query);
-    
+
     FacetPage<T> page = new FacetPage<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
-    page.addAllFacetResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));  
-    
+    page.addAllFacetResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+
     return page;
   }
 
@@ -252,6 +272,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     Assert.notNull(getSolrServer().getBinder(), "Cannot convert without binder set.");
 
     return getSolrServer().getBinder().toSolrInputDocument(bean);
+  }
+
+  protected void assertNoCollection(Object o) {
+    if (null != o) {
+      if (o.getClass().isArray() || ITERABLE_CLASSES.contains(o.getClass().getName())) {
+        throw new IllegalArgumentException("Collections are not supported for this operation");
+      }
+    }
+  }
+  
+  private static final SolrConverter getDefaultSolrConverter(SolrServerFactory factory) {
+    MappingSolrConverter converter = new MappingSolrConverter(factory, new SimpleSolrMappingContext());
+    return converter;
   }
 
   @Override
