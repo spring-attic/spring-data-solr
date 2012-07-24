@@ -30,8 +30,10 @@ class AbstractQuery {
   @SuppressWarnings("unchecked")
   public final <T extends SolDockRQuery> T addCriteria(Criteria criteria) {
     Assert.notNull(criteria, "Cannot add null criteria.");
-    Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
-    Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
+    if(!(criteria instanceof SimpleStringCriteria)) {     
+      Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
+      Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
+    }
 
     if (this.criteria == null) {
       this.criteria = criteria;

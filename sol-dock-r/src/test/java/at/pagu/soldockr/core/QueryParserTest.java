@@ -33,6 +33,7 @@ import at.pagu.soldockr.core.query.SimpleFacetQuery;
 import at.pagu.soldockr.core.query.SimpleField;
 import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
+import at.pagu.soldockr.core.query.SimpleStringCriteria;
 
 public class QueryParserTest {
 
@@ -154,6 +155,22 @@ public class QueryParserTest {
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 
     Assert.assertNull(solrQuery.getFilterQueries());
+  }
+  
+  @Test
+  public void testWithSimpleStringCriteria() {
+    SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+    Query query = new SimpleQuery(criteria);
+    SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+    Assert.assertNotNull(solrQuery);
+    assertQueryStringPresent(solrQuery);
+    assertPaginationNotPresent(solrQuery);
+    assertProjectionNotPresent(solrQuery);
+    assertGroupingNotPresent(solrQuery);
+    assertFactingNotPresent(solrQuery);
+    
+    Assert.assertEquals(criteria.getQueryString(), solrQuery.getQuery());
+    
   }
 
   private void assertFactingPresent(SolrQuery solrQuery, String... expected) {

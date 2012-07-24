@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 
+import at.pagu.soldockr.core.convert.SolrConverter;
 import at.pagu.soldockr.core.query.FacetQuery;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
@@ -155,5 +156,7 @@ public interface SolrOperations {
    * @return
    */
   SolrInputDocument convertBeanToSolrInputDocument(Object bean);
+  
+  SolrConverter getConverter();
 
 }

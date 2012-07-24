@@ -291,6 +291,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   public final SolrServer getSolrServer() {
     return solrServerFactory.getSolrServer();
   }
+  
+  @Override
+  public SolrConverter getConverter() {
+    return this.solrConverter;
+  }
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) {
