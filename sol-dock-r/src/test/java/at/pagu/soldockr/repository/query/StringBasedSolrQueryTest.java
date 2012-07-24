@@ -59,7 +59,7 @@ public class StringBasedSolrQueryTest {
 
   @Test
   public void testQueryCreationMultiyProperty() throws NoSuchMethodException, SecurityException {
-    Method method = SampleRepository.class.getMethod("findByPouplarityAndPrice", Integer.class, Float.class);
+    Method method = SampleRepository.class.getMethod("findByPopularityAndPrice", Integer.class, Float.class);
     SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 
     StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
@@ -87,7 +87,7 @@ public class StringBasedSolrQueryTest {
     ProductBean findByText(String text);
 
     @Query("popularity:?0 AND price:?1")
-    ProductBean findByPouplarityAndPrice(Integer popularity, Float price);
+    ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 
   }
 
