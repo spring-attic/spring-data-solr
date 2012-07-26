@@ -30,7 +30,6 @@ import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.util.Assert;
 
 import at.pagu.soldockr.core.SolrOperations;
-import at.pagu.soldockr.core.mapping.SimpleSolrMappingContext;
 import at.pagu.soldockr.repository.SimpleSolrRepository;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 import at.pagu.soldockr.repository.query.SolrEntityInformationCreator;
@@ -43,11 +42,9 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
   private final SolrEntityInformationCreator entityInformationCreator;
 
   public SolrRepositoryFactory(SolrOperations solrOperations) {
-
     Assert.notNull(solrOperations);
     this.solrOperations = solrOperations;
-    // FIXME: this.entityInformationCreator = new SolrEntityInformationCreatorImpl(solrOperations.getConverter().getMappingContext());
-    this.entityInformationCreator = new SolrEntityInformationCreatorImpl(new SimpleSolrMappingContext());
+    this.entityInformationCreator = new SolrEntityInformationCreatorImpl(solrOperations.getConverter().getMappingContext());
   }
 
   @Override
