@@ -15,10 +15,20 @@
  */
 package at.pagu.soldockr.core.mapping;
 
-import org.springframework.data.mapping.PersistentEntity;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersistentProperty>  {
+import org.springframework.data.annotation.Persistent;
 
-  String getSolrCoreName();
+@Persistent
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+public @interface SolrDocument {
+
+  String solrCoreName() default "";
   
 }

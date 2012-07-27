@@ -23,4 +23,6 @@ public interface SolrEntityInformation<T, ID extends Serializable> extends Entit
 
   String getIdAttribute();
   
+  String getSolrCoreName();
+  
 }

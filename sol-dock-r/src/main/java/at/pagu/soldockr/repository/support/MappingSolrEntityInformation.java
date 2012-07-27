@@ -27,10 +27,16 @@ import at.pagu.soldockr.repository.query.SolrEntityInformation;
 public class MappingSolrEntityInformation<T, ID extends Serializable> extends AbstractEntityInformation<T, ID> implements SolrEntityInformation<T, ID> {
 
   private final SolrPersistentEntity<T> entityMetadata;
+  private final String solrCoreName;
   
   public MappingSolrEntityInformation(SolrPersistentEntity<T> entity) {
+    this(entity, null);
+  }
+  
+  public MappingSolrEntityInformation(SolrPersistentEntity<T> entity, String solrCoreName) {
     super(entity.getType());
     this.entityMetadata = entity;
+    this.solrCoreName = solrCoreName; 
   }
 
   @SuppressWarnings("unchecked")
@@ -54,4 +60,9 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
   public String getIdAttribute() {
     return entityMetadata.getIdProperty().getName();
   }
+  
+  public String getSolrCoreName() {
+    return solrCoreName != null ? solrCoreName : entityMetadata.getSolrCoreName();
+  }
+  
 }

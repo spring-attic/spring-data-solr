@@ -15,6 +15,8 @@
  */
 package at.pagu.soldockr.core.mapping;
 
+import java.util.Locale;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -22,18 +24,18 @@ import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.util.TypeInformation;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.StringUtils;
 
 public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements SolrPersistentEntity<T>, ApplicationContextAware {
-  
+
   private final StandardEvaluationContext context;
-  private SpelExpressionParser parser;
+  private String solrCoreName;
 
   public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
     super(typeInformation);
-    this.parser = new SpelExpressionParser();
     this.context = new StandardEvaluationContext();
+    this.solrCoreName = derivateSolrCoreNameFromClass(typeInformation.getType());
   }
 
   @Override
@@ -41,6 +43,22 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
     context.addPropertyAccessor(new BeanFactoryAccessor());
     context.setBeanResolver(new BeanFactoryResolver(applicationContext));
     context.setRootObject(applicationContext);
+  }
+
+  private String derivateSolrCoreNameFromClass(Class<?> clazz) {
+    String derivativeSolrCoreName = clazz.getSimpleName().toLowerCase(Locale.ENGLISH);
+    if (clazz.isAnnotationPresent(SolrDocument.class)) {
+      SolrDocument solrDocument = clazz.getAnnotation(SolrDocument.class);
+      if (StringUtils.hasText(solrDocument.solrCoreName())) {
+        derivativeSolrCoreName = solrDocument.solrCoreName();
+      }
+    }
+    return derivativeSolrCoreName;
+  }
+
+  @Override
+  public String getSolrCoreName() {
+    return this.solrCoreName;
   }
 
 }
