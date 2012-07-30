@@ -46,7 +46,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
   public String getFieldName() {
     org.apache.solr.client.solrj.beans.Field annotation = getField().getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 
-    if (StringUtils.hasText(annotation.value()) && "#default".equals(annotation.value())) {
+    if (StringUtils.hasText(annotation.value()) && !("#default".equals(annotation.value()))) {
       return annotation.value();
     }
     return field.getName();
