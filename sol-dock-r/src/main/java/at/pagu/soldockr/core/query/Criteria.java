@@ -250,8 +250,8 @@ public class Criteria implements QueryStringHolder {
    * @param s
    * @return
    */
-  public Criteria isNot(String s) {
-    criteria.add(new CriteriaEntry("$isNot", s));
+  public Criteria isNot(Object o) {
+    criteria.add(new CriteriaEntry("$isNot", o));
     return this;
   }
 

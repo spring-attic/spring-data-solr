@@ -17,8 +17,7 @@ package at.pagu.soldockr.repository.query;
 
 import java.lang.reflect.Method;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,13 +60,44 @@ public class SolrQueryCreatorTest {
     Query query = creator.createQuery();
 
     Criteria criteria = query.getCriteria();
-    Assert.assertEquals("popularity", criteria.getField().getName());
     Assert.assertEquals("popularity:100", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateFindByAndQuery() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityAndPrice", Integer.class, Float.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {100, 200f}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("popularity:100 AND price:200.0", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateFindByOrQuery() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityOrPrice", Integer.class, Float.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {100, 200f}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("popularity:100 OR price:200.0", criteria.getQueryString());
   }
 
   private interface SampleRepository {
 
     ProductBean findByPopularity(Integer popularity);
+
+    ProductBean findByPopularityAndPrice(Integer popularity, Float price);
+
+    ProductBean findByPopularityOrPrice(Integer popularity, Float price);
 
   }
 }
