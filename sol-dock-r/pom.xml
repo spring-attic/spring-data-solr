@@ -248,4 +248,12 @@
       </build>
     </profile>
   </profiles>
+  
+  <developers>
+    <developer>
+      <id>j73x73r</id>
+      <name>Christoph Strobl</name>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
 </project>
