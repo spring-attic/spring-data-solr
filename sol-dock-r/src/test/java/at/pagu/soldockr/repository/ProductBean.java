@@ -10,24 +10,27 @@ public class ProductBean {
   @Id
   @Field("id")
   private String id;
-  
+
+  @Field
+  private String title;
+
   @Field("textGeneral")
   private String text;
-  
+
   @Field
   private List<String> categories;
 
   @Field
   private Float weight;
-  
+
   @Field
   private Float price;
-  
+
   @Field
   private Integer popularity;
-  
-  @Field
-  private boolean inStock;
+
+  @Field("inStock")
+  private boolean available;
 
   public String getId() {
     return id;
@@ -35,6 +38,14 @@ public class ProductBean {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
   }
 
   public String getText() {
@@ -77,12 +88,12 @@ public class ProductBean {
     this.popularity = popularity;
   }
 
-  public boolean isInStock() {
-    return inStock;
+  public boolean isAvailable() {
+    return available;
   }
 
-  public void setInStock(boolean inStock) {
-    this.inStock = inStock;
+  public void setAvailable(boolean available) {
+    this.available = available;
   }
 
 }

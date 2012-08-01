@@ -90,7 +90,79 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("popularity:100 OR price:200.0", criteria.getQueryString());
   }
+  
+  @Test
+  public void testCreateQueryWithTrueClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByAvailableTrue");
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("inStock:true", criteria.getQueryString());
+  }
+  
+  @Test
+  public void testCreateQueryWithFalseClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByAvailableFalse");
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("inStock:false", criteria.getQueryString());
+  }
+  
+  @Test
+  public void testCreateQueryWithStartsWithClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByTitleStartingWith", String.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {"j73x73r"}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("title:j73x73r*", criteria.getQueryString());
+  }
+  
+  @Test
+  public void testCreateQueryWithEndingWithClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByTitleEndingWith", String.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {"christoph"}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("title:*christoph", criteria.getQueryString());
+  }
+  
+  @Test
+  public void testCreateQueryWithContainingClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByTitleContaining", String.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {"solr"}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("title:*solr*", criteria.getQueryString());
+  }
+
+  
+  
   private interface SampleRepository {
 
     ProductBean findByPopularity(Integer popularity);
@@ -98,6 +170,16 @@ public class SolrQueryCreatorTest {
     ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 
     ProductBean findByPopularityOrPrice(Integer popularity, Float price);
+    
+    ProductBean findByAvailableTrue();
+    
+    ProductBean findByAvailableFalse();
+    
+    ProductBean findByTitleStartingWith(String title);
+    
+    ProductBean findByTitleEndingWith(String title);
+    
+    ProductBean findByTitleContaining(String title);
 
   }
 }

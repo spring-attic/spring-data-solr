@@ -25,14 +25,15 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.data.convert.EntityInstantiator;
+import org.springframework.data.convert.EntityInstantiators;
 import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.AssociationHandler;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.BeanWrapper;
 import org.springframework.data.mapping.model.MappingException;
-import org.springframework.data.mapping.model.ParameterValueProvider;
-import org.springframework.data.mapping.model.SpELAwareParameterValueProvider;
+import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -50,6 +51,8 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
   protected ApplicationContext applicationContext;
   protected SolrServerFactory solrServerFactory;
   protected SolrTypeMapper typeMapper;
+  
+  private EntityInstantiators instantiators = new EntityInstantiators();
 
   public MappingSolrConverter(SolrServerFactory solrServerFactory,
       MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
@@ -84,6 +87,7 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
     TypeInformation<? extends S> typeToUse = typeMapper.readType(object, type);
     Class<? extends S> rawType = typeToUse.getType();
     
+    @SuppressWarnings("unchecked")
     SolrPersistentEntity<S> persistentEntity = (SolrPersistentEntity<S>) mappingContext
         .getPersistentEntity(typeToUse);
     
@@ -101,9 +105,15 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
     }
 
     
-    ParameterValueProvider provider = new SpELAwareParameterValueProvider(spelExpressionParser, spelCtx);
+    PersistentEntityParameterValueProvider<SolrPersistentProperty> provider = new PersistentEntityParameterValueProvider<SolrPersistentProperty>(
+        entity, null, null
+        );
+    
+    EntityInstantiator instantiator = instantiators.getInstantiatorFor(entity);
+    S instance = instantiator.createInstance(entity, provider);
 
-    final BeanWrapper<SolrPersistentEntity<S>, S> wrapper = BeanWrapper.create(entity, provider, getConversionService());
+    
+    final BeanWrapper<SolrPersistentEntity<S>, S> wrapper = BeanWrapper.create(instance, getConversionService());
 
     entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
       public void doWithPersistentProperty(SolrPersistentProperty prop) {

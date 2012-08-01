@@ -49,8 +49,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
   @Override
   protected Query create(Part part, Iterator<Object> iterator) {
     PersistentPropertyPath<SolrPersistentProperty> path = context.getPersistentPropertyPath(part.getProperty());
-    return new SimpleQuery(from(part.getType(), new Criteria(path.toDotPath(SolrPersistentProperty.PropertyToFieldNameConverter.INSTANCE)),
-        iterator));
+    return new SimpleQuery(from(part.getType(), new Criteria(path.toDotPath(SolrPersistentProperty.PropertyToFieldNameConverter.INSTANCE)), iterator));
   }
 
   @Override
@@ -59,8 +58,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
       return create(part, iterator);
     }
     PersistentPropertyPath<SolrPersistentProperty> path = context.getPersistentPropertyPath(part.getProperty());
-    return base.addCriteria(from(part.getType(),
-        new Criteria(path.toDotPath(SolrPersistentProperty.PropertyToFieldNameConverter.INSTANCE)), iterator));
+    return base.addCriteria(from(part.getType(), new Criteria(path.toDotPath(SolrPersistentProperty.PropertyToFieldNameConverter.INSTANCE)), iterator));
   }
 
   @Override
@@ -89,8 +87,14 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
         return criteria.isNot(parameters.next());
       case REGEX:
         return criteria.expression(parameters.next().toString());
+      case STARTING_WITH:
+        return criteria.startsWith(parameters.next().toString());
+      case ENDING_WITH:
+        return criteria.endsWith(parameters.next().toString());
       case LIKE:
         return criteria.startsWith(parameters.next().toString());
+      case CONTAINING:
+        return criteria.contains(parameters.next().toString());
       case NEAR:
         return criteria.fuzzy(parameters.next().toString());
     }

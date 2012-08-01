@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
@@ -85,7 +86,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   }
 
   @Override
-  public T save(T entity) {
+  public <S extends T> S save(S entity) {
     Assert.notNull(entity, "Cannot save 'null' entity.");
 
     this.solrOperations.executeAddBean(entity);
@@ -95,7 +96,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Iterable<T> save(Iterable<? extends T> entities) {
+  public <S extends T> Iterable<S> save(Iterable<S> entities) {
     Assert.notNull(entities, "Cannot insert 'null' as a List.");
 
     if (!(entities instanceof Collection<?>)) {
@@ -104,7 +105,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
 
     this.solrOperations.executeAddBeans((Collection<? extends T>) entities);
     this.solrOperations.executeCommit();
-    return (Iterable<T>) entities;
+    return (Iterable<S>) entities;
   }
 
   @Override
@@ -215,6 +216,12 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
 
     return solrInputDocument.getField(idFieldName).getValue().toString();
+  }
+
+  @Override
+  public Iterable<T> findAll(Iterable<String> ids) {
+    // FIXME: implement findAll(Iterable<String> ids)
+    throw new NotImplementedException();
   }
 
 }

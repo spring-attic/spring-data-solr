@@ -15,12 +15,12 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>4.10</junit.version>
-    <spring.version>3.1.1.RELEASE</spring.version>
+    <spring.version>3.1.2.RELEASE</spring.version>
     <slf4j.version>1.6.4</slf4j.version>
     <commons-lang.version>2.6</commons-lang.version>
     <solr.version>3.6.0</solr.version>
     <apache.httpcomponents.version>4.2</apache.httpcomponents.version>
-    <spring.data-commons.version>1.2.0.RELEASE</spring.data-commons.version>
+    <spring.data-commons.version>1.3.2.RELEASE</spring.data-commons.version>
     <logback-classic.version>1.0.3</logback-classic.version>
     <mockito.version>1.9.0</mockito.version>
   </properties>
@@ -45,7 +45,20 @@
   </issueManagement>
 
   <dependencies>
-    <!-- SPING DATA -->
+    <!-- SPRING -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+       <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  
+    <!-- SPRING DATA -->
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-commons-core</artifactId>
