@@ -90,7 +90,7 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("popularity:100 OR price:200.0", criteria.getQueryString());
   }
-  
+
   @Test
   public void testCreateQueryWithTrueClause() throws NoSuchMethodException, SecurityException {
     Method method = SampleRepository.class.getMethod("findByAvailableTrue");
@@ -104,7 +104,7 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("inStock:true", criteria.getQueryString());
   }
-  
+
   @Test
   public void testCreateQueryWithFalseClause() throws NoSuchMethodException, SecurityException {
     Method method = SampleRepository.class.getMethod("findByAvailableFalse");
@@ -118,7 +118,7 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("inStock:false", criteria.getQueryString());
   }
-  
+
   @Test
   public void testCreateQueryWithStartsWithClause() throws NoSuchMethodException, SecurityException {
     Method method = SampleRepository.class.getMethod("findByTitleStartingWith", String.class);
@@ -132,7 +132,7 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("title:j73x73r*", criteria.getQueryString());
   }
-  
+
   @Test
   public void testCreateQueryWithEndingWithClause() throws NoSuchMethodException, SecurityException {
     Method method = SampleRepository.class.getMethod("findByTitleEndingWith", String.class);
@@ -146,7 +146,7 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("title:*christoph", criteria.getQueryString());
   }
-  
+
   @Test
   public void testCreateQueryWithContainingClause() throws NoSuchMethodException, SecurityException {
     Method method = SampleRepository.class.getMethod("findByTitleContaining", String.class);
@@ -161,8 +161,76 @@ public class SolrQueryCreatorTest {
     Assert.assertEquals("title:*solr*", criteria.getQueryString());
   }
 
-  
-  
+  @Test
+  public void testCreateQueryWithRegexClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByTitleRegex", String.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {"(\\+ \\*)"}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("title:(\\+ \\*)", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateQueryWithBetweenClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityBetween", Integer.class, Integer.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {100, 200}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("popularity:[100 TO 200]", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateQueryWithLessThanClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPriceLessThan", Float.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {100f}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("price:[* TO 100.0]", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateQueryWithGreaterThanClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPriceGreaterThan", Float.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {10f}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("price:[10.0 TO *]", criteria.getQueryString());
+  }
+
+  @Test
+  public void testCreateQueryWithInClause() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityIn", Integer[].class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {new Object[] {1, 2, 3}}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("popularity:(1 2 3)", criteria.getQueryString());
+  }
+
   private interface SampleRepository {
 
     ProductBean findByPopularity(Integer popularity);
@@ -170,16 +238,27 @@ public class SolrQueryCreatorTest {
     ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 
     ProductBean findByPopularityOrPrice(Integer popularity, Float price);
-    
+
     ProductBean findByAvailableTrue();
-    
+
     ProductBean findByAvailableFalse();
-    
-    ProductBean findByTitleStartingWith(String title);
-    
-    ProductBean findByTitleEndingWith(String title);
-    
-    ProductBean findByTitleContaining(String title);
+
+    ProductBean findByTitleStartingWith(String prefix);
+
+    ProductBean findByTitleEndingWith(String postfix);
+
+    ProductBean findByTitleContaining(String fragment);
+
+    ProductBean findByTitleRegex(String expression);
+
+    ProductBean findByPopularityBetween(Integer lower, Integer upper);
+
+    ProductBean findByPriceLessThan(Float price);
+
+    ProductBean findByPriceGreaterThan(Float price);
+
+    ProductBean findByPopularityIn(Integer... values);
 
   }
+  
 }

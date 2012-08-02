@@ -15,6 +15,7 @@
  */
 package at.pagu.soldockr.repository.query;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import org.springframework.data.domain.Sort;
@@ -87,18 +88,36 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
         return criteria.isNot(parameters.next());
       case REGEX:
         return criteria.expression(parameters.next().toString());
+      case LIKE:
       case STARTING_WITH:
         return criteria.startsWith(parameters.next().toString());
       case ENDING_WITH:
         return criteria.endsWith(parameters.next().toString());
-      case LIKE:
-        return criteria.startsWith(parameters.next().toString());
       case CONTAINING:
         return criteria.contains(parameters.next().toString());
+      case GREATER_THAN:
+      case GREATER_THAN_EQUAL:
+        return criteria.greaterThanEqual(parameters.next());  
+      case LESS_THAN:
+      case LESS_THAN_EQUAL:
+        return criteria.lessThanEqual(parameters.next());  
+      case BETWEEN:
+        return criteria.between(parameters.next(), parameters.next());
+      case IN:
+        return criteria.in(asArray(parameters.next()));
       case NEAR:
         return criteria.fuzzy(parameters.next().toString());
     }
     throw new ApiUsageException("Illegal criteria found '" + type + "'.");
+  }
+  
+  private Object [] asArray(Object o) {
+    if (o instanceof Collection) {
+      return ((Collection<?>) o).toArray();
+    } else if (o.getClass().isArray()) {
+      return (Object[]) o;
+    }
+    return new Object[] { o };
   }
 
 }

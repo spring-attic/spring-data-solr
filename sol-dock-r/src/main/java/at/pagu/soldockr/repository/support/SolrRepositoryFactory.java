@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.repository.SimpleSolrRepository;
+import at.pagu.soldockr.repository.query.PartTreeSolrQuery;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 import at.pagu.soldockr.repository.query.SolrEntityInformationCreator;
 import at.pagu.soldockr.repository.query.SolrQueryMethod;
@@ -71,35 +72,30 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
   private static boolean isQueryDslRepository(Class<?> repositoryInterface) {
     return QUERY_DSL_PRESENT && QueryDslPredicateExecutor.class.isAssignableFrom(repositoryInterface);
   }
-  
+
   @Override
   protected QueryLookupStrategy getQueryLookupStrategy(Key key) {
     return new SolrQueryLookupStrategy();
   }
-  
+
   private class SolrQueryLookupStrategy implements QueryLookupStrategy {
 
     @Override
     public RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, NamedQueries namedQueries) {
-      
+
       SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, entityInformationCreator);
       String namedQueryName = queryMethod.getNamedQueryName();
-      
+
       if (namedQueries.hasQuery(namedQueryName)) {
         String namedQuery = namedQueries.getQuery(namedQueryName);
         return new StringBasedSolrQuery(namedQuery, queryMethod, solrOperations);
       } else if (queryMethod.hasAnnotatedQuery()) {
         return new StringBasedSolrQuery(queryMethod, solrOperations);
       } else {
-      //FIXME: implement PartTreeSolrQuery
-//        return new PartTreeSolrQuery(queryMethod, solrOperations);
+        return new PartTreeSolrQuery(queryMethod, solrOperations);
       }
-      
-      
-     
-      return null; //XXX: do not retrun null, implement repository query!
     }
-    
+
   }
 
 }
