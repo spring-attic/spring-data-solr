@@ -17,6 +17,7 @@ package at.pagu.soldockr.core.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,11 +41,11 @@ public class Criteria implements QueryStringHolder {
   private static final String OR_OPERATOR = " OR ";
   private static final String DELIMINATOR = ":";
   private static final String AND_OPERATOR = " AND ";
+  private static final String RANGE_OPERATOR = " TO ";
   private static final String DOUBLEQUOTE = "\"";
-  private static final String[] RESERVED_CHARS = {DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "~", "*", "?",
-      ":", "\\"};
-  private static final String[] RESERVED_CHARS_REPLACEMENT = {"\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!", "\\(", "\\)",
-      "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\"};
+  private static final String[] RESERVED_CHARS = {DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "~", "*", "?", ":", "\\"};
+  private static final String[] RESERVED_CHARS_REPLACEMENT = {"\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:",
+      "\\\\"};
 
   private Field field;
   private float boost = Float.NaN;
@@ -302,6 +303,77 @@ public class Criteria implements QueryStringHolder {
   }
 
   /**
+   * Crates new CriteriaEntry for RANGE expressions [lowerBound TO upperBound]
+   * 
+   * @param lowerBound
+   * @param upperBound
+   * @return
+   */
+  public Criteria between(Object lowerBound, Object upperBound) {
+    if (lowerBound == null && upperBound == null) {
+      throw new ApiUsageException("Range [* TO *] is not allowed");
+    }
+
+    criteria.add(new CriteriaEntry("$between", new Object[] {lowerBound, upperBound}));
+    return this;
+  }
+
+  /**
+   * Crates new CriteriaEntry for RANGE [* TO upperBound]
+   * 
+   * @param upperBound
+   * @return
+   */
+  public Criteria lessThanEqual(Object upperBound) {
+    between(null, upperBound);
+    return this;
+  }
+
+  /**
+   * Crates new CriteriaEntry for RANGE [lowerBound TO *]
+   * 
+   * @param lowerBound
+   * @return
+   */
+  public Criteria greaterThanEqual(Object lowerBound) {
+    between(lowerBound, null);
+    return this;
+  }
+
+  /**
+   * Crates new CriteriaEntry for multiple values (arg0 arg1 arg2 ...)
+   * 
+   * @param lowerBound
+   * @return
+   */
+  public Criteria in(Object... values) {
+    if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
+      throw new ApiUsageException("At least one element " + (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "") + " has to be present.");
+    }
+    return in(Arrays.asList(values));
+  }
+
+  /**
+   * Creates a criterion using the $in operator
+   * 
+   * @param c the collection containing the values to match against
+   * @return
+   */
+  public Criteria in(Collection<?> values) {
+    Assert.notNull(values, "Collection of 'in' values must not be null");
+    if (!values.isEmpty()) {
+      for (Object value : values) {
+        if (value instanceof Collection) {
+          in((Collection<?>) value);
+        } else {
+          is(value);
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
    * get the QueryString used for executing query
    * 
    * @return
@@ -367,6 +439,16 @@ public class Criteria implements QueryStringHolder {
       return value.toString();
     }
 
+    if (StringUtils.equals("$between", key)) {
+      Object[] args = (Object[]) value;
+      String rangeFragment = "[";
+      rangeFragment += args[0] != null ? filterCriteriaValue(args[0]) : WILDCARD;
+      rangeFragment += RANGE_OPERATOR;
+      rangeFragment += args[1] != null ? filterCriteriaValue(args[1]) : WILDCARD;
+      rangeFragment += "]";
+      return rangeFragment;
+    }
+
     Object filteredValue = filterCriteriaValue(value);
     if (StringUtils.equals("$contains", key)) {
       return WILDCARD + filteredValue + WILDCARD;
@@ -380,6 +462,7 @@ public class Criteria implements QueryStringHolder {
     if (StringUtils.equals("$isNot", key)) {
       return "-" + filteredValue;
     }
+
     if (StringUtils.startsWith(key, "$fuzzy")) {
       String sDistance = StringUtils.substringAfter(key, "$fuzzy#");
       float distance = Float.NaN;
@@ -413,8 +496,8 @@ public class Criteria implements QueryStringHolder {
 
   private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
     if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
-      throw new ApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\"" + searchString + "\""
-          + (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
+      throw new ApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\"" + searchString + "\"" + (trailingWildcard ? "*" : "")
+          + "'. Use epxression or mulitple clauses instead.");
     }
   }
 

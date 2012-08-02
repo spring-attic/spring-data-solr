@@ -15,14 +15,16 @@
  */
 package at.pagu.soldockr.core.query;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import at.pagu.soldockr.ApiUsageException;
-import at.pagu.soldockr.core.query.Criteria;
-import at.pagu.soldockr.core.query.Field;
-import at.pagu.soldockr.core.query.SimpleField;
 
 public class CriteriaTest {
 
@@ -119,7 +121,7 @@ public class CriteriaTest {
     Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
     Assert.assertEquals("field_1:start* OR field_2:(*end start2*)", criteria.createQueryString());
   }
-  
+
   @Test
   public void testOrWithCriteria() {
     Criteria criteria = new Criteria("field_1").startsWith("start");
@@ -127,7 +129,7 @@ public class CriteriaTest {
     criteria = criteria.or(orCriteria);
     Assert.assertEquals("field_1:start* OR field_2:(*end start2*)", criteria.createQueryString());
   }
-  
+
   @Test
   public void testCriteriaWithWhiteSpace() {
     Criteria criteria = new Criteria("field_1").is("white space");
@@ -139,50 +141,121 @@ public class CriteriaTest {
     Criteria criteria = new Criteria("field_1").is("with \"quote");
     Assert.assertEquals("field_1:\"with \\\"quote\"", criteria.createQueryString());
   }
-  
+
   @Test
   public void testIsNot() {
     Criteria criteria = new Criteria("field_1").isNot("value_1");
     Assert.assertEquals("field_1:-value_1", criteria.createQueryString());
   }
-  
+
   @Test
   public void testFuzzy() {
     Criteria criteria = new Criteria("field_1").fuzzy("value_1");
     Assert.assertEquals("field_1:value_1~", criteria.createQueryString());
   }
-  
+
   @Test
   public void testFuzzyWithDistance() {
     Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
     Assert.assertEquals("field_1:value_1~0.5", criteria.createQueryString());
   }
-  
-  @Test(expected=ApiUsageException.class)
+
+  @Test(expected = ApiUsageException.class)
   public void testFuzzyWithNegativeDistance() {
     new Criteria("field_1").fuzzy("value_1", -0.5f);
   }
-  
-  @Test(expected=ApiUsageException.class)
+
+  @Test(expected = ApiUsageException.class)
   public void testFuzzyWithTooHighDistance() {
     new Criteria("field_1").fuzzy("value_1", 1.5f);
   }
-  
+
   @Test
   public void testBoost() {
     Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
     Assert.assertEquals("field_1:value_1^2.0", criteria.createQueryString());
   }
-  
+
   @Test
   public void testBoostMultipleValues() {
     Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f);
     Assert.assertEquals("field_1:(value_1 value_2)^2.0", criteria.createQueryString());
   }
-  
+
   @Test
   public void testBoostMultipleCriteriasValues() {
     Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
     Assert.assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3", criteria.createQueryString());
   }
+
+  @Test
+  public void testBetween() {
+    Criteria criteria = new Criteria("field_1").between(100, 200);
+    Assert.assertEquals("field_1:[100 TO 200]", criteria.createQueryString());
+  }
+
+  @Test
+  public void testBetweenWithoutUpperBound() {
+    Criteria criteria = new Criteria("field_1").between(100, null);
+    Assert.assertEquals("field_1:[100 TO *]", criteria.createQueryString());
+  }
+
+  @Test
+  public void testBetweenWithoutLowerBound() {
+    Criteria criteria = new Criteria("field_1").between(null, 200);
+    Assert.assertEquals("field_1:[* TO 200]", criteria.createQueryString());
+  }
+
+  @Test(expected = ApiUsageException.class)
+  public void testBetweenWithoutLowerAndUpperBound() {
+    new Criteria("field_1").between(null, null);
+  }
+
+  @Test
+  public void testLessThanEqual() {
+    Criteria criteria = new Criteria("field_1").lessThanEqual(200);
+    Assert.assertEquals("field_1:[* TO 200]", criteria.createQueryString());
+  }
+
+  @Test(expected = ApiUsageException.class)
+  public void testLessThanEqualNull() {
+    new Criteria("field_1").lessThanEqual(null);
+  }
+
+  @Test
+  public void testGreaterEqualThan() {
+    Criteria criteria = new Criteria("field_1").greaterThanEqual(100);
+    Assert.assertEquals("field_1:[100 TO *]", criteria.createQueryString());
+  }
+
+  @Test(expected = ApiUsageException.class)
+  public void testGreaterThanEqualNull() {
+    new Criteria("field_1").greaterThanEqual(null);
+  }
+
+  @Test
+  public void testIn() {
+    Criteria criteria = new Criteria("field_1").in(1, 2, 3, 5, 8, 13, 21);
+    Assert.assertEquals("field_1:(1 2 3 5 8 13 21)", criteria.createQueryString());
+  }
+
+  @Test
+  public void testInWithNestedCollection() {
+    List<List<String>> enclosingList = new ArrayList<List<String>>();
+    enclosingList.add(Arrays.asList("spring", "data"));
+    enclosingList.add(Arrays.asList("solr"));
+    Criteria criteria = new Criteria("field_1").in(enclosingList);
+    Assert.assertEquals("field_1:(spring data solr)", criteria.createQueryString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInWithNull() {
+    new Criteria("field_1").in((Collection<?>) null);
+  }
+  
+  @Test(expected = ApiUsageException.class)
+  public void testInWithNoValues() {
+    new Criteria("field_1").in();
+  }
+
 }
