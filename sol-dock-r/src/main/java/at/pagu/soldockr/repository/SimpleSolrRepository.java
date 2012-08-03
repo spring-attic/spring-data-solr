@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
@@ -62,26 +61,38 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public Iterable<T> findAll() {
     int itemCount = (int) this.count();
     if (itemCount == 0) {
-      return (Page<T>) new PageImpl(Collections.EMPTY_LIST);
+      return new PageImpl<T>(Collections.<T> emptyList());
     }
     return this.findAll(new PageRequest(0, (int) this.count()));
   }
 
   @Override
   public Page<T> findAll(Pageable pageable) {
-    return getSolrOperations().executeListQuery(
-        new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable), getEntityClass());
+    return getSolrOperations().executeListQuery(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable), getEntityClass());
+  }
+
+  @Override
+  public Iterable<T> findAll(Iterable<String> ids) {
+    at.pagu.soldockr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
+    query.setPageRequest(new PageRequest(0, (int) count(query)));
+
+    return getSolrOperations().executeListQuery(query, getEntityClass());
   }
 
   @Override
   public long count() {
-    QueryResponse response = getSolrOperations().executeQuery(
-        new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(new PageRequest(0, 1)));
+    return count(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+  }
+
+  protected long count(at.pagu.soldockr.core.query.Query query) {
+    at.pagu.soldockr.core.query.Query countQuery = new SimpleQuery();
+    countQuery.addCriteria(query.getCriteria());
+
+    QueryResponse response = getSolrOperations().executeQuery(countQuery.setPageRequest(new PageRequest(0, 1)));
     return response.getResults().getNumFound();
   }
 
@@ -94,7 +105,6 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     return entity;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <S extends T> Iterable<S> save(Iterable<S> entities) {
     Assert.notNull(entities, "Cannot insert 'null' as a List.");
@@ -216,12 +226,6 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
     Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
 
     return solrInputDocument.getField(idFieldName).getValue().toString();
-  }
-
-  @Override
-  public Iterable<T> findAll(Iterable<String> ids) {
-    // FIXME: implement findAll(Iterable<String> ids)
-    throw new NotImplementedException();
   }
 
 }

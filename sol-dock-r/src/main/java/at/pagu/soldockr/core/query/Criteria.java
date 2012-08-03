@@ -359,15 +359,13 @@ public class Criteria implements QueryStringHolder {
    * @param c the collection containing the values to match against
    * @return
    */
-  public Criteria in(Collection<?> values) {
+  public Criteria in(Iterable<?> values) {
     Assert.notNull(values, "Collection of 'in' values must not be null");
-    if (!values.isEmpty()) {
-      for (Object value : values) {
-        if (value instanceof Collection) {
-          in((Collection<?>) value);
-        } else {
-          is(value);
-        }
+    for (Object value : values) {
+      if (value instanceof Collection) {
+        in((Collection<?>) value);
+      } else {
+        is(value);
       }
     }
     return this;
