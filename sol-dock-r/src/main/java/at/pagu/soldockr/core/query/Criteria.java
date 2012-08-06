@@ -161,12 +161,7 @@ public class Criteria implements QueryStringHolder {
    * @return
    */
   public Criteria or(Field field) {
-    return new Criteria(this.criteriaChain, field) {
-      @Override
-      public String getConjunctionOperator() {
-        return OR_OPERATOR;
-      }
-    };
+    return new OrCriteria(this.criteriaChain, field);
   }
 
   /**
@@ -178,12 +173,7 @@ public class Criteria implements QueryStringHolder {
   public Criteria or(Criteria criteria) {
     Assert.notNull(criteria, "Cannot chain 'null' criteria.");
 
-    Criteria orConnectedCritiera = new Criteria(this.criteriaChain, criteria.getField()) {
-      @Override
-      public String getConjunctionOperator() {
-        return OR_OPERATOR;
-      }
-    };
+    Criteria orConnectedCritiera = new OrCriteria(this.criteriaChain, criteria.getField());
     orConnectedCritiera.criteria.addAll(criteria.criteria);
     return orConnectedCritiera;
   }
@@ -274,7 +264,7 @@ public class Criteria implements QueryStringHolder {
    * @return
    */
   public Criteria fuzzy(String s, float levenshteinDistance) {
-    if (levenshteinDistance != Float.NaN) {
+    if (!Float.isNaN(levenshteinDistance)) {
       if (levenshteinDistance < 0 || levenshteinDistance > 1) {
         throw new ApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
       }
@@ -511,7 +501,36 @@ public class Criteria implements QueryStringHolder {
     return this.criteriaChain;
   }
 
-  class CriteriaEntry {
+  static class OrCriteria extends Criteria {
+
+    public OrCriteria() {
+      super();
+    }
+
+    public OrCriteria(Field field) {
+      super(field);
+    }
+
+    public OrCriteria(List<Criteria> criteriaChain, Field field) {
+      super(criteriaChain, field);
+    }
+
+    public OrCriteria(List<Criteria> criteriaChain, String fieldname) {
+      super(criteriaChain, fieldname);
+    }
+
+    public OrCriteria(String fieldname) {
+      super(fieldname);
+    }
+
+    @Override
+    public String getConjunctionOperator() {
+      return OR_OPERATOR;
+    }
+
+  }
+
+  static class CriteriaEntry {
 
     private String key;
     private Object value;
@@ -536,6 +555,7 @@ public class Criteria implements QueryStringHolder {
     public void setValue(Object value) {
       this.value = value;
     }
+
   }
 
 }
