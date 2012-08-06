@@ -190,7 +190,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
       try {
         this.entityClass = resolveReturnedClassFromGernericType();
       } catch (Exception e) {
-        new ApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
+        throw new ApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
       }
     }
     return entityClass;
