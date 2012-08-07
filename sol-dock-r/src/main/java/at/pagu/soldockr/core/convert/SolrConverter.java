@@ -15,6 +15,8 @@
  */
 package at.pagu.soldockr.core.convert;
 
+import java.util.Map;
+
 import org.springframework.data.convert.EntityConverter;
 import org.springframework.data.convert.EntityReader;
 import org.springframework.data.convert.EntityWriter;
@@ -22,6 +24,6 @@ import org.springframework.data.convert.EntityWriter;
 import at.pagu.soldockr.core.mapping.SolrPersistentEntity;
 import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 
-public interface SolrConverter extends EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, Object>, EntityWriter<Object, Object>, EntityReader<Object, Object> {
+public interface SolrConverter extends EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, Map<String,?>>, EntityWriter<Object, Map<String,?>>, EntityReader<Object, Map<String,?>> {
 
 }

@@ -15,29 +15,19 @@
  */
 package at.pagu.soldockr.core.convert;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.context.expression.MapAccessor;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.data.convert.EntityInstantiator;
-import org.springframework.data.convert.EntityInstantiators;
-import org.springframework.data.mapping.Association;
-import org.springframework.data.mapping.AssociationHandler;
-import org.springframework.data.mapping.PropertyHandler;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.mapping.context.MappingContext;
-import org.springframework.data.mapping.model.BeanWrapper;
-import org.springframework.data.mapping.model.MappingException;
-import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import at.pagu.soldockr.SolrServerFactory;
@@ -46,23 +36,22 @@ import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 
 public class MappingSolrConverter implements SolrConverter, ApplicationContextAware, InitializingBean {
 
-  protected final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
-  protected final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
-  protected ApplicationContext applicationContext;
-  protected SolrServerFactory solrServerFactory;
-  protected SolrTypeMapper typeMapper;
-  
-  private EntityInstantiators instantiators = new EntityInstantiators();
+  private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
+  private final GenericConversionService conversionService;
 
-  public MappingSolrConverter(SolrServerFactory solrServerFactory,
-      MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+  @SuppressWarnings("unused")
+  private ApplicationContext applicationContext;
+  private SolrServerFactory solrServerFactory;
+  private SolrTypeMapper typeMapper;
 
+  public MappingSolrConverter(SolrServerFactory solrServerFactory, MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
     Assert.notNull(solrServerFactory);
     Assert.notNull(mappingContext);
-    
+
     this.solrServerFactory = solrServerFactory;
     this.mappingContext = mappingContext;
     this.typeMapper = new SimpleSolrTypeMapper(mappingContext);
+    conversionService = new DefaultConversionService();
   }
 
   @Override
@@ -72,98 +61,31 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 
   @Override
   public ConversionService getConversionService() {
-    // TODO Auto-generated method stub
-    return null;
+    return this.conversionService;
   }
 
   @Override
-  public <R> R read(Class<R> type, Object source) {
-    //TODO: return read(ClassTypeInformation.from(type), source);
-    throw new NotImplementedException();
-    
+  public <R> R read(Class<R> type, Map<String, ?> source) {
+    return read(ClassTypeInformation.from(type), source);
   }
-  
-  protected <S extends Object> S read(TypeInformation<S> type, Object object) {
+
+  @SuppressWarnings("unchecked")
+  protected <S extends Object> S read(TypeInformation<S> type, Map<String, ?> object) {
     TypeInformation<? extends S> typeToUse = typeMapper.readType(object, type);
     Class<? extends S> rawType = typeToUse.getType();
-    
-    @SuppressWarnings("unchecked")
-    SolrPersistentEntity<S> persistentEntity = (SolrPersistentEntity<S>) mappingContext
-        .getPersistentEntity(typeToUse);
-    
-    
-    return read(persistentEntity, object);
+
+    return new SolrjConverters.SolrInputDocumentToObjectConverter<S>((Class<S>) rawType).convert(object);
   }
-  
-  private <S extends Object> S read(final SolrPersistentEntity<S> entity, final Object dbo) {
 
-    final StandardEvaluationContext spelCtx = new StandardEvaluationContext(dbo);
-    spelCtx.addPropertyAccessor(new MapAccessor());
-
-    if (applicationContext != null) {
-      spelCtx.setBeanResolver(new BeanFactoryResolver(applicationContext));
-    }
-
-    
-    PersistentEntityParameterValueProvider<SolrPersistentProperty> provider = new PersistentEntityParameterValueProvider<SolrPersistentProperty>(
-        entity, null, null
-        );
-    
-    EntityInstantiator instantiator = instantiators.getInstantiatorFor(entity);
-    S instance = instantiator.createInstance(entity, provider);
-
-    
-    final BeanWrapper<SolrPersistentEntity<S>, S> wrapper = BeanWrapper.create(instance, getConversionService());
-
-    entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
-      public void doWithPersistentProperty(SolrPersistentProperty prop) {
-
-        Object obj = getValueInternal(prop, dbo, spelCtx, prop.getSpelExpression());
-        wrapper.setProperty(prop, obj, true);
-      }
-    });
-
-    entity.doWithAssociations(new AssociationHandler<SolrPersistentProperty>() {
-      public void doWithAssociation(Association<SolrPersistentProperty> association) {
-        SolrPersistentProperty inverseProp = association.getInverse();
-        Object obj = getValueInternal(inverseProp, dbo, spelCtx, inverseProp.getSpelExpression());
-        try {
-          wrapper.setProperty(inverseProp, obj);
-        } catch (IllegalAccessException e) {
-          throw new MappingException(e.getMessage(), e);
-        } catch (InvocationTargetException e) {
-          throw new MappingException(e.getMessage(), e);
-        }
-      }
-    });
-
-    return wrapper.getBean();
-  }
-  
   @SuppressWarnings("unchecked")
-  protected Object getValueInternal(SolrPersistentProperty prop, Object dbo, StandardEvaluationContext ctx,
-      String spelExpr) {
-
-    Object o;
-    if (null != spelExpr) {
-      Expression x = spelExpressionParser.parseExpression(spelExpr);
-      o = x.getValue(ctx);
-    } else {
-
-      //FIXME: handle value 
-      throw new NotImplementedException();
-
-
-    }
-    return null;
-  }
-
-  
-
   @Override
-  public void write(Object source, Object sink) {
-    // TODO Auto-generated method stub
+  public void write(Object source, @SuppressWarnings("rawtypes") Map document) {
+    if (source == null) {
+      return;
+    }
 
+    SolrInputDocument convertedDocument = conversionService.convert(source, SolrInputDocument.class);
+    document.putAll(convertedDocument);
   }
 
   @Override
@@ -172,7 +94,13 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
   }
 
   public void afterPropertiesSet() {
-    // TODO: initializeConverters();
+    initializeConverters();
+  }
+
+  private void initializeConverters() {
+    if (!conversionService.canConvert(Object.class, SolrInputDocument.class)) {
+      conversionService.addConverter(new SolrjConverters.ObjectToSolrInputDocumentConverter(solrServerFactory.getSolrServer().getBinder()));
+    }
   }
 
 }
