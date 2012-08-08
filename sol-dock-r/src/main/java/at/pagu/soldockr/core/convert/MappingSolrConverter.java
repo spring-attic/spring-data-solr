@@ -17,6 +17,7 @@ package at.pagu.soldockr.core.convert;
 
 import java.util.Map;
 
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -69,23 +70,26 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
     return read(ClassTypeInformation.from(type), source);
   }
 
-  @SuppressWarnings("unchecked")
-  protected <S extends Object> S read(TypeInformation<S> type, Map<String, ?> object) {
-    TypeInformation<? extends S> typeToUse = typeMapper.readType(object, type);
+  protected <S extends Object> S read(TypeInformation<S> targetTypeInformation, Map<String, ?> source) {
+    TypeInformation<? extends S> typeToUse = typeMapper.readType(source, targetTypeInformation);
     Class<? extends S> rawType = typeToUse.getType();
 
-    return new SolrjConverters.SolrInputDocumentToObjectConverter<S>((Class<S>) rawType).convert(object);
+    if (!conversionService.canConvert(SolrDocument.class, rawType)) {
+      initializeTypedConverter(source, rawType);
+    }
+
+    return conversionService.convert(source, rawType);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void write(Object source, @SuppressWarnings("rawtypes") Map document) {
+  public void write(Object source, @SuppressWarnings("rawtypes") Map target) {
     if (source == null) {
       return;
     }
 
     SolrInputDocument convertedDocument = conversionService.convert(source, SolrInputDocument.class);
-    document.putAll(convertedDocument);
+    target.putAll(convertedDocument);
   }
 
   @Override
@@ -101,6 +105,11 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
     if (!conversionService.canConvert(Object.class, SolrInputDocument.class)) {
       conversionService.addConverter(new SolrjConverters.ObjectToSolrInputDocumentConverter(solrServerFactory.getSolrServer().getBinder()));
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <S> void initializeTypedConverter(Map<String, ?> source, Class<? extends S> rawType) {
+    conversionService.addConverter(source.getClass(), rawType, new SolrjConverters.SolrInputDocumentToObjectConverter<S>((Class<S>) rawType));
   }
 
 }
