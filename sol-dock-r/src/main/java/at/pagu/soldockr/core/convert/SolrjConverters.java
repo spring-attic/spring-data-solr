@@ -28,16 +28,23 @@ final class SolrjConverters {
 
   }
 
-  public static class ObjectToSolrInputDocumentConverter implements Converter<Object, SolrInputDocument> {
+  abstract static class DocumentBinderConverter {
+    final DocumentObjectBinder documentObejctBinder;
 
-    private final DocumentObjectBinder documentObejctBinder;
-
-    public ObjectToSolrInputDocumentConverter(DocumentObjectBinder binder) {
+    public DocumentBinderConverter(DocumentObjectBinder binder) {
       if (binder != null) {
         this.documentObejctBinder = binder;
       } else {
         this.documentObejctBinder = new DocumentObjectBinder();
       }
+    }
+
+  }
+
+  public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter implements Converter<Object, SolrInputDocument> {
+
+    public ObjectToSolrInputDocumentConverter(DocumentObjectBinder binder) {
+      super(binder);
     }
 
     @Override
@@ -50,12 +57,16 @@ final class SolrjConverters {
     }
   }
 
-  public static class SolrInputDocumentToObjectConverter<T> implements Converter<Map<String, ?>, T> {
+  public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter implements Converter<Map<String, ?>, T> {
 
-    private static final DocumentObjectBinder documentObejctBinder = new DocumentObjectBinder();
     private Class<T> clazz;
 
     public SolrInputDocumentToObjectConverter(Class<T> clazz) {
+      this(clazz, null);
+    }
+
+    public SolrInputDocumentToObjectConverter(Class<T> clazz, DocumentObjectBinder binder) {
+      super(binder);
       this.clazz = clazz;
     }
 
