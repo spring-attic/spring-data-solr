@@ -77,13 +77,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   public SolrTemplate(SolrServerFactory solrServerFactory) {
     this(solrServerFactory, null);
   }
-  
+
   public SolrTemplate(SolrServerFactory solrServerFactory, SolrConverter solrConverter) {
     Assert.notNull(solrServerFactory, "SolrServerFactory must not be 'null'.");
     Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
-    
+
     this.solrServerFactory = solrServerFactory;
-    this.solrConverter = solrConverter == null? getDefaultSolrConverter(solrServerFactory) : solrConverter;
+    this.solrConverter = solrConverter == null ? getDefaultSolrConverter(solrServerFactory) : solrConverter;
   }
 
   public <T> T execute(SolrCallback<T> action) {
@@ -269,9 +269,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   @Override
   public SolrInputDocument convertBeanToSolrInputDocument(Object bean) {
-    Assert.notNull(getSolrServer().getBinder(), "Cannot convert without binder set.");
-
-    return getSolrServer().getBinder().toSolrInputDocument(bean);
+    SolrInputDocument document = new SolrInputDocument();
+    getConverter().write(bean, document);
+    return document;
   }
 
   protected void assertNoCollection(Object o) {
@@ -281,9 +281,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
       }
     }
   }
-  
+
   private static final SolrConverter getDefaultSolrConverter(SolrServerFactory factory) {
     MappingSolrConverter converter = new MappingSolrConverter(factory, new SimpleSolrMappingContext());
+    converter.afterPropertiesSet(); // have to call this one to initialize default converters
     return converter;
   }
 
@@ -291,7 +292,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   public final SolrServer getSolrServer() {
     return solrServerFactory.getSolrServer();
   }
-  
+
   @Override
   public SolrConverter getConverter() {
     return this.solrConverter;
