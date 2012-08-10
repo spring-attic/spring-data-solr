@@ -1,0 +1,23 @@
+#################################################################################
+#                                                                               # 
+#    In order to run this example a solr server has to be available.            #            
+#    You may download it form the solr website http://lucene.apache.org/solr    #
+#                                                                               #
+################################################################################# 
+   
+### Installing Solr  ####
+1. Get solr
+   download: http://www.apache.org/dyn/closer.cgi/lucene/solr/3.6.0
+   
+2. Start solr server
+   extract: archive to destination directory
+   open: <your solr installation directory>/examples/
+   type: java -jar start.jar
+   verify: http://localhost:8983/solr/
+
+### Running the example ###
+1. With Maven
+   type: mvn failsafe:integration-test
+
+2. With Eclipse
+   press: Alt+Shift+X,T 
