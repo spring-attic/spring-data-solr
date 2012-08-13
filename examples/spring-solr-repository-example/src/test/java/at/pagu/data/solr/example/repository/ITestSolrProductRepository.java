@@ -45,6 +45,28 @@ public class ITestSolrProductRepository {
   }
 
   @Test
+  public void testCRUD() {
+    Assert.assertEquals(0, repo.count());
+
+    Product initial = createProduct(1);
+    repo.save(initial);
+    Assert.assertEquals(1, repo.count());
+
+    Product loaded = repo.findOne(initial.getId());
+    Assert.assertEquals(initial.getName(), loaded.getName());
+    
+    loaded.setName("changed named");
+    repo.save(loaded);
+    Assert.assertEquals(1, repo.count());
+
+    loaded = repo.findOne(initial.getId());
+    Assert.assertEquals("changed named", loaded.getName());
+
+    repo.delete(loaded);
+    Assert.assertEquals(0, repo.count());
+  }
+
+  @Test
   public void testQuery() {
     Assert.assertEquals(0, repo.count());
 
