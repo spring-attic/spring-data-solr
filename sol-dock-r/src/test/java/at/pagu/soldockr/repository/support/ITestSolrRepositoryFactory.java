@@ -89,7 +89,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     return initial;
   }
 
-  public interface ProductBeanRepository extends SolrCrudRepository<ProductBean> {
+  public interface ProductBeanRepository extends SolrCrudRepository<ProductBean, String> {
 
     Page<ProductBean> findByAvailableTrue(Pageable page);
 

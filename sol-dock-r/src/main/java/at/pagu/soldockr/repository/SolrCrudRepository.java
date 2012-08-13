@@ -15,11 +15,13 @@
  */
 package at.pagu.soldockr.repository;
 
+import java.io.Serializable;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
-public interface SolrCrudRepository<T> extends SolrRepository<T>, CrudRepository<T, String> {
+public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, CrudRepository<T, ID> {
 
   /**
    * Returns a {@link Page} of entities meeting the paging restriction

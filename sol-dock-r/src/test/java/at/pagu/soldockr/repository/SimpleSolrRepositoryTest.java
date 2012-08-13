@@ -40,30 +40,30 @@ import at.pagu.soldockr.core.query.SolDockRQuery;
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrRepositoryTest {
   
-  private SimpleSolrRepository<ExampleSolrBean> repository;
+  private SimpleSolrRepository<ExampleSolrBean, String> repository;
   
   @Mock
   private SolrOperations solrOperationsMock;
   
   @Before
   public void setUp() {
-    repository = new SimpleSolrRepository<ExampleSolrBean>(solrOperationsMock, ExampleSolrBean.class);
+    repository = new SimpleSolrRepository<ExampleSolrBean, String>(solrOperationsMock, ExampleSolrBean.class);
   }
 
   
   @Test(expected=IllegalArgumentException.class)
   public void testInitRepositoryWithNullSolrOperations() {
-    new SimpleSolrRepository<ExampleSolrBean>(null);
+    new SimpleSolrRepository<ExampleSolrBean, String>(null);
   }
   
   @Test(expected=IllegalArgumentException.class)
   public void testInitRepositoryWithNullEntityClass() {
-    new SimpleSolrRepository<ExampleSolrBean>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), null);
+    new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), null);
   }
   
   @Test
   public void testInitRepository() {
-    repository = new SimpleSolrRepository<ExampleSolrBean>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), ExampleSolrBean.class);
+    repository = new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), ExampleSolrBean.class);
     Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
   }
   

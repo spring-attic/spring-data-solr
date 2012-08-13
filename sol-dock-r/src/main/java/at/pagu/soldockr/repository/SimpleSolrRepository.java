@@ -15,6 +15,7 @@
  */
 package at.pagu.soldockr.repository;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
-public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
+public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
 
   private static final String DEFAULT_ID_FIELD = "id";
 
@@ -57,7 +58,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   }
 
   @Override
-  public T findOne(String id) {
+  public T findOne(ID id) {
     return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
 
@@ -76,7 +77,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   }
 
   @Override
-  public Iterable<T> findAll(Iterable<String> ids) {
+  public Iterable<T> findAll(Iterable<ID> ids) {
     at.pagu.soldockr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
     query.setPageRequest(new PageRequest(0, (int) count(query)));
 
@@ -119,15 +120,15 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T> {
   }
 
   @Override
-  public boolean exists(String id) {
+  public boolean exists(ID id) {
     return findOne(id) != null;
   }
 
   @Override
-  public void delete(String id) {
+  public void delete(ID id) {
     Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
-    this.solrOperations.executeDeleteById(id);
+    this.solrOperations.executeDeleteById(id.toString());
     this.solrOperations.executeCommit();
   }
 
