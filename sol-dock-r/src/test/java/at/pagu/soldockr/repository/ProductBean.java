@@ -11,8 +11,11 @@ public class ProductBean {
   @Field("id")
   private String id;
 
-  @Field
+  @Field("title")
   private String title;
+
+  @Field("name")
+  private String name;
 
   @Field("textGeneral")
   private String text;
@@ -94,6 +97,14 @@ public class ProductBean {
 
   public void setAvailable(boolean available) {
     this.available = available;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
 }

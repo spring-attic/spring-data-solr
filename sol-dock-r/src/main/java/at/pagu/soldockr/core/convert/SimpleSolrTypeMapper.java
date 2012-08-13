@@ -26,9 +26,8 @@ import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.context.MappingContext;
 
+public class SimpleSolrTypeMapper extends DefaultTypeMapper<Object> implements SolrTypeMapper {
 
-public class SimpleSolrTypeMapper extends DefaultTypeMapper<Object> implements SolrTypeMapper  {
-  
   public SimpleSolrTypeMapper() {
     super(new SolrObjectTypeAliasAccessor());
   }
@@ -40,8 +39,7 @@ public class SimpleSolrTypeMapper extends DefaultTypeMapper<Object> implements S
   public SimpleSolrTypeMapper(List<? extends TypeInformationMapper> mappers) {
     super(new SolrObjectTypeAliasAccessor(), mappers);
   }
- 
-  
+
   public static final class SolrObjectTypeAliasAccessor implements TypeAliasAccessor<Object> {
 
     public Object readAliasFrom(Object source) {
@@ -54,7 +52,7 @@ public class SimpleSolrTypeMapper extends DefaultTypeMapper<Object> implements S
     }
 
     public void writeTypeTo(Object sink, Object alias) {
-      //TODO: check if DO nothing is ok here
+      // TODO: check if DO nothing is ok here
     }
   }
 }
