@@ -15,30 +15,11 @@
  */
 package at.pagu.soldockr.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
 @NoRepositoryBean
 public interface SolrRepository <T> extends Repository<T, String> {
-  
-  /**
-   * Returns the single instance with matching id
-   * 
-   * @param id The unique identifier for retrieving the entity
-   * @return null if not found
-   */
-  T findOne(String id);
-
-  /**
-   * Returns a {@link Page} of entities meeting the paging restriction
-   * provided in the {@code Pageable} object.
-   * 
-   * @param pageable
-   * @return a page of entities
-   */
-  Page<T> findAll(Pageable pageable);
 
   /**
    * Returns the number of entities available.

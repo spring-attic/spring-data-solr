@@ -15,8 +15,19 @@
  */
 package at.pagu.soldockr.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
-public interface SolrCrudRepository<T> extends SolrRepository<T>, CrudRepository<T, String>  {
+public interface SolrCrudRepository<T> extends SolrRepository<T>, CrudRepository<T, String> {
 
+  /**
+   * Returns a {@link Page} of entities meeting the paging restriction
+   * provided in the {@code Pageable} object.
+   * 
+   * @param pageable
+   * @return a page of entities
+   */
+  Page<T> findAll(Pageable pageable);
+  
 }
