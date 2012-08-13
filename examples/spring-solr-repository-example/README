@@ -10,8 +10,8 @@
    download: http://www.apache.org/dyn/closer.cgi/lucene/solr/3.6.0
    
 2. Start solr server
-   extract: archive to destination directory
-   open: <your solr installation directory>/examples/
+   extract: unarchive to destination directory
+   open: <your solr installation directory>/example/
    type: java -jar start.jar
    verify: http://localhost:8983/solr/
 
