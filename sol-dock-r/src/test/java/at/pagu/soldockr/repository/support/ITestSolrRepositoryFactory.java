@@ -15,6 +15,10 @@
  */
 package at.pagu.soldockr.repository.support;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +50,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
   }
 
   @Test
-  public void testCRUDOperations() {
+  public void testCRUDOperations() throws InterruptedException, SolrServerException, IOException {
     ProductBean initial = createProductBean("1");
 
     ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
@@ -66,8 +70,11 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     Assert.assertEquals("name changed", loaded.getName());
 
     repository.delete(loaded);
+    
+    Thread.sleep(100);
     Assert.assertEquals(0, repository.count());
-
+    
+    cleanDataInSolr();
   }
 
   @Test
@@ -79,6 +86,14 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
     Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
     Assert.assertEquals(1, result.getContent().size());
+    
+    try {
+      cleanDataInSolr();
+    } catch (SolrServerException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private ProductBean createProductBean(String id) {
@@ -95,6 +110,9 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
     @Query("name:?0*")
     Page<ProductBean> findByAnnotatedQuery(String prefix, Pageable page);
+    
+    @Query("inStock:true")
+    List<ProductBean> findByAvailableTrue();
 
   }
 
