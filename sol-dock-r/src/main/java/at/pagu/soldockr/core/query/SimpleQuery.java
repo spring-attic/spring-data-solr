@@ -43,6 +43,21 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
     this.pageable = pageable;
   }
 
+  public static final Query fromQuery(Query source) {
+    SimpleQuery query = new SimpleQuery();
+    query.addCriteria(source.getCriteria());
+    if (!source.getFilterQueries().isEmpty()) {
+      query.filterQueries.addAll(source.getFilterQueries());
+    }
+    if (!source.getProjectionOnFields().isEmpty()) {
+      query.projectionOnFields.addAll(source.getProjectionOnFields());
+    }
+    if (!source.getGroupByFields().isEmpty()) {
+      query.groupByFields.addAll(source.getGroupByFields());
+    }
+    return query;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public final <T extends Query> T addProjectionOnField(Field field) {
