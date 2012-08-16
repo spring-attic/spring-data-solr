@@ -108,6 +108,23 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
   }
 
   @Override
+  public long executeCount(final SolDockRQuery query) {
+    Assert.notNull(query, "Query must not be 'null'.");
+
+    return execute(new SolrCallback<Long>() {
+
+      @Override
+      public Long doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        solrQuery.setStart(0);
+        solrQuery.setRows(0);
+
+        return solrServer.query(solrQuery).getResults().getNumFound();
+      }
+    });
+  }
+
+  @Override
   public UpdateResponse executeAddBean(final Object objectToAdd) {
     assertNoCollection(objectToAdd);
     return execute(new SolrCallback<UpdateResponse>() {

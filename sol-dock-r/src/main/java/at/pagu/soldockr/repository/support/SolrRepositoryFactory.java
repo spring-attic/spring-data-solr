@@ -56,7 +56,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
   @Override
   @SuppressWarnings({"rawtypes", "unchecked"})
   protected Object getTargetRepository(RepositoryMetadata metadata) {
-    SimpleSolrRepository repository = new SimpleSolrRepository(solrOperations);
+    SimpleSolrRepository repository = new SimpleSolrRepository(getEntityInformation(metadata.getDomainType()), solrOperations);
     repository.setEntityClass(metadata.getDomainType());
     return repository;
   }

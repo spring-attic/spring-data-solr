@@ -15,7 +15,6 @@
  */
 package at.pagu.soldockr.repository;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,19 +34,34 @@ import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
+import at.pagu.soldockr.repository.query.SolrEntityInformation;
 
-public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
+public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
   private static final String DEFAULT_ID_FIELD = "id";
 
   private SolrOperations solrOperations;
   private String idFieldName = DEFAULT_ID_FIELD;
   private Class<T> entityClass;
+  private SolrEntityInformation<T, String> entityInformation;
 
-  public SimpleSolrRepository() {}
+  public SimpleSolrRepository() {
+
+  }
 
   public SimpleSolrRepository(SolrOperations solrOperations) {
+    Assert.notNull(solrOperations);
+
     this.setSolrOperations(solrOperations);
+  }
+
+  public SimpleSolrRepository(SolrEntityInformation<T, String> metadata, SolrOperations solrOperations) {
+    this(solrOperations);
+    Assert.notNull(metadata);
+
+    this.entityInformation = metadata;
+    setIdFieldName(this.entityInformation.getIdAttribute());
+    setEntityClass(this.entityInformation.getJavaType());
   }
 
   public SimpleSolrRepository(SolrOperations solrOperations, Class<T> entityClass) {
@@ -58,7 +71,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
   }
 
   @Override
-  public T findOne(ID id) {
+  public T findOne(String id) {
     return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
   }
 
@@ -68,7 +81,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
     if (itemCount == 0) {
       return new PageImpl<T>(Collections.<T> emptyList());
     }
-    return this.findAll(new PageRequest(0, (int) this.count()));
+    return this.findAll(new PageRequest(0, Math.max(1, (int) this.count())));
   }
 
   @Override
@@ -77,9 +90,9 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
   }
 
   @Override
-  public Iterable<T> findAll(Iterable<ID> ids) {
+  public Iterable<T> findAll(Iterable<String> ids) {
     at.pagu.soldockr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
-    query.setPageRequest(new PageRequest(0, (int) count(query)));
+    query.setPageRequest(new PageRequest(0, Math.max(1, (int) count(query))));
 
     return getSolrOperations().executeListQuery(query, getEntityClass());
   }
@@ -90,11 +103,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
   }
 
   protected long count(at.pagu.soldockr.core.query.Query query) {
-    at.pagu.soldockr.core.query.Query countQuery = new SimpleQuery();
-    countQuery.addCriteria(query.getCriteria());
-
-    QueryResponse response = getSolrOperations().executeQuery(countQuery.setPageRequest(new PageRequest(0, 1)));
-    return response.getResults().getNumFound();
+    at.pagu.soldockr.core.query.Query countQuery = SimpleQuery.fromQuery(query);
+    return getSolrOperations().executeCount(countQuery);
   }
 
   @Override
@@ -120,15 +130,15 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
   }
 
   @Override
-  public boolean exists(ID id) {
+  public boolean exists(String id) {
     return findOne(id) != null;
   }
 
   @Override
-  public void delete(ID id) {
+  public void delete(String id) {
     Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
-    this.solrOperations.executeDeleteById(id.toString());
+    this.solrOperations.executeDeleteById(id);
     this.solrOperations.executeCommit();
   }
 

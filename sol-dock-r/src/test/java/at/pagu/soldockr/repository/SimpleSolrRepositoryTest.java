@@ -20,9 +20,6 @@ import java.util.Arrays;
 import junit.framework.Assert;
 
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,58 +36,45 @@ import at.pagu.soldockr.core.query.SolDockRQuery;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrRepositoryTest {
-  
-  private SimpleSolrRepository<ExampleSolrBean, String> repository;
-  
+
+  private SimpleSolrRepository<ExampleSolrBean> repository;
+
   @Mock
   private SolrOperations solrOperationsMock;
-  
+
   @Before
   public void setUp() {
-    repository = new SimpleSolrRepository<ExampleSolrBean, String>(solrOperationsMock, ExampleSolrBean.class);
+    repository = new SimpleSolrRepository<ExampleSolrBean>(solrOperationsMock, ExampleSolrBean.class);
   }
 
-  
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testInitRepositoryWithNullSolrOperations() {
-    new SimpleSolrRepository<ExampleSolrBean, String>(null);
+    new SimpleSolrRepository<ExampleSolrBean>(null);
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expected = IllegalArgumentException.class)
   public void testInitRepositoryWithNullEntityClass() {
-    new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), null);
+    new SimpleSolrRepository<ExampleSolrBean>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), null);
   }
-  
+
   @Test
   public void testInitRepository() {
-    repository = new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), ExampleSolrBean.class);
+    repository = new SimpleSolrRepository<ExampleSolrBean>(new SolrTemplate(new HttpSolrServer("http://localhost:8080/solr"), null), ExampleSolrBean.class);
     Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
   }
-  
+
   @Test
   public void testFindAllByIdQuery() {
-    Mockito.when(solrOperationsMock.executeQuery(Mockito.any(SolDockRQuery.class))).thenReturn(initFakeResponse(12345));
-    
+    Mockito.when(solrOperationsMock.executeCount(Mockito.any(SolDockRQuery.class))).thenReturn(12345l);
+
     repository.findAll(Arrays.asList("id-1", "id-2", "id-3"));
     ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
-    
-    Mockito.verify(solrOperationsMock, Mockito.times(1)).executeQuery(captor.capture());
+
+    Mockito.verify(solrOperationsMock, Mockito.times(1)).executeCount(captor.capture());
     Mockito.verify(solrOperationsMock, Mockito.times(1)).executeListQuery(captor.capture(), Mockito.eq(ExampleSolrBean.class));
-    
-    Assert.assertEquals(1,captor.getAllValues().get(0).getPageRequest().getPageSize());
-    Assert.assertEquals(12345,captor.getAllValues().get(1).getPageRequest().getPageSize());
-  }
-  
-  private QueryResponse initFakeResponse(int nrFound) {
-    QueryResponse response = new QueryResponse();
-    
-    NamedList<Object> namedList = new NamedList<Object>();
-    SolrDocumentList docList = new SolrDocumentList();
-    docList.setNumFound(nrFound);
-    namedList.add("response", docList);
-    response.setResponse(namedList);
-    
-    return response;
+
+    Assert.assertEquals(Query.DEFAULT_PAGE_SIZE, captor.getAllValues().get(0).getPageRequest().getPageSize());
+    Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
   }
 
 }

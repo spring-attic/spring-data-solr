@@ -16,9 +16,7 @@
 package at.pagu.soldockr.repository;
 
 import at.pagu.soldockr.ExampleSolrBean;
-import at.pagu.soldockr.repository.SimpleSolrRepository;
 
+public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean> {
 
-public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean, String> {
-  
 }

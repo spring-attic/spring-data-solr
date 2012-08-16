@@ -47,6 +47,14 @@ public interface SolrOperations {
   SolrPingResponse executePing();
 
   /**
+   * return number of elements found by for given query
+   * 
+   * @param query
+   * @return
+   */
+  long executeCount(SolDockRQuery query);
+
+  /**
    * Execute add operation against solr
    * 
    * @param obj
@@ -93,7 +101,7 @@ public interface SolrOperations {
    * @return
    */
   UpdateResponse executeDeleteById(String id);
-  
+
   /**
    * Delete objects with given ids
    * 
@@ -127,10 +135,9 @@ public interface SolrOperations {
    * @return
    */
   <T> Page<T> executeListQuery(Query query, Class<T> clazz);
-  
-  
+
   /**
-   * Execute a facet query against solr 
+   * Execute a facet query against solr
    * facet result will be returned along with query result within the FacetPage
    * 
    * @param query
@@ -148,7 +155,7 @@ public interface SolrOperations {
    * send rollback command
    */
   void executeRollback();
-  
+
   /**
    * Convert given bean into a solrj InputDocument
    * 
@@ -156,7 +163,10 @@ public interface SolrOperations {
    * @return
    */
   SolrInputDocument convertBeanToSolrInputDocument(Object bean);
-  
+
+  /**
+   * @return Converter in use
+   */
   SolrConverter getConverter();
 
 }

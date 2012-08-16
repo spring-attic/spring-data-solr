@@ -15,7 +15,6 @@
  */
 package at.pagu.soldockr.repository.query;
 
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.query.Query;
-import at.pagu.soldockr.core.query.SimpleQuery;
 
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
@@ -76,24 +74,18 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
   class CollectionExecution extends AbstractQueryExecution {
     private final Pageable pageable;
 
-    private CollectionExecution(Pageable pageable) {
+    public CollectionExecution(Pageable pageable) {
       this.pageable = pageable;
     }
 
     @Override
     public Object execute(Query query) {
-      query.setPageRequest(pageable != null ? pageable : new PageRequest(0, (int) count(query)));
+      query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
       return executeFind(query).getContent();
     }
 
     private long count(Query query) {
-      // TODO: move query clone to static method within query
-      Query countQuery = new SimpleQuery();
-      countQuery.addCriteria(query.getCriteria());
-
-      //XXX: should be moved to solrOperations (No SolrJ specifics here!)
-      QueryResponse response = solrOperations.executeQuery(countQuery.setPageRequest(new PageRequest(0, 1)));
-      return response.getResults().getNumFound();
+      return solrOperations.executeCount(query);
     }
 
   }

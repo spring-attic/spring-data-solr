@@ -29,6 +29,7 @@ import org.springframework.data.repository.Repository;
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.convert.SolrConverter;
 import at.pagu.soldockr.core.mapping.SolrPersistentEntity;
+import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 import at.pagu.soldockr.repository.ProductBean;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 
@@ -48,9 +49,14 @@ public class SolrRepositoryFactoryTest {
   @Mock
   private SolrPersistentEntity<ProductBean> solrEntityMock;
 
+  @Mock
+  private SolrPersistentProperty solrPersistentPropertyMock;
+
   @Before
   @SuppressWarnings("unchecked")
   public void setUp() {
+    Mockito.when(solrEntityMock.getIdProperty()).thenReturn(solrPersistentPropertyMock);
+    Mockito.when(solrPersistentPropertyMock.getName()).thenReturn("id");
     Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
     Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContextMock);
   }
