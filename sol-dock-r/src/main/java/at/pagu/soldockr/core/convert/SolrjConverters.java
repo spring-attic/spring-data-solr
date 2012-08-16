@@ -29,14 +29,10 @@ final class SolrjConverters {
   }
 
   abstract static class DocumentBinderConverter {
-    final DocumentObjectBinder documentObejctBinder;
+    protected final DocumentObjectBinder documentObejctBinder;
 
     public DocumentBinderConverter(DocumentObjectBinder binder) {
-      if (binder != null) {
-        this.documentObejctBinder = binder;
-      } else {
-        this.documentObejctBinder = new DocumentObjectBinder();
-      }
+      this.documentObejctBinder = binder != null ? binder : new DocumentObjectBinder();
     }
 
   }
