@@ -44,8 +44,14 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
   }
 
   public static final Query fromQuery(Query source) {
+    if(source == null) {
+      return null;
+    }
+    
     SimpleQuery query = new SimpleQuery();
-    query.addCriteria(source.getCriteria());
+    if(source.getCriteria() != null) {
+      query.addCriteria(source.getCriteria());
+    }
     if (!source.getFilterQueries().isEmpty()) {
       query.filterQueries.addAll(source.getFilterQueries());
     }

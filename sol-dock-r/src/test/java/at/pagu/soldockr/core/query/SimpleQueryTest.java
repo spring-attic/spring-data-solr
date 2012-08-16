@@ -124,5 +124,55 @@ public class SimpleQueryTest {
     Query query = new SimpleQuery().addGroupByField(new SimpleField("field_1")).addGroupByField(new SimpleField("field_2"));
     Assert.assertEquals(2, ((List) query.getGroupByFields()).size());
   }
+  
+  @Test
+  public void testCloneQuery() {
+    Query query = new SimpleQuery();
+    Assert.assertNotSame(query, SimpleQuery.fromQuery(query));
+  }
+  
+  @Test
+  public void testCloneNullQuery() {
+    Assert.assertNull(SimpleQuery.fromQuery(null));
+  }
+  
+  @Test
+  public void testCloneQueryWithCriteria() {
+    Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+    Query destination = SimpleQuery.fromQuery(source);
+    Assert.assertNotSame(source, destination);
+    Assert.assertEquals("field_1", destination.getCriteria().getField().getName());
+    Assert.assertEquals("field_1:value_1", destination.getCriteria().getQueryString());
+  }
+  
+  @Test
+  public void testCloneQueryWithFilterQuery() {
+    Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+    source.addFilterQuery(new SimpleQuery(new Criteria("field_2").startsWith("value_2")));
+    
+    Query destination = SimpleQuery.fromQuery(source);
+    Assert.assertEquals("field_1:value_1", destination.getCriteria().getQueryString());
+    Assert.assertEquals(1, destination.getFilterQueries().size());
+  }
+  
+  @Test
+  public void testCloneQueryWithProjection() {
+    Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+    source.addProjectionOnField(new SimpleField("field_2"));
+    
+    Query destination = SimpleQuery.fromQuery(source);
+    Assert.assertEquals(1, destination.getProjectionOnFields().size());
+  }
+  
+  @Test
+  public void testCloneQueryWithGroupBy() {
+    Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+    source.addGroupByField(new SimpleField("field_2"));
+    
+    Query destination = SimpleQuery.fromQuery(source);
+    Assert.assertEquals(1, destination.getGroupByFields().size());
+  }
+  
+  
 
 }
