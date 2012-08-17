@@ -228,6 +228,10 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
   }
 
   private String extractIdFromBean(T entity) {
+    if (entityInformation != null) {
+      return entityInformation.getId(entity);
+    }
+
     SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);
     return extractIdFromSolrInputDocument(solrInputDocument);
   }
