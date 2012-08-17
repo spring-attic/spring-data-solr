@@ -15,9 +15,14 @@
  */
 package at.pagu.soldockr.core;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 public class SimpleJavaObject {
 
+  @Field
   private String id;
+
+  @Field
   private Long value;
 
   public SimpleJavaObject() {}

@@ -18,6 +18,7 @@ package at.pagu.soldockr.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -130,7 +131,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-        return solrServer.addBean(objectToAdd);
+        return solrServer.add(convertBeanToSolrInputDocument(objectToAdd));
       }
     });
   }
@@ -140,7 +141,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     return execute(new SolrCallback<UpdateResponse>() {
       @Override
       public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-        return solrServer.addBeans(beansToAdd);
+        return solrServer.add(convertBeansToSolrInputDocuments(beansToAdd));
       }
     });
   }
@@ -286,9 +287,24 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
   @Override
   public SolrInputDocument convertBeanToSolrInputDocument(Object bean) {
+    if (bean instanceof SolrInputDocument) {
+      return (SolrInputDocument) bean;
+    }
+
     SolrInputDocument document = new SolrInputDocument();
     getConverter().write(bean, document);
     return document;
+  }
+
+  private Collection<SolrInputDocument> convertBeansToSolrInputDocuments(Iterable<?> beans) {
+    if (beans == null) {
+      return Collections.emptyList();
+    }
+    List<SolrInputDocument> resultList = new ArrayList<SolrInputDocument>();
+    for (Object bean : beans) {
+      resultList.add(convertBeanToSolrInputDocument(bean));
+    }
+    return resultList;
   }
 
   protected void assertNoCollection(Object o) {

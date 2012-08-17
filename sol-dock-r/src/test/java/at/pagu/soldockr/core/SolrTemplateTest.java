@@ -82,19 +82,30 @@ public class SolrTemplateTest {
 
   @Test
   public void testAddBean() throws IOException, SolrServerException {
-    Mockito.when(solrServerMock.addBean(Mockito.anyObject())).thenReturn(new UpdateResponse());
+    Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
     UpdateResponse updateResponse = solrTemplate.executeAddBean(SIMPLE_OBJECT);
     Assert.assertNotNull(updateResponse);
-    Mockito.verify(solrServerMock, Mockito.times(1)).addBean(Mockito.eq(SIMPLE_OBJECT));
+
+    ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+    Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+
+    Assert.assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
+    Assert.assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testAddBeans() throws IOException, SolrServerException {
-    Mockito.when(solrServerMock.addBeans(Mockito.anyCollection())).thenReturn(new UpdateResponse());
+    Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
     List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l), new SimpleJavaObject("3", 3l));
     UpdateResponse updateResponse = solrTemplate.executeAddBeans(collection);
     Assert.assertNotNull(updateResponse);
-    Mockito.verify(solrServerMock, Mockito.times(1)).addBeans(Mockito.eq(collection));
+
+    @SuppressWarnings("rawtypes")
+    ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+    Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+
+    Assert.assertEquals(3, captor.getValue().size());
   }
 
   @Test
