@@ -15,15 +15,20 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * The most basic criteria holding an already formatted QueryString that can be
+ * executed 'as is' against the solr server
+ * 
+ */
 public class SimpleStringCriteria extends Criteria {
-  
+
   private final String queryString;
-  
+
   public SimpleStringCriteria(String queryString) {
     this.queryString = queryString;
     getCriteriaChain().add(this);
   }
-  
+
   @Override
   public String getQueryString() {
     return this.queryString;

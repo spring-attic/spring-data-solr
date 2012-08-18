@@ -36,6 +36,11 @@ import at.pagu.soldockr.core.query.result.FacetEntry;
 import at.pagu.soldockr.core.query.result.FacetPage;
 import at.pagu.soldockr.core.query.result.SimpleFacetEntry;
 
+/**
+ * Use Result Helper to extract various parameters from the QueryResponse and convert it into a proper Format
+ * taking care of non existent and null elements with the response.
+ *
+ */
 final class ResultHelper {
 
   private ResultHelper() {}

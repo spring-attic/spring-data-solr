@@ -284,6 +284,12 @@ public class Criteria implements QueryStringHolder {
     return this;
   }
 
+  /**
+   * Boost positive hit with given factor. eg. ^2.3
+   * 
+   * @param boost
+   * @return
+   */
   public Criteria boost(float boost) {
     if (boost < 0) {
       throw new ApiUsageException("Boost must not be negative.");

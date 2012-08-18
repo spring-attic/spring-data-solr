@@ -15,8 +15,16 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * Class holding a solr readable QueryString that can be used with the 'q' parameter.
+ *
+ */
 public interface QueryStringHolder {
 
+  /**
+   * Get the the query string to use
+   * @return
+   */
   String getQueryString();
 
 }

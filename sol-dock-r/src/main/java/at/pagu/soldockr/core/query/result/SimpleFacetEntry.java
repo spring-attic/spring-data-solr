@@ -18,6 +18,10 @@ package at.pagu.soldockr.core.query.result;
 import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.SimpleField;
 
+/**
+ * The most trivial implementation of FacetEntry
+ *
+ */
 public class SimpleFacetEntry implements FacetEntry {
 
   private final Field field;

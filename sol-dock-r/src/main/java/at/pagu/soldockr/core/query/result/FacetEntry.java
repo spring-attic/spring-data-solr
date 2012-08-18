@@ -17,12 +17,29 @@ package at.pagu.soldockr.core.query.result;
 
 import at.pagu.soldockr.core.query.Field;
 
+/**
+ * FacetEntry is returned as result of a FacetQuery holding the fieldname, value
+ * and valueCount for the requested facet field
+ * 
+ */
 public interface FacetEntry {
 
+  /**
+   * The referenced facet field
+   * @return
+   */
   Field getField();
 
+  /**
+   * The nr of hits for the value
+   * @return
+   */
   long getValueCount();
 
+  /**
+   * The value within the field
+   * @return
+   */
   String getValue();
 
 }

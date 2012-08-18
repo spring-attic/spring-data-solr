@@ -15,8 +15,16 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * Defines a Field that can be used within a Criteria.
+ *
+ */
 public interface Field {
   
+  /**
+   * Get the name of the field used in schema.xml of solr server
+   * @return
+   */
   String getName();
 
 }

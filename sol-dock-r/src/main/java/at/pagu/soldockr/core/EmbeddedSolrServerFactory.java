@@ -40,7 +40,13 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
 
   private EmbeddedSolrServer solrServer;
 
-  public EmbeddedSolrServerFactory(String path) throws ParserConfigurationException, IOException, SAXException {
+  /**
+ * @param path Any Path expression valid for use with {@link ResourceUtils}
+ * @throws ParserConfigurationException
+ * @throws IOException
+ * @throws SAXException
+ */
+public EmbeddedSolrServerFactory(String path) throws ParserConfigurationException, IOException, SAXException {
     this.solrServer = createPathConfiguredSolrServer(path);
   }
 

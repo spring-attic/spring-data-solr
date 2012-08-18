@@ -42,6 +42,10 @@ public class FacetOptions {
   public FacetOptions() {
   }
   
+  /**
+   * Creates new instance faceting on fields with given name
+   * @param fieldnames
+   */
   public FacetOptions(String...fieldnames) {
     Assert.notNull(fieldnames, "Fields must not be null.");
     Assert.noNullElements(fieldnames, "Cannot facet on null fieldname.");
@@ -51,6 +55,10 @@ public class FacetOptions {
     }
   }
   
+  /**
+   * Creates new instance faceting on given fields
+   * @param fieldnames
+   */
   public FacetOptions(Field...fields) {
     Assert.notNull(fields, "Fields must not be null.");
     Assert.noNullElements(fields, "Cannot facet on null field.");
@@ -60,6 +68,11 @@ public class FacetOptions {
    }
   }
   
+  /**
+   * Append additional field for faceting
+   * @param field
+   * @return
+   */
   public final FacetOptions addFacetOnField(Field field) {
     Assert.notNull(field, "Cannot facet on null field.");
     Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname.");
@@ -68,21 +81,41 @@ public class FacetOptions {
     return this;
   }
   
+  /**
+   * Append additional field with given name for faceting
+   * @param fieldname
+   * @return
+   */
   public final FacetOptions addFacetOnField(String fieldname) {
     addFacetOnField(new SimpleField(fieldname));
     return this;
   }
   
+  /**
+   * Set minimum number of hits for result to be included in response
+   * @param minCount Default is 1
+   * @return
+   */
   public FacetOptions setFacetMinCount(int minCount) {
     this.facetMinCount = java.lang.Math.max(0, minCount);
     return this;
   }
   
+  /**
+   * Set limit on nr results returned
+   * @param rowsToReturn Default is 10
+   * @return
+   */
   public FacetOptions setFacetLimit(int rowsToReturn) {
     this.facetLimit = java.lang.Math.max(1, rowsToReturn);
     return this;
   }
   
+  /**
+   * Set sorting (INDEX or COUNT)
+   * @param facetSort Default is COUNT
+   * @return
+   */
   public FacetOptions setFacetSort(FacetSort facetSort) {
     Assert.notNull(facetSort, "FacetSort must not be null.");
     

@@ -22,6 +22,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 
 public interface SolrCallback<T> {
   
+  /**
+   * @param solrServer execute 
+   * @return
+   * @throws SolrServerException
+   * @throws IOException
+   */
   T doInSolr(SolrServer solrServer) throws SolrServerException, IOException;
 
 }

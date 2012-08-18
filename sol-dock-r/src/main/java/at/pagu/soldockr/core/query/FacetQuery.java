@@ -31,6 +31,9 @@ public interface FacetQuery extends Query {
    */
   FacetOptions getFacetOptions();
   
+  /**
+   * @return true if options set
+   */
   boolean hasFacetOptions();
 
 }

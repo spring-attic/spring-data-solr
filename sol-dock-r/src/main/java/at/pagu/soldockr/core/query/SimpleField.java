@@ -15,6 +15,10 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * The most trivial implementation of a Field
+ *
+ */
 public class SimpleField implements Field {
   
   private final String name;

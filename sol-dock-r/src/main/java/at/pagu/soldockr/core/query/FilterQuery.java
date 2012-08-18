@@ -15,6 +15,13 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * Filter Queries are simple solr Queries applied after 
+ * executing the original query.
+ * 
+ * This corresponds to the 'fq' Parameter within solr.
+ *
+ */
 public interface FilterQuery extends SolDockRQuery {
   
 }

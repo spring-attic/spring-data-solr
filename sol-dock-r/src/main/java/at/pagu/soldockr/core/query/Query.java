@@ -19,24 +19,72 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
+/**
+ * A Query that can be translated into a solr understandable Query. 
+ *
+ */
 public interface Query extends SolDockRQuery {
   
   int DEFAULT_PAGE_SIZE = 10;
    
+  /**
+   * add given Field to those included in result.
+   * Corresponds to the 'fl' parameter in solr.
+   * 
+   * @param field
+   * @return
+   */
   <T extends Query> T addProjectionOnField(Field field);
   
+  /**
+   * restrict result to entries on given page.
+   * Corresponds to the 'start' and 'rows' parameter in solr
+   * 
+   * @param pageable
+   * @return
+   */
   <T extends Query> T setPageRequest(Pageable pageable);
   
+  /**
+   * add the given field to those used for grouping result
+   * Corresponds to '' in solr
+   * 
+   * @param field
+   * @return
+   */
   <T extends Query> T addGroupByField(Field field);
    
+  /**
+   * add query to filter results
+   * Corresponds to 'fq' in solr
+   * 
+   * @param query
+   * @return
+   */
   <T extends Query> T addFilterQuery(FilterQuery query);
   
+  /**
+   * Get filter queries if defined
+   * @return
+   */
   List<FilterQuery> getFilterQueries();
   
+  /**
+   * Get page settings if defined
+   * @return
+   */
   Pageable getPageRequest();
   
+  /**
+   * Get group by fields if defined
+   * @return
+   */
   List<Field> getGroupByFields();
   
+  /**
+   * Get projection fields if defined
+   * @return
+   */
   List<Field> getProjectionOnFields();
 
 }
