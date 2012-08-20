@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,11 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     SolrTemplate template = new SolrTemplate(new HttpSolrServerFactory(solrServer));
     factory = new SolrRepositoryFactory(template);
   }
+  
+  @After
+  public void tearDown() throws SolrServerException, IOException {
+    cleanDataInSolr();
+  }
 
   @Test
   public void testGetRepository() {
@@ -50,7 +56,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
   }
 
   @Test
-  public void testCRUDOperations() throws InterruptedException, SolrServerException, IOException {
+  public void testCRUDOperations() throws InterruptedException {
     ProductBean initial = createProductBean("1");
 
     ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
@@ -73,8 +79,6 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     
     Thread.sleep(100);
     Assert.assertEquals(0, repository.count());
-    
-    cleanDataInSolr();
   }
 
   @Test
@@ -86,14 +90,19 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
     Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
     Assert.assertEquals(1, result.getContent().size());
+  }
+  
+  @Test
+  public void testSingleResultQuery() {
+    ProductBean initial = createProductBean("1");
+
+    ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+    repository.save(initial);
     
-    try {
-      cleanDataInSolr();
-    } catch (SolrServerException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    ProductBean result = repository.findSingleElement(initial.getId());
+    
+    Assert.assertEquals(initial.getId(), result.getId());
+    Assert.assertEquals(initial.getName(), result.getName());
   }
 
   private ProductBean createProductBean(String id) {
@@ -113,6 +122,9 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     
     @Query("inStock:true")
     List<ProductBean> findByAvailableTrue();
+    
+    @Query("id:?0")
+    ProductBean findSingleElement(String id);
 
   }
 
