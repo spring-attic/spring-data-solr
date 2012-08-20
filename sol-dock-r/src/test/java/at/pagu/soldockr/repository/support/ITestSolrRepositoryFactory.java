@@ -16,6 +16,7 @@
 package at.pagu.soldockr.repository.support;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -90,6 +91,22 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
     Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
     Assert.assertEquals(1, result.getContent().size());
+  }
+  
+  @Test
+  public void testPartTreeQuery() {
+    ProductBean availableProduct = createProductBean("1");
+    ProductBean unavailableProduct = createProductBean("2");
+    unavailableProduct.setAvailable(false);
+  
+    ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+    
+    repository.save(Arrays.asList(availableProduct, unavailableProduct));
+    Assert.assertEquals(2, repository.count());
+    
+    Page<ProductBean> result = repository.findByAvailableTrue(new PageRequest(0, 10));
+    Assert.assertEquals(result.getTotalElements(), 1);
+    Assert.assertEquals(availableProduct.getId(), result.getContent().get(0).getId());
   }
   
   @Test
