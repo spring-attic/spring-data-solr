@@ -46,7 +46,7 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
     try {
       return (ID) BeanWrapper.create(entity, null).getProperty(id);
     } catch (Exception e) {
-      throw new IllegalStateException("ID could not be resolved");
+      throw new IllegalStateException("ID could not be resolved", e);
     }
   }
 
