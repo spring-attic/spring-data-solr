@@ -62,6 +62,20 @@ public class SolrQueryCreatorTest {
     Criteria criteria = query.getCriteria();
     Assert.assertEquals("popularity:100", criteria.getQueryString());
   }
+  
+  @Test
+  public void testCreateFindByNotCriteria() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityIsNot", Integer.class);
+    PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+    SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, new Object[] {100}), mappingContext);
+
+    Query query = creator.createQuery();
+
+    Criteria criteria = query.getCriteria();
+    Assert.assertEquals("popularity:-100", criteria.getQueryString());
+  }
 
   @Test
   public void testCreateFindByAndQuery() throws NoSuchMethodException, SecurityException {
@@ -234,6 +248,8 @@ public class SolrQueryCreatorTest {
   private interface SampleRepository {
 
     ProductBean findByPopularity(Integer popularity);
+    
+    ProductBean findByPopularityIsNot(Integer popularity);
 
     ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 
