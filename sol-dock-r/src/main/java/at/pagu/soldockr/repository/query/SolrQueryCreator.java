@@ -105,8 +105,6 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
         return criteria.between(parameters.next(), parameters.next());
       case IN:
         return criteria.in(asArray(parameters.next()));
-      case NEAR:
-        return criteria.fuzzy(parameters.next().toString());
     }
     throw new ApiUsageException("Illegal criteria found '" + type + "'.");
   }
