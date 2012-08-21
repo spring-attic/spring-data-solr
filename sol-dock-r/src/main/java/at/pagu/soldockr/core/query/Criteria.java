@@ -195,7 +195,7 @@ public class Criteria implements QueryStringHolder {
    * @return
    */
   public Criteria is(Object o) {
-    criteria.add(new CriteriaEntry("$equals", o));
+    criteria.add(new CriteriaEntry(OperationKey.EQUALS, o));
     return this;
   }
 
@@ -207,7 +207,7 @@ public class Criteria implements QueryStringHolder {
    */
   public Criteria contains(String s) {
     assertNoBlankInWildcardedQuery(s, true, true);
-    criteria.add(new CriteriaEntry("$contains", s));
+    criteria.add(new CriteriaEntry(OperationKey.CONTAINS, s));
     return this;
   }
 
@@ -219,7 +219,7 @@ public class Criteria implements QueryStringHolder {
    */
   public Criteria startsWith(String s) {
     assertNoBlankInWildcardedQuery(s, true, false);
-    criteria.add(new CriteriaEntry("$startsWith", s));
+    criteria.add(new CriteriaEntry(OperationKey.STARTS_WITH, s));
     return this;
   }
 
@@ -231,7 +231,7 @@ public class Criteria implements QueryStringHolder {
    */
   public Criteria endsWith(String s) {
     assertNoBlankInWildcardedQuery(s, false, true);
-    criteria.add(new CriteriaEntry("$endsWith", s));
+    criteria.add(new CriteriaEntry(OperationKey.ENDS_WITH, s));
     return this;
   }
 
@@ -242,7 +242,7 @@ public class Criteria implements QueryStringHolder {
    * @return
    */
   public Criteria isNot(Object o) {
-    criteria.add(new CriteriaEntry("$isNot", o));
+    criteria.add(new CriteriaEntry(OperationKey.IS_NOT, o));
     return this;
   }
 
@@ -280,7 +280,7 @@ public class Criteria implements QueryStringHolder {
    * @return
    */
   public Criteria expression(String s) {
-    criteria.add(new CriteriaEntry("$expression", s));
+    criteria.add(new CriteriaEntry(OperationKey.EXPRESSION, s));
     return this;
   }
 
@@ -310,7 +310,7 @@ public class Criteria implements QueryStringHolder {
       throw new ApiUsageException("Range [* TO *] is not allowed");
     }
 
-    criteria.add(new CriteriaEntry("$between", new Object[] {lowerBound, upperBound}));
+    criteria.add(new CriteriaEntry(OperationKey.BETWEEN, new Object[] {lowerBound, upperBound}));
     return this;
   }
 
@@ -429,11 +429,11 @@ public class Criteria implements QueryStringHolder {
     }
 
     // do not filter espressions
-    if (StringUtils.equals("$expression", key)) {
+    if (StringUtils.equals(OperationKey.EXPRESSION.getKey(), key)) {
       return value.toString();
     }
 
-    if (StringUtils.equals("$between", key)) {
+    if (StringUtils.equals(OperationKey.BETWEEN.getKey(), key)) {
       Object[] args = (Object[]) value;
       String rangeFragment = "[";
       rangeFragment += args[0] != null ? filterCriteriaValue(args[0]) : WILDCARD;
@@ -444,16 +444,16 @@ public class Criteria implements QueryStringHolder {
     }
 
     Object filteredValue = filterCriteriaValue(value);
-    if (StringUtils.equals("$contains", key)) {
+    if (StringUtils.equals(OperationKey.CONTAINS.getKey(), key)) {
       return WILDCARD + filteredValue + WILDCARD;
     }
-    if (StringUtils.equals("$startsWith", key)) {
+    if (StringUtils.equals(OperationKey.STARTS_WITH.getKey(), key)) {
       return filteredValue + WILDCARD;
     }
-    if (StringUtils.equals("$endsWith", key)) {
+    if (StringUtils.equals(OperationKey.ENDS_WITH.getKey(), key)) {
       return WILDCARD + filteredValue;
     }
-    if (StringUtils.equals("$isNot", key)) {
+    if (StringUtils.equals(OperationKey.IS_NOT.getKey(), key)) {
       return "-" + filteredValue;
     }
 
@@ -536,10 +536,29 @@ public class Criteria implements QueryStringHolder {
 
   }
 
+  enum OperationKey {
+    IS_NOT("$isNot"), EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION("$expression"), BETWEEN("$between");
+
+    private final String key;
+
+    private OperationKey(String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return this.key;
+    }
+
+  }
+
   static class CriteriaEntry {
 
     private String key;
     private Object value;
+
+    CriteriaEntry(OperationKey key, Object value) {
+      this(key.getKey(), value);
+    }
 
     CriteriaEntry(String key, Object value) {
       this.key = key;
