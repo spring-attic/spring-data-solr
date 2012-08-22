@@ -105,8 +105,24 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
     Assert.assertEquals(2, repository.count());
     
     Page<ProductBean> result = repository.findByAvailableTrue(new PageRequest(0, 10));
-    Assert.assertEquals(result.getTotalElements(), 1);
+    Assert.assertEquals(1, result.getTotalElements());
     Assert.assertEquals(availableProduct.getId(), result.getContent().get(0).getId());
+  }
+  
+  @Test
+  public void testCollectionResultQuery() {
+    ProductBean availableProduct = createProductBean("1");
+    ProductBean unavailableProduct = createProductBean("2");
+    unavailableProduct.setAvailable(false);
+    
+    ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+    
+    repository.save(Arrays.asList(availableProduct, unavailableProduct));
+    Assert.assertEquals(2, repository.count());
+    
+    List<ProductBean> result = repository.findByAvailableTrue(); 
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(availableProduct.getId(), result.get(0).getId());
   }
   
   @Test
