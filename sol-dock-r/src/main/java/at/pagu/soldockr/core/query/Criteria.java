@@ -25,9 +25,13 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.util.Assert;
 
 import at.pagu.soldockr.ApiUsageException;
+import at.pagu.soldockr.core.convert.DateTimeConverters;
+import at.pagu.soldockr.core.convert.NumberConverters;
 
 /**
  * Criteria is the central class when constructing queries.
@@ -46,13 +50,30 @@ public class Criteria implements QueryStringHolder {
   private static final String[] RESERVED_CHARS = {DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "~", "*", "?", ":", "\\"};
   private static final String[] RESERVED_CHARS_REPLACEMENT = {"\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:",
       "\\\\"};
-
+  
+  private final GenericConversionService conversionService = new GenericConversionService();
+  
   private Field field;
   private float boost = Float.NaN;
 
   private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
   private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
+  
+  {
+    if(!conversionService.canConvert(java.util.Date.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(Number.class, String.class)) {
+      conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
+    }
+  }
 
   public Criteria() {}
 
@@ -471,6 +492,9 @@ public class Criteria implements QueryStringHolder {
 
   private Object filterCriteriaValue(Object criteriaValue) {
     if (!(criteriaValue instanceof String)) {
+      if(conversionService.canConvert(criteriaValue.getClass(), String.class)) {
+        return conversionService.convert(criteriaValue, String.class);
+      }
       return criteriaValue;
     }
     String value = escapeCriteriaValue((String) criteriaValue);
@@ -505,6 +529,10 @@ public class Criteria implements QueryStringHolder {
 
   List<Criteria> getCriteriaChain() {
     return this.criteriaChain;
+  }
+  
+  public void registerConverter(Converter<?,?> converter) {
+    conversionService.addConverter(converter);
   }
 
   static class OrCriteria extends Criteria {

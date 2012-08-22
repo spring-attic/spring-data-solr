@@ -173,6 +173,4 @@ public class SimpleQueryTest {
     Assert.assertEquals(1, destination.getGroupByFields().size());
   }
   
-  
-
 }
