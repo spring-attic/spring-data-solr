@@ -56,6 +56,18 @@ public class StringBasedSolrQueryTest {
 
     Assert.assertEquals("textGeneral:j73x73r", query.getCriteria().getQueryString());
   }
+  
+  @Test
+  public void testQueryCreationWithNegativeProperty() throws NoSuchMethodException, SecurityException {
+    Method method = SampleRepository.class.getMethod("findByPopularityAndPrice", Integer.class, Float.class);
+    SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+    StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+    at.pagu.soldockr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(queryMethod, new Object[] {Integer.valueOf(-1), Float.valueOf(-2f)}));
+
+    Assert.assertEquals("popularity:\\-1 AND price:\\-2.0", query.getCriteria().getQueryString());
+  }
 
   @Test
   public void testQueryCreationMultiyProperty() throws NoSuchMethodException, SecurityException {

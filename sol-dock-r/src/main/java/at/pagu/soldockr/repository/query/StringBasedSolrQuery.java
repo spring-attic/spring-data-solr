@@ -18,7 +18,11 @@ package at.pagu.soldockr.repository.query;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.core.convert.support.GenericConversionService;
+
 import at.pagu.soldockr.core.SolrOperations;
+import at.pagu.soldockr.core.convert.DateTimeConverters;
+import at.pagu.soldockr.core.convert.NumberConverters;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.core.query.SimpleStringCriteria;
@@ -28,6 +32,22 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
   private static final Pattern PARAMETER_PLACEHOLDER = Pattern.compile("\\?(\\d+)");
 
   private final String rawQueryString;
+  private final GenericConversionService conversionService = new GenericConversionService();
+  
+  {
+    if(!conversionService.canConvert(java.util.Date.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+      conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
+    }
+    if(!conversionService.canConvert(Number.class, String.class)) {
+      conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
+    }
+  }
   
   public StringBasedSolrQuery(SolrQueryMethod method, SolrOperations solrOperations) {
     this(method.getAnnotatedQuery(), method, solrOperations);
@@ -65,6 +85,11 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
     if (parameter == null) {
       return "null";
     } 
+    
+    if(conversionService.canConvert(parameter.getClass(), String.class)) {
+      return conversionService.convert(parameter, String.class);
+    }
+    
     return parameter.toString();
   }
 }
