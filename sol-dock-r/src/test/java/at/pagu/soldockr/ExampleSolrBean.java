@@ -37,6 +37,9 @@ public class ExampleSolrBean {
 
   @Field
   private boolean inStock;
+  
+  @Field
+  private Integer popularity;
 
   public ExampleSolrBean() {
     this.category = new ArrayList<String>();
@@ -97,6 +100,14 @@ public class ExampleSolrBean {
 
   public boolean equals(Object obj) {
     return EqualsBuilder.reflectionEquals(this, obj);
+  }
+
+  public Integer getPopularity() {
+    return popularity;
+  }
+
+  public void setPopularity(Integer popularity) {
+    this.popularity = popularity;
   }
 
 }
