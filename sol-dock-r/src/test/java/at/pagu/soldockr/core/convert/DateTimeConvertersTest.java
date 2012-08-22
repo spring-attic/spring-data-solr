@@ -20,6 +20,7 @@ import java.util.TimeZone;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,6 +36,18 @@ public class DateTimeConvertersTest {
     DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
     Assert.assertEquals("2012-08-21T06:35:00.000Z", DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime));
   }
+  
+  @Test
+  public void testJodaLocalDateTimeConverterWithNullValue() {
+    Assert.assertNull(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(null));
+  }
+
+  @Test
+  public void testJodaLocalDateTimeConverter() {
+    LocalDateTime dateTime = new LocalDateTime(new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC).getMillis(), DateTimeZone.UTC);
+    Assert.assertEquals("2012-08-21T06:35:00.000Z", DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime));
+  }
+  
 
   @Test
   public void testJavaDateConverterWithNullValue() {
