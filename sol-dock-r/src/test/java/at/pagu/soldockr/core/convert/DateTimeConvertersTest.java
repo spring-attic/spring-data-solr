@@ -24,6 +24,9 @@ import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author Christoph Strobl
+ */
 public class DateTimeConvertersTest {
 
   @Test
@@ -34,9 +37,9 @@ public class DateTimeConvertersTest {
   @Test
   public void testJodaDateTimeConverter() {
     DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
-    Assert.assertEquals("2012-08-21T06:35:00.000Z", DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime));
+    Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z", DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime));
   }
-  
+
   @Test
   public void testJodaLocalDateTimeConverterWithNullValue() {
     Assert.assertNull(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(null));
@@ -45,9 +48,8 @@ public class DateTimeConvertersTest {
   @Test
   public void testJodaLocalDateTimeConverter() {
     LocalDateTime dateTime = new LocalDateTime(new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC).getMillis(), DateTimeZone.UTC);
-    Assert.assertEquals("2012-08-21T06:35:00.000Z", DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime));
+    Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z", DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime));
   }
-  
 
   @Test
   public void testJavaDateConverterWithNullValue() {
@@ -61,7 +63,7 @@ public class DateTimeConvertersTest {
     calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
     calendar.setTimeInMillis(dateTime.getMillis());
 
-    Assert.assertEquals("2012-08-21T06:35:00.000Z", DateTimeConverters.JavaDateConverter.INSTANCE.convert(calendar.getTime()));
+    Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z", DateTimeConverters.JavaDateConverter.INSTANCE.convert(calendar.getTime()));
   }
 
 }

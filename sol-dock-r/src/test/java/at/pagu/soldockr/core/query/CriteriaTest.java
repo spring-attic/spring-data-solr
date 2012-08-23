@@ -32,6 +32,9 @@ import org.springframework.core.convert.converter.Converter;
 
 import at.pagu.soldockr.ApiUsageException;
 
+/**
+ * @author Christoph Strobl
+ */
 public class CriteriaTest {
 
   @Test(expected = IllegalArgumentException.class)
@@ -211,16 +214,16 @@ public class CriteriaTest {
     Criteria criteria = new Criteria("field_1").between(null, 200);
     Assert.assertEquals("field_1:[* TO 200]", criteria.createQueryString());
   }
-  
+
   @Test
   public void testBetweenWithDateValue() {
     DateTime lowerBound = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
     DateTime upperBound = new DateTime(2012, 8, 21, 19, 30, 0, DateTimeZone.UTC);
-    
+
     Criteria criteria = new Criteria("field_1").between(lowerBound, upperBound);
-    Assert.assertEquals("field_1:[2012-08-21T06:35:00.000Z TO 2012-08-21T19:30:00.000Z]", criteria.getQueryString());
+    Assert.assertEquals("field_1:[2012\\-08\\-21T06\\:35\\:00.000Z TO 2012\\-08\\-21T19\\:30\\:00.000Z]", criteria.getQueryString());
   }
-  
+
   @Test
   public void testBetweenNegativeNumber() {
     Criteria criteria = new Criteria("field_1").between(-200, -100);
@@ -273,45 +276,45 @@ public class CriteriaTest {
   public void testInWithNull() {
     new Criteria("field_1").in((Collection<?>) null);
   }
-  
+
   @Test(expected = ApiUsageException.class)
   public void testInWithNoValues() {
     new Criteria("field_1").in();
   }
-  
+
   @Test
   public void testIsWithJavaDateValue() {
     DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
     calendar.setTimeInMillis(dateTime.getMillis());
-    
+
     Criteria criteria = new Criteria("dateField").is(calendar.getTime());
-    Assert.assertEquals("dateField:2012-08-21T06:35:00.000Z", criteria.createQueryString());
+    Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z", criteria.createQueryString());
   }
-  
+
   @Test
   public void testIsWithJodaDateTime() {
     DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
-    
+
     Criteria criteria = new Criteria("dateField").is(dateTime);
-    Assert.assertEquals("dateField:2012-08-21T06:35:00.000Z", criteria.createQueryString());
+    Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z", criteria.createQueryString());
   }
 
   @Test
   public void testIsWithJodaLocalDateTime() {
     LocalDateTime dateTime = new LocalDateTime(new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC).getMillis(), DateTimeZone.UTC);
-    
+
     Criteria criteria = new Criteria("dateField").is(dateTime);
-    Assert.assertEquals("dateField:2012-08-21T06:35:00.000Z", criteria.createQueryString());
+    Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z", criteria.createQueryString());
   }
-  
+
   @Test
   public void testIsWithNegativeNumner() {
     Criteria criteria = new Criteria("field_1").is(-100);
     Assert.assertEquals("field_1:\\-100", criteria.createQueryString());
   }
-  
+
   @Test
   public void testRegisterAlternateConverter() {
     Criteria criteria = new Criteria("field_1").is(100);
@@ -321,9 +324,9 @@ public class CriteriaTest {
       public String convert(Number arg0) {
         return StringUtils.reverse(arg0.toString());
       }
-      
+
     });
     Assert.assertEquals("field_1:001", criteria.createQueryString());
   }
-  
+
 }

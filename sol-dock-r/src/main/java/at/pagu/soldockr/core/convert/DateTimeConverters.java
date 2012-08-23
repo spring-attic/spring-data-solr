@@ -17,6 +17,7 @@ package at.pagu.soldockr.core.convert;
 
 import java.util.Date;
 
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableInstant;
@@ -24,6 +25,20 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.core.convert.converter.Converter;
 
+/**
+ * Converts a Date values into a solr readable String that can be directly used within the 'q' parameter.
+ * Note that Dates have to be UTC.
+ * <code>
+ *   Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+ *   calendar.set(2012, 7, 23, 6, 10, 0);
+ * </code> will be formatted as
+ * 
+ * <pre>
+ *   2012\-08\-23T06\:10\:00.000Z
+ * <pre>
+ * 
+ * @author Christoph Strobl
+ */
 public final class DateTimeConverters {
 
   private static DateTimeFormatter formatter = ISODateTimeFormat.dateTime().withZoneUTC();
@@ -36,22 +51,22 @@ public final class DateTimeConverters {
       if (source == null) {
         return null;
       }
-      return (formatter.print(source.getMillis()));
+      return (ClientUtils.escapeQueryChars(formatter.print(source.getMillis())));
     }
 
   }
-  
+
   public enum JodaLocalDateTimeConverter implements Converter<LocalDateTime, String> {
     INSTANCE;
 
     @Override
     public String convert(LocalDateTime source) {
-      if(source==null) {
+      if (source == null) {
         return null;
       }
-      return formatter.print(source.toDateTime(DateTimeZone.UTC).getMillis());
+      return ClientUtils.escapeQueryChars(formatter.print(source.toDateTime(DateTimeZone.UTC).getMillis()));
     }
-    
+
   }
 
   public enum JavaDateConverter implements Converter<Date, String> {
@@ -63,7 +78,7 @@ public final class DateTimeConverters {
         return null;
       }
 
-      return formatter.print(source.getTime());
+      return ClientUtils.escapeQueryChars(formatter.print(source.getTime()));
     }
 
   }

@@ -16,11 +16,15 @@
 package at.pagu.soldockr;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.solr.client.solrj.beans.Field;
 
+/**
+ * @author Christoph Strobl
+ */
 public class ExampleSolrBean {
 
   @Field
@@ -37,9 +41,12 @@ public class ExampleSolrBean {
 
   @Field
   private boolean inStock;
-  
+
   @Field
   private Integer popularity;
+
+  @Field("last_modified")
+  private Date lastModified;
 
   public ExampleSolrBean() {
     this.category = new ArrayList<String>();
@@ -108,6 +115,14 @@ public class ExampleSolrBean {
 
   public void setPopularity(Integer popularity) {
     this.popularity = popularity;
+  }
+
+  public Date getLastModified() {
+    return lastModified;
+  }
+
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified;
   }
 
 }
