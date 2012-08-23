@@ -26,6 +26,10 @@ import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.context.MappingContext;
 
+/**
+ * @author Christoph Strobl
+ *
+ */
 public class SimpleSolrTypeMapper extends DefaultTypeMapper<Object> implements SolrTypeMapper {
 
   public SimpleSolrTypeMapper() {

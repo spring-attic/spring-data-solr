@@ -17,7 +17,8 @@ package at.pagu.soldockr.core.query;
 
 /**
  * Common interface for any Query 
- *
+ * 
+ * @author Christoph Strobl
  */
 public interface SolDockRQuery {
 

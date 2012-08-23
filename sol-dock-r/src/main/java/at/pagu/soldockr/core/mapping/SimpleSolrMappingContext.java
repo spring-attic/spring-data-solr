@@ -22,6 +22,10 @@ import org.springframework.data.mapping.context.AbstractMappingContext;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.util.TypeInformation;
 
+/**
+ * @author Christoph Strobl
+ *
+ */
 public class SimpleSolrMappingContext extends AbstractMappingContext<SimpleSolrPersistentEntity<?>, SolrPersistentProperty> {
  
   @Override

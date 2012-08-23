@@ -15,6 +15,9 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * @author Christoph Strobl
+ */
 public interface FacetQuery extends Query {
 
   /**
@@ -26,11 +29,10 @@ public interface FacetQuery extends Query {
   <T extends SolDockRQuery> T setFacetOptions(FacetOptions facetOptions);
 
   /**
-   * 
    * @return
    */
   FacetOptions getFacetOptions();
-  
+
   /**
    * @return true if options set
    */

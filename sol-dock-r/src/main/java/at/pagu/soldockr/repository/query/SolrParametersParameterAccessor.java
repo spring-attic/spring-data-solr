@@ -17,6 +17,9 @@ package at.pagu.soldockr.repository.query;
 
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 
+/**
+ * @author Christoph Strobl
+ */
 public class SolrParametersParameterAccessor extends ParametersParameterAccessor implements SolrParameterAccessor {
 
   public SolrParametersParameterAccessor(SolrQueryMethod solrQueryMethod, Object[] values) {

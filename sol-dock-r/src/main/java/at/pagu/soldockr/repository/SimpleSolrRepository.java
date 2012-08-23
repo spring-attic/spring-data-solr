@@ -35,7 +35,15 @@ import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
+import at.pagu.soldockr.repository.support.SolrRepositoryFactory;
 
+/**
+ * Solr specific repository implementation. Likely to be used as target within {@link SolrRepositoryFactory}
+ *
+ * @param <T>
+ * 
+ * @author Christoph Strobl
+ */
 public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
   private static final String DEFAULT_ID_FIELD = "id";

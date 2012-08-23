@@ -20,7 +20,7 @@ import at.pagu.soldockr.core.query.SimpleField;
 
 /**
  * The most trivial implementation of FacetEntry
- *
+ * @author Christoph Strobl
  */
 public class SimpleFacetEntry implements FacetEntry {
 

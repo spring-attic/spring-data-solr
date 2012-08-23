@@ -19,6 +19,7 @@ package at.pagu.soldockr;
 /**
  * ApiUsageExcetion indicates a miss use of the sol-dock-r API.
  *
+ * @author Christoph Strobl
  */
 public class ApiUsageException extends SolDockRException {
 

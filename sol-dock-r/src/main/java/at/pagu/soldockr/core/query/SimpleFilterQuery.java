@@ -15,6 +15,11 @@
  */
 package at.pagu.soldockr.core.query;
 
+/**
+ * Trivial implementation of {@link FilterQuery}
+ * 
+ * @author Christoph Strobl
+ */
 public class SimpleFilterQuery extends AbstractQuery implements FilterQuery {
 
   public SimpleFilterQuery() {}

@@ -19,6 +19,8 @@ package at.pagu.soldockr;
 /**
  * QueryException indicates a fault while executing a Query against solr.
  * SolrExeption is wrapped within the QueryException.
+ * 
+ * @author Christoph Strobl
  */
 public class QueryException extends SolDockRException {
 

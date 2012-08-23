@@ -20,8 +20,13 @@ import java.io.Serializable;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.Repository;
 
+/**
+ * @param <T>
+ * @param <ID>
+ * @author Christoph Strobl
+ */
 @NoRepositoryBean
-public interface SolrRepository <T, ID extends Serializable> extends Repository<T, ID> {
+public interface SolrRepository<T, ID extends Serializable> extends Repository<T, ID> {
 
   /**
    * Returns the number of entities available.

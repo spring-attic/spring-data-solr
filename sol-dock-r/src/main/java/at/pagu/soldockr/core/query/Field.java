@@ -18,6 +18,7 @@ package at.pagu.soldockr.core.query;
 /**
  * Defines a Field that can be used within a Criteria.
  *
+ * @author Christoph Strobl
  */
 public interface Field {
   

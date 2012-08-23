@@ -19,6 +19,7 @@ package at.pagu.soldockr.core.query;
  * The most basic criteria holding an already formatted QueryString that can be
  * executed 'as is' against the solr server
  * 
+ * @author Christoph Strobl
  */
 public class SimpleStringCriteria extends Criteria {
 

@@ -36,6 +36,8 @@ import at.pagu.soldockr.core.convert.NumberConverters;
 /**
  * Criteria is the central class when constructing queries.
  * It follows more or less a fluent API style, which allows to easily chain together multiple criteria.
+ * 
+ * @author Christoph Strobl
  */
 public class Criteria implements QueryStringHolder {
 
@@ -50,27 +52,27 @@ public class Criteria implements QueryStringHolder {
   private static final String[] RESERVED_CHARS = {DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "~", "*", "?", ":", "\\"};
   private static final String[] RESERVED_CHARS_REPLACEMENT = {"\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:",
       "\\\\"};
-  
+
   private final GenericConversionService conversionService = new GenericConversionService();
-  
+
   private Field field;
   private float boost = Float.NaN;
 
   private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
   private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
-  
+
   {
-    if(!conversionService.canConvert(java.util.Date.class, String.class)) {
+    if (!conversionService.canConvert(java.util.Date.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+    if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+    if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(Number.class, String.class)) {
+    if (!conversionService.canConvert(Number.class, String.class)) {
       conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
     }
   }
@@ -492,7 +494,7 @@ public class Criteria implements QueryStringHolder {
 
   private Object filterCriteriaValue(Object criteriaValue) {
     if (!(criteriaValue instanceof String)) {
-      if(conversionService.canConvert(criteriaValue.getClass(), String.class)) {
+      if (conversionService.canConvert(criteriaValue.getClass(), String.class)) {
         return conversionService.convert(criteriaValue, String.class);
       }
       return criteriaValue;
@@ -530,8 +532,8 @@ public class Criteria implements QueryStringHolder {
   List<Criteria> getCriteriaChain() {
     return this.criteriaChain;
   }
-  
-  public void registerConverter(Converter<?,?> converter) {
+
+  public void registerConverter(Converter<?, ?> converter) {
     conversionService.addConverter(converter);
   }
 

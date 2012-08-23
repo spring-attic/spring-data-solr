@@ -33,6 +33,8 @@ import at.pagu.soldockr.SolrServerFactory;
  * The EmbeddedSolrServerFactory allows hosting of an SolrServer instance in embedded mode.
  * Configuration files are loaded via {@link ResourceUtils}, therefore it is possible to place them in classpath.
  * Use this class for Testing. It is not recommended for production.
+ * 
+ * @author Christoph Strobl
  */
 public class EmbeddedSolrServerFactory implements SolrServerFactory {
 

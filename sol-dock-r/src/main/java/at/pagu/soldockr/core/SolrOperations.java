@@ -30,6 +30,11 @@ import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
 import at.pagu.soldockr.core.query.result.FacetPage;
 
+/**
+ * Interface that specifies a basic set of Solr operations.
+ * 
+ * @author Christoph Strobl
+ */
 public interface SolrOperations {
 
   /**

@@ -18,10 +18,13 @@ package at.pagu.soldockr.core.mapping;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mapping.PersistentProperty;
 
+/**
+ * @author Christoph Strobl
+ */
 public interface SolrPersistentProperty extends PersistentProperty<SolrPersistentProperty> {
 
   String getFieldName();
-  
+
   public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 
     INSTANCE;

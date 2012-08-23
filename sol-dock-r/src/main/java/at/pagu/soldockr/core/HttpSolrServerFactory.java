@@ -34,6 +34,8 @@ import at.pagu.soldockr.SolrServerFactory;
  * The HttpSolrServerFactory configures an {@link HttpSolrServer} to work with the provided core.
  * If provided Credentials eg. (@link UsernamePasswordCredentials} and AuthPolicy (eg. BASIC, DIGEST,...) will be applied to the underlying
  * HttpClient.
+ * 
+ * @author Christoph Strobl
  */
 public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean {
 

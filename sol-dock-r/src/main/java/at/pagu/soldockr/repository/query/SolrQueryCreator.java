@@ -33,6 +33,11 @@ import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
+/**
+ * Solr specific implmentation of an {@link AbstractQueryCreator} that constructs {@link Query}
+ * 
+ * @author Christoph Strobl
+ */
 class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
   private final MappingContext<?, SolrPersistentProperty> context;
@@ -97,10 +102,10 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
         return criteria.contains(parameters.next().toString());
       case GREATER_THAN:
       case GREATER_THAN_EQUAL:
-        return criteria.greaterThanEqual(parameters.next());  
+        return criteria.greaterThanEqual(parameters.next());
       case LESS_THAN:
       case LESS_THAN_EQUAL:
-        return criteria.lessThanEqual(parameters.next());  
+        return criteria.lessThanEqual(parameters.next());
       case BETWEEN:
         return criteria.between(parameters.next(), parameters.next());
       case IN:
@@ -108,14 +113,14 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
     }
     throw new ApiUsageException("Illegal criteria found '" + type + "'.");
   }
-  
-  private Object [] asArray(Object o) {
+
+  private Object[] asArray(Object o) {
     if (o instanceof Collection) {
       return ((Collection<?>) o).toArray();
     } else if (o.getClass().isArray()) {
       return (Object[]) o;
     }
-    return new Object[] { o };
+    return new Object[] {o};
   }
 
 }

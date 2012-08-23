@@ -29,6 +29,13 @@ import org.springframework.data.domain.Pageable;
 import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.SimpleField;
 
+/**
+ * FacetPage holds a page for each field targeted by the facet query.
+ * 
+ * @param <T>
+ * 
+ * @author Christoph Strobl
+ */
 public class FacetPage<T> extends PageImpl<T> {
 
   private static final long serialVersionUID = 9024455741261109788L;
@@ -57,17 +64,17 @@ public class FacetPage<T> extends PageImpl<T> {
       addFacetResultPage(entry.getValue(), entry.getKey());
     }
   }
-  
+
   public Collection<Page<FacetEntry>> getFacetResultPages() {
     return Collections.unmodifiableCollection(this.facetResultPages.values());
   }
-  
+
   public Collection<Field> getFacetFields() {
-    if(facetResultPages.isEmpty()) {
+    if (facetResultPages.isEmpty()) {
       return Collections.emptyList();
     }
     List<Field> fields = new ArrayList<Field>(facetResultPages.size());
-    for(String fieldName : this.facetResultPages.keySet()) {
+    for (String fieldName : this.facetResultPages.keySet()) {
       fields.add(new SimpleField(fieldName));
     }
     return fields;

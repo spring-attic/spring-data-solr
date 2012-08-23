@@ -20,10 +20,18 @@ import java.io.IOException;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 
+/**
+ * Callback interface for data access code that works with SolrServer. 
+ * To be used with SolrTemplate execute methods
+ * 
+ * @param <T>
+ * 
+ * @author Christoph Strobl
+ */
 public interface SolrCallback<T> {
-  
+
   /**
-   * @param solrServer execute 
+   * @param solrServer execute
    * @return
    * @throws SolrServerException
    * @throws IOException

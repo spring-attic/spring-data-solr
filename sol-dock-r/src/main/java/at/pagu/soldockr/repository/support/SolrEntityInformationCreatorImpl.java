@@ -25,23 +25,24 @@ import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 import at.pagu.soldockr.repository.query.SolrEntityInformationCreator;
 
+/**
+ * @author Christoph Strobl
+ */
 public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCreator {
-  
-  private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext; 
 
-  public SolrEntityInformationCreatorImpl(
-      MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+  private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
+
+  public SolrEntityInformationCreatorImpl(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
     Assert.notNull(mappingContext);
     this.mappingContext = mappingContext;
   }
-  
+
   @Override
   @SuppressWarnings("unchecked")
   public <T, ID extends Serializable> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-    SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext
-        .getPersistentEntity(domainClass);
+    SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext.getPersistentEntity(domainClass);
 
     return new MappingSolrEntityInformation<T, ID>(persistentEntity);
   }
-  
+
 }

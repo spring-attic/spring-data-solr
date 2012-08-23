@@ -18,6 +18,11 @@ package at.pagu.soldockr.core.query;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
+/**
+ * Trivial implementation of {@link FacetQuery}
+ * 
+ * @author Christoph Strobl
+ */
 public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
 
   private FacetOptions facetOptions;

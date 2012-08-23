@@ -22,6 +22,11 @@ import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 import at.pagu.soldockr.core.query.Query;
 
+/**
+ * Solr specific implementation of a derived query.
+ * 
+ * @author Christoph Strobl
+ */
 public class PartTreeSolrQuery extends AbstractSolrQuery {
 
   private final PartTree tree;

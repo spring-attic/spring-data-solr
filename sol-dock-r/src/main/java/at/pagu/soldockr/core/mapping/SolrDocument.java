@@ -23,6 +23,10 @@ import java.lang.annotation.Target;
 
 import org.springframework.data.annotation.Persistent;
 
+/**
+ * @author Christoph Strobl
+ *
+ */
 @Persistent
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

@@ -19,10 +19,15 @@ import java.io.Serializable;
 
 import org.springframework.data.repository.core.EntityInformation;
 
+/**
+ * @param <T>
+ * @param <ID>
+ * @author Christoph Strobl
+ */
 public interface SolrEntityInformation<T, ID extends Serializable> extends EntityInformation<T, ID> {
 
   String getIdAttribute();
-  
+
   String getSolrCoreName();
-  
+
 }

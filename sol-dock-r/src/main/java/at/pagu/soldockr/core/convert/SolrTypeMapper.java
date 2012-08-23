@@ -17,6 +17,10 @@ package at.pagu.soldockr.core.convert;
 
 import org.springframework.data.convert.TypeMapper;
 
+/**
+ * @author Christoph Strobl
+ *
+ */
 public interface SolrTypeMapper extends TypeMapper<Object> {
 
 }

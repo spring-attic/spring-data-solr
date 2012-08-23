@@ -17,6 +17,9 @@ package at.pagu.soldockr.repository.query;
 
 import org.springframework.data.repository.query.ParameterAccessor;
 
+/**
+ * @author Christoph Strobl
+ */
 public interface SolrParameterAccessor extends ParameterAccessor {
 
 }

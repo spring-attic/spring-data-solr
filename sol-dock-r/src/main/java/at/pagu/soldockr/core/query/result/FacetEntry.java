@@ -21,6 +21,7 @@ import at.pagu.soldockr.core.query.Field;
  * FacetEntry is returned as result of a FacetQuery holding the fieldname, value
  * and valueCount for the requested facet field
  * 
+ * @author Christoph Strobl
  */
 public interface FacetEntry {
 

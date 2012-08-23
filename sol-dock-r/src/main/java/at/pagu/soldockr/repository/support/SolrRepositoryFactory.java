@@ -31,12 +31,18 @@ import org.springframework.util.Assert;
 
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.repository.SimpleSolrRepository;
+import at.pagu.soldockr.repository.SolrRepository;
 import at.pagu.soldockr.repository.query.PartTreeSolrQuery;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 import at.pagu.soldockr.repository.query.SolrEntityInformationCreator;
 import at.pagu.soldockr.repository.query.SolrQueryMethod;
 import at.pagu.soldockr.repository.query.StringBasedSolrQuery;
 
+/**
+ * Factory to create {@link SolrRepository}
+ * 
+ * @author Christoph Strobl
+ */
 public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
   private final SolrOperations solrOperations;

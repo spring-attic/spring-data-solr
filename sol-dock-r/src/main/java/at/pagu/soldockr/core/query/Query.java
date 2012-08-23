@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 /**
  * A Query that can be translated into a solr understandable Query. 
  *
+ * @author Christoph Strobl
  */
 public interface Query extends SolDockRQuery {
   

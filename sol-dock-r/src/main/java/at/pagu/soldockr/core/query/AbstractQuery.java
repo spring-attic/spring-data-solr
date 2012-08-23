@@ -17,6 +17,11 @@ package at.pagu.soldockr.core.query;
 
 import org.springframework.util.Assert;
 
+/**
+ * Base QueryImplementation enables and conjunction by adding criterias
+ * 
+ * @author Christoph Strobl
+ */
 class AbstractQuery {
 
   private Criteria criteria;
@@ -30,7 +35,7 @@ class AbstractQuery {
   @SuppressWarnings("unchecked")
   public final <T extends SolDockRQuery> T addCriteria(Criteria criteria) {
     Assert.notNull(criteria, "Cannot add null criteria.");
-    if(!(criteria instanceof SimpleStringCriteria)) {     
+    if (!(criteria instanceof SimpleStringCriteria)) {
       Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");
       Assert.hasText(criteria.getField().getName(), "Criteria.field.name must not be null/empty.");
     }

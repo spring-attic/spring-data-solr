@@ -17,6 +17,12 @@ package at.pagu.soldockr.core.convert;
 
 import org.springframework.core.convert.converter.Converter;
 
+/**
+ * Converts a Number values into a solr readable String that can be directly used within the 'q' parameter.
+ * Negative values will be escaped accordingly.
+ * 
+ * @author Christoph Strobl
+ */
 public final class NumberConverters {
 
   public enum NumberConverter implements Converter<Number, String> {
@@ -24,16 +30,16 @@ public final class NumberConverters {
 
     @Override
     public String convert(Number source) {
-      if(source == null) {
+      if (source == null) {
         return null;
       }
-      
-      if(source.doubleValue() < 0d) {
+
+      if (source.doubleValue() < 0d) {
         return "\\" + source.toString();
       }
       return source.toString();
     }
-    
+
   }
-  
+
 }

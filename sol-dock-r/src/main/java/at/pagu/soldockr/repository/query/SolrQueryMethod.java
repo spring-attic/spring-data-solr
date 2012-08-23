@@ -26,9 +26,14 @@ import org.springframework.util.StringUtils;
 
 import at.pagu.soldockr.repository.Query;
 
+/**
+ * Solr specific implementation of {@link QueryMethod} taking care of {@link Query}
+ * 
+ * @author Christoph Strobl
+ */
 public class SolrQueryMethod extends QueryMethod {
 
-  private final SolrEntityInformation<?,?> entityInformation;
+  private final SolrEntityInformation<?, ?> entityInformation;
   private Method method;
 
   public SolrQueryMethod(Method method, RepositoryMetadata metadata, SolrEntityInformationCreator solrInformationCreator) {
@@ -53,9 +58,9 @@ public class SolrQueryMethod extends QueryMethod {
   TypeInformation<?> getReturnType() {
     return ClassTypeInformation.fromReturnTypeOf(method);
   }
-  
+
   @Override
-  public SolrEntityInformation<?,?> getEntityInformation() {
+  public SolrEntityInformation<?, ?> getEntityInformation() {
     return entityInformation;
   }
 

@@ -17,7 +17,8 @@ package at.pagu.soldockr.core.query;
 
 /**
  * The most trivial implementation of a Field
- *
+ * 
+ * @author Christoph Strobl
  */
 public class SimpleField implements Field {
   

@@ -22,6 +22,11 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.core.convert.converter.Converter;
 
+/**
+ * Offers classes that can convert from SolrDocument to any Object and vice versa using the solrj DocumentObjectBinder
+ * 
+ * @author Christoph Strobl
+ */
 final class SolrjConverters {
 
   private SolrjConverters() {

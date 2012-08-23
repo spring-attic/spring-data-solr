@@ -17,7 +17,8 @@ package at.pagu.soldockr.core.query;
 
 /**
  * Class holding a solr readable QueryString that can be used with the 'q' parameter.
- *
+ * 
+ * @author Christoph Strobl
  */
 public interface QueryStringHolder {
 

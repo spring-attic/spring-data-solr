@@ -19,6 +19,8 @@ import org.apache.solr.client.solrj.SolrServer;
 
 /**
  * SolrServerFactory provides access to the solrj {@link SolrServer}.
+ * 
+ * @author Christoph Strobl
  */
 public interface SolrServerFactory {
 

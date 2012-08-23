@@ -24,6 +24,10 @@ import org.springframework.data.convert.EntityWriter;
 import at.pagu.soldockr.core.mapping.SolrPersistentEntity;
 import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 
+/**
+ * @author Christoph Strobl
+ *
+ */
 public interface SolrConverter extends EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, Map<String,?>>, EntityWriter<Object, Map<String,?>>, EntityReader<Object, Map<String,?>> {
 
 }

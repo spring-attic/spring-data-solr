@@ -40,6 +40,7 @@ import at.pagu.soldockr.core.query.result.SimpleFacetEntry;
  * Use Result Helper to extract various parameters from the QueryResponse and convert it into a proper Format
  * taking care of non existent and null elements with the response.
  *
+ * @author Christoph Strobl
  */
 final class ResultHelper {
 

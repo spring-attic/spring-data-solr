@@ -27,32 +27,37 @@ import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.core.query.SimpleStringCriteria;
 
+/**
+ * Solr specific implementation of {@link RepositoryQuery} that can handle string based queries
+ * 
+ * @author Christoph Strobl
+ */
 public class StringBasedSolrQuery extends AbstractSolrQuery {
-  
+
   private static final Pattern PARAMETER_PLACEHOLDER = Pattern.compile("\\?(\\d+)");
 
   private final String rawQueryString;
   private final GenericConversionService conversionService = new GenericConversionService();
-  
+
   {
-    if(!conversionService.canConvert(java.util.Date.class, String.class)) {
+    if (!conversionService.canConvert(java.util.Date.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+    if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+    if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
       conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
     }
-    if(!conversionService.canConvert(Number.class, String.class)) {
+    if (!conversionService.canConvert(Number.class, String.class)) {
       conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
     }
   }
-  
+
   public StringBasedSolrQuery(SolrQueryMethod method, SolrOperations solrOperations) {
     this(method.getAnnotatedQuery(), method, solrOperations);
   }
-  
+
   public StringBasedSolrQuery(String query, SolrQueryMethod queryMethod, SolrOperations solrOperations) {
     super(solrOperations, queryMethod);
     this.rawQueryString = query;
@@ -61,10 +66,10 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
   @Override
   protected Query createQuery(SolrParameterAccessor parameterAccessor) {
     String queryString = replacePlaceholders(this.rawQueryString, parameterAccessor);
-    
+
     return new SimpleQuery(new SimpleStringCriteria(queryString));
   }
-  
+
   private String replacePlaceholders(String input, SolrParameterAccessor accessor) {
 
     Matcher matcher = PARAMETER_PLACEHOLDER.matcher(input);
@@ -77,19 +82,19 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
     }
     return result;
   }
-  
+
   private String getParameterWithIndex(SolrParameterAccessor accessor, int index) {
 
     Object parameter = accessor.getBindableValue(index);
 
     if (parameter == null) {
       return "null";
-    } 
-    
-    if(conversionService.canConvert(parameter.getClass(), String.class)) {
+    }
+
+    if (conversionService.canConvert(parameter.getClass(), String.class)) {
       return conversionService.convert(parameter, String.class);
     }
-    
+
     return parameter.toString();
   }
 }

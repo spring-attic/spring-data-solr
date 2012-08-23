@@ -35,6 +35,9 @@ import at.pagu.soldockr.SolrServerFactory;
 import at.pagu.soldockr.core.mapping.SolrPersistentEntity;
 import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 
+/**
+ * @author Christoph Strobl
+ */
 public class MappingSolrConverter implements SolrConverter, ApplicationContextAware, InitializingBean {
 
   private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;

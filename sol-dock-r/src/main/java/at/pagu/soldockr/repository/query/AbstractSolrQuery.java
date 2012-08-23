@@ -24,6 +24,11 @@ import org.springframework.util.Assert;
 import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.core.query.Query;
 
+/**
+ * Base implementation of a solr specific {@link RepositoryQuery}
+ * 
+ * @author Christoph Strobl
+ */
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
   private final SolrOperations solrOperations;

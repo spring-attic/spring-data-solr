@@ -17,9 +17,11 @@ package at.pagu.soldockr.repository.query;
 
 import java.io.Serializable;
 
-
+/**
+ * @author Christoph Strobl
+ */
 public interface SolrEntityInformationCreator {
-  
+
   <T, ID extends Serializable> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass);
 
 }

@@ -23,6 +23,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
+/**
+ * Full implementation of {@link Query} that allows multiple options like pagination, grouping,...
+ * 
+ * @author Christoph Strobl
+ */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
   public static final Pageable DEFAULT_PAGE = new PageRequest(0, DEFAULT_PAGE_SIZE);

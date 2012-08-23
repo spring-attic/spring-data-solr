@@ -49,6 +49,11 @@ import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
 import at.pagu.soldockr.core.query.result.FacetPage;
 
+/**
+ * Implementation of SolrOperations
+ * 
+ * @author Christoph Strobl
+ */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);

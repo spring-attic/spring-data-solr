@@ -27,6 +27,12 @@ import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
+/**
+ * Solr specific {@link PersistentEntity} implementation holding eg. name of solr core
+ *
+ * @param <T>
+ * @author Christoph Strobl
+ */
 public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements SolrPersistentEntity<T>, ApplicationContextAware {
 
   private final StandardEvaluationContext context;

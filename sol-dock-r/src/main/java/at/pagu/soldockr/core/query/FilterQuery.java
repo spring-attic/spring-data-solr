@@ -20,7 +20,8 @@ package at.pagu.soldockr.core.query;
  * executing the original query.
  * 
  * This corresponds to the 'fq' Parameter within solr.
- *
+ * 
+ * @author Christoph Strobl
  */
 public interface FilterQuery extends SolDockRQuery {
   

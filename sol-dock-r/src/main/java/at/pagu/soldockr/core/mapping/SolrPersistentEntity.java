@@ -17,6 +17,10 @@ package at.pagu.soldockr.core.mapping;
 
 import org.springframework.data.mapping.PersistentEntity;
 
+/**
+ * @param <T>
+ * @author Christoph Strobl
+ */
 public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersistentProperty>  {
 
   String getSolrCoreName();

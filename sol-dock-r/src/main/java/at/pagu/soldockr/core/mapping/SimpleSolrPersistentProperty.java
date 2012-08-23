@@ -26,6 +26,12 @@ import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.util.StringUtils;
 
+/**
+ * Solr specific {@link PersistentProperty} implementation processing taking {@link org.apache.solr.client.solrj.beans.Field} into account
+ * 
+ * @author Christoph Strobl
+ *
+ */
 public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> implements
     SolrPersistentProperty {
 

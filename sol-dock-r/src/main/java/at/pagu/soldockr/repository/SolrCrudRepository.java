@@ -21,6 +21,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
+/**
+ * @param <T>
+ * @param <ID>
+ * @author Christoph Strobl
+ */
 public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, CrudRepository<T, ID> {
 
   /**
@@ -31,5 +36,5 @@ public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepo
    * @return a page of entities
    */
   Page<T> findAll(Pageable pageable);
-  
+
 }
