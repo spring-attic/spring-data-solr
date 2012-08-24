@@ -105,7 +105,6 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <version>${joda-time.version}</version>
-      <optional>true</optional>
     </dependency>
 
     <!-- SOLR -->
