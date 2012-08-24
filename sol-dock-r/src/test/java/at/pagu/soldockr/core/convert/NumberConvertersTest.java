@@ -18,6 +18,9 @@ package at.pagu.soldockr.core.convert;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author Christoph Strobl
+ */
 public class NumberConvertersTest {
 
   @Test

@@ -5,6 +5,9 @@ import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
 
+/**
+ * @author Christoph Strobl
+ */
 public class ProductBean {
 
   @Id

@@ -24,6 +24,9 @@ import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.SimpleField;
 import at.pagu.soldockr.core.query.FacetOptions.FacetSort;
 
+/**
+ * @author Christoph Strobl
+ */
 public class FacetOptionsTest {
 
   @Test

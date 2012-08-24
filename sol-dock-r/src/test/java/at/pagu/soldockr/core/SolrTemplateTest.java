@@ -44,6 +44,9 @@ import at.pagu.soldockr.core.query.Criteria;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrTemplateTest {
 

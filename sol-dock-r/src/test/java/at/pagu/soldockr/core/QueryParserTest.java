@@ -35,6 +35,9 @@ import at.pagu.soldockr.core.query.SimpleFilterQuery;
 import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.core.query.SimpleStringCriteria;
 
+/**
+ * @author Christoph Strobl
+ */
 public class QueryParserTest {
 
   private QueryParser queryParser;

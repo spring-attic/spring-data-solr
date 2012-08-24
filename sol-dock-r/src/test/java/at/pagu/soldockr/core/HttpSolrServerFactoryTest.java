@@ -30,7 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import at.pagu.soldockr.core.HttpSolrServerFactory;
-
+/**
+ * @author Christoph Strobl
+ */
 public class HttpSolrServerFactoryTest {
   
   private static final String URL = "http://solr.server.url";

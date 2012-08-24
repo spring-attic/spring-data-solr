@@ -35,6 +35,9 @@ import at.pagu.soldockr.repository.ProductBean;
 import at.pagu.soldockr.repository.Query;
 import at.pagu.soldockr.repository.SolrCrudRepository;
 
+/**
+ * @author Christoph Strobl
+ */
 public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrServer {
 
   private SolrRepositoryFactory factory;

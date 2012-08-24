@@ -38,6 +38,9 @@ import at.pagu.soldockr.core.query.Field;
 import at.pagu.soldockr.core.query.SimpleFacetQuery;
 import at.pagu.soldockr.core.query.result.FacetEntry;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultHelperTest {
   

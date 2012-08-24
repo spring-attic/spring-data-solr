@@ -30,6 +30,9 @@ import at.pagu.soldockr.core.SolrOperations;
 import at.pagu.soldockr.repository.ProductBean;
 import at.pagu.soldockr.repository.Query;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class StringBasedSolrQueryTest {
 

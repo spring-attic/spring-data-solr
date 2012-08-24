@@ -30,6 +30,9 @@ import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SimpleField;
 import at.pagu.soldockr.core.query.SimpleQuery;
 
+/**
+ * @author Christoph Strobl
+ */
 public class SimpleQueryTest {
 
   @Test(expected = IllegalArgumentException.class)

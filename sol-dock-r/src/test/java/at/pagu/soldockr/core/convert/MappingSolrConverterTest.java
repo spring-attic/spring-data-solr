@@ -34,6 +34,9 @@ import org.springframework.context.ApplicationContext;
 import at.pagu.soldockr.SolrServerFactory;
 import at.pagu.soldockr.core.mapping.SimpleSolrMappingContext;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class MappingSolrConverterTest {
 

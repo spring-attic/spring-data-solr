@@ -27,7 +27,9 @@ import at.pagu.soldockr.AbstractITestWithEmbeddedSolrServer;
 import at.pagu.soldockr.ExampleSolrBean;
 import at.pagu.soldockr.core.SolrTemplate;
 
-
+/**
+ * @author Christoph Strobl
+ */
 public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServer {
   
   private ExampleSolrBeanRepository repository;

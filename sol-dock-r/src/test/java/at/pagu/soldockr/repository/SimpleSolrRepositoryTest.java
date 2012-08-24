@@ -34,6 +34,9 @@ import at.pagu.soldockr.core.SolrTemplate;
 import at.pagu.soldockr.core.query.Query;
 import at.pagu.soldockr.core.query.SolDockRQuery;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrRepositoryTest {
 

@@ -41,6 +41,10 @@ import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.core.query.result.FacetEntry;
 import at.pagu.soldockr.core.query.result.FacetPage;
 
+
+/**
+ * @author Christoph Strobl
+ */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
   private SolrTemplate solrTemplate;
@@ -103,8 +107,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
     solrTemplate.executeAddBeans(values);
     solrTemplate.executeCommit();
 
-    FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setFacetOptions(new FacetOptions()
-        .addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
+    FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setFacetOptions(new FacetOptions().addFacetOnField("name").addFacetOnField("id")
+        .setFacetLimit(5));
 
     FacetPage<ExampleSolrBean> page = solrTemplate.executeFacetQuery(q, ExampleSolrBean.class);
 

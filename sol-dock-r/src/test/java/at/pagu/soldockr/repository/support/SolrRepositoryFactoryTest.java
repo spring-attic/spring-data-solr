@@ -33,6 +33,9 @@ import at.pagu.soldockr.core.mapping.SolrPersistentProperty;
 import at.pagu.soldockr.repository.ProductBean;
 import at.pagu.soldockr.repository.query.SolrEntityInformation;
 
+/**
+ * @author Christoph Strobl
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrRepositoryFactoryTest {
 

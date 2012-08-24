@@ -17,6 +17,9 @@ package at.pagu.soldockr.repository;
 
 import at.pagu.soldockr.ExampleSolrBean;
 
+/**
+ * @author Christoph Strobl
+ */
 public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean> {
 
 }

@@ -19,6 +19,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+/**
+ * @author Christoph Strobl
+ */
 public class SimpleStringCriteriaTest {
   
   @Test

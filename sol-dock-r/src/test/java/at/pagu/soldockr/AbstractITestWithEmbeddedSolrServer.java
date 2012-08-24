@@ -29,6 +29,9 @@ import org.junit.BeforeClass;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
+/**
+ * @author Christoph Strobl
+ */
 public abstract class AbstractITestWithEmbeddedSolrServer {
 
   protected static SolrServer solrServer;
@@ -41,19 +44,19 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
     CoreContainer coreContainer = initializer.initialize();
     solrServer = new EmbeddedSolrServer(coreContainer, "");
   }
-  
+
   @AfterClass
   public static void cleanDataInSolr() throws SolrServerException, IOException {
     solrServer.deleteByQuery("*:*");
     solrServer.commit();
   }
-  
+
   public ExampleSolrBean createDefaultExampleBean() {
     return createExampleBeanWithId(DEFAULT_BEAN_ID);
   }
-  
+
   public ExampleSolrBean createExampleBeanWithId(String id) {
-    return new ExampleSolrBean(id, "bean_"+id, "category_"+id);
+    return new ExampleSolrBean(id, "bean_" + id, "category_" + id);
   }
 
 }

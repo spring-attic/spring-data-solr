@@ -17,6 +17,9 @@ package at.pagu.soldockr.core;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+/**
+ * @author Christoph Strobl
+ */
 public class SimpleJavaObject {
 
   @Field
