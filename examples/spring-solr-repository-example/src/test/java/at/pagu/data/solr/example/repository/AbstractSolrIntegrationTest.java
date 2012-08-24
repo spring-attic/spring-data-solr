@@ -15,21 +15,32 @@
  */
 package at.pagu.data.solr.example.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.repository.CrudRepository;
+import java.util.ArrayList;
+import java.util.List;
 
 import at.pagu.data.solr.example.model.Product;
-import at.pagu.soldockr.core.query.result.FacetPage;
 
 /**
  * @author Christoph Strobl
  */
-public interface ProductRepository extends CrudRepository<Product, String> {
+public abstract class AbstractSolrIntegrationTest {
 
-  Page<Product> findByPopularity(Integer popularity);
+  protected List<Product> createProductList(int nrProducts) {
+    List<Product> products = new ArrayList<Product>(nrProducts);
+    for (int i = 0; i < nrProducts; i++) {
+      products.add(createProduct(i));
+    }
+    return products;
+  }
 
-  FacetPage<Product> findByNameStartingWithAndFacetOnAvailable(String namePrefix);
-
-  Page<Product> findByAvailableTrue();
-
+  protected Product createProduct(int id) {
+    Product product = new Product();
+    product.setId(Integer.toString(id));
+    product.setAvailable(id % 2 == 0);
+    product.setName("product-" + id);
+    product.setPopularity(id * 10);
+    product.setPrice((float) id * 100);
+    product.setWeight((float) id * 2);
+    return product;
+  }
 }

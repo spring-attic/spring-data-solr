@@ -29,6 +29,9 @@ import at.pagu.soldockr.core.query.SimpleQuery;
 import at.pagu.soldockr.core.query.result.FacetPage;
 import at.pagu.soldockr.repository.SimpleSolrRepository;
 
+/**
+ * @author Christoph Strobl
+ */
 @NoRepositoryBean
 public class SolrProductRepository extends SimpleSolrRepository<Product> implements ProductRepository {
 

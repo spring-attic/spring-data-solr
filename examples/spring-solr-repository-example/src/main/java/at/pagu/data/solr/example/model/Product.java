@@ -19,6 +19,9 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+/**
+ * @author Christoph Strobl
+ */
 public class Product implements SearchableProduct {
 
   @Field(ID_FIELD)

@@ -15,6 +15,9 @@
  */
 package at.pagu.data.solr.example.model;
 
+/**
+ * @author Christoph Strobl
+ */
 public interface SearchableProduct {
 
   String ID_FIELD = "id";

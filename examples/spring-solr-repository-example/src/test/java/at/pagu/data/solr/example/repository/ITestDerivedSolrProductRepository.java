@@ -20,32 +20,45 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import at.pagu.data.solr.example.model.Product;
-import at.pagu.soldockr.core.query.result.FacetEntry;
-import at.pagu.soldockr.core.query.result.FacetPage;
+import at.pagu.soldockr.core.SolrOperations;
+import at.pagu.soldockr.core.query.SimpleQuery;
+import at.pagu.soldockr.core.query.SimpleStringCriteria;
+import at.pagu.soldockr.repository.support.SolrRepositoryFactory;
 
 /**
  * @author Christoph Strobl
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:at/pagu/data/solr/example/applicationContext.xml")
-public class ITestSolrProductRepository extends AbstractSolrIntegrationTest {
-
+public class ITestDerivedSolrProductRepository extends AbstractSolrIntegrationTest {
+  
   @Autowired
-  SolrProductRepository repo;
-
+  SolrOperations solrOperations;
+  
+  private DerivedSolrProductRepository repo;
+  
+  @Before
+  public void setUp() {
+    //Create new repository instance using Factory
+    repo = new SolrRepositoryFactory(this.solrOperations).getRepository(DerivedSolrProductRepository.class);
+  }
+  
   @After
   public void tearDown() {
-    repo.deleteAll();
+    solrOperations.executeDelete(new SimpleQuery(new SimpleStringCriteria("*:*")));
+    solrOperations.executeCommit();
   }
-
+  
   @Test
   public void testCRUD() {
     Assert.assertEquals(0, repo.count());
@@ -69,7 +82,7 @@ public class ITestSolrProductRepository extends AbstractSolrIntegrationTest {
   }
 
   @Test
-  public void testQuery() {
+  public void testFindByPopularity() {
     Assert.assertEquals(0, repo.count());
 
     List<Product> baseList = createProductList(10);
@@ -77,40 +90,10 @@ public class ITestSolrProductRepository extends AbstractSolrIntegrationTest {
 
     Assert.assertEquals(baseList.size(), repo.count());
 
-    Page<Product> popularProducts = repo.findByPopularity(20);
+    Page<Product> popularProducts = repo.findByPopularity(20, new PageRequest(0, 10));
     Assert.assertEquals(1, popularProducts.getTotalElements());
 
     Assert.assertEquals("2", popularProducts.getContent().get(0).getId());
-  }
-
-  @Test
-  public void testFacetQuery() {
-    List<Product> baseList = createProductList(10);
-    repo.save(baseList);
-
-    FacetPage<Product> facetPage = repo.findByNameStartingWithAndFacetOnAvailable("pro");
-    Assert.assertEquals(10, facetPage.getNumberOfElements());
-
-    Page<FacetEntry> page = facetPage.getFacetResultPage(SolrSearchableFields.AVAILABLE);
-    Assert.assertEquals(2, page.getNumberOfElements());
-
-    for (FacetEntry entry : page) {
-      Assert.assertEquals(SolrSearchableFields.AVAILABLE.getName(), entry.getField().getName());
-      Assert.assertEquals(5, entry.getValueCount());
-    }
-
-  }
-
-  @Test
-  public void testFilterQuery() {
-    List<Product> baseList = createProductList(10);
-    repo.save(baseList);
-
-    Page<Product> availableProducts = repo.findByAvailableTrue();
-    Assert.assertEquals(5, availableProducts.getTotalElements());
-    for (Product product : availableProducts) {
-      Assert.assertTrue(product.isAvailable());
-    }
   }
 
 }

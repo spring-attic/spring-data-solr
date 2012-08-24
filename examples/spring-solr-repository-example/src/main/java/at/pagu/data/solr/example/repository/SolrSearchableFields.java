@@ -18,6 +18,9 @@ package at.pagu.data.solr.example.repository;
 import at.pagu.data.solr.example.model.SearchableProduct;
 import at.pagu.soldockr.core.query.Field;
 
+/**
+ * @author Christoph Strobl
+ */
 public enum SolrSearchableFields implements Field {
 
   ID(SearchableProduct.ID_FIELD), NAME(SearchableProduct.NAME_FIELD), PRICE(SearchableProduct.PRICE_FIELD), AVAILABLE(SearchableProduct.AVAILABLE_FIELD), CATEGORY(SearchableProduct.CATEGORY_FIELD), WEIGHT(
