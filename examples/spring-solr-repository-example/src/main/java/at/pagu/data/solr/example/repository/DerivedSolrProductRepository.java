@@ -28,7 +28,7 @@ import at.pagu.soldockr.repository.SolrCrudRepository;
 /**
  * @author Christoph Strobl
  */
-public interface DerivedSolrProductRepository extends SolrCrudRepository<Product, String> {
+public interface DerivedSolrProductRepository extends CustomSolrRepository, SolrCrudRepository<Product, String> {
 
   Page<Product> findByPopularity(Integer popularity, Pageable page);
 

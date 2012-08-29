@@ -49,8 +49,8 @@ public class ITestDerivedSolrProductRepository extends AbstractSolrIntegrationTe
   
   @Before
   public void setUp() {
-    //Create new repository instance using Factory
-    repo = new SolrRepositoryFactory(this.solrOperations).getRepository(DerivedSolrProductRepository.class);
+    //Create new repository instance using Factory and inject custom implementation
+    repo = new SolrRepositoryFactory(this.solrOperations).getRepository(DerivedSolrProductRepository.class, new CustomSolrRepositoryImpl(this.solrOperations));
   }
   
   @After
@@ -82,7 +82,7 @@ public class ITestDerivedSolrProductRepository extends AbstractSolrIntegrationTe
   }
 
   @Test
-  public void testFindByPopularity() {
+  public void testDerivedQueryFindByPopularity() {
     Assert.assertEquals(0, repo.count());
 
     List<Product> baseList = createProductList(10);
@@ -94,6 +94,33 @@ public class ITestDerivedSolrProductRepository extends AbstractSolrIntegrationTe
     Assert.assertEquals(1, popularProducts.getTotalElements());
 
     Assert.assertEquals("2", popularProducts.getContent().get(0).getId());
+  }
+  
+  @Test
+  public void testAnnotatedQueryfindByAvailableFalseUsingAnnotatedQuery() {
+	Assert.assertEquals(0, repo.count());
+
+	List<Product> baseList = createProductList(10);
+	repo.save(baseList);
+	
+	Assert.assertEquals(baseList.size(), repo.count());
+	
+	Page<Product> unavailableProducts = repo.findByAvailableFalseUsingAnnotatedQuery(new PageRequest(0, 10));
+	Assert.assertEquals(5, unavailableProducts.getTotalElements());
+	for(Product product : unavailableProducts) {
+		Assert.assertFalse(product.isAvailable());
+	}
+  }
+  
+  @Test
+  public void testCustomRepositoryImplementation() {
+	Product initial = createProduct(1);
+	repo.save(initial);
+	Assert.assertEquals(1, repo.count());
+	    
+	Page<Product> page = repo.findProductsByCustomImplementation(initial.getName(), new PageRequest(0, 10));
+	  
+	Assert.assertEquals(1, page.getTotalElements());
   }
 
 }
