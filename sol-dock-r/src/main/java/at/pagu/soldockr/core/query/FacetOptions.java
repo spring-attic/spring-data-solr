@@ -134,18 +134,37 @@ public class FacetOptions {
     return this;
   }
 
+  /**
+   * Get the list of Fields to facet on
+   * @return
+   */
   public final List<Field> getFacetOnFields() {
     return Collections.unmodifiableList(this.facetOnFields);
   }
 
+  /**
+   * get the min number of hits a result has to have to get listed in result.
+   * Default is 1.
+   * Zero is not recommended.
+   * @return
+   */
   public int getFacetMinCount() {
     return this.facetMinCount;
   }
 
+  /**
+   * Get the max number of results per facet field
+   * @return
+   */
   public int getFacetLimit() {
     return this.facetLimit;
   }
 
+  /**
+   * Get sorting of facet results.
+   * Default is COUNT
+   * @return
+   */
   public FacetSort getFacetSort() {
     return this.facetSort;
   }
@@ -159,6 +178,10 @@ public class FacetOptions {
     return this;
   }
 
+  /**
+   * true if at least one facet field set
+   * @return
+   */
   public boolean hasFields() {
     return !this.facetOnFields.isEmpty();
   }

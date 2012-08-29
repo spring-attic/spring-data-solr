@@ -373,7 +373,7 @@ public class Criteria implements QueryStringHolder {
   }
 
   /**
-   * Creates a criterion using the $in operator
+   * Crates new CriteriaEntry for multiple values (arg0 arg1 arg2 ...)
    * 
    * @param c the collection containing the values to match against
    * @return
@@ -521,10 +521,18 @@ public class Criteria implements QueryStringHolder {
     }
   }
 
+  /**
+   * Field targeted by this Criteria
+   * @return
+   */
   public Field getField() {
     return this.field;
   }
 
+  /**
+   * Conjunction to be used with this criteria (AND | OR)
+   * @return
+   */
   public String getConjunctionOperator() {
     return AND_OPERATOR;
   }
@@ -533,6 +541,10 @@ public class Criteria implements QueryStringHolder {
     return this.criteriaChain;
   }
 
+  /**
+   * Register an additional converter for transforming object values to solr readable format 
+   * @param converter
+   */
   public void registerConverter(Converter<?, ?> converter) {
     conversionService.addConverter(converter);
   }

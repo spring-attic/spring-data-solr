@@ -256,7 +256,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
     Assert.notNull(query, "Query must not be 'null'");
 
     SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-    LOGGER.debug("Executing query '" + solrQuery + "' againes solr.");
+    LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
 
     return executeSolrQuery(solrQuery);
   }
