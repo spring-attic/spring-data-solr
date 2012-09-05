@@ -24,8 +24,10 @@
     <joda-time.version>2.1</joda-time.version>
     <logback-classic.version>1.0.3</logback-classic.version>
     <mockito.version>1.9.0</mockito.version>
+    <cdi.version>1.0-SP4</cdi.version>
+    <webbeans.version>1.1.5</webbeans.version>
   </properties>
-  
+
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
@@ -33,13 +35,13 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
+
   <scm>
     <connection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</connection>
     <developerConnection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</developerConnection>
     <url>https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</url>
   </scm>
-  
+
   <issueManagement>
     <system>Google Code Issue Tracking</system>
     <url>http://code.google.com/p/sol-dock-r/issues/list</url>
@@ -51,14 +53,14 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>${spring.version}</version>
-       <exclusions>
+      <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
-  
+
     <!-- SPRING DATA -->
     <dependency>
       <groupId>org.springframework.data</groupId>
@@ -99,7 +101,7 @@
       <artifactId>httpclient-cache</artifactId>
       <version>${apache.httpcomponents.version}</version>
     </dependency>
-    
+
     <!-- JODA Time -->
     <dependency>
       <groupId>joda-time</groupId>
@@ -155,6 +157,15 @@
       <version>${slf4j.version}</version>
     </dependency>
 
+    <!-- CDI -->
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <version>${cdi.version}</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>commons-httpclient</groupId>
@@ -178,6 +189,12 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>   
+    <dependency>
+      <groupId>org.apache.openwebbeans.test</groupId>
+      <artifactId>cditest-owb</artifactId>
+      <version>${webbeans.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -269,7 +286,7 @@
       </build>
     </profile>
   </profiles>
-  
+
   <developers>
     <developer>
       <id>j73x73r</id>
