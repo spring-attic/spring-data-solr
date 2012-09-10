@@ -15,11 +15,18 @@
  */
 package at.pagu.soldockr.repository.cdi;
 
+import java.io.IOException;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.core.CoreContainer;
+import org.springframework.util.ResourceUtils;
+import org.xml.sax.SAXException;
 
 import at.pagu.soldockr.SolrServerFactory;
 import at.pagu.soldockr.core.HttpSolrServerFactory;
@@ -31,14 +38,19 @@ import at.pagu.soldockr.core.SolrTemplate;
  */
 class SolrTemplateProducer {
 
-  private static final String SOLR_SERVER_URL = "http://localhost:8983/solr";
-
   @Produces
   @ApplicationScoped
-  public SolrOperations createSolrTemplate() {
-    SolrServer solrServer = new HttpSolrServer(SOLR_SERVER_URL);
+  public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
+    SolrServer solrServer = getSolrServerInstance();
     SolrServerFactory factory = new HttpSolrServerFactory(solrServer);
     return new SolrTemplate(factory);
+  }
+
+  private SolrServer getSolrServerInstance() throws IOException, ParserConfigurationException, SAXException {
+    System.setProperty("solr.solr.home", StringUtils.remove(ResourceUtils.getURL("classpath:at/pagu/soldockr").toString(), "file:/"));
+    CoreContainer.Initializer initializer = new CoreContainer.Initializer();
+    CoreContainer coreContainer = initializer.initialize();
+    return new EmbeddedSolrServer(coreContainer, "");
   }
 
 }

@@ -23,10 +23,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import at.pagu.soldockr.repository.ProductBean;
+
 /**
  * @author Christoph Strobl
  */
-public class CdiRepositoryTest {
+public class ITestCdiRepository {
 
   private static CdiTestContainer cdiContainer;
 
@@ -43,11 +45,34 @@ public class CdiRepositoryTest {
   }
 
   @Test
-  public void testInitRepository() {
+  public void testCdiRepository() {
     CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
     CdiProductRepository repository = client.getRepository();
 
     Assert.assertNotNull(repository);
+
+    ProductBean bean = new ProductBean();
+    bean.setId("id-1");
+    bean.setName("name-1");
+
+    repository.save(bean);
+
+    Assert.assertTrue(repository.exists(bean.getId()));
+
+    ProductBean retrieved = repository.findOne(bean.getId());
+    Assert.assertNotNull(retrieved);
+    Assert.assertEquals(bean.getId(), retrieved.getId());
+    Assert.assertEquals(bean.getName(), retrieved.getName());
+
+    Assert.assertEquals(1, repository.count());
+
+    Assert.assertTrue(repository.exists(bean.getId()));
+
+    repository.delete(bean);
+
+    Assert.assertEquals(0, repository.count());
+    retrieved = repository.findOne(bean.getId());
+    Assert.assertNull(retrieved);
   }
 
 }

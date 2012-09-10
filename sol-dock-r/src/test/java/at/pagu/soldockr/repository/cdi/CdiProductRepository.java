@@ -15,14 +15,14 @@
  */
 package at.pagu.soldockr.repository.cdi;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 
 import at.pagu.soldockr.repository.ProductBean;
 
 /**
  * @author Christoph Strobl
  */
-public interface CdiProductRepository extends Repository<ProductBean, String> {
+public interface CdiProductRepository extends CrudRepository<ProductBean, String> {
 
   ProductBean findOne(String id);
 
