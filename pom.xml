@@ -1,16 +1,12 @@
-<!-- Copyright (C) 2012 sol-dock-r authors. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless 
-  required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-  and limitations under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>at.pagu</groupId>
-  <artifactId>sol-dock-r</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-solr</artifactId>
+  <version>0.1.0.BUILD-SNAPSHOT</version>
   <packaging>jar</packaging>
   <inceptionYear>2012</inceptionYear>
-  <url>http://code.google.com/p/sol-dock-r/</url>
-  <name>sol-dock-r</name>
-  <description>Spring Data Centric Access to Apache Solr</description>
+  <url>http://github.com/SpringSource/spring-data-solr</url>
+  <name>Spring Data Solr</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -33,18 +29,28 @@
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
+      <comments>
+        Copyright 2010 the original author or authors.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+        implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+      </comments>
     </license>
   </licenses>
 
-  <scm>
-    <connection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</connection>
-    <developerConnection>scm:svn:https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</developerConnection>
-    <url>https://sol-dock-r.googlecode.com/svn/trunk/sol-dock-r</url>
-  </scm>
-
   <issueManagement>
-    <system>Google Code Issue Tracking</system>
-    <url>http://code.google.com/p/sol-dock-r/issues/list</url>
+    <system>JIRA</system>
+    <url>https://jira.springsource.org/browse/DATASOLR</url>
   </issueManagement>
 
   <dependencies>
@@ -252,46 +258,23 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>code-upload</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.googlecode.maven-gcu-plugin</groupId>
-            <artifactId>maven-gcu-plugin</artifactId>
-            <version>1.1</version>
-            <executions>
-              <execution>
-                <id>gcode-upload</id>
-                <goals>
-                  <goal>upload</goal>
-                </goals>
-                <phase>install</phase>
-              </execution>
-            </executions>
-            <configuration>
-              <uploads>
-                <upload>
-                  <file>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</file>
-                  <summary>${project.name} sources bundle ${project.version}</summary>
-                  <labels>
-                    <label>Snapshot</label>
-                    <label>Type-Archive</label>
-                  </labels>
-                </upload>
-              </uploads>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
   <developers>
     <developer>
-      <id>j73x73r</id>
+      <id>christophstrobl</id>
       <name>Christoph Strobl</name>
       <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>ogierke</id>
+      <name>Oliver Gierke</name>
+      <timezone>+1</timezone>
+    </developer>
+     <developer>
+      <id>mpollack</id>
+      <name>Mark Pollack</name>
+      <timezone>-5</timezone>
     </developer>
   </developers>
 </project>

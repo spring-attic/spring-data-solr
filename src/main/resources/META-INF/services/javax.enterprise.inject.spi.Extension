@@ -1,1 +1,1 @@
-at.pagu.soldockr.repository.cdi.SolrRepositoryExtension
+org.springframework.data.solr.repository.cdi.SolrRepositoryExtension
