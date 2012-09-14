@@ -1,0 +1,4 @@
+# Tooling related information for the Solr namespace
+http\://www.springframework.org/schema/data/solr@name=Solr Namespace
+http\://www.springframework.org/schema/data/solr@prefix=solr
+http\://www.springframework.org/schema/data/solr@icon=org/springframework/jdbc/config/spring-jdbc.gif

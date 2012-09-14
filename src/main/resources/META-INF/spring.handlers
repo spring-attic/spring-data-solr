@@ -1,0 +1,1 @@
+http\://www.springframework.org/schema/data/solr=org.springframework.data.solr.repository.config.SolrRepositoryNamespaceHandler
