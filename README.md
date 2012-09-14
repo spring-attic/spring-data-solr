@@ -79,7 +79,8 @@ Furthermore you may provide a custom implementation for some operations.
 
         @Override
         public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
-            return solrTemplate.executeListQuery(new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page), Product.class);
+            Query query = new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page);
+            return solrTemplate.executeListQuery(query, Product.class);
         }
 
     }
@@ -96,7 +97,8 @@ Furthermore you may provide a custom implementation for some operations.
         private SolrOperations solrOperations;
   
         public SolrProductRepository create() {
-  	        return new SolrRepositoryFactory(this.solrOperations).getRepository(SolrProductRepository.class, CustomSolrRepositoryImpl(this.solrOperations));
+  	        return new SolrRepositoryFactory(this.solrOperations)
+  	            .getRepository(SolrProductRepository.class, new CustomSolrRepositoryImpl(this.solrOperations));
         }
   
     }
