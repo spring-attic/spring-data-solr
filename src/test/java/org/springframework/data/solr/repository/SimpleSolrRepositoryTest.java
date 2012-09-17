@@ -31,7 +31,7 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SolDockRQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 
 /**
  * @author Christoph Strobl
@@ -69,7 +69,7 @@ public class SimpleSolrRepositoryTest {
 
 	@Test
 	public void testFindAllByIdQuery() {
-		Mockito.when(solrOperationsMock.executeCount(Mockito.any(SolDockRQuery.class))).thenReturn(12345l);
+		Mockito.when(solrOperationsMock.executeCount(Mockito.any(SolrDataQuery.class))).thenReturn(12345l);
 
 		repository.findAll(Arrays.asList("id-1", "id-2", "id-3"));
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);

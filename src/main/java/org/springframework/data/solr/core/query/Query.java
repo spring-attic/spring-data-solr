@@ -24,7 +24,7 @@ import org.springframework.data.domain.Pageable;
  * 
  * @author Christoph Strobl
  */
-public interface Query extends SolDockRQuery {
+public interface Query extends SolrDataQuery {
 
 	int DEFAULT_PAGE_SIZE = 10;
 

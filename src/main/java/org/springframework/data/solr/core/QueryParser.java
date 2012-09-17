@@ -31,7 +31,7 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SolDockRQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -53,7 +53,7 @@ public class QueryParser {
 	 * @param query
 	 * @return
 	 */
-	public final SolrQuery constructSolrQuery(SolDockRQuery query) {
+	public final SolrQuery constructSolrQuery(SolrDataQuery query) {
 		Assert.notNull(query, "Cannot construct solrQuery from null value.");
 		Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
 
@@ -85,7 +85,7 @@ public class QueryParser {
 	 * @param query
 	 * @return String representation of query without faceting, pagination, projection...
 	 */
-	public String getQueryString(SolDockRQuery query) {
+	public String getQueryString(SolrDataQuery query) {
 		if (query.getCriteria() == null) {
 			return null;
 		}

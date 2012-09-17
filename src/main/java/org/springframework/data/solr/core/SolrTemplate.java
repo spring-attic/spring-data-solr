@@ -44,7 +44,7 @@ import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SolDockRQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.util.Assert;
 
@@ -113,7 +113,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public long executeCount(final SolDockRQuery query) {
+	public long executeCount(final SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
 		return execute(new SolrCallback<Long>() {
@@ -171,7 +171,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeDelete(SolDockRQuery query) {
+	public UpdateResponse executeDelete(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
 		final String queryString = this.queryParser.getQueryString(query);
@@ -252,7 +252,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return page;
 	}
 
-	public final QueryResponse executeQuery(SolDockRQuery query) {
+	public final QueryResponse executeQuery(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'");
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);

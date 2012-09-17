@@ -22,6 +22,6 @@ package org.springframework.data.solr.core.query;
  * 
  * @author Christoph Strobl
  */
-public interface FilterQuery extends SolDockRQuery {
+public interface FilterQuery extends SolrDataQuery {
 
 }

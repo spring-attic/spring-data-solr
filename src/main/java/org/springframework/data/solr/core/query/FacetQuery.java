@@ -26,7 +26,7 @@ public interface FacetQuery extends Query {
 	 * @param facetOptions
 	 * @return
 	 */
-	<T extends SolDockRQuery> T setFacetOptions(FacetOptions facetOptions);
+	<T extends SolrDataQuery> T setFacetOptions(FacetOptions facetOptions);
 
 	/**
 	 * @return

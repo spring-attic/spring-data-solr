@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
 
 /**
@@ -36,7 +37,8 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private List<Field> groupByFields = new ArrayList<Field>(0);
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
 	private Pageable pageable = DEFAULT_PAGE;
-
+	private Sort sort;
+	
 	public SimpleQuery() {
 	}
 
@@ -123,6 +125,26 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	public final <T extends Query> T addGroupByField(String fieldname) {
 		return addGroupByField(new SimpleField(fieldname));
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public final <T extends Query> T addSort(Sort sort) {
+		if(sort == null) {
+			return (T) this;
+		}
+		
+		if(this.sort == null) {
+			this.sort = sort;
+		} else {
+			this.sort.and(sort);
+		}
+		
+		return (T) this;
+	}
+	
+	public Sort getSort() {
+		return this.sort;
 	}
 
 	@Override

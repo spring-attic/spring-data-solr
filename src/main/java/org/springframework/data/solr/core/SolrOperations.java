@@ -26,7 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SolDockRQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 
 /**
@@ -56,7 +56,7 @@ public interface SolrOperations {
 	 * @param query
 	 * @return
 	 */
-	long executeCount(SolDockRQuery query);
+	long executeCount(SolrDataQuery query);
 
 	/**
 	 * Execute add operation against solr
@@ -96,7 +96,7 @@ public interface SolrOperations {
 	 * @param query
 	 * @return
 	 */
-	UpdateResponse executeDelete(SolDockRQuery query);
+	UpdateResponse executeDelete(SolrDataQuery query);
 
 	/**
 	 * Detele the one object with provided id
@@ -120,7 +120,7 @@ public interface SolrOperations {
 	 * @param query
 	 * @return
 	 */
-	QueryResponse executeQuery(SolDockRQuery query);
+	QueryResponse executeQuery(SolrDataQuery query);
 
 	/**
 	 * Execute the query against solr and return the first returned object

@@ -34,7 +34,7 @@ class AbstractQuery {
 	}
 
 	@SuppressWarnings("unchecked")
-	public final <T extends SolDockRQuery> T addCriteria(Criteria criteria) {
+	public final <T extends SolrDataQuery> T addCriteria(Criteria criteria) {
 		Assert.notNull(criteria, "Cannot add null criteria.");
 		if (!(criteria instanceof SimpleStringCriteria)) {
 			Assert.notNull(criteria.getField(), "Cannot add criteria for null field.");

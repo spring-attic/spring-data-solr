@@ -20,7 +20,7 @@ package org.springframework.data.solr.core.query;
  * 
  * @author Christoph Strobl
  */
-public interface SolDockRQuery {
+public interface SolrDataQuery {
 
 	/**
 	 * Append criteria to query. Criteria must not be null, nor point to a field with null value.
@@ -28,7 +28,7 @@ public interface SolDockRQuery {
 	 * @param criteria
 	 * @return
 	 */
-	<T extends SolDockRQuery> T addCriteria(Criteria criteria);
+	<T extends SolrDataQuery> T addCriteria(Criteria criteria);
 
 	/**
 	 * 
