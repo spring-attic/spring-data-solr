@@ -25,8 +25,7 @@ A default implementation of SolrRepository, aligning to the generic Repository I
 
 The SolrCrudRepository extends CrudRepository 
 
-    public interface SolrCrudRepository<T, ID extends Serializable> extends
-        SolrRepository<T, ID> {
+    public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, CrudRepository<T, ID> {
     } 
     
 The SimpleSolrRepository implementation uses SolrJ converters for entity transformation and therefore requires fields to be annotated with org.apache.solr.client.solrj.beans.Field.
