@@ -21,7 +21,7 @@ package org.springframework.data.solr;
  * 
  * @author Christoph Strobl
  */
-public class QueryException extends SolDockRException {
+public class QueryException extends SolrException {
 
 	private static final long serialVersionUID = -1358167909638012314L;
 

@@ -17,6 +17,7 @@
     <solr.version>3.6.0</solr.version>
     <apache.httpcomponents.version>4.2</apache.httpcomponents.version>
     <spring.data-commons.version>1.4.0.BUILD-SNAPSHOT</spring.data-commons.version>
+    <spring.dao.version>2.0.8</spring.dao.version>
     <joda-time.version>2.1</joda-time.version>
     <logback-classic.version>1.0.3</logback-classic.version>
     <mockito.version>1.9.0</mockito.version>
@@ -66,6 +67,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+    	<groupId>org.springframework</groupId>
+    	<artifactId>spring-dao</artifactId>
+    	<version>${spring.dao.version}</version>
+    	<exclusions>
+	        <exclusion>
+	          <groupId>commons-logging</groupId>
+	          <artifactId>commons-logging</artifactId>
+	        </exclusion>
+      	</exclusions>
+	</dependency>
     
     <!-- For JavaConfig -->
     <dependency>

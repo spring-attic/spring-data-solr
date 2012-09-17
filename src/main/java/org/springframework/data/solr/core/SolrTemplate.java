@@ -37,7 +37,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.SolDockRException;
+import org.springframework.data.solr.SolrException;
 import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
@@ -98,7 +98,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			SolrServer solrServer = this.getSolrServer();
 			return action.doInSolr(solrServer);
 		} catch (Exception e) {
-			throw new SolDockRException(e);
+			throw new SolrException(e);
 		}
 	}
 

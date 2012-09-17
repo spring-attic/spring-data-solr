@@ -20,23 +20,23 @@ package org.springframework.data.solr;
  * 
  * @author Christoph Strobl
  */
-public class SolDockRException extends RuntimeException {
+public class SolrException extends RuntimeException {
 
 	private static final long serialVersionUID = 6804126293038414970L;
 
-	public SolDockRException() {
+	public SolrException() {
 		super();
 	}
 
-	public SolDockRException(String message, Throwable cause) {
+	public SolrException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public SolDockRException(String message) {
+	public SolrException(String message) {
 		super(message);
 	}
 
-	public SolDockRException(Throwable cause) {
+	public SolrException(Throwable cause) {
 		super(cause);
 	}
 

@@ -15,29 +15,23 @@
  */
 package org.springframework.data.solr;
 
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+
 /**
  * ApiUsageExcetion indicates a miss use of the spring-data-solr API.
  * 
  * @author Christoph Strobl
  */
-public class ApiUsageException extends SolDockRException {
+public class ApiUsageException extends InvalidDataAccessApiUsageException {
 
 	private static final long serialVersionUID = 3697733372257568538L;
 
-	public ApiUsageException() {
-		super();
+	public ApiUsageException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
-	public ApiUsageException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public ApiUsageException(String message) {
-		super(message);
-	}
-
-	public ApiUsageException(Throwable cause) {
-		super(cause);
+	public ApiUsageException(String msg) {
+		super(msg);
 	}
 
 }
