@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.query;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 /**
  * A Query that can be translated into a solr understandable Query.
@@ -87,5 +88,18 @@ public interface Query extends SolrDataQuery {
 	 * @return
 	 */
 	List<Field> getProjectionOnFields();
+
+	/**
+	 * Add {@link Sort} to query
+	 * 
+	 * @param sort
+	 * @return
+	 */
+	<T extends Query> T addSort(Sort sort);
+
+	/**
+	 * @return null if not set
+	 */
+	Sort getSort();
 
 }

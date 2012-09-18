@@ -22,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 /**
  * @author Christoph Strobl
@@ -169,6 +170,48 @@ public class SimpleQueryTest {
 
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertEquals(1, destination.getGroupByFields().size());
+	}
+
+	@Test
+	public void testAddSort() {
+		Sort sort = new Sort("field_2", "field_3");
+		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		query.addSort(sort);
+
+		Assert.assertNotNull(query.getSort());
+	}
+
+	@Test
+	public void testAddNullSort() {
+		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		query.addSort(null);
+
+		Assert.assertNull(query.getSort());
+	}
+
+	@Test
+	public void testAddNullToExistingSort() {
+		Sort sort = new Sort("field_2", "field_3");
+		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		query.addSort(sort);
+		query.addSort(null);
+
+		Assert.assertNotNull(query.getSort());
+		Assert.assertEquals(sort, query.getSort());
+	}
+
+	@Test
+	public void testAddMultipleSort() {
+		Sort sort1 = new Sort("field_2", "field_3");
+		Sort sort2 = new Sort("field_1");
+		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		query.addSort(sort1);
+		query.addSort(sort2);
+
+		Assert.assertNotNull(query.getSort());
+		Assert.assertNotNull(query.getSort().getOrderFor("field_1"));
+		Assert.assertNotNull(query.getSort().getOrderFor("field_2"));
+		Assert.assertNotNull(query.getSort().getOrderFor("field_3"));
 	}
 
 }

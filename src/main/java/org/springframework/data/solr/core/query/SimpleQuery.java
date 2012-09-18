@@ -38,7 +38,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
 	private Pageable pageable = DEFAULT_PAGE;
 	private Sort sort;
-	
+
 	public SimpleQuery() {
 	}
 
@@ -126,23 +126,24 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public final <T extends Query> T addGroupByField(String fieldname) {
 		return addGroupByField(new SimpleField(fieldname));
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
+	@Override
 	public final <T extends Query> T addSort(Sort sort) {
-		if(sort == null) {
+		if (sort == null) {
 			return (T) this;
 		}
-		
-		if(this.sort == null) {
+
+		if (this.sort == null) {
 			this.sort = sort;
 		} else {
-			this.sort.and(sort);
+			this.sort = this.sort.and(sort);
 		}
-		
+
 		return (T) this;
 	}
-	
+
+	@Override
 	public Sort getSort() {
 		return this.sort;
 	}
