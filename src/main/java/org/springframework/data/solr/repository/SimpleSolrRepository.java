@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.solr.common.SolrInputDocument;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.solr.ApiUsageException;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
@@ -131,7 +131,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		Assert.notNull(entities, "Cannot insert 'null' as a List.");
 
 		if (!(entities instanceof Collection<?>)) {
-			throw new ApiUsageException("Entities have to be inside a collection");
+			throw new InvalidDataAccessApiUsageException("Entities have to be inside a collection");
 		}
 
 		this.solrOperations.executeAddBeans((Collection<? extends T>) entities);
@@ -211,7 +211,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 			try {
 				this.entityClass = resolveReturnedClassFromGernericType();
 			} catch (Exception e) {
-				throw new ApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
+				throw new InvalidDataAccessApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
 			}
 		}
 		return entityClass;

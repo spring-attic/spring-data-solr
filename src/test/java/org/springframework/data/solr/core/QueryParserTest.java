@@ -22,8 +22,8 @@ import org.apache.solr.common.params.GroupParams;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.ApiUsageException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -98,7 +98,7 @@ public class QueryParserTest {
 		assertFactingNotPresent(solrQuery);
 	}
 
-	@Test(expected = ApiUsageException.class)
+	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testConstructSolrQueryWithMultiGroupBy() {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addGroupByField("group_1").addGroupByField(
 				new SimpleField("group_2"));

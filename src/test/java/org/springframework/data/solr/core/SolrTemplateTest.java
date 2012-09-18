@@ -36,8 +36,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.SolrException;
 import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
@@ -76,7 +76,7 @@ public class SolrTemplateTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test(expected = SolrException.class)
+	@Test(expected = DataAccessException.class)
 	public void testExecutePingThrowsException() throws SolrServerException, IOException {
 		Mockito.when(solrServerMock.ping()).thenThrow(SolrServerException.class);
 		solrTemplate.executePing();

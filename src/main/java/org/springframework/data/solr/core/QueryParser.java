@@ -24,8 +24,8 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.solr.ApiUsageException;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
@@ -132,7 +132,7 @@ public class QueryParser {
 		if (fields.size() > 1) {
 			// there is a bug in solj which prevents multiple grouping
 			// although available via HTTP call
-			throw new ApiUsageException(
+			throw new InvalidDataAccessApiUsageException(
 					"Cannot group on more than one field with current SolrJ API. Group on single field insead");
 		}
 

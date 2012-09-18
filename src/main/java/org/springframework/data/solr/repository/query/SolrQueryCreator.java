@@ -18,6 +18,7 @@ package org.springframework.data.solr.repository.query;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.context.PersistentPropertyPath;
@@ -26,7 +27,6 @@ import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
 import org.springframework.data.repository.query.parser.PartTree;
-import org.springframework.data.solr.ApiUsageException;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
@@ -112,7 +112,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		case IN:
 			return criteria.in(asArray(parameters.next()));
 		}
-		throw new ApiUsageException("Illegal criteria found '" + type + "'.");
+		throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 	}
 
 	private Object[] asArray(Object o) {

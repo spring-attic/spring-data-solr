@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
-import org.springframework.data.solr.ApiUsageException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.util.Assert;
@@ -290,7 +290,7 @@ public class Criteria implements QueryStringHolder {
 	public Criteria fuzzy(String s, float levenshteinDistance) {
 		if (!Float.isNaN(levenshteinDistance)) {
 			if (levenshteinDistance < 0 || levenshteinDistance > 1) {
-				throw new ApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
+				throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
 			}
 		}
 		criteria.add(new CriteriaEntry("$fuzzy#" + levenshteinDistance, s));
@@ -316,7 +316,7 @@ public class Criteria implements QueryStringHolder {
 	 */
 	public Criteria boost(float boost) {
 		if (boost < 0) {
-			throw new ApiUsageException("Boost must not be negative.");
+			throw new InvalidDataAccessApiUsageException("Boost must not be negative.");
 		}
 		this.boost = boost;
 		return this;
@@ -331,7 +331,7 @@ public class Criteria implements QueryStringHolder {
 	 */
 	public Criteria between(Object lowerBound, Object upperBound) {
 		if (lowerBound == null && upperBound == null) {
-			throw new ApiUsageException("Range [* TO *] is not allowed");
+			throw new InvalidDataAccessApiUsageException("Range [* TO *] is not allowed");
 		}
 
 		criteria.add(new CriteriaEntry(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound }));
@@ -368,7 +368,7 @@ public class Criteria implements QueryStringHolder {
 	 */
 	public Criteria in(Object... values) {
 		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
-			throw new ApiUsageException("At least one element "
+			throw new InvalidDataAccessApiUsageException("At least one element "
 					+ (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
 					+ " has to be present.");
 		}
@@ -519,8 +519,8 @@ public class Criteria implements QueryStringHolder {
 
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
-			throw new ApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\"" + searchString + "\""
-					+ (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
+			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
+					+ searchString + "\"" + (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
 		}
 	}
 
