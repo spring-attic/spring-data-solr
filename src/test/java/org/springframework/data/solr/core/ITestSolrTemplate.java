@@ -28,14 +28,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.FacetEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.xml.sax.SAXException;
@@ -131,4 +134,24 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
+	@Test
+	public void testQueryWithSort() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createExampleBeanWithId(Integer.toString(i)));
+		}
+		solrTemplate.executeAddBeans(values);
+		solrTemplate.executeCommit();
+
+		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "name"));
+		Page<ExampleSolrBean> page = solrTemplate.executeListQuery(query, ExampleSolrBean.class);
+
+		ExampleSolrBean prev = page.getContent().get(0);
+		for (int i = 1; i < page.getContent().size(); i++) {
+			ExampleSolrBean cur = page.getContent().get(i);
+			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
+			prev = cur;
+		}
+
+	}
 }
