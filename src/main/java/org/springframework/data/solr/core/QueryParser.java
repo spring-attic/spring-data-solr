@@ -20,12 +20,15 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
@@ -73,6 +76,7 @@ public class QueryParser {
 		appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
 		appendGroupByFields(solrQuery, query.getGroupByFields());
 		appendFilterQuery(solrQuery, query.getFilterQueries());
+		appendSort(solrQuery, query.getSort());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -152,6 +156,15 @@ public class QueryParser {
 
 		if (!filterQueryStrings.isEmpty()) {
 			solrQuery.setFilterQueries(convertStringListToArray(filterQueryStrings));
+		}
+	}
+
+	private void appendSort(SolrQuery solrQuery, Sort sort) {
+		if (sort == null) {
+			return;
+		}
+		for (Order order : sort) {
+			solrQuery.addSortField(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
 		}
 	}
 

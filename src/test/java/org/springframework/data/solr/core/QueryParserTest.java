@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -175,7 +176,68 @@ public class QueryParserTest {
 		assertFactingNotPresent(solrQuery);
 
 		Assert.assertEquals(criteria.getQueryString(), solrQuery.getQuery());
+	}
 
+	@Test
+	public void testWithNullSort() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(null); // do this explicitly
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.getSortField());
+		Assert.assertNull(solrQuery.getSortFields());
+	}
+
+	@Test
+	public void testWithSortAscOnSingleField() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(new Sort("field_2"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("field_2 asc", solrQuery.getSortField());
+		Assert.assertEquals(1, solrQuery.getSortFields().length);
+	}
+
+	@Test
+	public void testWithSortDescOnSingleField() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(new Sort(Sort.Direction.DESC, "field_2"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("field_2 desc", solrQuery.getSortField());
+		Assert.assertEquals(1, solrQuery.getSortFields().length);
+	}
+
+	@Test
+	public void testWithSortAscMultipleFields() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(new Sort("field_2, field_3"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("field_2, field_3 asc", solrQuery.getSortField());
+		Assert.assertEquals(2, solrQuery.getSortFields().length);
+	}
+
+	@Test
+	public void testWithSortDescMultipleFields() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(new Sort(Sort.Direction.DESC, "field_2, field_3"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("field_2, field_3 desc", solrQuery.getSortField());
+		Assert.assertEquals(2, solrQuery.getSortFields().length);
+	}
+
+	@Test
+	public void testWithSortMixedDirections() {
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
+		Query query = new SimpleQuery(criteria);
+		query.addSort(new Sort("field_1"));
+		query.addSort(new Sort(Sort.Direction.DESC, "field_2, field_3"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("field_1 asc,field_2, field_3 desc", solrQuery.getSortField());
+		Assert.assertEquals(3, solrQuery.getSortFields().length);
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
