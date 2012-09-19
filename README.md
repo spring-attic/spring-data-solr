@@ -23,9 +23,9 @@ SolrTemplate is the central support class for solr operations.
 ### SolrRepository
 A default implementation of SolrRepository, aligning to the generic Repository Interfaces, is provided. Spring can do the Repository implementation for you depending on method names in the interface definition.
 
-The SolrCrudRepository extends CrudRepository 
+The SolrCrudRepository extends PagingAndSortingRepository 
 
-    public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, CrudRepository<T, ID> {
+    public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, PagingAndSortingRepository<T, ID> {
     } 
     
 The SimpleSolrRepository implementation uses SolrJ converters for entity transformation and therefore requires fields to be annotated with org.apache.solr.client.solrj.beans.Field.
@@ -35,8 +35,8 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         //Derived Query will be "q=popularity:<popularity>&start=<page.number>&rows=<page.size>"
         Page<Product> findByPopularity(Integer popularity, Pageable page);
 
-        //Will execute count before to determine total number of elements
-        //Derived Query will be "q=name:<name>*&start=0&rows=<result of count query for q=name:<value>>"
+        //Will execute count prior to determine total number of elements
+        //Derived Query will be "q=name:<name>*&start=0&rows=<result of count query for q=name:<name>>"
         List<Product> findByNameStartingWith(String name);
 
         //Derived Query will be "q=inStock:true&start=<page.number>&rows=<page.size>"
@@ -44,6 +44,10 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
   
         @Query("inStock:false")
         Page<Product> findByAvailableFalseUsingAnnotatedQuery(Pageable page);
+        
+        //Will execute count prior to determine total number of elements
+        //Derived Query will be q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc
+        List<ProductBean> findByAvailableFalseOrderByNameDesc();
     }
 
  SolrRepositoryFactory will create the implementation for you.
