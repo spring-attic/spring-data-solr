@@ -75,7 +75,10 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
 	@Override
 	protected Query complete(Query query, Sort sort) {
-		return query;
+		if (query == null) {
+			return null;
+		}
+		return query.addSort(sort);
 	}
 
 	private Criteria from(Type type, Criteria instance, Iterator<?> parameters) {

@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
@@ -89,7 +90,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		if (itemCount == 0) {
 			return new PageImpl<T>(Collections.<T> emptyList());
 		}
-		return this.findAll(new PageRequest(0, Math.max(1, (int) this.count())));
+		return this.findAll(new PageRequest(0, Math.max(1, itemCount)));
 	}
 
 	@Override
@@ -97,6 +98,17 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		return getSolrOperations().executeListQuery(
 				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable),
 				getEntityClass());
+	}
+
+	@Override
+	public Iterable<T> findAll(Sort sort) {
+		int itemCount = (int) this.count();
+		if (itemCount == 0) {
+			return new PageImpl<T>(Collections.<T> emptyList());
+		}
+		return getSolrOperations().executeListQuery(
+				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(
+						new PageRequest(0, Math.max(1, itemCount))).addSort(sort), getEntityClass());
 	}
 
 	@Override

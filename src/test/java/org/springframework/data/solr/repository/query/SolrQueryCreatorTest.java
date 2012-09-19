@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
@@ -261,6 +262,19 @@ public class SolrQueryCreatorTest {
 		Assert.assertEquals("popularity:(1 2 3)", criteria.getQueryString());
 	}
 
+	@Test
+	public void testCreateQueryWithSortDesc() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityOrderByTitleDesc", Integer.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { 1 }), mappingContext);
+
+		Query query = creator.createQuery();
+		Assert.assertNotNull(query.getSort());
+		Assert.assertEquals(Sort.Direction.DESC, query.getSort().getOrderFor("title").getDirection());
+	}
+
 	private interface SampleRepository {
 
 		ProductBean findByPopularity(Integer popularity);
@@ -290,6 +304,8 @@ public class SolrQueryCreatorTest {
 		ProductBean findByPriceGreaterThan(Float price);
 
 		ProductBean findByPopularityIn(Integer... values);
+
+		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
 
 	}
 

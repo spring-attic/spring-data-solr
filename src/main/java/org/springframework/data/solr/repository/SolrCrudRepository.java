@@ -17,23 +17,14 @@ package org.springframework.data.solr.repository;
 
 import java.io.Serializable;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * @param <T>
  * @param <ID>
  * @author Christoph Strobl
  */
-public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, CrudRepository<T, ID> {
-
-	/**
-	 * Returns a {@link Page} of entities meeting the paging restriction provided in the {@code Pageable} object.
-	 * 
-	 * @param pageable
-	 * @return a page of entities
-	 */
-	Page<T> findAll(Pageable pageable);
+public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>,
+		PagingAndSortingRepository<T, ID> {
 
 }

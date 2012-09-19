@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 
 /**
  * @author Christoph Strobl
@@ -81,6 +82,40 @@ public class SimpleQueryTest {
 
 		query.setPageRequest(alteredPage);
 		Assert.assertEquals(alteredPage, query.getPageRequest());
+		Assert.assertNull(query.getSort());
+	}
+
+	@Test
+	public void testSetPageRequestWithSort() {
+		SimpleQuery query = new SimpleQuery();
+		Assert.assertEquals(SimpleQuery.DEFAULT_PAGE, query.getPageRequest());
+
+		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2");
+
+		query.setPageRequest(alteredPage);
+		Assert.assertEquals(alteredPage, query.getPageRequest());
+		Assert.assertNotNull(query.getSort());
+
+		int i = 0;
+		for (Order order : query.getSort()) {
+			Assert.assertEquals(Sort.Direction.DESC, order.getDirection());
+			Assert.assertEquals("value_" + (++i), order.getProperty());
+		}
+	}
+
+	@Test
+	public void testCreateQueryWithSortedPageRequest() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("*:*"), new PageRequest(0, 20, Sort.Direction.DESC,
+				"value_1", "value_2"));
+		Assert.assertNotNull(query.getPageRequest());
+		Assert.assertNotNull(query.getSort());
+
+		int i = 0;
+		for (Order order : query.getSort()) {
+			Assert.assertEquals(Sort.Direction.DESC, order.getDirection());
+			Assert.assertEquals("value_" + (++i), order.getProperty());
+		}
+
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -170,6 +205,15 @@ public class SimpleQueryTest {
 
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertEquals(1, destination.getGroupByFields().size());
+	}
+
+	@Test
+	public void testCloneQueryWithSort() {
+		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		source.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+
+		Query destination = SimpleQuery.fromQuery(source);
+		Assert.assertEquals(source.getSort(), destination.getSort());
 	}
 
 	@Test

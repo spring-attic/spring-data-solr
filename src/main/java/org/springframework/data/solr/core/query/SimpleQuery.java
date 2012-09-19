@@ -49,6 +49,9 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public SimpleQuery(Criteria criteria, Pageable pageable) {
 		super(criteria);
 		this.pageable = pageable;
+		if (pageable != null) {
+			this.addSort(pageable.getSort());
+		}
 	}
 
 	public static final Query fromQuery(Query source) {
@@ -68,6 +71,9 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		}
 		if (!source.getGroupByFields().isEmpty()) {
 			query.groupByFields.addAll(source.getGroupByFields());
+		}
+		if (source.getSort() != null) {
+			query.addSort(source.getSort());
 		}
 		return query;
 	}
@@ -104,13 +110,12 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public final <T extends Query> T setPageRequest(Pageable pageable) {
 		Assert.notNull(pageable);
 
 		this.pageable = pageable;
-		return (T) this;
+		return this.addSort(pageable.getSort());
 	}
 
 	@SuppressWarnings("unchecked")
