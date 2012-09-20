@@ -152,6 +152,38 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
 			prev = cur;
 		}
+	}
+
+	@Test
+	public void testQueryWithMultiSort() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
+			bean.setInStock(i % 2 == 0);
+			values.add(bean);
+		}
+		solrTemplate.executeAddBeans(values);
+		solrTemplate.executeCommit();
+
+		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "inStock"))
+				.addSort(new Sort(Sort.Direction.ASC, "name"));
+		Page<ExampleSolrBean> page = solrTemplate.executeListQuery(query, ExampleSolrBean.class);
+
+		ExampleSolrBean prev = page.getContent().get(0);
+		for (int i = 1; i < 5; i++) {
+			ExampleSolrBean cur = page.getContent().get(i);
+			Assert.assertTrue(cur.isInStock());
+			Assert.assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
+			prev = cur;
+		}
+
+		prev = page.getContent().get(5);
+		for (int i = 6; i < page.getContent().size(); i++) {
+			ExampleSolrBean cur = page.getContent().get(i);
+			Assert.assertFalse(cur.isInStock());
+			Assert.assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
+			prev = cur;
+		}
 
 	}
 }
