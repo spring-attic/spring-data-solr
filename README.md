@@ -25,11 +25,14 @@ A default implementation of SolrRepository, aligning to the generic Repository I
 
 The SolrCrudRepository extends PagingAndSortingRepository 
 
+```java
     public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>, PagingAndSortingRepository<T, ID> {
     } 
+```
     
 The SimpleSolrRepository implementation uses SolrJ converters for entity transformation and therefore requires fields to be annotated with org.apache.solr.client.solrj.beans.Field.
 
+```java
     public interface SolrProductRepository extends SolrCrudRepository<Product, String> {
 
         //Derived Query will be "q=popularity:<popularity>&start=<page.number>&rows=<page.size>"
@@ -49,9 +52,11 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         //Derived Query will be q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc
         List<ProductBean> findByAvailableFalseOrderByNameDesc();
     }
+```
 
  SolrRepositoryFactory will create the implementation for you.
- 
+
+```java 
     public class SolrProductSearchRepositoryFactory {
 
         @Autwired
@@ -62,9 +67,11 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         }
   
     }
-    
+```    
+   
 Furthermore you may provide a custom implementation for some operations.
 
+```java
     public interface CustomSolrRepository {
 
         Page<Product> findProductsByCustomImplementation(String value, Pageable page);
@@ -105,6 +112,7 @@ Furthermore you may provide a custom implementation for some operations.
         }
   
     }
+```
 
 Contributing to Spring Data
 ---------------------------
