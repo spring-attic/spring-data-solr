@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.http.ParseException;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
@@ -28,22 +28,29 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.SolrException;
+import org.apache.solr.common.SolrException.ErrorCode;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.SolrParams;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.SolrServerFactory;
+import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 
-/**
+/*
  * @author Christoph Strobl
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -75,11 +82,24 @@ public class SolrTemplateTest {
 		Mockito.verify(solrServerMock, Mockito.times(1)).ping();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test(expected = DataAccessException.class)
 	public void testExecutePingThrowsException() throws SolrServerException, IOException {
-		Mockito.when(solrServerMock.ping()).thenThrow(SolrServerException.class);
+		Mockito.when(solrServerMock.ping()).thenThrow(
+				new SolrServerException("error", new SolrException(ErrorCode.NOT_FOUND, "not found")));
 		solrTemplate.executePing();
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testExecuteQueryThrowsParseException() throws SolrServerException {
+		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(
+				new SolrServerException("error", new SolrException(ErrorCode.BAD_REQUEST, new ParseException("parse error"))));
+		solrTemplate.executeSolrQuery(new SolrQuery());
+	}
+
+	@Test(expected = UncategorizedSolrException.class)
+	public void testExecuteQueryThrowsUntranslateableException() throws SolrServerException {
+		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(new NotImplementedException());
+		solrTemplate.executeSolrQuery(new SolrQuery());
 	}
 
 	@Test

@@ -15,11 +15,10 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
-import junit.framework.Assert;
-
 import org.apache.webbeans.cditest.CdiTestContainer;
 import org.apache.webbeans.cditest.CdiTestContainerLoader;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.solr.repository.ProductBean;
