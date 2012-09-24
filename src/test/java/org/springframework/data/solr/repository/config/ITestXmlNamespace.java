@@ -15,40 +15,29 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 
 /**
- * Integration thest for XML namespace configuration. We currently need to work around the issue that a
- * {@link SolrServer} instance cannot be easily set up using XML configuration. Thus we manually register the instance
- * created by the superclass with the {@link ApplicationContext} created for this test case. This should be removed once
- * we have decent support for setting up an embedded {@link SolrServer} via Spring Config.
+ * Integration test for XML namespace configuration.
  * 
  * @author Oliver Gierke
+ * @author Christoph Strobl
  */
-public class ITestXmlNamespace extends AbstractITestWithEmbeddedSolrServer {
+public class ITestXmlNamespace {
 
 	ApplicationContext context;
 
 	@Before
 	public void setUp() {
-
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext() {
-
-			@Override
-			protected void postProcessBeanFactory(ConfigurableListableBeanFactory factory) {
-				factory.registerSingleton("solrServer", solrServer);
-			}
-		};
-
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
 		context.setConfigLocation("classpath:org/springframework/data/solr/repository/config/namespace.xml");
 		context.refresh();
 
@@ -56,7 +45,8 @@ public class ITestXmlNamespace extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
-	public void someTest() {
+	public void createsRepositoryAndEmbeddedServerCorrectly() {
 		assertThat(context.getBean(PersonRepository.class), is(notNullValue()));
+		assertThat(context.getBean(SolrServer.class), is(notNullValue()));
 	}
 }

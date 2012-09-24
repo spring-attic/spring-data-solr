@@ -6,10 +6,10 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
+	<solr:embedded-solr-server id="solrServer" solrHome="classpath:org/springframework/data/solr" />
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
-		<!-- Will be registered by the test case -->
 		<constructor-arg ref="solrServer" />
 	</bean>
-
+	
 </beans>

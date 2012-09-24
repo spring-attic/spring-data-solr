@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.core;
+package org.springframework.data.solr.embedded;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,10 +21,11 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.data.solr.SolrServerFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
@@ -39,16 +40,43 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
 
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
+	private String solrHome;
 	private EmbeddedSolrServer solrServer;
 
+	protected EmbeddedSolrServerFactory() {
+
+	}
+
 	/**
-	 * @param path Any Path expression valid for use with {@link ResourceUtils}
+	 * @param solrHome Any Path expression valid for use with {@link ResourceUtils} that points to the
+	 *          {@code solr.solr.home} directory
 	 * @throws ParserConfigurationException
 	 * @throws IOException
 	 * @throws SAXException
 	 */
-	public EmbeddedSolrServerFactory(String path) throws ParserConfigurationException, IOException, SAXException {
-		this.solrServer = createPathConfiguredSolrServer(path);
+	public EmbeddedSolrServerFactory(String solrHome) throws ParserConfigurationException, IOException, SAXException {
+		Assert.hasText(solrHome);
+		this.solrHome = solrHome;
+	}
+
+	@Override
+	public EmbeddedSolrServer getSolrServer() {
+		if (this.solrServer == null) {
+			initSolrServer();
+		}
+		return this.solrServer;
+	}
+
+	protected void initSolrServer() {
+		try {
+			this.solrServer = createPathConfiguredSolrServer(this.solrHome);
+		} catch (ParserConfigurationException e) {
+			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
+		} catch (IOException e) {
+			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
+		} catch (SAXException e) {
+			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -63,19 +91,25 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
 		String solrHome = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
 		if (StringUtils.isBlank(solrHome)) {
-			solrHome = StringUtils.remove(ResourceUtils.getURL(path).toString(), "file:/");
+			solrHome = ResourceUtils.getURL(path).getPath();
 		}
 		return new EmbeddedSolrServer(new CoreContainer(solrHome, new File(solrHome + "/solr.xml")), null);
 	}
 
-	@Override
-	public SolrServer getSolrServer() {
-		return this.solrServer;
+	public void shutdownSolrServer() {
+		if (this.solrServer != null && solrServer.getCoreContainer() != null) {
+			solrServer.getCoreContainer().shutdown();
+		}
 	}
 
 	@Override
 	public String getCore() {
 		return null;
+	}
+
+	public void setSolrHome(String solrHome) {
+		Assert.hasText(solrHome);
+		this.solrHome = solrHome;
 	}
 
 }

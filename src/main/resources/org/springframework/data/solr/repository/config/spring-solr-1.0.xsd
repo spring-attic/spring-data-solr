@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsd:schema xmlns="http://www.springframework.org/schema/data/solr"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:tool="http://www.springframework.org/schema/tool"
 	xmlns:repository="http://www.springframework.org/schema/data/repository"
 	targetNamespace="http://www.springframework.org/schema/data/solr"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
 
+	<xsd:import namespace="http://www.springframework.org/schema/beans" />
 	<xsd:import namespace="http://www.springframework.org/schema/tool" />
 	<xsd:import namespace="http://www.springframework.org/schema/data/repository"
-		schemaLocation="http://www.springframework.org/schema/data/repository/spring-repository.xsd" />
+		schemaLocation="http://www.springframework.org/schema/data/repository/spring-repository.xsd" />	
 
 	<xsd:element name="repositories">
 		<xsd:complexType>
@@ -31,5 +33,21 @@
 		</xsd:annotation>
 		<xsd:union memberTypes="xsd:string" />
 	</xsd:simpleType>
+	
+	<xsd:element name="embedded-solr-server">
+		<xsd:annotation>
+			<xsd:documentation source="java: org.springframework.data.solr.embedded.support.EmbeddedSolrServerFactoryBean" />
+			<xsd:appinfo>
+				<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer "/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+				    <xsd:attribute name="solrHome" type="xsd:string" />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
 
 </xsd:schema>
