@@ -45,7 +45,6 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 	@SuppressWarnings("unused")
 	private ApplicationContext applicationContext;
 	private SolrServerFactory solrServerFactory;
-	private SolrTypeMapper typeMapper;
 
 	public MappingSolrConverter(SolrServerFactory solrServerFactory,
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
@@ -54,7 +53,6 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 
 		this.solrServerFactory = solrServerFactory;
 		this.mappingContext = mappingContext;
-		this.typeMapper = new SimpleSolrTypeMapper(mappingContext);
 		conversionService = new DefaultConversionService();
 	}
 
@@ -74,8 +72,7 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 	}
 
 	protected <S extends Object> S read(TypeInformation<S> targetTypeInformation, Map<String, ?> source) {
-		TypeInformation<? extends S> typeToUse = typeMapper.readType(source, targetTypeInformation);
-		Class<? extends S> rawType = typeToUse.getType();
+		Class<S> rawType = targetTypeInformation.getType();
 
 		if (!conversionService.canConvert(SolrDocument.class, rawType)) {
 			initializeTypedConverter(source, rawType);
