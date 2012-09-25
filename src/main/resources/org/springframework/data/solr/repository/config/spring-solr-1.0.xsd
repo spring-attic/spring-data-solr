@@ -49,5 +49,23 @@
 			</xsd:complexContent>
 		</xsd:complexType>
 	</xsd:element>
+	
+	<xsd:element name="solr-server">
+		<xsd:annotation>
+			<xsd:documentation source="java: org.springframework.data.solr.support.HttpSolrServerFactoryBean" />
+			<xsd:appinfo>
+				<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer "/>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+				    <xsd:attribute name="url" type="xsd:string" />
+				    <xsd:attribute name="timeout" type="xsd:int" use="optional" default="100"/>
+				    <xsd:attribute name="maxConnections" type="xsd:int" use="optional" default="100" />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
 
 </xsd:schema>

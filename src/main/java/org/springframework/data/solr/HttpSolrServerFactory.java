@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.core;
+package org.springframework.data.solr;
 
 import java.util.Arrays;
 
@@ -26,7 +26,6 @@ import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -39,10 +38,14 @@ import org.springframework.util.Assert;
 public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean {
 
 	private static final String SLASH = "/";
-	private final SolrServer solrServer;
-	private final String core;
-	private final Credentials credentials;
-	private final String authPolicy;
+	private SolrServer solrServer;
+	private String core;
+	private Credentials credentials;
+	private String authPolicy;
+
+	protected HttpSolrServerFactory() {
+
+	}
 
 	public HttpSolrServerFactory(SolrServer solrServer) {
 		this(solrServer, null);
@@ -118,6 +121,10 @@ public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean 
 		if (solrServer instanceof HttpSolrServer) {
 			((HttpSolrServer) solrServer).shutdown();
 		}
+	}
+
+	protected void setSolrServer(SolrServer solrServer) {
+		this.solrServer = solrServer;
 	}
 
 }

@@ -39,6 +39,7 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.solr.HttpSolrServerFactory;
 import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;

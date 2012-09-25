@@ -19,7 +19,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
@@ -47,6 +48,7 @@ public class ITestXmlNamespace {
 	@Test
 	public void createsRepositoryAndEmbeddedServerCorrectly() {
 		assertThat(context.getBean(PersonRepository.class), is(notNullValue()));
-		assertThat(context.getBean(SolrServer.class), is(notNullValue()));
+		assertThat(context.getBean(EmbeddedSolrServer.class), is(notNullValue()));
+		assertThat(context.getBean(HttpSolrServer.class), is(notNullValue()));
 	}
 }

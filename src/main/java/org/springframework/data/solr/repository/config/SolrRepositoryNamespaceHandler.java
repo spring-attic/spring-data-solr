@@ -19,6 +19,7 @@ import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.data.repository.config.RepositoryBeanDefinitionParser;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
+import org.springframework.data.solr.config.HttpSolrServerBeanDefinitionParser;
 import org.springframework.data.solr.embedded.config.EmbeddedSolrServerBeanDefinitionParser;
 
 /**
@@ -42,5 +43,6 @@ class SolrRepositoryNamespaceHandler extends NamespaceHandlerSupport {
 
 		registerBeanDefinitionParser("repositories", parser);
 		registerBeanDefinitionParser("embedded-solr-server", new EmbeddedSolrServerBeanDefinitionParser());
+		registerBeanDefinitionParser("solr-server", new HttpSolrServerBeanDefinitionParser());
 	}
 }
