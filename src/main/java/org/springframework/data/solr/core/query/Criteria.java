@@ -29,7 +29,10 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
+import org.springframework.data.solr.core.convert.GeoConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.util.Assert;
 
 /**
@@ -74,6 +77,9 @@ public class Criteria implements QueryStringHolder {
 		}
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
+		}
+		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
+			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
 		}
 	}
 
@@ -394,6 +400,25 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
+	 * Creates new CriteriaEntry for {@code !geodist}
+	 * 
+	 * @param location Geolocation in degrees
+	 * @param distance
+	 * @return
+	 */
+	public Criteria near(GeoLocation location, Distance distance) {
+		Assert.notNull(location);
+		if (distance != null) {
+			if (distance.getValue() < 0) {
+				throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+			}
+		}
+		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
+				distance != null ? distance : new Distance(0) }));
+		return this;
+	}
+
+	/**
 	 * get the QueryString used for executing query
 	 * 
 	 * @return
@@ -421,14 +446,17 @@ public class Criteria implements QueryStringHolder {
 		Iterator<CriteriaEntry> it = chainedCriteria.criteria.iterator();
 		boolean singeEntryCriteria = (chainedCriteria.criteria.size() == 1);
 		if (chainedCriteria.field != null) {
-			queryFragment.append(chainedCriteria.field.getName());
-			queryFragment.append(DELIMINATOR);
+			String fieldName = chainedCriteria.field.getName();
+			if (!containsFunctionCriteria(chainedCriteria.criteria)) {
+				queryFragment.append(fieldName);
+				queryFragment.append(DELIMINATOR);
+			}
 			if (!singeEntryCriteria) {
 				queryFragment.append("(");
 			}
 			while (it.hasNext()) {
 				CriteriaEntry entry = it.next();
-				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue()));
+				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue(), fieldName));
 				if (it.hasNext()) {
 					queryFragment.append(CRITERIA_VALUE_SEPERATOR);
 				}
@@ -449,7 +477,16 @@ public class Criteria implements QueryStringHolder {
 		return field != null ? createQueryString() : "";
 	}
 
-	private String processCriteriaEntry(String key, Object value) {
+	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
+		for (CriteriaEntry entry : chainedCriterias) {
+			if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String processCriteriaEntry(String key, Object value, String fieldName) {
 		if (value == null) {
 			return null;
 		}
@@ -467,6 +504,16 @@ public class Criteria implements QueryStringHolder {
 			rangeFragment += args[1] != null ? filterCriteriaValue(args[1]) : WILDCARD;
 			rangeFragment += "]";
 			return rangeFragment;
+		}
+
+		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
+			String nearFragment = "{!geofilt pt=";
+			Object[] args = (Object[]) value;
+			nearFragment += filterCriteriaValue(args[0]);
+			nearFragment += " sfield=" + fieldName;
+			nearFragment += " d=" + ((Distance) args[1]).getValue();
+			nearFragment += "}";
+			return nearFragment;
 		}
 
 		Object filteredValue = filterCriteriaValue(value);
@@ -586,7 +633,7 @@ public class Criteria implements QueryStringHolder {
 
 	enum OperationKey {
 		IS_NOT("$isNot"), EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between");
+				"$expression"), BETWEEN("$between"), NEAR("$near");
 
 		private final String key;
 

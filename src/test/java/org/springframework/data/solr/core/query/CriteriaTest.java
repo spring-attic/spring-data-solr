@@ -30,6 +30,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 
 /**
  * @author Christoph Strobl
@@ -315,6 +317,29 @@ public class CriteriaTest {
 	public void testIsWithNegativeNumner() {
 		Criteria criteria = new Criteria("field_1").is(-100);
 		Assert.assertEquals("field_1:\\-100", criteria.createQueryString());
+	}
+
+	@Test
+	public void testNear() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(5));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=5.0}", criteria.createQueryString());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testNearWithNullLocation() {
+		Criteria criteria = new Criteria("field_1").near(null, new Distance(5));
+		criteria.createQueryString();
+	}
+
+	@Test
+	public void testNearWithNullDistance() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), null);
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}", criteria.createQueryString());
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testNearWithNegativeDistance() {
+		new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(-1));
 	}
 
 	@Test

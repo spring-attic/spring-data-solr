@@ -22,14 +22,22 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 /**
  * @author Christoph Strobl
  */
-public final class GeoConverter implements Converter<GeoLocation, String> {
+public final class GeoConverters {
 
-	@Override
-	public String convert(GeoLocation source) {
-		if (source == null) {
-			return null;
+	/**
+	 * Converts a {@link GeoLocation} to a solrReadable request parameter.
+	 */
+	public enum GeoLocationToStringConverter implements Converter<GeoLocation, String> {
+		INSTANCE;
+
+		@Override
+		public String convert(GeoLocation source) {
+			if (source == null) {
+				return null;
+			}
+			return StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLatitude()), "0") + ","
+					+ StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLongitude()), "0");
 		}
-		return StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLatitude()), "0") + ","
-				+ StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLongitude()), "0");
 	}
+
 }

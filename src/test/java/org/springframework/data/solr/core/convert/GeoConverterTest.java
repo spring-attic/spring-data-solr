@@ -26,18 +26,20 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 public class GeoConverterTest {
 
 	@Test
-	public void testConvertWithNull() {
-		Assert.assertNull(new GeoConverter().convert(null));
+	public void testConvertToStringWithNull() {
+		Assert.assertNull(GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(null));
 	}
 
 	@Test
-	public void testConvert() {
-		Assert.assertEquals("48.303056,14.290556", new GeoConverter().convert(new GeoLocation(48.303056, 14.290556)));
+	public void testConvertToString() {
+		Assert.assertEquals("48.303056,14.290556",
+				GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(new GeoLocation(48.303056, 14.290556)));
 	}
 
 	@Test
-	public void testConvertWithNegativeValue() {
-		Assert.assertEquals("45.17614,-93.87341", new GeoConverter().convert(new GeoLocation(45.17614, -93.87341)));
+	public void testConvertToStringWithNegativeValue() {
+		Assert.assertEquals("45.17614,-93.87341",
+				GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(new GeoLocation(45.17614, -93.87341)));
 	}
 
 }
