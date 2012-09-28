@@ -27,6 +27,8 @@ import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
 import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
@@ -114,6 +116,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.between(parameters.next(), parameters.next());
 		case IN:
 			return criteria.in(asArray(parameters.next()));
+		case NEAR:
+			return criteria.near((GeoLocation) parameters.next(), (Distance) parameters.next());
 		}
 		throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 	}

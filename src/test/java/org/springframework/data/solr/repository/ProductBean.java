@@ -53,6 +53,8 @@ public class ProductBean {
 	@Field("inStock")
 	private boolean available;
 
+	private String location;
+
 	public String getId() {
 		return id;
 	}
@@ -123,6 +125,14 @@ public class ProductBean {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 }

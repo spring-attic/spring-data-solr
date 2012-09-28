@@ -27,6 +27,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
@@ -263,6 +265,21 @@ public class SolrQueryCreatorTest {
 	}
 
 	@Test
+	public void testCreateQueryWithNear() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Criteria criteria = query.getCriteria();
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=location d=5.0}", criteria.getQueryString());
+	}
+
+	@Test
 	public void testCreateQueryWithSortDesc() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByPopularityOrderByTitleDesc", Integer.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
@@ -306,6 +323,8 @@ public class SolrQueryCreatorTest {
 		ProductBean findByPopularityIn(Integer... values);
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
+
+		ProductBean findByLocationNear(GeoLocation location, Distance distance);
 
 	}
 

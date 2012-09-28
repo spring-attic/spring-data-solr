@@ -48,6 +48,9 @@ public class ExampleSolrBean {
 	@Field("last_modified")
 	private Date lastModified;
 
+	@Field
+	private String store;
+
 	public ExampleSolrBean() {
 		this.category = new ArrayList<String>();
 	}
@@ -123,6 +126,14 @@ public class ExampleSolrBean {
 
 	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public String getStore() {
+		return store;
+	}
+
+	public void setStore(String store) {
+		this.store = store;
 	}
 
 }

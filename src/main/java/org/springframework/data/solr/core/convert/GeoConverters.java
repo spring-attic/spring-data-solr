@@ -17,6 +17,7 @@ package org.springframework.data.solr.core.convert;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
 /**
@@ -40,4 +41,15 @@ public final class GeoConverters {
 		}
 	}
 
+	public enum DistanceToStringConverter implements Converter<Distance, String> {
+		INSTANCE;
+
+		@Override
+		public String convert(Distance source) {
+			if (source == null) {
+				return null;
+			}
+			return String.format(java.util.Locale.ENGLISH, "%s", source.getValue());
+		}
+	}
 }

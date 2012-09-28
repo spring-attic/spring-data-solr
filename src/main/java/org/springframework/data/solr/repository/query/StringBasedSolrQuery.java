@@ -22,7 +22,10 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
+import org.springframework.data.solr.core.convert.GeoConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
@@ -51,6 +54,12 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 		}
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
+		}
+		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
+			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
+		}
+		if (!conversionService.canConvert(Distance.class, String.class)) {
+			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
 		}
 	}
 

@@ -25,6 +25,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 
@@ -98,6 +100,19 @@ public class StringBasedSolrQueryTest {
 		Assert.assertEquals("textGeneral:null", query.getCriteria().getQueryString());
 	}
 
+	@Test
+	public void testWithGeoLocationProperty() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }));
+
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", query.getCriteria().getQueryString());
+	}
+
 	private interface SampleRepository {
 
 		@Query("textGeneral:?0")
@@ -105,6 +120,9 @@ public class StringBasedSolrQueryTest {
 
 		@Query("popularity:?0 AND price:?1")
 		ProductBean findByPopularityAndPrice(Integer popularity, Float price);
+
+		@Query("{!geofilt pt=?0 sfield=store d=?1}")
+		ProductBean findByLocationNear(GeoLocation location, Distance distace);
 
 	}
 

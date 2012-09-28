@@ -32,6 +32,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.xml.sax.SAXException;
 
 /**
@@ -123,4 +125,21 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 	}
 
+	@Test
+	public void testGeoLocation() {
+		ExampleSolrBean searchableBeanInBuffalow = createExampleBeanWithId("1");
+		searchableBeanInBuffalow.setStore("45.17614,-93.87341");
+
+		ExampleSolrBean searchableBeanInNYC = createExampleBeanWithId("2");
+		searchableBeanInNYC.setStore("40.7143,-74.006");
+
+		solrTemplate.executeAddBeans(Arrays.asList(searchableBeanInBuffalow, searchableBeanInNYC));
+		solrTemplate.executeCommit();
+
+		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(
+				new SimpleQuery(new Criteria("store").near(new GeoLocation(45.15, -93.85), new Distance(5))),
+				ExampleSolrBean.class);
+
+		Assert.assertEquals(1, result.getContent().size());
+	}
 }
