@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-import org.springframework.data.solr.core.convert.GeoConverterTestSuite.DistanceConverterTest;
-import org.springframework.data.solr.core.convert.GeoConverterTestSuite.GeoLocationConverterTest;
+import org.springframework.data.solr.core.convert.GeoConverterTest.DistanceConverterTest;
+import org.springframework.data.solr.core.convert.GeoConverterTest.GeoLocationConverterTest;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
@@ -31,7 +31,7 @@ import org.springframework.data.solr.core.geo.GeoLocation;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ GeoLocationConverterTest.class, DistanceConverterTest.class })
-public class GeoConverterTestSuite {
+public class GeoConverterTest {
 
 	public static class GeoLocationConverterTest {
 		@Test
