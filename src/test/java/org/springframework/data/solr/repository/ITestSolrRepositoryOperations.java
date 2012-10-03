@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Christoph Strobl
@@ -35,12 +36,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration
 public class ITestSolrRepositoryOperations {
 
+	private static final ProductBean POPULAR_AVAILABLE_PRODUCT = createProductBean("1", 5, true);
+	private static final ProductBean UNPOPULAR_AVAILABLE_PRODUCT = createProductBean("2", 1, true);
+	private static final ProductBean UNAVAILABLE_PRODUCT = createProductBean("3", 3, false);
+	private static final ProductBean NAMED_PRODUCT = createProductBean("4", 3, true, "product");
+
 	@Autowired
 	private ProductRepository repo;
 
 	@Before
 	public void setUp() {
 		repo.deleteAll();
+		repo.save(Arrays.asList(POPULAR_AVAILABLE_PRODUCT, UNPOPULAR_AVAILABLE_PRODUCT, UNAVAILABLE_PRODUCT, NAMED_PRODUCT));
 	}
 
 	@After
@@ -50,24 +57,98 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFindByNamedQuery() {
-		ProductBean popularBean = createProductBean("1");
-		popularBean.setPopularity(5);
-
-		ProductBean unpopularBean = createProductBean("2");
-		unpopularBean.setPopularity(1);
-
-		repo.save(Arrays.asList(popularBean, unpopularBean));
-
 		List<ProductBean> found = repo.findByNamedQuery(5);
 		Assert.assertEquals(1, found.size());
-		Assert.assertEquals(popularBean.getId(), found.get(0).getId());
+		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
 	}
 
-	private ProductBean createProductBean(String id) {
+	@Test
+	public void testFindByIs() {
+		List<ProductBean> found = repo.findByName(NAMED_PRODUCT.getName());
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(NAMED_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindSingleElementByIs() {
+		ProductBean product = repo.findById(POPULAR_AVAILABLE_PRODUCT.getId());
+		Assert.assertNotNull(product);
+		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), product.getId());
+	}
+
+	@Test
+	public void testFindByBooleanTrue() {
+		List<ProductBean> found = repo.findByAvailableTrue();
+		Assert.assertEquals(3, found.size());
+	}
+
+	@Test
+	public void testFindByBooleanFalse() {
+		List<ProductBean> found = repo.findByAvailableFalse();
+		Assert.assertEquals(1, found.size());
+	}
+
+	@Test
+	public void testFindByAvailableUsingQueryAnnotationTrue() {
+		List<ProductBean> found = repo.findByAvailableUsingQueryAnnotation(true);
+		Assert.assertEquals(3, found.size());
+	}
+
+	@Test
+	public void testFindByLessThan() {
+		List<ProductBean> found = repo.findByPopularityLessThan(2);
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(UNPOPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByGreaterThan() {
+		List<ProductBean> found = repo.findByPopularityGreaterThan(4);
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByLike() {
+		List<ProductBean> found = repo.findByNameLike(NAMED_PRODUCT.getName().substring(0,  3));
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(NAMED_PRODUCT.getId(), found.get(0).getId());
+	}
+	
+	@Test
+	public void testFindByStartsWith() {
+		List<ProductBean> found = repo.findByNameStartsWith(NAMED_PRODUCT.getName().substring(0,  3));
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(NAMED_PRODUCT.getId(), found.get(0).getId());
+	}
+	
+	@Test
+	public void testFindByIn() {
+		List<ProductBean> found = repo.findByPopularityIn(Arrays.asList(3,5));
+		Assert.assertEquals(3, found.size());
+	}
+	
+	@Test
+	public void testFindConcatedByAnd() {
+		List<ProductBean> found = repo.findByPopularityAndAvailableTrue(POPULAR_AVAILABLE_PRODUCT.getPopularity());
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	private static ProductBean createProductBean(String id, int popularity, boolean available) {
+		return createProductBean(id, popularity, available, "");
+	}
+
+	private static ProductBean createProductBean(String id, int popularity, boolean available, String name) {
 		ProductBean initial = new ProductBean();
 		initial.setId(id);
-		initial.setAvailable(true);
-		initial.setName("name-" + id);
+		initial.setAvailable(available);
+		initial.setPopularity(popularity);
+		if (StringUtils.hasText(name)) {
+			initial.setName(name);
+		} else {
+			initial.setName("name-" + id);
+		}
 		return initial;
 	}
 }

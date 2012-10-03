@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,5 +24,29 @@ import java.util.List;
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
 	List<ProductBean> findByNamedQuery(Integer popularity);
+	
+	List<ProductBean> findByName(String name);
+	
+	ProductBean findById(String id);
+	
+	List<ProductBean> findByAvailableTrue();
+	
+	List<ProductBean> findByAvailableFalse();
+	
+	@Query("inStock:?0")
+	List<ProductBean> findByAvailableUsingQueryAnnotation(boolean available);
+	
+	List<ProductBean> findByPopularityBetween(Integer low, Integer up);
+	
+	List<ProductBean> findByPopularityLessThan(Integer up);
+	
+	List<ProductBean> findByPopularityGreaterThan(Integer low);
 
+	List<ProductBean> findByNameLike(String name);
+	
+	List<ProductBean> findByNameStartsWith(String name);
+	
+	List<ProductBean> findByPopularityIn(Collection<Integer> popularities);
+	
+	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
 }
