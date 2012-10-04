@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="solr.misc">
+	<title>Miscellaneous Solr Operation Support</title>
+	<abstract>
+		<para>This chapter covers additional support for Solr operations such
+			as faceting.
+		</para>
+	</abstract>
+	<section id="solr.misc.faceting">
+		<title>Faceting</title>
+		<para>
+			Faceting cannot be directly applied using the
+			<interfacename>SolrRepository</interfacename>
+			but the
+			<classname>SolrTemplate</classname>
+			holds support for this feature.
+		</para>
+		<example>
+			<programlisting language="java">FacetQuery query = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+  .setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5));
+FacetPage&lt;Product&gt; page = solrTemplate.executeFacetQuery(query, Product.class);</programlisting>
+		</example>
+	</section>
+</chapter>

@@ -3,19 +3,29 @@
 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <preface id="preface">
 	<title>Preface</title>
+	<para>The Spring Data Solr project applies core Spring concepts to
+		the
+		development of solutions using the Apache Solr Search Engine.
+		We
+		provide a "template" as a high-level abstraction for storing and
+		querying documents. You will notice similarities to the mongodb
+		support in the Spring Framework.
+	</para>
 	<section id="project">
 		<title>Project Metadata</title>
 		<itemizedlist spacing="compact">
 			<listitem>
 				<para>
-					VCS -
-					<ulink url="git://github.com/SpringSource/spring-data-solr.git">git://github.com/SpringSource/spring-data-solr.git</ulink>
+					Version Control -
+					<ulink url="git://github.com/SpringSource/spring-data-solr.git">git://github.com/SpringSource/spring-data-solr.git
+					</ulink>
 				</para>
 			</listitem>
 			<listitem>
 				<para>
 					Bugtacker -
-					<ulink url="https://jira.springsource.org/browse/DATASOLR">https://jira.springsource.org/browse/DATASOLR</ulink>
+					<ulink url="https://jira.springsource.org/browse/DATASOLR">https://jira.springsource.org/browse/DATASOLR
+					</ulink>
 				</para>
 			</listitem>
 			<listitem>
@@ -28,10 +38,10 @@
 			<listitem>
 				<para>
 					Milestone repository -
-					<ulink url="http://repo.springsource.org/libs-milestone">http://repo.springsource.org/libs-milestone</ulink>
+					<ulink url="http://repo.springsource.org/libs-milestone">http://repo.springsource.org/libs-milestone
+					</ulink>
 				</para>
 			</listitem>
-
 			<listitem>
 				<para>
 					Snapshot repository -
@@ -39,5 +49,21 @@
 				</para>
 			</listitem>
 		</itemizedlist>
+	</section>
+	<section id="requirements">
+		<title>Requirements</title>
+		<para>
+			Requires
+			<ulink url="http://lucene.apache.org/solr/">Apache Solr</ulink>
+			3.5 and above or optional dependency
+			<programlisting language="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.solr&lt;/groupId&gt;
+  &lt;artifactId&gt;solr-core&lt;/artifactId&gt;
+  &lt;version&gt;${solr.version}&lt;/version&gt;
+&lt;/dependency&gt;</programlisting>
+			<note>
+				Usage of Solr 4.0.x has not been tested.
+			</note>
+		</para>
 	</section>
 </preface>

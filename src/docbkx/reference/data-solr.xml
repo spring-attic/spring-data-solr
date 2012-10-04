@@ -12,10 +12,10 @@
 		<title>Introduction</title>
 
 		<section id="solr.namespace">
-			<title>Spring namespace</title>
+			<title>Spring Namespace</title>
 
 			<para>
-				The Spring Data Solr module contains a custom namspace allowing
+				The Spring Data Solr module contains a custom namespace allowing
 				definition of repository beans as well as elements for instantiating
 				a
 				<classname>SolrServer</classname>
@@ -31,7 +31,7 @@
 			</para>
 
 			<example>
-				<title>Setting up Solr repositories using the namespace</title>
+				<title>Setting up Solr repositories using Namespace</title>
 				<programlisting language="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -55,7 +55,7 @@
 				in the context.
 
 				<example>
-					<title>Http Solr Server using namespace</title>
+					<title>HttpSolrServer using Namespace</title>
 					<programlisting language="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -70,7 +70,7 @@
 				</example>
 
 				<example>
-					<title>Embedded Solr Server using namespace</title>
+					<title>EmbeddedSolrServer using Namespace</title>
 					<programlisting language="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -83,10 +83,7 @@
   &lt;solr:embedded-solr-server id="solrServer" solrHome="classpath:com/acme/solr" /&gt;
 &lt;/beans&gt; </programlisting>
 				</example>
-
-
 			</para>
-
 		</section>
 		<section id="solr.annotation">
 			<title>Annotation based configuration</title>
@@ -101,22 +98,22 @@
 class ApplicationConfig {
 
   public SolrServer solrServer() {
-  	EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory("classpath:com/acme/solr");
-  	return factory.getSolrServer();
+    EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory("classpath:com/acme/solr");
+    return factory.getSolrServer();
   }
   
   @Bean
   public SolrOperations solrTemplate() {
-	return new SolrTemplate(solrServer());
+    return new SolrTemplate(solrServer());
   }
 }</programlisting>
 				<para>
-					The configuration abvoe sets up an
+					The configuration above sets up an
 					<classname>EmbeddedSolrServer</classname>
 					which is used by the
 					<classname>SolrTemplate</classname>
 					. Spring Data Solr Repositories are activated using the
-					<interfacename>@EnableJpaRepositories</interfacename>
+					<interfacename>@EnableSolrRepositories</interfacename>
 					annotation which
 					essentially carries the same attributes as the XML
 					namespace does. If no
@@ -126,12 +123,42 @@ class ApplicationConfig {
 				</para>
 			</example>
 		</section>
+		<section id="solr.cdi">
+			<title>Solr Repositores using CDI</title>
+			<para>The Spring Data Solr repositories can also be set up using CDI
+				ffunctionality.
+			</para>
+			<example>
+				<title>Spring Data Solr repositories using JavaConfig</title>
+				<programlisting language="java">class SolrTemplateProducer {
+
+  @Produces
+  @ApplicationScoped
+  public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
+    return new SolrTemplate(new EmbeddedSolrServerFactory("classpath:com/acme/solr"));
+  }
+}
+
+class RepositoryClient {
+
+  private ProductRepository repository;
+
+  public ProductRepository getRepository() {
+    return repository;
+  }
+
+  @Inject
+  public void setRepository(ProductRepository repository) {
+    this.repository = repository;
+  }
+}</programlisting>
+			</example>
+		</section>
 	</section>
 	<section id="solr.query-methods">
 		<title>Query methods</title>
 		<section id="solr.query-methods.finders">
 			<title>Query lookup strategies</title>
-
 			<para>
 				The Solr module supports defining a query manually as String or
 				have
@@ -162,18 +189,18 @@ class ApplicationConfig {
 			<title>Query creation</title>
 
 			<para>
-				Generally the query creation mechanism for JPA works as described
+				Generally the query creation mechanism for Solr works as described
 				in
 				<xref linkend="repositories.query-methods" />
 				. Here's a short example
-				of what a JPA query method translates into:
+				of what a Solr query method translates into:
 				<example>
 					<title>Query creation from method names</title>
 					<programlisting language="java">public interface ProductRepository extends Repository&lt;Product, String&gt; {
   List&lt;Product&gt; findByNameAndPopularity(String name, Integer popularity);
 }</programlisting>
 					<para>
-						The mehtod name above will be translated into the following
+						The method name above will be translated into the following
 						solr query
 					</para>
 					<programlisting>q=name:?0 AND popularity:?1</programlisting>
@@ -191,7 +218,7 @@ class ApplicationConfig {
 							<row>
 								<entry>Keyword</entry>
 								<entry>Sample</entry>
-								<entry>Solr</entry>
+								<entry>Solr Query String</entry>
 							</row>
 						</thead>
 						<tbody>
@@ -219,13 +246,24 @@ class ApplicationConfig {
 							</row>
 							<row>
 								<entry>
+									<code>Is</code>
+								</entry>
+								<entry>
+									<code>findByName</code>
+								</entry>
+								<entry>
+									<code>q=name:?0</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
 									<code>Not</code>
 								</entry>
 								<entry>
 									<code>findByNameNot</code>
 								</entry>
 								<entry>
-									<code>q=name:-?0</code>
+									<code>q=-name:?0</code>
 								</entry>
 							</row>
 							<row>
@@ -311,11 +349,24 @@ class ApplicationConfig {
 								</entry>
 								<entry>
 									<code>findByNameIn(Collection&lt;String&gt;
-										names))
+										names)
 									</code>
 								</entry>
 								<entry>
 									<code>q=name:(?0... )</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>Near</code>
+								</entry>
+								<entry>
+									<code>findByStoreNear</code>
+								</entry>
+								<entry>
+									<code>q={!geofilt pt=?0.latitude,?0.longitude sfield=store
+										d=?1}
+									</code>
 								</entry>
 							</row>
 							<row>
@@ -355,6 +406,58 @@ class ApplicationConfig {
 					</tgroup>
 				</table>
 			</para>
+		</section>
+		<section id="solr.query-methods.at-query">
+			<title>Using @Query Annotation</title>
+			<para>
+				Using named queries to declare queries for entities is a valid
+				approach and works fine for a small number of queries. As the
+				queries themselves are tied to the Java method that executes them
+				you actually can bind them directly using the Spring Data Solr
+				<code>@Query</code>
+				annotation.
+			</para>
+			<example>
+				<title>
+					Declare query at the method using the
+					<interfacename>@Query</interfacename>
+					annotation.
+				</title>
+
+				<programlisting language="java">public interface ProductRepository extends SolrRepository&lt;Product, String&gt; {
+  @Query("inStock:?0")
+  List&lt;Product&gt; findByAvailable(Boolean available);
+}</programlisting>
+			</example>
+		</section>
+		<section id="solr.query-methods.named-queries">
+			<title>Using NamedQueries</title>
+			<para>
+				Named queries can kept in a properties file and wired to the
+				accroding method. Just use a litte XML glue.
+			</para>
+			<example>
+				<title>
+					Declare named query in properites file
+				</title>
+				<programlisting>ProductBean.findByNamedQuery=popularity:?0</programlisting>
+				<programlisting language="java">public interface ProductRepository extends SolrCrudRepository&lt;ProductBean, String&gt; {
+				
+  List&lt;ProductBean&gt; findByNamedQuery(Integer popularity);
+  
+}</programlisting>
+				<programlisting language="xml">&lt;bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean"&gt;
+  &lt;property name="solrOperations" ref="solrTemplate"/&gt;
+  &lt;property name="repositoryInterface" value="org.springframework.data.solr.repository.ProductRepository"/&gt;
+  &lt;property name="namedQueries"&gt;
+    &lt;bean class="org.springframework.data.repository.core.support.PropertiesBasedNamedQueries"&gt;
+      &lt;constructor-arg&gt;
+        &lt;util:properties location="META-INF/solr-named-queries.properties" /&gt;
+      &lt;/constructor-arg&gt;
+    &lt;/bean&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting>
+			</example>
 		</section>
 	</section>
 </chapter>
