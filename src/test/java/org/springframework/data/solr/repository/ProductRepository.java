@@ -18,35 +18,42 @@ package org.springframework.data.solr.repository;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
+
 /**
  * @author Christoph Strobl
  */
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
 	List<ProductBean> findByNamedQuery(Integer popularity);
-	
+
 	List<ProductBean> findByName(String name);
-	
+
+	List<ProductBean> findByNameNot(String name);
+
 	ProductBean findById(String id);
-	
+
 	List<ProductBean> findByAvailableTrue();
-	
+
 	List<ProductBean> findByAvailableFalse();
-	
+
 	@Query("inStock:?0")
 	List<ProductBean> findByAvailableUsingQueryAnnotation(boolean available);
-	
+
 	List<ProductBean> findByPopularityBetween(Integer low, Integer up);
-	
+
 	List<ProductBean> findByPopularityLessThan(Integer up);
-	
+
 	List<ProductBean> findByPopularityGreaterThan(Integer low);
 
 	List<ProductBean> findByNameLike(String name);
-	
+
 	List<ProductBean> findByNameStartsWith(String name);
-	
+
 	List<ProductBean> findByPopularityIn(Collection<Integer> popularities);
-	
+
 	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
+
+	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
 }

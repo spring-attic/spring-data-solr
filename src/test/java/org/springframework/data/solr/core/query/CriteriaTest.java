@@ -155,8 +155,8 @@ public class CriteriaTest {
 
 	@Test
 	public void testIsNot() {
-		Criteria criteria = new Criteria("field_1").isNot("value_1");
-		Assert.assertEquals("field_1:-value_1", criteria.createQueryString());
+		Criteria criteria = new Criteria("field_1").is("value_1").not();
+		Assert.assertEquals("-field_1:value_1", criteria.createQueryString());
 	}
 
 	@Test

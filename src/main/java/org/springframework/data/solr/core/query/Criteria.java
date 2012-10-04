@@ -60,6 +60,7 @@ public class Criteria implements QueryStringHolder {
 
 	private Field field;
 	private float boost = Float.NaN;
+	private boolean negating = false;
 
 	private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
@@ -271,8 +272,8 @@ public class Criteria implements QueryStringHolder {
 	 * @param s
 	 * @return
 	 */
-	public Criteria isNot(Object o) {
-		criteria.add(new CriteriaEntry(OperationKey.IS_NOT, o));
+	public Criteria not() {
+		this.negating = true;
 		return this;
 	}
 
@@ -447,6 +448,9 @@ public class Criteria implements QueryStringHolder {
 		boolean singeEntryCriteria = (chainedCriteria.criteria.size() == 1);
 		if (chainedCriteria.field != null) {
 			String fieldName = chainedCriteria.field.getName();
+			if (chainedCriteria.negating) {
+				fieldName = "-" + fieldName;
+			}
 			if (!containsFunctionCriteria(chainedCriteria.criteria)) {
 				queryFragment.append(fieldName);
 				queryFragment.append(DELIMINATOR);
@@ -525,9 +529,6 @@ public class Criteria implements QueryStringHolder {
 		}
 		if (StringUtils.equals(OperationKey.ENDS_WITH.getKey(), key)) {
 			return WILDCARD + filteredValue;
-		}
-		if (StringUtils.equals(OperationKey.IS_NOT.getKey(), key)) {
-			return "-" + filteredValue;
 		}
 
 		if (StringUtils.startsWith(key, "$fuzzy")) {
@@ -632,7 +633,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	enum OperationKey {
-		IS_NOT("$isNot"), EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
+		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
 				"$expression"), BETWEEN("$between"), NEAR("$near");
 
 		private final String key;

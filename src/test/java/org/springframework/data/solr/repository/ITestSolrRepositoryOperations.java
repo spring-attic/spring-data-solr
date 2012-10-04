@@ -25,6 +25,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -70,6 +72,12 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFindByIsNot() {
+		List<ProductBean> found = repo.findByNameNot(NAMED_PRODUCT.getName());
+		Assert.assertEquals(3, found.size());
+	}
+
+	@Test
 	public void testFindSingleElementByIs() {
 		ProductBean product = repo.findById(POPULAR_AVAILABLE_PRODUCT.getId());
 		Assert.assertNotNull(product);
@@ -110,29 +118,44 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFindByLike() {
-		List<ProductBean> found = repo.findByNameLike(NAMED_PRODUCT.getName().substring(0,  3));
+		List<ProductBean> found = repo.findByNameLike(NAMED_PRODUCT.getName().substring(0, 3));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(NAMED_PRODUCT.getId(), found.get(0).getId());
 	}
-	
+
 	@Test
 	public void testFindByStartsWith() {
-		List<ProductBean> found = repo.findByNameStartsWith(NAMED_PRODUCT.getName().substring(0,  3));
+		List<ProductBean> found = repo.findByNameStartsWith(NAMED_PRODUCT.getName().substring(0, 3));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(NAMED_PRODUCT.getId(), found.get(0).getId());
 	}
-	
+
 	@Test
 	public void testFindByIn() {
-		List<ProductBean> found = repo.findByPopularityIn(Arrays.asList(3,5));
+		List<ProductBean> found = repo.findByPopularityIn(Arrays.asList(3, 5));
 		Assert.assertEquals(3, found.size());
 	}
-	
+
 	@Test
 	public void testFindConcatedByAnd() {
 		List<ProductBean> found = repo.findByPopularityAndAvailableTrue(POPULAR_AVAILABLE_PRODUCT.getPopularity());
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByNear() {
+		ProductBean locatedInBuffalow = createProductBean("100", 5, true);
+		locatedInBuffalow.setLocation("45.17614,-93.87341");
+
+		ProductBean locatedInNYC = createProductBean("200", 5, true);
+		locatedInNYC.setLocation("40.7143,-74.006");
+
+		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
+
+		List<ProductBean> found = repo.findByLocationNear(new GeoLocation(45.15, -93.85), new Distance(5));
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

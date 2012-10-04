@@ -81,7 +81,7 @@ public class SolrQueryCreatorTest {
 		Query query = creator.createQuery();
 
 		Criteria criteria = query.getCriteria();
-		Assert.assertEquals("popularity:-100", criteria.getQueryString());
+		Assert.assertEquals("-popularity:100", criteria.getQueryString());
 	}
 
 	@Test
@@ -276,7 +276,7 @@ public class SolrQueryCreatorTest {
 		Query query = creator.createQuery();
 
 		Criteria criteria = query.getCriteria();
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=location d=5.0}", criteria.getQueryString());
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", criteria.getQueryString());
 	}
 
 	@Test

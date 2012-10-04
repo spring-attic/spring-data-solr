@@ -96,7 +96,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		case SIMPLE_PROPERTY:
 			return criteria.is(parameters.next());
 		case NEGATING_SIMPLE_PROPERTY:
-			return criteria.isNot(parameters.next());
+			return criteria.is(parameters.next()).not();
 		case REGEX:
 			return criteria.expression(parameters.next().toString());
 		case LIKE:

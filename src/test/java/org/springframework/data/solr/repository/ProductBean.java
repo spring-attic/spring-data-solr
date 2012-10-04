@@ -53,6 +53,7 @@ public class ProductBean {
 	@Field("inStock")
 	private boolean available;
 
+	@Field("store")
 	private String location;
 
 	public String getId() {
