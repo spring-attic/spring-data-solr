@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -156,6 +157,26 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByLocationNear(new GeoLocation(45.15, -93.85), new Distance(5));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindWithSort() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), 5, true));
+		}
+		repo.save(values);
+
+		List<ProductBean> found = repo.findByAvailableTrueOrderByNameDesc();
+
+		ProductBean prev = found.get(0);
+		for (int i = 1; i < found.size(); i++) {
+			ProductBean cur = found.get(i);
+			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
+			prev = cur;
+		}
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
