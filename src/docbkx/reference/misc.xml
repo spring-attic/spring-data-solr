@@ -23,4 +23,17 @@
 FacetPage&lt;Product&gt; page = solrTemplate.executeFacetQuery(query, Product.class);</programlisting>
 		</example>
 	</section>
+	<section id="solr.misc.filter">
+		<title>Filter Query</title>
+		<para>
+			Filter Queries improve query speed. It is recommended to
+			implement geospatial search as filter query.
+		</para>
+		<example>
+			<programlisting language="java">Query query = new SimpleQuery(new Criteria("name").is("Supercalifragilisticexpialidocious"));
+FilterQuery fq = new SimpleFilterQuery(new Criteria("store").near(new GeoLocation(48.303056, 14.290556), new Distance(5)));
+query.addFilterQuery(fq);
+			</programlisting>
+		</example>
+	</section>
 </chapter>
