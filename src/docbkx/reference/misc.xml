@@ -4,8 +4,13 @@
 <chapter id="solr.misc">
 	<title>Miscellaneous Solr Operation Support</title>
 	<abstract>
-		<para>This chapter covers additional support for Solr operations such
-			as faceting.
+		<para>
+			This chapter covers additional support for Solr operations (such as
+			faceting) that cannot be directly accessed via the repository
+			interface.
+			It's recommended to add those operations as custom implementation as
+			described in
+			<xref linkend="repositories.custom-implementations" />.
 		</para>
 	</abstract>
 	<section id="solr.misc.faceting">
@@ -31,7 +36,8 @@ FacetPage&lt;Product&gt; page = solrTemplate.executeFacetQuery(query, Product.cl
 		</para>
 		<example>
 			<programlisting language="java">Query query = new SimpleQuery(new Criteria("name").is("Supercalifragilisticexpialidocious"));
-FilterQuery fq = new SimpleFilterQuery(new Criteria("store").near(new GeoLocation(48.303056, 14.290556), new Distance(5)));
+FilterQuery fq = new SimpleFilterQuery(new Criteria("store");
+fq.near(new GeoLocation(48.305478, 14.286699), new Distance(5)));
 query.addFilterQuery(fq);
 			</programlisting>
 		</example>

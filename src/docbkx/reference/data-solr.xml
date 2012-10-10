@@ -126,7 +126,7 @@ class ApplicationConfig {
 		<section id="solr.cdi">
 			<title>Solr Repositores using CDI</title>
 			<para>The Spring Data Solr repositories can also be set up using CDI
-				ffunctionality.
+				functionality.
 			</para>
 			<example>
 				<title>Spring Data Solr repositories using JavaConfig</title>
@@ -134,7 +134,7 @@ class ApplicationConfig {
 
   @Produces
   @ApplicationScoped
-  public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
+  public SolrOperations createSolrTemplate() {
     return new SolrTemplate(new EmbeddedSolrServerFactory("classpath:com/acme/solr"));
   }
 }
@@ -410,10 +410,15 @@ class RepositoryClient {
 		<section id="solr.query-methods.at-query">
 			<title>Using @Query Annotation</title>
 			<para>
-				Using named queries to declare queries for entities is a valid
-				approach and works fine for a small number of queries. As the
-				queries themselves are tied to the Java method that executes them
-				you actually can bind them directly using the Spring Data Solr
+				Using named queries (
+				<xref linkend="solr.query-methods.named-queries" />
+				) to declare queries for entities is a valid
+				approach and works fine
+				for a small number of queries. As the
+				queries themselves are tied to
+				the Java method that executes them
+				you actually can bind them
+				directly using the Spring Data Solr
 				<code>@Query</code>
 				annotation.
 			</para>
@@ -448,7 +453,7 @@ class RepositoryClient {
 }</programlisting>
 				<programlisting language="xml">&lt;bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean"&gt;
   &lt;property name="solrOperations" ref="solrTemplate"/&gt;
-  &lt;property name="repositoryInterface" value="org.springframework.data.solr.repository.ProductRepository"/&gt;
+  &lt;property name="repositoryInterface" value="com.acme.repositories.ProductRepository"/&gt;
   &lt;property name="namedQueries"&gt;
     &lt;bean class="org.springframework.data.repository.core.support.PropertiesBasedNamedQueries"&gt;
       &lt;constructor-arg&gt;
