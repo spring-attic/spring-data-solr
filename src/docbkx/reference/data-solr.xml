@@ -114,10 +114,10 @@ class ApplicationConfig {
 					<classname>SolrTemplate</classname>
 					. Spring Data Solr Repositories are activated using the
 					<interfacename>@EnableSolrRepositories</interfacename>
-					annotation which
+					annotation, which
 					essentially carries the same attributes as the XML
 					namespace does. If no
-					base package is configured it will use the one
+					base package is configured, it will use the one
 					the configuration class
 					resides in.
 				</para>
@@ -161,9 +161,7 @@ class RepositoryClient {
 			<title>Query lookup strategies</title>
 			<para>
 				The Solr module supports defining a query manually as String or
-				have
-				it being derived from the method name.
-
+				have it being derived from the method name.
 				<note>
 					There is no QueryDSL Support present at this time.
 				</note>
@@ -416,7 +414,7 @@ class RepositoryClient {
 				approach and works fine
 				for a small number of queries. As the
 				queries themselves are tied to
-				the Java method that executes them
+				the Java method that executes them,
 				you actually can bind them
 				directly using the Spring Data Solr
 				<code>@Query</code>
@@ -438,7 +436,7 @@ class RepositoryClient {
 		<section id="solr.query-methods.named-queries">
 			<title>Using NamedQueries</title>
 			<para>
-				Named queries can kept in a properties file and wired to the
+				Named queries can be kept in a properties file and wired to the
 				accroding method. Just use a litte XML glue.
 			</para>
 			<example>
