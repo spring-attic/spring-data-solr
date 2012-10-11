@@ -65,7 +65,7 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
 
 	@Override
 	public String getIdAttribute() {
-		return entityMetadata.getIdProperty().getName();
+		return entityMetadata.getIdProperty().getFieldName();
 	}
 
 	public String getSolrCoreName() {

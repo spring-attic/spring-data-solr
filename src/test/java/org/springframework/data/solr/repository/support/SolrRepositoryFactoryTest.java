@@ -57,7 +57,7 @@ public class SolrRepositoryFactoryTest {
 	@SuppressWarnings("unchecked")
 	public void setUp() {
 		Mockito.when(solrEntityMock.getIdProperty()).thenReturn(solrPersistentPropertyMock);
-		Mockito.when(solrPersistentPropertyMock.getName()).thenReturn("id");
+		Mockito.when(solrPersistentPropertyMock.getFieldName()).thenReturn("id");
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
 		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContextMock);
 	}

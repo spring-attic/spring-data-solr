@@ -59,6 +59,38 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFindOne() {
+		ProductBean found = repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId());
+		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.getId());
+	}
+
+	@Test
+	public void testFindOneThatDoesNotExist() {
+		Assert.assertNull(repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId().concat("XX-XX-XX")));
+	}
+
+	@Test
+	public void testExists() {
+		Assert.assertTrue(repo.exists(POPULAR_AVAILABLE_PRODUCT.getId()));
+	}
+
+	@Test
+	public void testExistsOneThatDoesNotExist() {
+		Assert.assertFalse(repo.exists(POPULAR_AVAILABLE_PRODUCT.getId().concat("XX-XX-XX")));
+	}
+
+	@Test
+	public void testCount() {
+		Assert.assertEquals(4, repo.count());
+	}
+
+	@Test
+	public void testFindOneByCriteria() {
+		ProductBean found = repo.findByNameAndAvailableTrue(NAMED_PRODUCT.getName());
+		Assert.assertEquals(NAMED_PRODUCT.getId(), found.getId());
+	}
+
+	@Test
 	public void testFindByNamedQuery() {
 		List<ProductBean> found = repo.findByNamedQuery(5);
 		Assert.assertEquals(1, found.size());
