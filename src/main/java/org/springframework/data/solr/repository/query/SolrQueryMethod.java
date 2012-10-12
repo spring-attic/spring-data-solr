@@ -46,8 +46,17 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	String getAnnotatedQuery() {
-		String query = (String) AnnotationUtils.getValue(getQueryAnnotation());
+		String query = (String) AnnotationUtils.getValue(getQueryAnnotation(), "value");
 		return StringUtils.hasText(query) ? query : null;
+	}
+
+	public boolean hasAnnotatedNamedQueryName() {
+		return getAnnotatedNamedQueryName() != null;
+	}
+
+	String getAnnotatedNamedQueryName() {
+		String namedQueryName = (String) AnnotationUtils.getValue(getQueryAnnotation(), "name");
+		return StringUtils.hasText(namedQueryName) ? namedQueryName : null;
 	}
 
 	private Query getQueryAnnotation() {
@@ -61,6 +70,14 @@ public class SolrQueryMethod extends QueryMethod {
 	@Override
 	public SolrEntityInformation<?, ?> getEntityInformation() {
 		return entityInformation;
+	}
+
+	@Override
+	public String getNamedQueryName() {
+		if (!hasAnnotatedNamedQueryName()) {
+			return super.getNamedQueryName();
+		}
+		return getAnnotatedNamedQueryName();
 	}
 
 }

@@ -31,6 +31,6 @@ public @interface Query {
 
 	String value() default "";
 
-	String fields() default "";
+	String name() default "";
 
 }
