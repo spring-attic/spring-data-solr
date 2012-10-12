@@ -7,6 +7,11 @@
   <inceptionYear>2012</inceptionYear>
   <url>http://github.com/SpringSource/spring-data-solr</url>
   <name>Spring Data Solr</name>
+  <description>Spring Data module providing support for Apache Solr repositories</description>
+  <organization>
+    <name>SpringSource</name>
+    <url>http://www.springsource.org</url>
+  </organization>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -14,10 +19,9 @@
     <spring.version>3.1.2.RELEASE</spring.version>
     <slf4j.version>1.7.1</slf4j.version>
     <commons-lang.version>2.6</commons-lang.version>
-    <solr.version>3.6.0</solr.version>
+    <solr.version>3.6.1</solr.version>
     <apache.httpcomponents.version>4.2</apache.httpcomponents.version>
-    <spring.data-commons.version>1.4.0.BUILD-SNAPSHOT</spring.data-commons.version>
-    <spring.dao.version>2.0.8</spring.dao.version>
+    <spring.data-commons.version>1.4.0.RELEASE</spring.data-commons.version>
     <joda-time.version>2.1</joda-time.version>
     <logback-classic.version>1.0.7</logback-classic.version>
     <mockito.version>1.9.0</mockito.version>
@@ -80,24 +84,12 @@
     </dependency>
     <dependency>
     	<groupId>org.springframework</groupId>
-    	<artifactId>spring-dao</artifactId>
-    	<version>${spring.dao.version}</version>
+    	<artifactId>spring-tx</artifactId>
+    	<version>${spring.version}</version>
     	<exclusions>
 	        <exclusion>
 	          <groupId>commons-logging</groupId>
 	          <artifactId>commons-logging</artifactId>
-	        </exclusion>
-	        <exclusion>
-	       	  <groupId>org.springframework</groupId>
-	          <artifactId>spring-beans</artifactId>
-	        </exclusion>
-	        <exclusion>
-	       	  <groupId>org.springframework</groupId>
-	          <artifactId>spring-context</artifactId>
-	        </exclusion>
-	        <exclusion>
-	       	  <groupId>org.springframework</groupId>
-	          <artifactId>spring-core</artifactId>
 	        </exclusion>
       	</exclusions>
 	</dependency>
@@ -138,8 +130,13 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>${apache.httpcomponents.version}</version>
+      <exclusions>
+      	<exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpmime</artifactId>
@@ -149,6 +146,12 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient-cache</artifactId>
       <version>${apache.httpcomponents.version}</version>
+      <exclusions>
+      	<exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- JODA Time -->
