@@ -96,7 +96,8 @@
 				<programlisting language="java">@Configuration
 @EnableSolrRepositories
 class ApplicationConfig {
-
+  
+  @Bean
   public SolrServer solrServer() {
     EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory("classpath:com/acme/solr");
     return factory.getSolrServer();
@@ -117,7 +118,8 @@ class ApplicationConfig {
 					annotation, which
 					essentially carries the same attributes as the XML
 					namespace does. If no
-					base package is configured, it will use the one
+					base package is configured, it will use the
+					one
 					the configuration class
 					resides in.
 				</para>
@@ -139,12 +141,12 @@ class ApplicationConfig {
   }
 }
 
-class RepositoryClient {
+class ProductService {
 
   private ProductRepository repository;
 
-  public ProductRepository getRepository() {
-    return repository;
+  public Page&lt;Product&gt; findAvailableProductsByName(String name, Pageable pageable) {
+    return repository.findByAvailableTrueAndNameStartingWith(name, pageable);
   }
 
   @Inject
@@ -161,7 +163,8 @@ class RepositoryClient {
 			<title>Query lookup strategies</title>
 			<para>
 				The Solr module supports defining a query manually as String or
-				have it being derived from the method name.
+				have
+				it being derived from the method name.
 				<note>
 					There is no QueryDSL Support present at this time.
 				</note>
@@ -437,29 +440,26 @@ class RepositoryClient {
 			<title>Using NamedQueries</title>
 			<para>
 				Named queries can be kept in a properties file and wired to the
-				accroding method. Just use a litte XML glue.
+				accroding method. Please mind the naming convention described in
+				<xref linkend="repositories.query-methods.query-lookup-strategies" />
+				or use
+				<interfacename>@Query</interfacename>
+				.
 			</para>
 			<example>
 				<title>
 					Declare named query in properites file
 				</title>
-				<programlisting>ProductBean.findByNamedQuery=popularity:?0</programlisting>
-				<programlisting language="java">public interface ProductRepository extends SolrCrudRepository&lt;ProductBean, String&gt; {
+				<programlisting>Product.findByNamedQuery=popularity:?0
+Product.findByName=name:?0</programlisting>
+				<programlisting language="java">public interface ProductRepository extends SolrCrudRepository&lt;Product, String&gt; {
 				
-  List&lt;ProductBean&gt; findByNamedQuery(Integer popularity);
+  List&lt;Product&gt; findByNamedQuery(Integer popularity);
+  
+  @Query(name = "Product.findByName")
+  List&lt;Product&gt; findByAnnotatedNamedQuery(String name); 
   
 }</programlisting>
-				<programlisting language="xml">&lt;bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean"&gt;
-  &lt;property name="solrOperations" ref="solrTemplate"/&gt;
-  &lt;property name="repositoryInterface" value="com.acme.repositories.ProductRepository"/&gt;
-  &lt;property name="namedQueries"&gt;
-    &lt;bean class="org.springframework.data.repository.core.support.PropertiesBasedNamedQueries"&gt;
-      &lt;constructor-arg&gt;
-        &lt;util:properties location="META-INF/solr-named-queries.properties" /&gt;
-      &lt;/constructor-arg&gt;
-    &lt;/bean&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;</programlisting>
 			</example>
 		</section>
 	</section>
