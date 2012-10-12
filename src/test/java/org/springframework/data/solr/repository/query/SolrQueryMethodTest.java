@@ -50,6 +50,14 @@ public class SolrQueryMethodTest {
 	}
 
 	@Test
+	public void testAnnotatedQueryUsageWithoutExplicitAttribute() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithoutExplicitAttribute", String.class);
+		Assert.assertTrue(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
+	}
+
+	@Test
 	public void testAnnotatedNamedQueryNameUsage() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedNamedQueryName", String.class);
 		Assert.assertFalse(method.hasAnnotatedQuery());
@@ -73,6 +81,9 @@ public class SolrQueryMethodTest {
 
 		@Query(value = "name:?0")
 		List<ProductBean> findByAnnotatedQuery(String name);
+
+		@Query("name:?0")
+		List<ProductBean> findByAnnotatedQueryWithoutExplicitAttribute(String name);
 
 		@Query(name = "ProductRepository.namedQuery-1")
 		List<ProductBean> findByAnnotatedNamedQueryName(String name);
