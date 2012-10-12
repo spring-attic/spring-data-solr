@@ -38,6 +38,7 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 			SolrServerException solrServerException = (SolrServerException) ex.getCause();
 			if (solrServerException.getCause() instanceof SolrException) {
 				SolrException solrException = (SolrException) solrServerException.getCause();
+				// this will fail with solr 4.0.x as ParseExecption moved to org.apache.lucene.queryparser.classic
 				if (solrException.getCause() instanceof ParseException) {
 					return new InvalidDataAccessApiUsageException(((ParseException) solrException.getCause()).getMessage(),
 							solrException.getCause());
