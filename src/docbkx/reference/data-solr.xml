@@ -302,6 +302,28 @@ class ProductService {
 							</row>
 							<row>
 								<entry>
+									<code>Before</code>
+								</entry>
+								<entry>
+									<code>findByLastModifiedBefore</code>
+								</entry>
+								<entry>
+									<code>q=last_modified:[* TO ?0]</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>After</code>
+								</entry>
+								<entry>
+									<code>findByLastModifiedAfter</code>
+								</entry>
+								<entry>
+									<code>q=last_modified:[?0 TO *]</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
 									<code>Like</code>
 								</entry>
 								<entry>
@@ -355,6 +377,19 @@ class ProductService {
 								</entry>
 								<entry>
 									<code>q=name:(?0... )</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>NotIn</code>
+								</entry>
+								<entry>
+									<code>findByNameNotIn(Collection&lt;String&gt;
+										names)
+									</code>
+								</entry>
+								<entry>
+									<code>q=-name:(?0... )</code>
 								</entry>
 							</row>
 							<row>

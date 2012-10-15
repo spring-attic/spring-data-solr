@@ -16,7 +16,10 @@
 package org.springframework.data.solr.repository.query;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -218,6 +221,21 @@ public class SolrQueryCreatorTest {
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("popularity:[100 TO 200]", criteria.getQueryString());
 	}
+	
+	@Test
+	public void testCreateQueryWithBeforeClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLastModifiedBefore", Date.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC)  }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Criteria criteria = query.getCriteria();
+		Assert.assertEquals("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z]", criteria.getQueryString());
+	}
 
 	@Test
 	public void testCreateQueryWithLessThanClause() throws NoSuchMethodException, SecurityException {
@@ -232,6 +250,21 @@ public class SolrQueryCreatorTest {
 
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("price:[* TO 100.0]", criteria.getQueryString());
+	}
+	
+	@Test
+	public void testCreateQueryWithAfterClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLastModifiedAfter", Date.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC)  }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Criteria criteria = query.getCriteria();
+		Assert.assertEquals("last_modified:[2012\\-10\\-15T05\\:31\\:00.000Z TO *]", criteria.getQueryString());
 	}
 
 	@Test
@@ -264,6 +297,21 @@ public class SolrQueryCreatorTest {
 		Assert.assertEquals("popularity:(1 2 3)", criteria.getQueryString());
 	}
 
+	@Test
+	public void testCreateQueryWithNotInClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityNotIn", Integer[].class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new Object[] { 1, 2, 3 } }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Criteria criteria = query.getCriteria();
+		Assert.assertEquals("-popularity:(1 2 3)", criteria.getQueryString());
+	}
+	
 	@Test
 	public void testCreateQueryWithNear() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
@@ -315,12 +363,18 @@ public class SolrQueryCreatorTest {
 		ProductBean findByTitleRegex(String expression);
 
 		ProductBean findByPopularityBetween(Integer lower, Integer upper);
-
+		
+		ProductBean findByLastModifiedBefore(Date date);
+		
 		ProductBean findByPriceLessThan(Float price);
+		
+		ProductBean findByLastModifiedAfter(Date date);
 
 		ProductBean findByPriceGreaterThan(Float price);
 
 		ProductBean findByPopularityIn(Integer... values);
+		
+		ProductBean findByPopularityNotIn(Integer... values);
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
 

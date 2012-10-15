@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -55,6 +56,9 @@ public class ProductBean {
 
 	@Field("store")
 	private String location;
+	
+	@Field("last_modified")
+	private Date lastModified;
 
 	public String getId() {
 		return id;
@@ -134,6 +138,14 @@ public class ProductBean {
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
 	}
 
 }

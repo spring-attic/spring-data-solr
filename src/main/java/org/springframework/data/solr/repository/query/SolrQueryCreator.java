@@ -106,9 +106,11 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.endsWith(parameters.next().toString());
 		case CONTAINING:
 			return criteria.contains(parameters.next().toString());
+		case AFTER:
 		case GREATER_THAN:
 		case GREATER_THAN_EQUAL:
 			return criteria.greaterThanEqual(parameters.next());
+		case BEFORE:
 		case LESS_THAN:
 		case LESS_THAN_EQUAL:
 			return criteria.lessThanEqual(parameters.next());
@@ -116,6 +118,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.between(parameters.next(), parameters.next());
 		case IN:
 			return criteria.in(asArray(parameters.next()));
+		case NOT_IN:
+			return criteria.in(asArray(parameters.next())).not();
 		case NEAR:
 			return criteria.near((GeoLocation) parameters.next(), (Distance) parameters.next());
 		}
