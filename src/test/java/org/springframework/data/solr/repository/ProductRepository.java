@@ -57,6 +57,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByNameStartsWith(String name);
 
 	List<ProductBean> findByPopularityIn(Collection<Integer> popularities);
+	
+	List<ProductBean> findByPopularityNotIn(Collection<Integer> popularities);
 
 	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
 
@@ -65,4 +67,5 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByAvailableTrueOrderByNameDesc();
 
 	ProductBean findByNameAndAvailableTrue(String name);
+	
 }

@@ -200,6 +200,12 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByPopularityIn(Arrays.asList(3, 5));
 		Assert.assertEquals(3, found.size());
 	}
+	
+	@Test
+	public void testFindByNotIn() {
+		List<ProductBean> found = repo.findByPopularityNotIn(Arrays.asList(3, 5));
+		Assert.assertEquals(1, found.size());
+	}
 
 	@Test
 	public void testFindConcatedByAnd() {
