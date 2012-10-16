@@ -21,6 +21,8 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,12 +136,42 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByAvailableUsingQueryAnnotation(true);
 		Assert.assertEquals(3, found.size());
 	}
+	
+	@Test
+	public void testFindByBefore() {
+		repo.deleteAll();
+		ProductBean modifiedMid2012 = createProductBean("2012", 5, true);
+		modifiedMid2012.setLastModified(new DateTime(2012, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+		
+		ProductBean modifiedMid2011 = createProductBean("2011", 5, true);
+		modifiedMid2011.setLastModified(new DateTime(2011, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+		
+		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));		
+		List<ProductBean> found = repo.findByLastModifiedBefore(new DateTime(2011, 12, 31, 23, 59, 59, DateTimeZone.UTC).toDate());
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(modifiedMid2011.getId(), found.get(0).getId());
+	}
 
 	@Test
 	public void testFindByLessThan() {
 		List<ProductBean> found = repo.findByPopularityLessThan(2);
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(UNPOPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+	
+	@Test
+	public void testFindByAfter() {
+		repo.deleteAll();
+		ProductBean modifiedMid2012 = createProductBean("2012", 5, true);
+		modifiedMid2012.setLastModified(new DateTime(2012, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+		
+		ProductBean modifiedMid2011 = createProductBean("2011", 5, true);
+		modifiedMid2011.setLastModified(new DateTime(2011, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+		
+		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));		
+		List<ProductBean> found = repo.findByLastModifiedAfter(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(modifiedMid2012.getId(), found.get(0).getId());
 	}
 
 	@Test

@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.solr.core.geo.Distance;
@@ -42,8 +43,12 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByAvailableUsingQueryAnnotation(boolean available);
 
 	List<ProductBean> findByPopularityBetween(Integer low, Integer up);
+	
+	List<ProductBean> findByLastModifiedBefore(Date date);
 
 	List<ProductBean> findByPopularityLessThan(Integer up);
+	
+	List<ProductBean> findByLastModifiedAfter(Date date);
 
 	List<ProductBean> findByPopularityGreaterThan(Integer low);
 
