@@ -43,11 +43,11 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByAvailableUsingQueryAnnotation(boolean available);
 
 	List<ProductBean> findByPopularityBetween(Integer low, Integer up);
-	
+
 	List<ProductBean> findByLastModifiedBefore(Date date);
 
 	List<ProductBean> findByPopularityLessThan(Integer up);
-	
+
 	List<ProductBean> findByLastModifiedAfter(Date date);
 
 	List<ProductBean> findByPopularityGreaterThan(Integer low);
@@ -57,15 +57,19 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByNameStartsWith(String name);
 
 	List<ProductBean> findByPopularityIn(Collection<Integer> popularities);
-	
+
 	List<ProductBean> findByPopularityNotIn(Collection<Integer> popularities);
 
 	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
+
+	List<ProductBean> findByPopularityOrAvailableFalse(Integer popularity);
 
 	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
 
 	List<ProductBean> findByAvailableTrueOrderByNameDesc();
 
 	ProductBean findByNameAndAvailableTrue(String name);
-	
+
+	List<ProductBean> findByNameRegex(String name);
+
 }

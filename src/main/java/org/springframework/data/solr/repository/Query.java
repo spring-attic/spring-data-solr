@@ -29,8 +29,18 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Query {
 
+	/**
+	 * Solr QueryString to be used when executing query. May contain placeholders eg. ?0
+	 * 
+	 * @return
+	 */
 	String value() default "";
 
+	/**
+	 * Named Query Named looked up by repository.
+	 * 
+	 * @return
+	 */
 	String name() default "";
 
 }

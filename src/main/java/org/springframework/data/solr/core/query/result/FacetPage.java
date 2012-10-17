@@ -64,10 +64,18 @@ public class FacetPage<T> extends PageImpl<T> {
 		}
 	}
 
+	/**
+	 * @return Collection holding faceting result pages
+	 */
 	public Collection<Page<FacetEntry>> getFacetResultPages() {
 		return Collections.unmodifiableCollection(this.facetResultPages.values());
 	}
 
+	/**
+	 * Get Fields contained in Result.
+	 * 
+	 * @return
+	 */
 	public Collection<Field> getFacetFields() {
 		if (facetResultPages.isEmpty()) {
 			return Collections.emptyList();

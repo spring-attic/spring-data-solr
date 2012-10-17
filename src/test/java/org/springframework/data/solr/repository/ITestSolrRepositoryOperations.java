@@ -136,18 +136,19 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByAvailableUsingQueryAnnotation(true);
 		Assert.assertEquals(3, found.size());
 	}
-	
+
 	@Test
 	public void testFindByBefore() {
 		repo.deleteAll();
 		ProductBean modifiedMid2012 = createProductBean("2012", 5, true);
 		modifiedMid2012.setLastModified(new DateTime(2012, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
-		
+
 		ProductBean modifiedMid2011 = createProductBean("2011", 5, true);
 		modifiedMid2011.setLastModified(new DateTime(2011, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
-		
-		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));		
-		List<ProductBean> found = repo.findByLastModifiedBefore(new DateTime(2011, 12, 31, 23, 59, 59, DateTimeZone.UTC).toDate());
+
+		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));
+		List<ProductBean> found = repo.findByLastModifiedBefore(new DateTime(2011, 12, 31, 23, 59, 59, DateTimeZone.UTC)
+				.toDate());
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(modifiedMid2011.getId(), found.get(0).getId());
 	}
@@ -158,18 +159,19 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(UNPOPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
 	}
-	
+
 	@Test
 	public void testFindByAfter() {
 		repo.deleteAll();
 		ProductBean modifiedMid2012 = createProductBean("2012", 5, true);
 		modifiedMid2012.setLastModified(new DateTime(2012, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
-		
+
 		ProductBean modifiedMid2011 = createProductBean("2011", 5, true);
 		modifiedMid2011.setLastModified(new DateTime(2011, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
-		
-		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));		
-		List<ProductBean> found = repo.findByLastModifiedAfter(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
+
+		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));
+		List<ProductBean> found = repo
+				.findByLastModifiedAfter(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(modifiedMid2012.getId(), found.get(0).getId());
 	}
@@ -200,7 +202,7 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByPopularityIn(Arrays.asList(3, 5));
 		Assert.assertEquals(3, found.size());
 	}
-	
+
 	@Test
 	public void testFindByNotIn() {
 		List<ProductBean> found = repo.findByPopularityNotIn(Arrays.asList(3, 5));
@@ -212,6 +214,12 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByPopularityAndAvailableTrue(POPULAR_AVAILABLE_PRODUCT.getPopularity());
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindConcatedByOr() {
+		List<ProductBean> found = repo.findByPopularityOrAvailableFalse(UNPOPULAR_AVAILABLE_PRODUCT.getPopularity());
+		Assert.assertEquals(2, found.size());
 	}
 
 	@Test
@@ -246,6 +254,15 @@ public class ITestSolrRepositoryOperations {
 			ProductBean cur = found.get(i);
 			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
 			prev = cur;
+		}
+	}
+
+	@Test
+	public void testFindByRegex() {
+		List<ProductBean> found = repo.findByNameRegex("na*");
+		Assert.assertEquals(3, found.size());
+		for (ProductBean bean : found) {
+			Assert.assertTrue(bean.getName().startsWith("na"));
 		}
 	}
 

@@ -237,10 +237,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		QueryResponse response = executeQuery(query);
-		// TODO: implement the following for grouping results
-		// if (query.hasGroupBy() && query.getGroupBy().size() > 1) {
-		// return SolrResultHelper.flattenGroupedQueryResult(query, response, clazz, getSolrServer().getBinder());
-		// }
 		return new PageImpl<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
 	}
 

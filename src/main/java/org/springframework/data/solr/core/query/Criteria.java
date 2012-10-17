@@ -144,7 +144,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using AND
+	 * Chain using {@code AND}
 	 * 
 	 * @param field
 	 * @return
@@ -154,7 +154,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using AND
+	 * Chain using {@code AND}
 	 * 
 	 * @param field
 	 * @return
@@ -164,7 +164,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using AND
+	 * Chain using {@code AND}
 	 * 
 	 * @param field
 	 * @return
@@ -175,7 +175,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using AND
+	 * Chain using {@code AND}
 	 * 
 	 * @param field
 	 * @return
@@ -186,7 +186,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using OR
+	 * Chain using {@code OR}
 	 * 
 	 * @param field
 	 * @return
@@ -196,7 +196,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using OR
+	 * Chain using {@code OR}
 	 * 
 	 * @param field
 	 * @return
@@ -210,7 +210,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Chain using OR
+	 * Chain using {@code OR}
 	 * 
 	 * @param field
 	 * @return
@@ -231,7 +231,8 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading and trailing wildcards
+	 * Crates new CriteriaEntry with leading and trailing wildcards <br/>
+	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * 
 	 * @param o
 	 * @return
@@ -243,7 +244,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading wildcard
+	 * Crates new CriteriaEntry with trailing wildcard
 	 * 
 	 * @param o
 	 * @return
@@ -255,7 +256,8 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing wildcards
+	 * Crates new CriteriaEntry with leading wildcard <br />
+	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
 	 * 
 	 * @param o
 	 * @return
@@ -330,7 +332,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for RANGE expressions [lowerBound TO upperBound]
+	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO upperBound]}
 	 * 
 	 * @param lowerBound
 	 * @param upperBound
@@ -346,7 +348,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for RANGE [* TO upperBound]
+	 * Crates new CriteriaEntry for {@code RANGE [* TO upperBound]}
 	 * 
 	 * @param upperBound
 	 * @return
@@ -357,7 +359,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for RANGE [lowerBound TO *]
+	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO *]}
 	 * 
 	 * @param lowerBound
 	 * @return
@@ -368,7 +370,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for multiple values (arg0 arg1 arg2 ...)
+	 * Crates new CriteriaEntry for multiple values {@code (arg0 arg1 arg2 ...)}
 	 * 
 	 * @param lowerBound
 	 * @return
@@ -383,7 +385,7 @@ public class Criteria implements QueryStringHolder {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for multiple values (arg0 arg1 arg2 ...)
+	 * Crates new CriteriaEntry for multiple values {@code (arg0 arg1 arg2 ...)}
 	 * 
 	 * @param c the collection containing the values to match against
 	 * @return
