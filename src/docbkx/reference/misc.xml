@@ -36,8 +36,8 @@ FacetPage&lt;Product&gt; page = solrTemplate.executeFacetQuery(query, Product.cl
 		</para>
 		<example>
 			<programlisting language="java">Query query = new SimpleQuery(new Criteria("category").is("supercalifragilisticexpialidocious"));
-FilterQuery fq = new SimpleFilterQuery(new Criteria("store");
-fq.near(new GeoLocation(48.305478, 14.286699), new Distance(5)));
+FilterQuery fq = new SimpleFilterQuery(new Criteria("store")
+  .near(new GeoLocation(48.305478, 14.286699), new Distance(5)));
 query.addFilterQuery(fq);</programlisting>
 		</example>
 	</section>
