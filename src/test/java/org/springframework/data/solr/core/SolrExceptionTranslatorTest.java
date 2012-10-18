@@ -17,7 +17,6 @@ package org.springframework.data.solr.core;
 
 import java.io.IOException;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
@@ -88,7 +87,7 @@ public class SolrExceptionTranslatorTest {
 	@Test
 	public void testWithParseException() {
 		SolrServerException solrServerException = new SolrServerException("meessage", new SolrException(
-				ErrorCode.BAD_REQUEST, new ParseException("parse execption message")));
+				ErrorCode.BAD_REQUEST, new org.apache.lucene.queryParser.ParseException("parse execption message")));
 
 		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(solrServerException)),
 				IsInstanceOf.instanceOf(InvalidDataAccessApiUsageException.class));

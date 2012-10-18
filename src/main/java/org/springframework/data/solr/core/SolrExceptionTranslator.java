@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
@@ -25,6 +24,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.PermissionDeniedDataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.solr.UncategorizedSolrException;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Christoph Strobl
@@ -38,9 +38,11 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 			SolrServerException solrServerException = (SolrServerException) ex.getCause();
 			if (solrServerException.getCause() instanceof SolrException) {
 				SolrException solrException = (SolrException) solrServerException.getCause();
-				// this will fail with solr 4.0.x as ParseExecption moved to org.apache.lucene.queryparser.classic
-				if (solrException.getCause() instanceof ParseException) {
-					return new InvalidDataAccessApiUsageException(((ParseException) solrException.getCause()).getMessage(),
+				// solr 4.x moved ParseExecption from org.apache.lucene.queryParser to org.apache.lucene.queryparser.classic
+				// therefore compare ShortClassName instead of using instanceof expression
+				if (solrException.getCause() != null
+						&& ClassUtils.getShortName(solrException.getCause().getClass()).equalsIgnoreCase("ParseException")) {
+					return new InvalidDataAccessApiUsageException((solrException.getCause()).getMessage(),
 							solrException.getCause());
 				} else {
 					ErrorCode errorCode = SolrException.ErrorCode.getErrorCode(solrException.code());

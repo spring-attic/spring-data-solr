@@ -271,6 +271,14 @@
       <version>${webbeans.version}</version>
       <scope>test</scope>
     </dependency>
+    
+    <!-- solr 4.x requires servlet api to run in embedded mode -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>3.0-alpha-1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
