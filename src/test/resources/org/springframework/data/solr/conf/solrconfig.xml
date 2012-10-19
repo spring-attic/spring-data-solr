@@ -212,7 +212,7 @@
          More details on the nuances of each LockFactory...
          http://wiki.apache.org/lucene-java/AvailableLockFactories
     -->
-    <!-- <lockType>native</lockType> -->
+    <lockType>none</lockType>
 
     <!-- Unlock On Startup
 
