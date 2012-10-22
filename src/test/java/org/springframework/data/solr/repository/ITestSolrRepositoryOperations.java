@@ -28,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.test.context.ContextConfiguration;
@@ -264,6 +267,29 @@ public class ITestSolrRepositoryOperations {
 		for (ProductBean bean : found) {
 			Assert.assertTrue(bean.getName().startsWith("na"));
 		}
+	}
+
+	@Test
+	public void testPagination() {
+		Pageable pageable = new PageRequest(0, 2);
+		Page<ProductBean> page1 = repo.findByNameStartingWith("name", pageable);
+		Assert.assertEquals(pageable.getPageSize(), page1.getNumberOfElements());
+		Assert.assertTrue(page1.hasNextPage());
+		Assert.assertEquals(3, page1.getTotalElements());
+
+		pageable = new PageRequest(1, 2);
+		Page<ProductBean> page2 = repo.findByNameStartingWith("name", pageable);
+		Assert.assertEquals(1, page2.getNumberOfElements());
+		Assert.assertFalse(page2.hasNextPage());
+		Assert.assertEquals(3, page2.getTotalElements());
+	}
+
+	@Test
+	public void testPaginationNoElementsFound() {
+		Pageable pageable = new PageRequest(0, 2);
+		Page<ProductBean> page = repo.findByNameStartingWith("hpotsirhc", pageable);
+		Assert.assertEquals(0, page.getNumberOfElements());
+		Assert.assertTrue(page.getContent().isEmpty());
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

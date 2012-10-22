@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
@@ -71,5 +73,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	ProductBean findByNameAndAvailableTrue(String name);
 
 	List<ProductBean> findByNameRegex(String name);
+
+	Page<ProductBean> findByNameStartingWith(String name, Pageable page);
 
 }
