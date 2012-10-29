@@ -90,7 +90,7 @@ Furthermore you may provide a custom implementation for some operations.
         @Override
         public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
             Query query = new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page);
-            return solrTemplate.executeListQuery(query, Product.class);
+            return solrTemplate.queryForPage(query, Product.class);
         }
 
     }
