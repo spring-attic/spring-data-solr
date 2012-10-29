@@ -68,13 +68,13 @@ public class SimpleSolrRepositoryTest {
 
 	@Test
 	public void testFindAllByIdQuery() {
-		Mockito.when(solrOperationsMock.executeCount(Mockito.any(SolrDataQuery.class))).thenReturn(12345l);
+		Mockito.when(solrOperationsMock.count(Mockito.any(SolrDataQuery.class))).thenReturn(12345l);
 
 		repository.findAll(Arrays.asList("id-1", "id-2", "id-3"));
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 
-		Mockito.verify(solrOperationsMock, Mockito.times(1)).executeCount(captor.capture());
-		Mockito.verify(solrOperationsMock, Mockito.times(1)).executeListQuery(captor.capture(),
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).count(captor.capture());
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
 				Mockito.eq(ExampleSolrBean.class));
 
 		Assert.assertEquals(Query.DEFAULT_PAGE_SIZE, captor.getAllValues().get(0).getPageRequest().getPageSize());

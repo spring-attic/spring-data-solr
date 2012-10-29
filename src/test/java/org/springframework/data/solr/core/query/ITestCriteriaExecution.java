@@ -50,8 +50,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 	@After
 	public void tearDown() {
-		solrTemplate.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
-		solrTemplate.executeCommit();
+		solrTemplate.delete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+		solrTemplate.commit();
 	}
 
 	@Test
@@ -62,10 +62,10 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		ExampleSolrBean negativePopularity = createExampleBeanWithId("2");
 		negativePopularity.setPopularity(-200);
 
-		solrTemplate.executeAddBeans(Arrays.asList(positivePopularity, negativePopularity));
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(Arrays.asList(positivePopularity, negativePopularity));
+		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(new SimpleQuery(new Criteria("popularity").is(-200)),
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(new SimpleQuery(new Criteria("popularity").is(-200)),
 				ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 		Assert.assertEquals(negativePopularity.getId(), result.getContent().get(0).getId());
@@ -79,10 +79,10 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		ExampleSolrBean negative200 = createExampleBeanWithId("2");
 		negative200.setPopularity(-200);
 
-		solrTemplate.executeAddBeans(Arrays.asList(negative100, negative200));
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(Arrays.asList(negative100, negative200));
+		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
 				new SimpleQuery(new Criteria("popularity").between(-150, -50)), ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 		Assert.assertEquals(negative100.getId(), result.getContent().get(0).getId());
@@ -95,10 +95,10 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		calendar.set(2012, 7, 23, 6, 10, 0);
 		searchableBean.setLastModified(calendar.getTime());
 
-		solrTemplate.executeAddBean(searchableBean);
-		solrTemplate.executeCommit();
+		solrTemplate.saveBean(searchableBean);
+		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
 				new SimpleQuery(new Criteria("last_modified").is(calendar.getTime())), ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 	}
@@ -115,10 +115,10 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		calendar2011.set(2011, 7, 23, 6, 10, 0);
 		searchableBeanIn2011.setLastModified(calendar2011.getTime());
 
-		solrTemplate.executeAddBeans(Arrays.asList(searchableBeanIn2012, searchableBeanIn2011));
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(Arrays.asList(searchableBeanIn2012, searchableBeanIn2011));
+		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
 				new SimpleQuery(new Criteria("last_modified").between(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC),
 						new DateTime(2012, 12, 31, 23, 59, 59, DateTimeZone.UTC))), ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
@@ -133,10 +133,10 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		ExampleSolrBean searchableBeanInNYC = createExampleBeanWithId("2");
 		searchableBeanInNYC.setStore("40.7143,-74.006");
 
-		solrTemplate.executeAddBeans(Arrays.asList(searchableBeanInBuffalow, searchableBeanInNYC));
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(Arrays.asList(searchableBeanInBuffalow, searchableBeanInNYC));
+		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.executeListQuery(
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
 				new SimpleQuery(new Criteria("store").near(new GeoLocation(45.15, -93.85), new Distance(5))),
 				ExampleSolrBean.class);
 

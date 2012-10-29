@@ -75,37 +75,37 @@ public class SolrTemplateTest {
 	}
 
 	@Test
-	public void testExecutePing() throws SolrServerException, IOException {
+	public void testPing() throws SolrServerException, IOException {
 		Mockito.when(solrServerMock.ping()).thenReturn(new SolrPingResponse());
-		SolrPingResponse pingResult = solrTemplate.executePing();
+		SolrPingResponse pingResult = solrTemplate.ping();
 		Assert.assertNotNull(pingResult);
 		Mockito.verify(solrServerMock, Mockito.times(1)).ping();
 	}
 
 	@Test(expected = DataAccessException.class)
-	public void testExecutePingThrowsException() throws SolrServerException, IOException {
+	public void testPingThrowsException() throws SolrServerException, IOException {
 		Mockito.when(solrServerMock.ping()).thenThrow(
 				new SolrServerException("error", new SolrException(ErrorCode.NOT_FOUND, "not found")));
-		solrTemplate.executePing();
+		solrTemplate.ping();
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
-	public void testExecuteQueryThrowsParseException() throws SolrServerException {
+	public void testQueryThrowsParseException() throws SolrServerException {
 		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(
 				new SolrServerException("error", new SolrException(ErrorCode.BAD_REQUEST, new ParseException("parse error"))));
 		solrTemplate.executeSolrQuery(new SolrQuery());
 	}
 
 	@Test(expected = UncategorizedSolrException.class)
-	public void testExecuteQueryThrowsUntranslateableException() throws SolrServerException {
+	public void testQueryThrowsUntranslateableException() throws SolrServerException {
 		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(new NotImplementedException());
 		solrTemplate.executeSolrQuery(new SolrQuery());
 	}
 
 	@Test
-	public void testAddBean() throws IOException, SolrServerException {
+	public void testSaveBean() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
-		UpdateResponse updateResponse = solrTemplate.executeAddBean(SIMPLE_OBJECT);
+		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_OBJECT);
 		Assert.assertNotNull(updateResponse);
 
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
@@ -117,11 +117,11 @@ public class SolrTemplateTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testAddBeans() throws IOException, SolrServerException {
+	public void testSaveBeans() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
-		UpdateResponse updateResponse = solrTemplate.executeAddBeans(collection);
+		UpdateResponse updateResponse = solrTemplate.saveBeans(collection);
 		Assert.assertNotNull(updateResponse);
 
 		@SuppressWarnings("rawtypes")
@@ -132,18 +132,18 @@ public class SolrTemplateTest {
 	}
 
 	@Test
-	public void testAddDocument() throws IOException, SolrServerException {
+	public void testSaveDocument() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
-		UpdateResponse updateResponse = solrTemplate.executeAddDocument(SIMPLE_DOCUMENT);
+		UpdateResponse updateResponse = solrTemplate.saveDocument(SIMPLE_DOCUMENT);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT));
 	}
 
 	@Test
-	public void testAddDocuments() throws IOException, SolrServerException {
+	public void testSaveDocuments() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
-		UpdateResponse updateResponse = solrTemplate.executeAddDocuments(collection);
+		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection));
 	}
@@ -151,7 +151,7 @@ public class SolrTemplateTest {
 	@Test
 	public void testDeleteById() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.deleteById(Mockito.anyString())).thenReturn(new UpdateResponse());
-		UpdateResponse updateResponse = solrTemplate.executeDeleteById("1");
+		UpdateResponse updateResponse = solrTemplate.deleteById("1");
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrServerMock, Mockito.times(1)).deleteById(Mockito.eq("1"));
 	}
@@ -160,7 +160,7 @@ public class SolrTemplateTest {
 	public void testDeleteByIdWithCollection() throws IOException, SolrServerException {
 		Mockito.when(solrServerMock.deleteById(Mockito.anyListOf(String.class))).thenReturn(new UpdateResponse());
 		List<String> idsToDelete = Arrays.asList("1", "2");
-		UpdateResponse updateResponse = solrTemplate.executeDeleteById(idsToDelete);
+		UpdateResponse updateResponse = solrTemplate.deleteById(idsToDelete);
 		Assert.assertNotNull(updateResponse);
 
 		@SuppressWarnings("unchecked")
@@ -183,7 +183,7 @@ public class SolrTemplateTest {
 		Mockito.when(responseMock.getResults()).thenReturn(resultList);
 		Mockito.when(solrServerMock.query(Mockito.any(SolrQuery.class))).thenReturn(responseMock);
 
-		long result = solrTemplate.executeCount(new SimpleQuery(new Criteria("field_1").is("value1")));
+		long result = solrTemplate.count(new SimpleQuery(new Criteria("field_1").is("value1")));
 		Assert.assertEquals(resultList.getNumFound(), result);
 
 		Mockito.verify(solrServerMock, Mockito.times(1)).query(captor.capture());
@@ -203,7 +203,7 @@ public class SolrTemplateTest {
 
 		Query query = new SimpleQuery(new Criteria("field_1").is("value1"));
 		query.setPageRequest(new PageRequest(0, 5));
-		long result = solrTemplate.executeCount(query);
+		long result = solrTemplate.count(query);
 		Assert.assertEquals(resultList.getNumFound(), result);
 
 		Mockito.verify(solrServerMock, Mockito.times(1)).query(captor.capture());
@@ -214,20 +214,20 @@ public class SolrTemplateTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCountNullQuery() {
-		solrTemplate.executeCount(null);
+		solrTemplate.count(null);
 	}
 
 	@Test
 	public void testCommit() throws SolrServerException, IOException {
 		Mockito.when(solrServerMock.commit()).thenReturn(new UpdateResponse());
-		solrTemplate.executeCommit();
+		solrTemplate.commit();
 		Mockito.verify(solrServerMock, Mockito.times(1)).commit();
 	}
 
 	@Test
 	public void testRollback() throws SolrServerException, IOException {
 		Mockito.when(solrServerMock.rollback()).thenReturn(new UpdateResponse());
-		solrTemplate.executeRollback();
+		solrTemplate.rollback();
 		Mockito.verify(solrServerMock, Mockito.times(1)).rollback();
 	}
 

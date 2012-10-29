@@ -18,7 +18,6 @@ package org.springframework.data.solr.core;
 import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
@@ -48,7 +47,7 @@ public interface SolrOperations {
 	 * 
 	 * @return
 	 */
-	SolrPingResponse executePing();
+	SolrPingResponse ping();
 
 	/**
 	 * return number of elements found by for given query
@@ -56,39 +55,39 @@ public interface SolrOperations {
 	 * @param query
 	 * @return
 	 */
-	long executeCount(SolrDataQuery query);
+	long count(SolrDataQuery query);
 
 	/**
-	 * Execute add operation against solr
+	 * Execute add operation against solr, which will do either insert or update
 	 * 
 	 * @param obj
 	 * @return
 	 */
-	UpdateResponse executeAddBean(Object obj);
+	UpdateResponse saveBean(Object obj);
 
 	/**
-	 * Add a collection of beans to solr
+	 * Add a collection of beans to solr, which will do either insert or update
 	 * 
 	 * @param beans
 	 * @return
 	 */
-	UpdateResponse executeAddBeans(Collection<?> beans);
+	UpdateResponse saveBeans(Collection<?> beans);
 
 	/**
-	 * Add a solrj input document to solr
+	 * Add a solrj input document to solr, which will do either insert or update
 	 * 
 	 * @param document
 	 * @return
 	 */
-	UpdateResponse executeAddDocument(SolrInputDocument document);
+	UpdateResponse saveDocument(SolrInputDocument document);
 
 	/**
-	 * Add multiple solrj input documents to solr
+	 * Add multiple solrj input documents to solr, which will do either insert or update
 	 * 
 	 * @param documents
 	 * @return
 	 */
-	UpdateResponse executeAddDocuments(Collection<SolrInputDocument> documents);
+	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents);
 
 	/**
 	 * Find and delete all objects matching the provided Query
@@ -96,7 +95,7 @@ public interface SolrOperations {
 	 * @param query
 	 * @return
 	 */
-	UpdateResponse executeDelete(SolrDataQuery query);
+	UpdateResponse delete(SolrDataQuery query);
 
 	/**
 	 * Detele the one object with provided id
@@ -104,7 +103,7 @@ public interface SolrOperations {
 	 * @param id
 	 * @return
 	 */
-	UpdateResponse executeDeleteById(String id);
+	UpdateResponse deleteById(String id);
 
 	/**
 	 * Delete objects with given ids
@@ -112,15 +111,7 @@ public interface SolrOperations {
 	 * @param id
 	 * @return
 	 */
-	UpdateResponse executeDeleteById(Collection<String> id);
-
-	/**
-	 * Execute query against Solr
-	 * 
-	 * @param query
-	 * @return
-	 */
-	QueryResponse executeQuery(SolrDataQuery query);
+	UpdateResponse deleteById(Collection<String> id);
 
 	/**
 	 * Execute the query against solr and return the first returned object
@@ -129,7 +120,7 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return the first matching object
 	 */
-	<T> T executeObjectQuery(Query query, Class<T> clazz);
+	<T> T queryForObject(Query query, Class<T> clazz);
 
 	/**
 	 * Execute the query against solr and retrun result as {@link Page}
@@ -138,7 +129,7 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return
 	 */
-	<T> Page<T> executeListQuery(Query query, Class<T> clazz);
+	<T> Page<T> queryForPage(Query query, Class<T> clazz);
 
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
@@ -147,17 +138,17 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return
 	 */
-	<T> FacetPage<T> executeFacetQuery(FacetQuery query, Class<T> clazz);
+	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz);
 
 	/**
 	 * Send commit command
 	 */
-	void executeCommit();
+	void commit();
 
 	/**
 	 * send rollback command
 	 */
-	void executeRollback();
+	void rollback();
 
 	/**
 	 * Convert given bean into a solrj InputDocument
@@ -171,5 +162,13 @@ public interface SolrOperations {
 	 * @return Converter in use
 	 */
 	SolrConverter getConverter();
+
+	/**
+	 * Execute action within callback
+	 * 
+	 * @param action
+	 * @return
+	 */
+	<T> T execute(SolrCallback<T> action);
 
 }

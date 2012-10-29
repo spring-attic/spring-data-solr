@@ -95,6 +95,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.solrConverter = solrConverter == null ? getDefaultSolrConverter(solrServerFactory) : solrConverter;
 	}
 
+	@Override
 	public <T> T execute(SolrCallback<T> action) {
 		Assert.notNull(action);
 
@@ -109,7 +110,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public SolrPingResponse executePing() {
+	public SolrPingResponse ping() {
 		return execute(new SolrCallback<SolrPingResponse>() {
 			@Override
 			public SolrPingResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -119,7 +120,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public long executeCount(final SolrDataQuery query) {
+	public long count(final SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
 		return execute(new SolrCallback<Long>() {
@@ -136,7 +137,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeAddBean(final Object objectToAdd) {
+	public UpdateResponse saveBean(final Object objectToAdd) {
 		assertNoCollection(objectToAdd);
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
@@ -147,7 +148,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeAddBeans(final Collection<?> beansToAdd) {
+	public UpdateResponse saveBeans(final Collection<?> beansToAdd) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -157,7 +158,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeAddDocument(final SolrInputDocument documentToAdd) {
+	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -167,7 +168,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeAddDocuments(final Collection<SolrInputDocument> documentsToAdd) {
+	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -177,7 +178,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeDelete(SolrDataQuery query) {
+	public UpdateResponse delete(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
 		final String queryString = this.queryParser.getQueryString(query);
@@ -191,7 +192,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeDeleteById(final String id) {
+	public UpdateResponse deleteById(final String id) {
 		Assert.notNull(id, "Cannot delete 'null' id.");
 
 		return execute(new SolrCallback<UpdateResponse>() {
@@ -203,7 +204,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse executeDeleteById(Collection<String> ids) {
+	public UpdateResponse deleteById(Collection<String> ids) {
 		Assert.notNull(ids, "Cannot delete 'null' collection.");
 
 		final List<String> toBeDeleted = new ArrayList<String>(ids);
@@ -216,12 +217,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> T executeObjectQuery(Query query, Class<T> clazz) {
+	public <T> T queryForObject(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		query.setPageRequest(new PageRequest(0, 1));
-		QueryResponse response = executeQuery(query);
+		QueryResponse response = query(query);
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
@@ -232,20 +233,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return null;
 	}
 
-	public <T> Page<T> executeListQuery(Query query, Class<T> clazz) {
+	public <T> Page<T> queryForPage(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		QueryResponse response = executeQuery(query);
+		QueryResponse response = query(query);
 		return new PageImpl<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
 	}
 
 	@Override
-	public <T> FacetPage<T> executeFacetQuery(FacetQuery query, Class<T> clazz) {
+	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		QueryResponse response = executeQuery(query);
+		QueryResponse response = query(query);
 
 		FacetPage<T> page = new FacetPage<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults()
 				.getNumFound());
@@ -254,7 +255,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return page;
 	}
 
-	public final QueryResponse executeQuery(SolrDataQuery query) {
+	final QueryResponse query(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'");
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
@@ -273,7 +274,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public void executeCommit() {
+	public void commit() {
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
@@ -283,7 +284,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public void executeRollback() {
+	public void rollback() {
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {

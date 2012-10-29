@@ -56,47 +56,47 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@After
 	public void tearDown() {
-		solrTemplate.executeDelete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
-		solrTemplate.executeCommit();
+		solrTemplate.delete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+		solrTemplate.commit();
 	}
 
 	@Test
 	public void testBeanLifecycle() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 
-		solrTemplate.executeAddBean(toInsert);
-		ExampleSolrBean recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")),
+		solrTemplate.saveBean(toInsert);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")),
 				ExampleSolrBean.class);
 		Assert.assertNull(recalled);
-		solrTemplate.executeCommit();
+		solrTemplate.commit();
 
-		recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
-		solrTemplate.executeDeleteById(toInsert.getId());
-		recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		solrTemplate.deleteById(toInsert.getId());
+		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
-		solrTemplate.executeCommit();
-		recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		solrTemplate.commit();
+		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
 		Assert.assertNull(recalled);
 	}
 
 	@Test
 	public void testPing() throws SolrServerException, IOException {
-		solrTemplate.executePing();
+		solrTemplate.ping();
 	}
 
 	@Test
 	public void testRollback() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
-		solrTemplate.executeAddBean(toInsert);
-		ExampleSolrBean recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")),
+		solrTemplate.saveBean(toInsert);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")),
 				ExampleSolrBean.class);
 		Assert.assertNull(recalled);
 
-		solrTemplate.executeRollback();
-		recalled = solrTemplate.executeObjectQuery(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		solrTemplate.rollback();
+		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
 		Assert.assertNull(recalled);
 	}
 
@@ -106,13 +106,13 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.executeAddBeans(values);
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
 
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.executeFacetQuery(q, ExampleSolrBean.class);
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
 		for (Page<FacetEntry> facetResultPage : page.getFacetResultPages()) {
 			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
@@ -139,11 +139,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.executeAddBeans(values);
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
 
 		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "name"));
-		Page<ExampleSolrBean> page = solrTemplate.executeListQuery(query, ExampleSolrBean.class);
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
 		for (int i = 1; i < page.getContent().size(); i++) {
@@ -161,12 +161,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			bean.setInStock(i % 2 == 0);
 			values.add(bean);
 		}
-		solrTemplate.executeAddBeans(values);
-		solrTemplate.executeCommit();
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
 
 		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "inStock"))
 				.addSort(new Sort(Sort.Direction.ASC, "name"));
-		Page<ExampleSolrBean> page = solrTemplate.executeListQuery(query, ExampleSolrBean.class);
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
 		for (int i = 1; i < 5; i++) {

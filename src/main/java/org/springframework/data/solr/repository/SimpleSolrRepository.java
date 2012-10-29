@@ -80,7 +80,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
 	@Override
 	public T findOne(String id) {
-		return (T) getSolrOperations().executeObjectQuery(new SimpleQuery(new Criteria(this.idFieldName).is(id)),
+		return (T) getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)),
 				getEntityClass());
 	}
 
@@ -95,7 +95,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
 	@Override
 	public Page<T> findAll(Pageable pageable) {
-		return getSolrOperations().executeListQuery(
+		return getSolrOperations().queryForPage(
 				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable),
 				getEntityClass());
 	}
@@ -106,7 +106,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		if (itemCount == 0) {
 			return new PageImpl<T>(Collections.<T> emptyList());
 		}
-		return getSolrOperations().executeListQuery(
+		return getSolrOperations().queryForPage(
 				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(
 						new PageRequest(0, Math.max(1, itemCount))).addSort(sort), getEntityClass());
 	}
@@ -116,7 +116,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
 		query.setPageRequest(new PageRequest(0, Math.max(1, (int) count(query))));
 
-		return getSolrOperations().executeListQuery(query, getEntityClass());
+		return getSolrOperations().queryForPage(query, getEntityClass());
 	}
 
 	@Override
@@ -126,15 +126,15 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
 	protected long count(org.springframework.data.solr.core.query.Query query) {
 		org.springframework.data.solr.core.query.Query countQuery = SimpleQuery.fromQuery(query);
-		return getSolrOperations().executeCount(countQuery);
+		return getSolrOperations().count(countQuery);
 	}
 
 	@Override
 	public <S extends T> S save(S entity) {
 		Assert.notNull(entity, "Cannot save 'null' entity.");
 
-		this.solrOperations.executeAddBean(entity);
-		this.solrOperations.executeCommit();
+		this.solrOperations.saveBean(entity);
+		this.solrOperations.commit();
 		return entity;
 	}
 
@@ -146,8 +146,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 			throw new InvalidDataAccessApiUsageException("Entities have to be inside a collection");
 		}
 
-		this.solrOperations.executeAddBeans((Collection<? extends T>) entities);
-		this.solrOperations.executeCommit();
+		this.solrOperations.saveBeans((Collection<? extends T>) entities);
+		this.solrOperations.commit();
 		return (Iterable<S>) entities;
 	}
 
@@ -160,8 +160,8 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	public void delete(String id) {
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
-		this.solrOperations.executeDeleteById(id);
-		this.solrOperations.executeCommit();
+		this.solrOperations.deleteById(id);
+		this.solrOperations.commit();
 	}
 
 	@Override
@@ -179,15 +179,14 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		for (T entity : entities) {
 			idsToDelete.add(extractIdFromBean(entity));
 		}
-		this.solrOperations.executeDeleteById(idsToDelete);
-		this.solrOperations.executeCommit();
+		this.solrOperations.deleteById(idsToDelete);
+		this.solrOperations.commit();
 	}
 
 	@Override
 	public void deleteAll() {
-		this.solrOperations.executeDelete(new SimpleFilterQuery(new Criteria(Criteria.WILDCARD)
-				.expression(Criteria.WILDCARD)));
-		this.solrOperations.executeCommit();
+		this.solrOperations.delete(new SimpleFilterQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+		this.solrOperations.commit();
 	}
 
 	public final String getIdFieldName() {
