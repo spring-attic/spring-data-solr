@@ -23,12 +23,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.repository.core.RepositoryMetadata;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
+import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
  * @author Christoph Strobl

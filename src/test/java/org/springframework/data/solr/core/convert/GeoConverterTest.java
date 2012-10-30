@@ -24,6 +24,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.springframework.data.solr.core.convert.GeoConverterTest.DistanceConverterTest;
 import org.springframework.data.solr.core.convert.GeoConverterTest.GeoLocationConverterTest;
 import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
 /**

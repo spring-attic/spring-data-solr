@@ -1,2 +1,2 @@
-http\://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd=org/springframework/data/solr/repository/config/spring-solr-1.0.xsd
-http\://www.springframework.org/schema/data/solr/spring-solr.xsd=org/springframework/data/solr/repository/config/spring-solr-1.0.xsd
+http\://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd=org/springframework/data/solr/config/spring-solr-1.0.xsd
+http\://www.springframework.org/schema/data/solr/spring-solr.xsd=org/springframework/data/solr/config/spring-solr-1.0.xsd

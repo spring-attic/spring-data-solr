@@ -36,7 +36,7 @@
 	
 	<xsd:element name="embedded-solr-server">
 		<xsd:annotation>
-			<xsd:documentation source="java: org.springframework.data.solr.embedded.support.EmbeddedSolrServerFactoryBean" />
+			<xsd:documentation source="java: org.springframework.data.solr.server.support.EmbeddedSolrServerFactoryBean" />
 			<xsd:appinfo>
 				<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer "/>
 			</xsd:appinfo>

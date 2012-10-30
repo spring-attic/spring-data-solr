@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr;
+package org.springframework.data.solr.server.support;
 
 import java.util.Arrays;
 
@@ -26,6 +26,7 @@ import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
 
 /**

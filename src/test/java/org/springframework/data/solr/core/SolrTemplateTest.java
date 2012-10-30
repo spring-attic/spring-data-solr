@@ -44,11 +44,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.server.SolrServerFactory;
 
 /*
  * @author Christoph Strobl

@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.core.convert;
+package org.springframework.data.solr.core.geo;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
 
 /**
  * @author Christoph Strobl

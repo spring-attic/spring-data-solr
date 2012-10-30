@@ -15,16 +15,17 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Integration test for XML namespace configuration.
@@ -32,18 +33,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Oliver Gierke
  * @author Christoph Strobl
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("namespace.xml")
 public class ITestXmlNamespace {
 
+	@Autowired
 	ApplicationContext context;
-
-	@Before
-	public void setUp() {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
-		context.setConfigLocation("classpath:org/springframework/data/solr/repository/config/namespace.xml");
-		context.refresh();
-
-		this.context = context;
-	}
 
 	@Test
 	public void createsRepositoryAndEmbeddedServerCorrectly() {

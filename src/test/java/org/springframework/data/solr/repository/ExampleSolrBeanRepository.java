@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import org.springframework.data.solr.ExampleSolrBean;
+import org.springframework.data.solr.repository.support.SimpleSolrRepository;
 
 /**
  * @author Christoph Strobl

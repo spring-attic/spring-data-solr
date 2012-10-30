@@ -28,7 +28,6 @@ import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
-import org.springframework.data.solr.repository.SimpleSolrRepository;
 import org.springframework.data.solr.repository.SolrRepository;
 import org.springframework.data.solr.repository.query.PartTreeSolrQuery;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;

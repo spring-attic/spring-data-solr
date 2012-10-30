@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.repository.config;
+package org.springframework.data.solr.config;
 
 import org.springframework.beans.factory.xml.NamespaceHandler;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.data.repository.config.RepositoryBeanDefinitionParser;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
-import org.springframework.data.solr.config.HttpSolrServerBeanDefinitionParser;
-import org.springframework.data.solr.embedded.config.EmbeddedSolrServerBeanDefinitionParser;
+import org.springframework.data.solr.repository.config.SolrRepositoryConfigExtension;
+import org.springframework.data.solr.server.config.EmbeddedSolrServerBeanDefinitionParser;
+import org.springframework.data.solr.server.config.HttpSolrServerBeanDefinitionParser;
 
 /**
  * {@link NamespaceHandler} implementation to register parser for {@code <solr:repositories />},
@@ -29,7 +30,7 @@ import org.springframework.data.solr.embedded.config.EmbeddedSolrServerBeanDefin
  * @author Oliver Gierke
  * @author Christoph Strobl
  */
-class SolrRepositoryNamespaceHandler extends NamespaceHandlerSupport {
+class SolrNamespaceHandler extends NamespaceHandlerSupport {
 
 	/* 
 	 * (non-Javadoc)

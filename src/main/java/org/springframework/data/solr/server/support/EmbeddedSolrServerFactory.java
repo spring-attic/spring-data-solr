@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.embedded;
+package org.springframework.data.solr.server.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanInstantiationException;
-import org.springframework.data.solr.SolrServerFactory;
+import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;

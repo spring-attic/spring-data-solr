@@ -29,9 +29,9 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
-import org.springframework.data.solr.core.convert.GeoConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.util.Assert;
 

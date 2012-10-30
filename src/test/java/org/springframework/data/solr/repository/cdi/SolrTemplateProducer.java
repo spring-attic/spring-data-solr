@@ -24,10 +24,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
-import org.springframework.data.solr.HttpSolrServerFactory;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 

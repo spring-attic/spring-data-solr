@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  * 
  * @author Oliver Gierke
  */
-class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
+public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
 
 	/*
 	 * (non-Javadoc)

@@ -13,31 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.config;
+package org.springframework.data.solr.server.config;
 
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.data.solr.support.HttpSolrServerFactoryBean;
+import org.springframework.data.solr.server.support.EmbeddedSolrServerFactoryBean;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
+ * Implementation of {@link BeanDefinitionParser} that parses {@code embedded-solr-server} element.
+ * 
  * @author Christoph Strobl
  */
-public class HttpSolrServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class EmbeddedSolrServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
 	@Override
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HttpSolrServerFactoryBean.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(EmbeddedSolrServerFactoryBean.class);
 		setSolrHome(element, builder);
 		return getSourcedBeanDefinition(builder, element, parserContext);
 	}
 
 	private void setSolrHome(Element element, BeanDefinitionBuilder builder) {
-		builder.addPropertyValue("url", element.getAttribute("url"));
-		builder.addPropertyValue("timeout", element.getAttribute("timeout"));
-		builder.addPropertyValue("maxConnections", element.getAttribute("maxConnections"));
+		String solrHome = element.getAttribute("solrHome");
+		if (StringUtils.hasText(solrHome)) {
+			builder.addPropertyValue("solrHome", solrHome);
+		}
 	}
 
 	private AbstractBeanDefinition getSourcedBeanDefinition(BeanDefinitionBuilder builder, Element source,

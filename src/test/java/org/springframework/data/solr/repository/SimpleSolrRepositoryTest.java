@@ -31,6 +31,7 @@ import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.repository.support.SimpleSolrRepository;
 
 /**
  * @author Christoph Strobl

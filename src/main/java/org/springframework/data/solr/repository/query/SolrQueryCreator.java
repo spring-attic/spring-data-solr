@@ -122,8 +122,9 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.in(asArray(parameters.next())).not();
 		case NEAR:
 			return criteria.near((GeoLocation) parameters.next(), (Distance) parameters.next());
+		default:
+			throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 		}
-		throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 	}
 
 	private Object[] asArray(Object o) {

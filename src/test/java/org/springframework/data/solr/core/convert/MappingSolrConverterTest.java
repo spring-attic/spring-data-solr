@@ -30,8 +30,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
  * @author Christoph Strobl

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.repository;
+package org.springframework.data.solr.repository.support;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -33,15 +33,14 @@ import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
-import org.springframework.data.solr.repository.support.SolrRepositoryFactory;
 import org.springframework.util.Assert;
 
 /**
  * Solr specific repository implementation. Likely to be used as target within {@link SolrRepositoryFactory}
  * 
  * @param <T>
- * 
  * @author Christoph Strobl
  */
 public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
@@ -80,8 +79,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
 	@Override
 	public T findOne(String id) {
-		return (T) getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)),
-				getEntityClass());
+		return getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
 	@Override
@@ -148,7 +146,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 
 		this.solrOperations.saveBeans((Collection<? extends T>) entities);
 		this.solrOperations.commit();
-		return (Iterable<S>) entities;
+		return entities;
 	}
 
 	@Override
@@ -165,6 +163,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void delete(T entity) {
 		Assert.notNull(entity, "Cannot delete 'null' entity.");
 

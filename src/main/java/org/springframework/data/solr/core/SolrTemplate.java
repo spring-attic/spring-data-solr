@@ -39,8 +39,6 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.HttpSolrServerFactory;
-import org.springframework.data.solr.SolrServerFactory;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
@@ -49,6 +47,8 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
 
 /**

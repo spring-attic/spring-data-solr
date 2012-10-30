@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.embedded.support;
+package org.springframework.data.solr.server.support;
 
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.data.solr.embedded.EmbeddedSolrServerFactory;
 
 /**
  * Implementation of {@link FactoryBean} for registration of an EmbeddedSolrServer as a Spring bean. Implements

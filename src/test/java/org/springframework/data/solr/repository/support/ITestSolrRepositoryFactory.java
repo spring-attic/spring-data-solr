@@ -28,11 +28,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
-import org.springframework.data.solr.HttpSolrServerFactory;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
+import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 
 /**
  * @author Christoph Strobl

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context version="7.1.7.187">
+    <scope name="spring-data-solr" type="Project">
+        <element name="Filter" type="TypeFilterReferenceOverridden">
+            <element name="org.springframework.data.solr.**" type="IncludeTypePattern"/>
+        </element>
+        <architecture>
+            <element name="Config" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.config.**" type="WeakTypePattern"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Repositories"/>
+                <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Server"/>
+            </element>
+            <element name="Repositories" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.repository.**" type="IncludeTypePattern"/>
+                </element>
+                <element name="API" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.repository.*" type="IncludeTypePattern"/>
+                    </element>
+                </element>
+                <element name="Query" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.query.**" type="IncludeTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Repositories::Subsystem|API"/>
+                </element>
+                <element name="Implementation" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.support.**" type="IncludeTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Repositories::Subsystem|API"/>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Repositories::Subsystem|Query"/>
+                </element>
+                <element name="Config" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.config.**" type="IncludeTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Repositories::Subsystem|Implementation"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core"/>
+            </element>
+            <element name="Core" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.core.**" type="IncludeTypePattern"/>
+                </element>
+                <element name="Mapping" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.mapping.**" type="IncludeTypePattern"/>
+                        <element name="**.convert.**" type="IncludeTypePattern"/>
+                    </element>
+                </element>
+                <element name="Geospatial" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.geo.**" type="IncludeTypePattern"/>
+                    </element>
+                </element>
+                <element name="Query" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.query.**" type="IncludeTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Geospatial"/>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Mapping"/>
+                </element>
+                <element name="Core" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.core.**" type="WeakTypePattern"/>
+                        <element name="**.solr.*" type="StrongTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Mapping"/>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Query"/>
+                </element>
+                <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Server"/>
+            </element>
+            <element name="Server" type="Layer">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="**.server.**" type="IncludeTypePattern"/>
+                </element>
+                <element name="Implementation" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.support.**" type="IncludeTypePattern"/>
+                    </element>
+                </element>
+                <element name="Config" type="Subsystem">
+                    <element name="Assignment" type="TypeFilter">
+                        <element name="**.config.**" type="IncludeTypePattern"/>
+                    </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Server::Subsystem|Implementation"/>
+                </element>
+            </element>
+        </architecture>
+        <workspace>
+            <element name="src/main/java" type="JavaRootDirectory">
+                <reference name="Project|spring-data-solr::BuildUnit|spring-data-solr"/>
+            </element>
+            <element name="target/classes" type="JavaRootDirectory">
+                <reference name="Project|spring-data-solr::BuildUnit|spring-data-solr"/>
+            </element>
+        </workspace>
+        <physical>
+            <element name="spring-data-solr" type="BuildUnit"/>
+        </physical>
+    </scope>
+    <scope name="External" type="External">
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+            <element name="java.**" type="ExcludeTypePattern"/>
+            <element name="javax.**" type="ExcludeTypePattern"/>
+        </element>
+        <architecture>
+            <element name="Spring" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="org.springframework.**" type="IncludeTypePattern"/>
+                    <element name="org.springframework.data.**" type="ExcludeTypePattern"/>
+                </element>
+            </element>
+            <element name="Spring Data Core" type="Subsystem">
+                <element name="Assignment" type="TypeFilter">
+                    <element name="org.springframework.data.**" type="IncludeTypePattern"/>
+                </element>
+            </element>
+        </architecture>
+    </scope>
+    <scope name="Global" type="Global">
+        <element name="Configuration" type="Configuration"/>
+        <element name="Filter" type="TypeFilter">
+            <element name="**" type="IncludeTypePattern"/>
+        </element>
+    </scope>
+</context>
