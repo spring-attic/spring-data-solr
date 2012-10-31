@@ -1,0 +1,26 @@
+Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
+----------------------------------------------------------------
+
+** New Feature
+    * [DATASOLR-8] - Add sorting support for queries
+    * [DATASOLR-10] - Add support for Geospatial Queries
+    * [DATASOLR-13] - Add solr-server namespace element
+    * [DATASOLR-15] - Add support for NamedQueries
+    * [DATASOLR-20] - Add support for keywords: BEFORE and AFTER
+    * [DATASOLR-22] - Support namedQueryName in @Query Annotation
+    * [DATASOLR-23] - Add support for solr 4.0.x
+
+** Task
+    * [DATASOLR-5] - Upgrade to Spring Data Commons 1.4 branch
+    * [DATASOLR-6] - Add XML namespace and JavaCofig support
+    * [DATASOLR-9] - Translate execptions during query execution to the according DataAccessException
+    * [DATASOLR-11] - Clean up TypeAliasAccessor in SimpleSolrTypeMapper
+    * [DATASOLR-12] - Add embedded-solr-server namespace element
+    * [DATASOLR-14] - Remove system scope dependency to spring-data-solr artifact in example project
+    * [DATASOLR-16] - Clean up Tests
+    * [DATASOLR-17] - Update documentation
+    * [DATASOLR-19] - Set up sonar analysis
+    * [DATASOLR-24] - Swith to data-commons 1.4.0.RELEASE
+    * [DATASOLR-25] - Release 1.0.0.M1
+    * [DATASOLR-26] - Align SolrOperations with other implementations
+    

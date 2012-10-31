@@ -27,6 +27,7 @@
     <mockito.version>1.9.0</mockito.version>
     <cdi.version>1.0-SP4</cdi.version>
     <webbeans.version>1.1.5</webbeans.version>
+    <dist.finalName>${project.artifactId}-${project.version}</dist.finalName>
   </properties>
 
   <licenses>
@@ -284,6 +285,19 @@
 		  <useDefaultManifestFile>true</useDefaultManifestFile>
 		</configuration>
 	  </plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-source-plugin</artifactId>
+			<version>2.1.2</version>
+			<executions>
+				<execution>
+					<id>attach-sources</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -330,6 +344,34 @@
     	<id>distribute</id>
     	<build>
     		<plugins>
+    		
+    			<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.8</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>javadoc</goal>
+								</goals>
+								<phase>package</phase>
+							</execution>
+						</executions>
+						<configuration>
+							<breakiterator>true</breakiterator>
+							<header>Spring Data Solr</header>
+							<source>1.5</source>
+							<quiet>true</quiet>
+							<!-- copies doc-files subdirectory which contains image resources -->
+							<docfilessubdirs>true</docfilessubdirs>
+							<links>
+								<link>http://static.springframework.org/spring/docs/3.1.x/javadoc-api</link>
+								<link>http://download.oracle.com/javase/1.5.0/docs/api</link>
+								<link>http://static.springsource.org/spring-data/data-commons/docs/${spring.data-commons.version}/api</link>
+							</links>
+						</configuration>
+					</plugin>
+    		
     			<plugin>
     				<groupId>com.agilejava.docbkx</groupId>
     				<artifactId>docbkx-maven-plugin</artifactId>
@@ -358,7 +400,6 @@
 						<htmlStylesheet>${project.basedir}/src/docbkx/resources/css/html.css</htmlStylesheet> 
 						<chunkedOutput>false</chunkedOutput>
 						<htmlCustomization>${project.basedir}/src/docbkx/resources/xsl/html.xsl</htmlCustomization>
-						<useExtensions>1</useExtensions>
 						<highlightSource>1</highlightSource>
 						<entities>
 							<entity>
@@ -385,6 +426,25 @@
 						</postProcess>
 					</configuration>
     			</plugin>
+    			<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<id>distribution</id>
+							<goals>
+								<goal>single</goal>
+							</goals>
+							<phase>package</phase>
+							<configuration>
+								<descriptors>
+									<descriptor>${project.basedir}/src/main/assembly/distribution.xml</descriptor>
+								</descriptors>
+								<appendAssemblyId>false</appendAssemblyId>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
     		</plugins>
     	</build>
     </profile>
@@ -410,8 +470,8 @@
   
   <repositories>
     <repository>
-      <id>spring-snapshots</id>
-      <url>http://repo.springsource.org/libs-snapshot</url>
+      <id>spring-releases</id>
+      <url>http://repo.springsource.org/libs-release</url>
     </repository>
   </repositories>
 </project>
