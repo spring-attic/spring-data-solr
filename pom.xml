@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.0.0.M1</version>
+  <version>1.0.0.BUILD-SNAPSHOT</version>
   <packaging>jar</packaging>
   <inceptionYear>2012</inceptionYear>
   <url>http://github.com/SpringSource/spring-data-solr</url>
