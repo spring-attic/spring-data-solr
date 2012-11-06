@@ -60,7 +60,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final QueryParser DEFAULT_QUERY_PARSER = new QueryParser();
-	private static final PersistenceExceptionTranslator exceptionTranslator = new SolrExceptionTranslator();
+	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
 
 	@SuppressWarnings("serial")
 	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
@@ -316,14 +316,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	protected void assertNoCollection(Object o) {
-		if (null != o) {
-			if (o.getClass().isArray() || ITERABLE_CLASSES.contains(o.getClass().getName())) {
-				throw new IllegalArgumentException("Collections are not supported for this operation");
-			}
+		if (null != o && (o.getClass().isArray() || ITERABLE_CLASSES.contains(o.getClass().getName()))) {
+			throw new IllegalArgumentException("Collections are not supported for this operation");
 		}
 	}
 
-	private static final SolrConverter getDefaultSolrConverter(SolrServerFactory factory) {
+	private final SolrConverter getDefaultSolrConverter(SolrServerFactory factory) {
 		MappingSolrConverter converter = new MappingSolrConverter(factory, new SimpleSolrMappingContext());
 		converter.afterPropertiesSet(); // have to call this one to initialize default converters
 		return converter;
@@ -340,7 +338,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	public static PersistenceExceptionTranslator getExceptionTranslator() {
-		return exceptionTranslator;
+		return EXCEPTION_TRANSLATOR;
 	}
 
 	@Override

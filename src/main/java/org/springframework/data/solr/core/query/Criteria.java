@@ -297,10 +297,8 @@ public class Criteria implements QueryStringHolder {
 	 * @return
 	 */
 	public Criteria fuzzy(String s, float levenshteinDistance) {
-		if (!Float.isNaN(levenshteinDistance)) {
-			if (levenshteinDistance < 0 || levenshteinDistance > 1) {
-				throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
-			}
+		if (!Float.isNaN(levenshteinDistance) && (levenshteinDistance < 0 || levenshteinDistance > 1)) {
+			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
 		}
 		criteria.add(new CriteriaEntry("$fuzzy#" + levenshteinDistance, s));
 		return this;
@@ -411,10 +409,8 @@ public class Criteria implements QueryStringHolder {
 	 */
 	public Criteria near(GeoLocation location, Distance distance) {
 		Assert.notNull(location);
-		if (distance != null) {
-			if (distance.getValue() < 0) {
-				throw new InvalidDataAccessApiUsageException("distance must not be negative.");
-			}
+		if (distance != null && distance.getValue() < 0) {
+			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
 		}
 		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));

@@ -88,12 +88,12 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
 	 */
 	public final EmbeddedSolrServer createPathConfiguredSolrServer(String path) throws ParserConfigurationException,
 			IOException, SAXException {
-		String solrHome = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
+		String solrHomeDirectory = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
-		if (StringUtils.isBlank(solrHome)) {
-			solrHome = ResourceUtils.getURL(path).getPath();
+		if (StringUtils.isBlank(solrHomeDirectory)) {
+			solrHomeDirectory = ResourceUtils.getURL(path).getPath();
 		}
-		return new EmbeddedSolrServer(new CoreContainer(solrHome, new File(solrHome + "/solr.xml")), null);
+		return new EmbeddedSolrServer(new CoreContainer(solrHomeDirectory, new File(solrHomeDirectory + "/solr.xml")), null);
 	}
 
 	public void shutdownSolrServer() {
