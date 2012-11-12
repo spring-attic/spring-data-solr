@@ -43,4 +43,11 @@ public @interface Query {
 	 */
 	String name() default "";
 
+	/**
+	 * The fields that should be returned from the store.
+	 * 
+	 * @return
+	 */
+	String[] fields() default "";
+
 }

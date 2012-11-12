@@ -76,7 +76,17 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
 		String queryString = replacePlaceholders(this.rawQueryString, parameterAccessor);
 
-		return new SimpleQuery(new SimpleStringCriteria(queryString));
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria(queryString));
+		appendProjection(query);
+		return query;
+	}
+
+	private void appendProjection(SimpleQuery query) {
+		if (this.getQueryMethod().hasProjectionFields()) {
+			for (String fieldname : this.getQueryMethod().getProjectionFields()) {
+				query.addProjectionOnField(fieldname);
+			}
+		}
 	}
 
 	private String replacePlaceholders(String input, SolrParameterAccessor accessor) {

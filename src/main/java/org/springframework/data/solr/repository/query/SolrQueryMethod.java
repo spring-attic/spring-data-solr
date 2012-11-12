@@ -16,6 +16,8 @@
 package org.springframework.data.solr.repository.query;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -23,6 +25,7 @@ import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -65,6 +68,22 @@ public class SolrQueryMethod extends QueryMethod {
 
 	TypeInformation<?> getReturnType() {
 		return ClassTypeInformation.fromReturnTypeOf(method);
+	}
+
+	public boolean hasProjectionFields() {
+		if (hasAnnotatedQuery()) {
+			return !CollectionUtils.isEmpty(getProjectionFields());
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<String> getProjectionFields() {
+		String[] fields = (String[]) AnnotationUtils.getValue(getQueryAnnotation(), "fields");
+		if (fields.length > 1 || (fields.length == 1 && StringUtils.hasText(fields[0]))) {
+			return CollectionUtils.arrayToList(fields);
+		}
+		return Collections.emptyList();
 	}
 
 	@Override

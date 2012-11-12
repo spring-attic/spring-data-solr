@@ -292,6 +292,17 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertTrue(page.getContent().isEmpty());
 	}
 
+	@Test
+	public void testProjectionOnFields() {
+		List<ProductBean> found = repo.findByNameStartsWithProjectionOnNameAndId("name");
+		for (ProductBean bean : found) {
+			Assert.assertNotNull(bean.getName());
+			Assert.assertNotNull(bean.getId());
+
+			Assert.assertNull(bean.getPopularity());
+		}
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}

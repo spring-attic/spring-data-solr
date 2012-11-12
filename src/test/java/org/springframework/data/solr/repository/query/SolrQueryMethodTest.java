@@ -46,6 +46,7 @@ public class SolrQueryMethodTest {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
 		Assert.assertTrue(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
 	}
 
@@ -72,6 +73,25 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 	}
 
+	@Test
+	public void testWithSingleFieldProjection() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithProjectionOnSingleField", String.class);
+		Assert.assertTrue(method.hasAnnotatedQuery());
+		Assert.assertTrue(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
+	}
+
+	@Test
+	public void testWithMultipleFieldsProjection() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithProjectionOnMultipleFields", String.class);
+		Assert.assertTrue(method.hasAnnotatedQuery());
+		Assert.assertTrue(method.hasProjectionFields());
+		Assert.assertEquals(2, method.getProjectionFields().size());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -89,6 +109,12 @@ public class SolrQueryMethodTest {
 		List<ProductBean> findByAnnotatedNamedQueryName(String name);
 
 		List<ProductBean> findByName(String name);
+
+		@Query(value = "name:?0", fields = "popularity")
+		List<ProductBean> findByAnnotatedQueryWithProjectionOnSingleField(String name);
+
+		@Query(value = "name:?0", fields = { "popularity", "price" })
+		List<ProductBean> findByAnnotatedQueryWithProjectionOnMultipleFields(String name);
 
 	}
 

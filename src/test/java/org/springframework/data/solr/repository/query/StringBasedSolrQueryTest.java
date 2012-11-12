@@ -113,6 +113,37 @@ public class StringBasedSolrQueryTest {
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", query.getCriteria().getQueryString());
 	}
 
+	@Test
+	public void testWithProjectionOnSingleField() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByNameProjectionOnPopularity", String.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { "christoph" }));
+
+		Assert.assertEquals("name:christoph*", query.getCriteria().getQueryString());
+		Assert.assertEquals(1, query.getProjectionOnFields().size());
+		Assert.assertEquals("popularity", query.getProjectionOnFields().get(0).getName());
+	}
+
+	@Test
+	public void testWithProjectionOnMultipleFields() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByNameProjectionOnPopularityAndPrice", String.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { "strobl" }));
+
+		Assert.assertEquals("name:strobl*", query.getCriteria().getQueryString());
+		Assert.assertEquals(2, query.getProjectionOnFields().size());
+		Assert.assertEquals("popularity", query.getProjectionOnFields().get(0).getName());
+		Assert.assertEquals("price", query.getProjectionOnFields().get(1).getName());
+	}
+
 	private interface SampleRepository {
 
 		@Query("textGeneral:?0")
@@ -123,6 +154,12 @@ public class StringBasedSolrQueryTest {
 
 		@Query("{!geofilt pt=?0 sfield=store d=?1}")
 		ProductBean findByLocationNear(GeoLocation location, Distance distace);
+
+		@Query(value = "name:?0*", fields = "popularity")
+		ProductBean findByNameProjectionOnPopularity(String name);
+
+		@Query(value = "name:?0*", fields = { "popularity", "price" })
+		ProductBean findByNameProjectionOnPopularityAndPrice(String name);
 
 	}
 
