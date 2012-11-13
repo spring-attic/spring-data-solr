@@ -15,6 +15,18 @@
 			.
 		</para>
 	</abstract>
+	<section id="solr.misc.projection">
+		<title>Projection</title>
+		<para>
+			Projections can be applied via  
+			<interfacename>@Query</interfacename>
+			using the fields value.
+		</para>
+		<example>
+			<programlisting language="java">@Query(fields = { "name", "id" })
+List&lt;ProductBean&gt; findByNameStartingWith(String name);</programlisting>
+		</example>
+	</section>
 	<section id="solr.misc.faceting">
 		<title>Faceting</title>
 		<para>
