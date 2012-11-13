@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.util.Assert;
 
 /**
@@ -55,12 +56,20 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return new SingleEntityExecution().execute(query);
 	}
 
-	protected abstract Query createQuery(SolrParameterAccessor parameterAccessor);
-
 	@Override
 	public SolrQueryMethod getQueryMethod() {
 		return this.solrQueryMethod;
 	}
+
+	protected void appendProjection(Query query) {
+		if (query != null && this.getQueryMethod().hasProjectionFields()) {
+			for (String fieldname : this.getQueryMethod().getProjectionFields()) {
+				query.addProjectionOnField(new SimpleField(fieldname));
+			}
+		}
+	}
+
+	protected abstract Query createQuery(SolrParameterAccessor parameterAccessor);
 
 	private interface QueryExecution {
 		Object execute(Query query);

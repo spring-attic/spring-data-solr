@@ -61,6 +61,9 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(value = "name:?0*", fields = { "name", "id" })
 	List<ProductBean> findByNameStartsWithProjectionOnNameAndId(String name);
 
+	@Query(fields = { "name", "id" })
+	List<ProductBean> findByNameStartingWith(String name);
+
 	List<ProductBean> findByPopularityIn(Collection<Integer> popularities);
 
 	List<ProductBean> findByPopularityNotIn(Collection<Integer> popularities);

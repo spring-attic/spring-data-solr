@@ -81,14 +81,6 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 		return query;
 	}
 
-	private void appendProjection(SimpleQuery query) {
-		if (this.getQueryMethod().hasProjectionFields()) {
-			for (String fieldname : this.getQueryMethod().getProjectionFields()) {
-				query.addProjectionOnField(fieldname);
-			}
-		}
-	}
-
 	private String replacePlaceholders(String input, SolrParameterAccessor accessor) {
 
 		Matcher matcher = PARAMETER_PLACEHOLDER.matcher(input);

@@ -293,8 +293,19 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
-	public void testProjectionOnFields() {
+	public void testProjectionOnFieldsForStringBasedQuery() {
 		List<ProductBean> found = repo.findByNameStartsWithProjectionOnNameAndId("name");
+		for (ProductBean bean : found) {
+			Assert.assertNotNull(bean.getName());
+			Assert.assertNotNull(bean.getId());
+
+			Assert.assertNull(bean.getPopularity());
+		}
+	}
+
+	@Test
+	public void testProjectionOnFieldsForDerivedQuery() {
+		List<ProductBean> found = repo.findByNameStartingWith("name");
 		for (ProductBean bean : found) {
 			Assert.assertNotNull(bean.getName());
 			Assert.assertNotNull(bean.getId());

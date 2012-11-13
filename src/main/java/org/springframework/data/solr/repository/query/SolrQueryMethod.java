@@ -48,6 +48,10 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotatedQuery() != null;
 	}
 
+	public boolean hasQueryAnnotation() {
+		return this.method.getAnnotation(Query.class) != null;
+	}
+
 	String getAnnotatedQuery() {
 		String query = (String) AnnotationUtils.getValue(getQueryAnnotation(), "value");
 		return StringUtils.hasText(query) ? query : null;
@@ -71,7 +75,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	public boolean hasProjectionFields() {
-		if (hasAnnotatedQuery()) {
+		if (hasQueryAnnotation()) {
 			return !CollectionUtils.isEmpty(getProjectionFields());
 		}
 		return false;

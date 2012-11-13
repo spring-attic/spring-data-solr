@@ -43,7 +43,9 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 
 	@Override
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
-		return new SolrQueryCreator(tree, parameterAccessor, mappingContext).createQuery();
+		Query query = new SolrQueryCreator(tree, parameterAccessor, mappingContext).createQuery();
+		appendProjection(query);
+		return query;
 	}
 
 }
