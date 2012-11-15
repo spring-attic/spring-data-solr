@@ -46,6 +46,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
@@ -176,6 +177,18 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		});
 	}
+        
+        @Override
+        public UpdateResponse updatePartialDocument(Update update) {
+            final SolrInputDocument solrInputDocument = update.getSolrInputDocument();
+            Assert.notNull(solrInputDocument, "Query must not be 'null'.");
+            return execute(new SolrCallback<UpdateResponse>() {
+                @Override
+                public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+                    return solrServer.add(solrInputDocument);
+                }
+            });
+        }
 
 	@Override
 	public UpdateResponse delete(SolrDataQuery query) {
@@ -353,5 +366,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			queryParser = DEFAULT_QUERY_PARSER;
 		}
 	}
+
+
 
 }
