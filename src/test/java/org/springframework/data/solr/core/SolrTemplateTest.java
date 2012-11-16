@@ -48,6 +48,7 @@ import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /*
@@ -147,6 +148,16 @@ public class SolrTemplateTest {
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection));
 	}
+        
+        @Test
+        public void testUpdateDocument() throws IOException, SolrServerException {
+            Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+            Update update = new Update("simple-string-id", "123");
+            update.put("field", "1234");
+            UpdateResponse updateResponse = solrTemplate.updatePartialDocument(update);
+            Assert.assertNotNull(updateResponse);
+            Mockito.verify(solrServerMock, Mockito.times(1)).add((SolrInputDocument) Mockito.any());
+        }
 
 	@Test
 	public void testDeleteById() throws IOException, SolrServerException {

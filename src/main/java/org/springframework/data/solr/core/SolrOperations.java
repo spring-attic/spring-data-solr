@@ -26,6 +26,7 @@ import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.result.FacetPage;
 
 /**
@@ -88,6 +89,10 @@ public interface SolrOperations {
 	 * @return
 	 */
 	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents);
+        
+        
+        
+        UpdateResponse updatePartialDocument(Update update);
 
 	/**
 	 * Find and delete all objects matching the provided Query
