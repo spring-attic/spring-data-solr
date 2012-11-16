@@ -181,7 +181,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
         @Override
         public UpdateResponse updatePartialDocument(Update update) {
             final SolrInputDocument solrInputDocument = update.getSolrInputDocument();
-            Assert.notNull(solrInputDocument, "Query must not be 'null'.");
+            Assert.notNull(solrInputDocument, "Update must not return 'null' solrInputDocument.");
             return execute(new SolrCallback<UpdateResponse>() {
                 @Override
                 public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
