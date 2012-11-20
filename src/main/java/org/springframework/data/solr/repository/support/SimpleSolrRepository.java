@@ -35,6 +35,9 @@ import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
 /**
@@ -130,9 +133,9 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	@Override
 	public <S extends T> S save(S entity) {
 		Assert.notNull(entity, "Cannot save 'null' entity.");
-
+		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.saveBean(entity);
-		this.solrOperations.commit();
+		commitIfTransactionSynchronisationIsInactive();
 		return entity;
 	}
 
@@ -144,8 +147,9 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 			throw new InvalidDataAccessApiUsageException("Entities have to be inside a collection");
 		}
 
+		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.saveBeans((Collection<? extends T>) entities);
-		this.solrOperations.commit();
+		commitIfTransactionSynchronisationIsInactive();
 		return entities;
 	}
 
@@ -158,12 +162,12 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	public void delete(String id) {
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
+		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.deleteById(id);
-		this.solrOperations.commit();
+		commitIfTransactionSynchronisationIsInactive();
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void delete(T entity) {
 		Assert.notNull(entity, "Cannot delete 'null' entity.");
 
@@ -178,14 +182,17 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		for (T entity : entities) {
 			idsToDelete.add(extractIdFromBean(entity));
 		}
+
+		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.deleteById(idsToDelete);
-		this.solrOperations.commit();
+		commitIfTransactionSynchronisationIsInactive();
 	}
 
 	@Override
 	public void deleteAll() {
+		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.delete(new SimpleFilterQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
-		this.solrOperations.commit();
+		commitIfTransactionSynchronisationIsInactive();
 	}
 
 	public final String getIdFieldName() {
@@ -262,6 +269,41 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 		Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
 
 		return solrInputDocument.getField(idFieldName).getValue().toString();
+	}
+
+	private void registerTransactionSynchronisationIfSynchronisationActive() {
+		if (TransactionSynchronizationManager.isSynchronizationActive()) {
+			registerTransactionSynchronisationAdapter();
+		}
+	}
+
+	private void registerTransactionSynchronisationAdapter() {
+		TransactionSynchronizationManager.registerSynchronization(new SolrTransactionSynchronizationAdapter(
+				this.solrOperations));
+	}
+
+	private void commitIfTransactionSynchronisationIsInactive() {
+		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+			this.solrOperations.commit();
+		}
+	}
+
+	static class SolrTransactionSynchronizationAdapter extends TransactionSynchronizationAdapter {
+
+		private final SolrOperations solrOperations;
+
+		SolrTransactionSynchronizationAdapter(SolrOperations solrOperations) {
+			super();
+			this.solrOperations = solrOperations;
+		}
+
+		public void afterCompletion(int status) {
+			if (status == TransactionSynchronization.STATUS_COMMITTED) {
+				this.solrOperations.commit();
+			} else if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+				this.solrOperations.rollback();
+			}
+		}
 	}
 
 }

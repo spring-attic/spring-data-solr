@@ -19,8 +19,8 @@ import java.io.Serializable;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.repository.Repository;
-import org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
+import org.springframework.data.repository.core.support.TransactionalRepositoryFactoryBeanSupport;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.util.Assert;
 
@@ -28,9 +28,10 @@ import org.springframework.util.Assert;
  * Spring {@link FactoryBean} implementation to ease container based configuration for XML namespace and JavaConfig.
  * 
  * @author Oliver Gierke
+ * @author Christoph Strobl
  */
 public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable> extends
-		RepositoryFactoryBeanSupport<T, S, ID> {
+		TransactionalRepositoryFactoryBeanSupport<T, S, ID> {
 
 	private SolrOperations operations;
 
@@ -46,15 +47,6 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	/* 
 	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport#createRepositoryFactory()
-	 */
-	@Override
-	protected RepositoryFactorySupport createRepositoryFactory() {
-		return new SolrRepositoryFactory(operations);
-	}
-
-	/* 
-	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport#afterPropertiesSet()
 	 */
 	@Override
@@ -62,5 +54,10 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 		super.afterPropertiesSet();
 		Assert.notNull(operations, "SolrOperations must be configured!");
+	}
+
+	@Override
+	protected RepositoryFactorySupport doCreateRepositoryFactory() {
+		return new SolrRepositoryFactory(operations);
 	}
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:solr="http://www.springframework.org/schema/data/solr"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<solr:embedded-solr-server id="solrServer" solrHome="classpath:org/springframework/data/solr" /> 
+	
+	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+		<constructor-arg ref="solrServer" />
+	</bean>
+	
+	<bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean">
+		<property name="solrOperations" ref="solrTemplate"/>
+		<property name="repositoryInterface" value="org.springframework.data.solr.repository.ProductRepository"/>
+		<property name="namedQueries">
+			<bean class="org.springframework.data.repository.core.support.PropertiesBasedNamedQueries">
+				<constructor-arg>
+					<util:properties location="META-INF/solr-named-queries.properties" />
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	
+	<jdbc:embedded-database id="dataSource" type="H2" />
+	 	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    	<property name="dataSource" ref="dataSource"/>
+	</bean>	
+
+</beans>

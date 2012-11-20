@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
@@ -61,6 +62,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final QueryParser DEFAULT_QUERY_PARSER = new QueryParser();
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
+	private ApplicationContext applicationContext;
 
 	@SuppressWarnings("serial")
 	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
@@ -343,7 +345,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
-		// future use
+		this.applicationContext = applicationContext;
 	}
 
 	@Override
@@ -352,6 +354,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			LOGGER.warn("QueryParser not set, using default one.");
 			queryParser = DEFAULT_QUERY_PARSER;
 		}
+
+		registerPersistenceExceptionTranslator();
 	}
 
+	private void registerPersistenceExceptionTranslator() {
+		if (this.applicationContext != null
+				&& this.applicationContext.getBeansOfType(PersistenceExceptionTranslator.class).isEmpty()) {
+			if (this.applicationContext instanceof ConfigurableApplicationContext) {
+				((ConfigurableApplicationContext) this.applicationContext).getBeanFactory().registerSingleton(
+						"solrExceptionTranslator", EXCEPTION_TRANSLATOR);
+			}
+		}
+	}
 }
