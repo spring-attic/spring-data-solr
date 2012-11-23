@@ -20,10 +20,33 @@ package org.springframework.data.solr.core.geo;
  */
 public class Distance {
 
-	private double value;
+	public static enum Unit {
+		KILOMETERS(1.0), MILES(1.609344);
 
+		private final double multiplier;
+
+		Unit(double multiplier) {
+			this.multiplier = multiplier;
+		}
+
+		public double getMultiplier() {
+			return multiplier;
+		}
+	}
+
+	private double value;
+	private Unit unit;
+
+	/**
+	 * @param value {@link Distance.Unit.KILOMETERS} is default
+	 */
 	public Distance(double value) {
+		this(value, Unit.KILOMETERS);
+	}
+
+	public Distance(double value, Unit unit) {
 		this.value = value;
+		this.unit = unit;
 	}
 
 	public double getValue() {
@@ -32,6 +55,10 @@ public class Distance {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public double getNormalizedValue() {
+		return unit != null ? (unit.getMultiplier() * value) : (value * Unit.KILOMETERS.getMultiplier());
 	}
 
 }

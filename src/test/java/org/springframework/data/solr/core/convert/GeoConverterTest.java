@@ -24,6 +24,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.springframework.data.solr.core.convert.GeoConverterTest.DistanceConverterTest;
 import org.springframework.data.solr.core.convert.GeoConverterTest.GeoLocationConverterTest;
 import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
@@ -63,6 +64,17 @@ public class GeoConverterTest {
 		@Test
 		public void testConvertDistanceToString() {
 			Assert.assertEquals("5.0", GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(5)));
+		}
+
+		@Test
+		public void testConvertMilesDistanceToString() {
+			Assert.assertEquals("1.609344",
+					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Unit.MILES)));
+		}
+
+		@Test
+		public void testConvertDistanceWithNullUnitToString() {
+			Assert.assertEquals("1.0", GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, null)));
 		}
 	}
 

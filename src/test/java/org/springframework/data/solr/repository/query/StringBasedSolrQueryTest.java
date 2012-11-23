@@ -114,6 +114,20 @@ public class StringBasedSolrQueryTest {
 	}
 
 	@Test
+	public void testWithGeoLocationPropertyWhereDistanceIsInMiles() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Distance.Unit.MILES) }));
+
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", query.getCriteria()
+				.getQueryString());
+	}
+
+	@Test
 	public void testWithProjectionOnSingleField() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByNameProjectionOnPopularity", String.class);
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);

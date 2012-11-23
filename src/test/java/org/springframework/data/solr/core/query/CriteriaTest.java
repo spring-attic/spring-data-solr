@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
 
 /**
@@ -323,6 +324,20 @@ public class CriteriaTest {
 	public void testNear() {
 		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(5));
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=5.0}", criteria.createQueryString());
+	}
+
+	@Test
+	public void testNearWithDistanceUnitMiles() {
+		Criteria criteria = new Criteria("field_1")
+				.near(new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}", criteria.createQueryString());
+	}
+
+	@Test
+	public void testNearWithDistanceUnitKilometers() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(1,
+				Unit.KILOMETERS));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}", criteria.createQueryString());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

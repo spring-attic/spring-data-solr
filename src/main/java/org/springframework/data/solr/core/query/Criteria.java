@@ -82,6 +82,9 @@ public class Criteria implements QueryStringHolder {
 		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
 			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
 		}
+		if (!conversionService.canConvert(Distance.class, String.class)) {
+			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
+		}
 	}
 
 	public Criteria() {
@@ -513,7 +516,7 @@ public class Criteria implements QueryStringHolder {
 			Object[] args = (Object[]) value;
 			nearFragment += filterCriteriaValue(args[0]);
 			nearFragment += " sfield=" + fieldName;
-			nearFragment += " d=" + ((Distance) args[1]).getValue();
+			nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
 			nearFragment += "}";
 			return nearFragment;
 		}

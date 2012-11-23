@@ -31,6 +31,7 @@ import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
@@ -221,7 +222,7 @@ public class SolrQueryCreatorTest {
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("popularity:[100 TO 200]", criteria.getQueryString());
 	}
-	
+
 	@Test
 	public void testCreateQueryWithBeforeClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLastModifiedBefore", Date.class);
@@ -229,7 +230,7 @@ public class SolrQueryCreatorTest {
 
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
-				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC)  }), mappingContext);
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) }), mappingContext);
 
 		Query query = creator.createQuery();
 
@@ -251,7 +252,7 @@ public class SolrQueryCreatorTest {
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("price:[* TO 100.0]", criteria.getQueryString());
 	}
-	
+
 	@Test
 	public void testCreateQueryWithAfterClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLastModifiedAfter", Date.class);
@@ -259,7 +260,7 @@ public class SolrQueryCreatorTest {
 
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
-				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC)  }), mappingContext);
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) }), mappingContext);
 
 		Query query = creator.createQuery();
 
@@ -311,7 +312,7 @@ public class SolrQueryCreatorTest {
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("-popularity:(1 2 3)", criteria.getQueryString());
 	}
-	
+
 	@Test
 	public void testCreateQueryWithNear() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
@@ -325,6 +326,21 @@ public class SolrQueryCreatorTest {
 
 		Criteria criteria = query.getCriteria();
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", criteria.getQueryString());
+	}
+
+	@Test
+	public void testCreateQueryWithNearWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES) }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Criteria criteria = query.getCriteria();
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", criteria.getQueryString());
 	}
 
 	@Test
@@ -363,17 +379,17 @@ public class SolrQueryCreatorTest {
 		ProductBean findByTitleRegex(String expression);
 
 		ProductBean findByPopularityBetween(Integer lower, Integer upper);
-		
+
 		ProductBean findByLastModifiedBefore(Date date);
-		
+
 		ProductBean findByPriceLessThan(Float price);
-		
+
 		ProductBean findByLastModifiedAfter(Date date);
 
 		ProductBean findByPriceGreaterThan(Float price);
 
 		ProductBean findByPopularityIn(Integer... values);
-		
+
 		ProductBean findByPopularityNotIn(Integer... values);
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);

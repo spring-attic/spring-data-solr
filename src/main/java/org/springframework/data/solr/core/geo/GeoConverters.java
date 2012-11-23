@@ -47,7 +47,7 @@ public final class GeoConverters {
 			if (source == null) {
 				return null;
 			}
-			return String.format(java.util.Locale.ENGLISH, "%s", source.getValue());
+			return String.format(java.util.Locale.ENGLISH, "%s", source.getNormalizedValue());
 		}
 	}
 }
