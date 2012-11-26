@@ -62,9 +62,6 @@
   &lt;version&gt;${solr.version}&lt;/version&gt;
 &lt;/dependency&gt;</programlisting>
 			<note>
-				Usage of Solr 4.0.x is basically possible. As spring-data-solr ships with solr
-				3.6.1 please make sure you exclude this dependency and add the
-				desired 4.x version.
 				If you tend to use the Embedded Version of Solr
 				Server 4.x you will also have to add a version of servlet-api and
 				check your &lt;lockType&gt; as well as &lt;unlockOnStartup&gt;

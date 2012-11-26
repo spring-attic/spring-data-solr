@@ -16,16 +16,16 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.version>4.10</junit.version>
+    <junit.version>4.11</junit.version>
     <spring.version>3.1.2.RELEASE</spring.version>
     <slf4j.version>1.7.1</slf4j.version>
     <commons-lang.version>2.6</commons-lang.version>
-    <solr.version>3.6.1</solr.version>
-    <apache.httpcomponents.version>4.2</apache.httpcomponents.version>
+    <solr.version>4.0.0</solr.version>
+    <apache.httpcomponents.version>4.2.2</apache.httpcomponents.version>
     <spring.data-commons.version>1.4.0.RELEASE</spring.data-commons.version>
     <joda-time.version>2.1</joda-time.version>
     <logback-classic.version>1.0.7</logback-classic.version>
-    <mockito.version>1.9.0</mockito.version>
+    <mockito.version>1.9.5</mockito.version>
     <cdi.version>1.0-SP4</cdi.version>
     <webbeans.version>1.1.5</webbeans.version>
     <dist.finalName>${project.artifactId}-${project.version}</dist.finalName>
@@ -162,16 +162,20 @@
           <artifactId>slf4j-api</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-logging</artifactId>
           <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>jcl-over-slf4j</artifactId>
           <groupId>org.slf4j</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>commons-httpclient</artifactId>
-          <groupId>commons-httpclient</groupId>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpmime</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -217,22 +221,6 @@
     </dependency>
 
     <!-- TEST -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-      	<exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-      	</exclusion>
-      	<exclusion>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-      	</exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
