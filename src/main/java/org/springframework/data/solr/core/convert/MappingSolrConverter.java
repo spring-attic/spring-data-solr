@@ -29,6 +29,7 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -102,6 +103,9 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 	}
 
 	private void initializeConverters() {
+		if (!conversionService.canConvert(Update.class, SolrInputDocument.class)) {
+			conversionService.addConverter(new SolrjConverters.UpdateToSolrInputDocumentConverter());
+		}
 		if (!conversionService.canConvert(Object.class, SolrInputDocument.class)) {
 			conversionService.addConverter(new SolrjConverters.ObjectToSolrInputDocumentConverter(solrServerFactory
 					.getSolrServer().getBinder()));

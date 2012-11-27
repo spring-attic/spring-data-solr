@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
@@ -71,6 +72,21 @@ public class MappingSolrConverterTest {
 
 		Assert.assertEquals(convertable.getStringProperty(), solrDocument.getFieldValue("stringProperty"));
 		Assert.assertEquals(convertable.getIntProperty(), solrDocument.getFieldValue("intProperty"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testWriteUpdate() {
+		PartialUpdate update = new PartialUpdate("id", "123");
+		update.add("language", "java");
+		update.add("since", 1995);
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(update, solrDocument);
+
+		Assert.assertEquals(update.getIdField().getValue(), solrDocument.getFieldValue(update.getIdField().getName()));
+		Assert.assertTrue(solrDocument.getFieldValue("since") instanceof Map);
+		Assert.assertEquals(1995, ((Map<String, Object>) solrDocument.getFieldValue("since")).get("set"));
 	}
 
 	@Test

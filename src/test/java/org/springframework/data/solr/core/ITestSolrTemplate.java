@@ -33,6 +33,7 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
@@ -80,6 +81,28 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit();
 		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
 		Assert.assertNull(recalled);
+	}
+
+	@Test
+	public void testPartialUpdate() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.add("name", "updated-name");
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
+				ExampleSolrBean.class);
+
+		Assert.assertEquals(toInsert.getId(), recalled.getId());
+		Assert.assertEquals("updated-name", recalled.getName());
+		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
 	}
 
 	@Test

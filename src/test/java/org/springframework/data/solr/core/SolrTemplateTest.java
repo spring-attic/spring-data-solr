@@ -18,6 +18,7 @@ package org.springframework.data.solr.core;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.ParseException;
@@ -48,6 +49,7 @@ import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /*
@@ -113,6 +115,22 @@ public class SolrTemplateTest {
 
 		Assert.assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
 		Assert.assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testPartialUpdate() throws SolrServerException, IOException {
+		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+
+		PartialUpdate update = new PartialUpdate("id", "update-id");
+		update.add("field_1", "update");
+
+		solrTemplate.saveBean(update);
+		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+
+		Assert.assertTrue(captor.getValue().getFieldValue("field_1") instanceof Map);
+		Assert.assertEquals("update", ((Map<String, Object>) captor.getValue().getFieldValue("field_1")).get("set"));
 	}
 
 	@SuppressWarnings("unchecked")

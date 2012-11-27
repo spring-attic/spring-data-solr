@@ -15,12 +15,15 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.solr.core.query.Update;
+import org.springframework.data.solr.core.query.ValueHoldingField;
 
 /**
  * Offers classes that can convert from SolrDocument to any Object and vice versa using the solrj DocumentObjectBinder
@@ -56,6 +59,32 @@ final class SolrjConverters {
 			}
 
 			return documentObejctBinder.toSolrInputDocument(source);
+		}
+	}
+
+	public static class UpdateToSolrInputDocumentConverter implements Converter<Update, SolrInputDocument> {
+
+		private static final String SOLR_ACTION = "set";
+
+		public UpdateToSolrInputDocumentConverter() {
+			super();
+		}
+
+		@Override
+		public SolrInputDocument convert(Update source) {
+			if (source == null) {
+				return null;
+			}
+
+			SolrInputDocument solrInputDocument = new SolrInputDocument();
+			solrInputDocument.addField(source.getIdField().getName(), source.getIdField().getValue());
+			for (ValueHoldingField field : source.getUpdates()) {
+				HashMap<String, Object> mapValue = new HashMap<String, Object>(1);
+				mapValue.put(SOLR_ACTION, field.getValue());
+				solrInputDocument.addField(field.getName(), mapValue);
+			}
+
+			return solrInputDocument;
 		}
 	}
 
