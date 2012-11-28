@@ -15,10 +15,25 @@
 			.
 		</para>
 	</abstract>
+	<section id="solr.misc.partialUpdates">
+		<title>Partial Updates</title>
+		<para>
+			PartialUpdates can be done using
+			<classname>PartialUpdate</classname>
+			which implements
+			<interfacename>Update</interfacename>
+			.
+		</para>
+		<example>
+			<programlisting language="java">PartialUpdate update = new PartialUpdate("id", "123");
+update.add("name", "updated-name");
+solrTemplate.saveBean(update);</programlisting>
+		</example>
+	</section>
 	<section id="solr.misc.projection">
 		<title>Projection</title>
 		<para>
-			Projections can be applied via  
+			Projections can be applied via
 			<interfacename>@Query</interfacename>
 			using the fields value.
 		</para>

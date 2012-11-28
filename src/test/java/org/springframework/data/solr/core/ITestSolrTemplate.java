@@ -39,6 +39,7 @@ import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.result.FacetEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.xml.sax.SAXException;
@@ -103,6 +104,39 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 		Assert.assertEquals("updated-name", recalled.getName());
 		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
+	}
+
+	@Test
+	public void testPartialUpdateWithMultipleDocuments() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>(10);
+		for (int i = 0; i < 10; i++) {
+			ExampleSolrBean toBeInserted = createExampleBeanWithId(Integer.toString(i));
+			toBeInserted.setPopularity(10);
+			values.add(toBeInserted);
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		List<Update> updates = new ArrayList<Update>(5);
+		for (int i = 0; i < 5; i++) {
+			PartialUpdate update = new PartialUpdate("id", Integer.toString(i));
+			update.add("popularity", 5);
+			updates.add(update);
+		}
+		solrTemplate.saveBeans(updates);
+		solrTemplate.commit();
+
+		Assert.assertEquals(10, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+
+		Page<ExampleSolrBean> recalled = solrTemplate.queryForPage(
+				new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
+
+		Assert.assertEquals(5, recalled.getNumberOfElements());
+
+		for (ExampleSolrBean bean : recalled) {
+			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(), bean.getCategory()
+					.get(0));
+		}
 	}
 
 	@Test
