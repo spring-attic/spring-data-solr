@@ -18,11 +18,13 @@ package org.springframework.data.solr.repository.query;
 import java.lang.reflect.Method;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.repository.core.RepositoryMetadata;
+import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -48,6 +50,13 @@ public class StringBasedSolrQueryTest {
 	@Mock
 	SolrServerFactory solrServerFactoryMock;
 
+	private QueryParser queryParser;
+
+	@Before
+	public void setUp() {
+		this.queryParser = new QueryParser();
+	}
+
 	@Test
 	public void testQueryCreationSingleProperty() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByText", String.class);
@@ -58,7 +67,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { "j73x73r" }));
 
-		Assert.assertEquals("textGeneral:j73x73r", query.getCriteria().getQueryString());
+		Assert.assertEquals("textGeneral:j73x73r", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -71,7 +80,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { Integer.valueOf(-1), Float.valueOf(-2f) }));
 
-		Assert.assertEquals("popularity:\\-1 AND price:\\-2.0", query.getCriteria().getQueryString());
+		Assert.assertEquals("popularity:\\-1 AND price:\\-2.0", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -84,7 +93,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { Integer.valueOf(1), Float.valueOf(2f) }));
 
-		Assert.assertEquals("popularity:1 AND price:2.0", query.getCriteria().getQueryString());
+		Assert.assertEquals("popularity:1 AND price:2.0", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -97,7 +106,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { null }));
 
-		Assert.assertEquals("textGeneral:null", query.getCriteria().getQueryString());
+		Assert.assertEquals("textGeneral:null", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -110,7 +119,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }));
 
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", query.getCriteria().getQueryString());
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -123,8 +132,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Distance.Unit.MILES) }));
 
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", query.getCriteria()
-				.getQueryString());
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -137,7 +145,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { "christoph" }));
 
-		Assert.assertEquals("name:christoph*", query.getCriteria().getQueryString());
+		Assert.assertEquals("name:christoph*", queryParser.getQueryString(query));
 		Assert.assertEquals(1, query.getProjectionOnFields().size());
 		Assert.assertEquals("popularity", query.getProjectionOnFields().get(0).getName());
 	}
@@ -152,7 +160,7 @@ public class StringBasedSolrQueryTest {
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
 				queryMethod, new Object[] { "strobl" }));
 
-		Assert.assertEquals("name:strobl*", query.getCriteria().getQueryString());
+		Assert.assertEquals("name:strobl*", queryParser.getQueryString(query));
 		Assert.assertEquals(2, query.getProjectionOnFields().size());
 		Assert.assertEquals("popularity", query.getProjectionOnFields().get(0).getName());
 		Assert.assertEquals("price", query.getProjectionOnFields().get(1).getName());

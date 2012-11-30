@@ -18,8 +18,7 @@ package org.springframework.data.solr.repository.query;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.repository.Repository;

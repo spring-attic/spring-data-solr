@@ -20,13 +20,13 @@ package org.springframework.data.solr.core.query;
  * 
  * @author Christoph Strobl
  */
-public class SimpleStringCriteria extends Criteria {
+public class SimpleStringCriteria extends Criteria implements QueryStringHolder {
 
 	private final String queryString;
 
 	public SimpleStringCriteria(String queryString) {
 		this.queryString = queryString;
-		getCriteriaChain().add(this);
+		and(this);
 	}
 
 	@Override

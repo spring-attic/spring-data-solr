@@ -18,20 +18,14 @@ package org.springframework.data.solr.core.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.solr.core.convert.DateTimeConverters;
-import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.util.Assert;
 
@@ -41,22 +35,13 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  */
-public class Criteria implements QueryStringHolder {
+public class Criteria {
 
 	public static final String WILDCARD = "*";
 	public static final String CRITERIA_VALUE_SEPERATOR = " ";
 
 	private static final String OR_OPERATOR = " OR ";
-	private static final String DELIMINATOR = ":";
 	private static final String AND_OPERATOR = " AND ";
-	private static final String RANGE_OPERATOR = " TO ";
-	private static final String DOUBLEQUOTE = "\"";
-	private static final String[] RESERVED_CHARS = { DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[",
-			"]", "^", "~", "*", "?", ":", "\\" };
-	private static final String[] RESERVED_CHARS_REPLACEMENT = { "\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|",
-			"\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
-
-	private final GenericConversionService conversionService = new GenericConversionService();
 
 	private Field field;
 	private float boost = Float.NaN;
@@ -65,27 +50,6 @@ public class Criteria implements QueryStringHolder {
 	private List<Criteria> criteriaChain = new ArrayList<Criteria>(1);
 
 	private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
-
-	{
-		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Number.class, String.class)) {
-			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
-			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Distance.class, String.class)) {
-			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
-		}
-	}
 
 	public Criteria() {
 	}
@@ -420,152 +384,6 @@ public class Criteria implements QueryStringHolder {
 		return this;
 	}
 
-	/**
-	 * get the QueryString used for executing query
-	 * 
-	 * @return
-	 */
-	public String createQueryString() {
-		StringBuilder query = new StringBuilder(StringUtils.EMPTY);
-
-		ListIterator<Criteria> chainIterator = this.criteriaChain.listIterator();
-		while (chainIterator.hasNext()) {
-			Criteria chainedCriteria = chainIterator.next();
-
-			query.append(createQueryFragmentForCriteria(chainedCriteria));
-
-			if (chainIterator.hasNext()) {
-				query.append(chainIterator.next().getConjunctionOperator());
-				chainIterator.previous();
-			}
-		}
-
-		return query.toString();
-	}
-
-	protected String createQueryFragmentForCriteria(Criteria chainedCriteria) {
-		StringBuilder queryFragment = new StringBuilder();
-		Iterator<CriteriaEntry> it = chainedCriteria.criteria.iterator();
-		boolean singeEntryCriteria = (chainedCriteria.criteria.size() == 1);
-		if (chainedCriteria.field != null) {
-			String fieldName = chainedCriteria.field.getName();
-			if (chainedCriteria.negating) {
-				fieldName = "-" + fieldName;
-			}
-			if (!containsFunctionCriteria(chainedCriteria.criteria)) {
-				queryFragment.append(fieldName);
-				queryFragment.append(DELIMINATOR);
-			}
-			if (!singeEntryCriteria) {
-				queryFragment.append("(");
-			}
-			while (it.hasNext()) {
-				CriteriaEntry entry = it.next();
-				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue(), fieldName));
-				if (it.hasNext()) {
-					queryFragment.append(CRITERIA_VALUE_SEPERATOR);
-				}
-			}
-			if (!singeEntryCriteria) {
-				queryFragment.append(")");
-			}
-			if (!Float.isNaN(chainedCriteria.boost)) {
-				queryFragment.append("^" + chainedCriteria.boost);
-			}
-		} else {
-			return chainedCriteria.getQueryString();
-		}
-		return queryFragment.toString();
-	}
-
-	public String getQueryString() {
-		return field != null ? createQueryString() : "";
-	}
-
-	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
-		for (CriteriaEntry entry : chainedCriterias) {
-			if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private String processCriteriaEntry(String key, Object value, String fieldName) {
-		if (value == null) {
-			return null;
-		}
-
-		// do not filter espressions
-		if (StringUtils.equals(OperationKey.EXPRESSION.getKey(), key)) {
-			return value.toString();
-		}
-
-		if (StringUtils.equals(OperationKey.BETWEEN.getKey(), key)) {
-			Object[] args = (Object[]) value;
-			String rangeFragment = "[";
-			rangeFragment += args[0] != null ? filterCriteriaValue(args[0]) : WILDCARD;
-			rangeFragment += RANGE_OPERATOR;
-			rangeFragment += args[1] != null ? filterCriteriaValue(args[1]) : WILDCARD;
-			rangeFragment += "]";
-			return rangeFragment;
-		}
-
-		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
-			String nearFragment = "{!geofilt pt=";
-			Object[] args = (Object[]) value;
-			nearFragment += filterCriteriaValue(args[0]);
-			nearFragment += " sfield=" + fieldName;
-			nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
-			nearFragment += "}";
-			return nearFragment;
-		}
-
-		Object filteredValue = filterCriteriaValue(value);
-		if (StringUtils.equals(OperationKey.CONTAINS.getKey(), key)) {
-			return WILDCARD + filteredValue + WILDCARD;
-		}
-		if (StringUtils.equals(OperationKey.STARTS_WITH.getKey(), key)) {
-			return filteredValue + WILDCARD;
-		}
-		if (StringUtils.equals(OperationKey.ENDS_WITH.getKey(), key)) {
-			return WILDCARD + filteredValue;
-		}
-
-		if (StringUtils.startsWith(key, "$fuzzy")) {
-			String sDistance = StringUtils.substringAfter(key, "$fuzzy#");
-			float distance = Float.NaN;
-			if (StringUtils.isNotBlank(sDistance)) {
-				distance = Float.parseFloat(sDistance);
-			}
-			return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance);
-		}
-
-		return filteredValue.toString();
-	}
-
-	private Object filterCriteriaValue(Object criteriaValue) {
-		if (!(criteriaValue instanceof String)) {
-			if (conversionService.canConvert(criteriaValue.getClass(), String.class)) {
-				return conversionService.convert(criteriaValue, String.class);
-			}
-			return criteriaValue;
-		}
-		String value = escapeCriteriaValue((String) criteriaValue);
-		return processWhiteSpaces(value);
-	}
-
-	private String escapeCriteriaValue(String criteriaValue) {
-		return StringUtils.replaceEach(criteriaValue, RESERVED_CHARS, RESERVED_CHARS_REPLACEMENT);
-	}
-
-	private String processWhiteSpaces(String criteriaValue) {
-		if (StringUtils.contains(criteriaValue, CRITERIA_VALUE_SEPERATOR)) {
-			return DOUBLEQUOTE + criteriaValue + DOUBLEQUOTE;
-		}
-		return criteriaValue;
-	}
-
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
 			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
@@ -582,6 +400,10 @@ public class Criteria implements QueryStringHolder {
 		return this.field;
 	}
 
+	public Set<CriteriaEntry> getCriteriaEntries() {
+		return Collections.unmodifiableSet(this.criteria);
+	}
+
 	/**
 	 * Conjunction to be used with this criteria (AND | OR)
 	 * 
@@ -591,17 +413,16 @@ public class Criteria implements QueryStringHolder {
 		return AND_OPERATOR;
 	}
 
-	List<Criteria> getCriteriaChain() {
-		return this.criteriaChain;
+	public List<Criteria> getCriteriaChain() {
+		return Collections.unmodifiableList(this.criteriaChain);
 	}
 
-	/**
-	 * Register an additional converter for transforming object values to solr readable format
-	 * 
-	 * @param converter
-	 */
-	public void registerConverter(Converter<?, ?> converter) {
-		conversionService.addConverter(converter);
+	public boolean isNegating() {
+		return this.negating;
+	}
+
+	public float getBoost() {
+		return this.boost;
 	}
 
 	static class OrCriteria extends Criteria {
@@ -633,7 +454,7 @@ public class Criteria implements QueryStringHolder {
 
 	}
 
-	enum OperationKey {
+	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
 				"$expression"), BETWEEN("$between"), NEAR("$near");
 
@@ -649,7 +470,7 @@ public class Criteria implements QueryStringHolder {
 
 	}
 
-	static class CriteriaEntry {
+	public static class CriteriaEntry {
 
 		private String key;
 		private Object value;

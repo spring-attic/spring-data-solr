@@ -176,7 +176,7 @@ public class SimpleQueryTest {
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertNotSame(source, destination);
 		Assert.assertEquals("field_1", destination.getCriteria().getField().getName());
-		Assert.assertEquals("field_1:value_1", destination.getCriteria().getQueryString());
+		Assert.assertEquals("value_1", destination.getCriteria().getCriteriaEntries().iterator().next().getValue());
 	}
 
 	@Test
@@ -185,7 +185,6 @@ public class SimpleQueryTest {
 		source.addFilterQuery(new SimpleQuery(new Criteria("field_2").startsWith("value_2")));
 
 		Query destination = SimpleQuery.fromQuery(source);
-		Assert.assertEquals("field_1:value_1", destination.getCriteria().getQueryString());
 		Assert.assertEquals(1, destination.getFilterQueries().size());
 	}
 

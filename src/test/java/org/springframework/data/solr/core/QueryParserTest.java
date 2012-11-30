@@ -15,16 +15,27 @@
  */
 package org.springframework.data.solr.core;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.Distance.Unit;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -45,6 +56,258 @@ public class QueryParserTest {
 	@Before
 	public void setUp() {
 		this.queryParser = new QueryParser();
+	}
+
+	@Test
+	public void testIs() {
+		Criteria criteria = new Criteria("field_1").is("is");
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:is", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testMultipleIs() {
+		Criteria criteria = new Criteria("field_1").is("is").is("another is");
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:(is \"another is\")", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testEndsWith() {
+		Criteria criteria = new Criteria("field_1").endsWith("end");
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:*end", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testStartsWith() {
+		Criteria criteria = new Criteria("field_1").startsWith("start");
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:start*", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testContains() {
+		Criteria criteria = new Criteria("field_1").contains("contains");
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:*contains*", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testExpression() {
+		Criteria criteria = new Criteria("field_1").expression("(have fun using +solr && expressions*)");
+		Assert.assertEquals("field_1:(have fun using +solr && expressions*)",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testCriteriaChain() {
+		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").contains("contains").is("is");
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:(start* *end *contains* is)", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testAnd() {
+		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
+				.endsWith("2end");
+		Assert.assertEquals("field_2", criteria.getField().getName());
+		Assert.assertEquals("field_1:(start* *end) AND field_2:(2start* *2end)",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testOr() {
+		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
+		Assert
+				.assertEquals("field_1:start* OR field_2:(*end start2*)", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testCriteriaWithWhiteSpace() {
+		Criteria criteria = new Criteria("field_1").is("white space");
+		Assert.assertEquals("field_1:\"white space\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testCriteriaWithDoubleQuotes() {
+		Criteria criteria = new Criteria("field_1").is("with \"quote");
+		Assert.assertEquals("field_1:\"with \\\"quote\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIsNot() {
+		Criteria criteria = new Criteria("field_1").is("value_1").not();
+		Assert.assertEquals("-field_1:value_1", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testFuzzy() {
+		Criteria criteria = new Criteria("field_1").fuzzy("value_1");
+		Assert.assertEquals("field_1:value_1~", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testFuzzyWithDistance() {
+		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
+		Assert.assertEquals("field_1:value_1~0.5", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBoost() {
+		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
+		Assert.assertEquals("field_1:value_1^2.0", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBoostMultipleValues() {
+		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f);
+		Assert.assertEquals("field_1:(value_1 value_2)^2.0", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBoostMultipleCriteriasValues() {
+		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
+		Assert.assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetween() {
+		Criteria criteria = new Criteria("field_1").between(100, 200);
+		Assert.assertEquals("field_1:[100 TO 200]", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetweenWithoutUpperBound() {
+		Criteria criteria = new Criteria("field_1").between(100, null);
+		Assert.assertEquals("field_1:[100 TO *]", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetweenWithoutLowerBound() {
+		Criteria criteria = new Criteria("field_1").between(null, 200);
+		Assert.assertEquals("field_1:[* TO 200]", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetweenWithDateValue() {
+		DateTime lowerBound = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
+		DateTime upperBound = new DateTime(2012, 8, 21, 19, 30, 0, DateTimeZone.UTC);
+
+		Criteria criteria = new Criteria("field_1").between(lowerBound, upperBound);
+		Assert.assertEquals("field_1:[2012\\-08\\-21T06\\:35\\:00.000Z TO 2012\\-08\\-21T19\\:30\\:00.000Z]",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetweenNegativeNumber() {
+		Criteria criteria = new Criteria("field_1").between(-200, -100);
+		Assert.assertEquals("field_1:[\\-200 TO \\-100]", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIn() {
+		Criteria criteria = new Criteria("field_1").in(1, 2, 3, 5, 8, 13, 21);
+		Assert.assertEquals("field_1:(1 2 3 5 8 13 21)", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIsWithJavaDateValue() {
+		DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+		calendar.setTimeInMillis(dateTime.getMillis());
+
+		Criteria criteria = new Criteria("dateField").is(calendar.getTime());
+		Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIsWithJodaDateTime() {
+		DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
+
+		Criteria criteria = new Criteria("dateField").is(dateTime);
+		Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIsWithJodaLocalDateTime() {
+		LocalDateTime dateTime = new LocalDateTime(new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC).getMillis(),
+				DateTimeZone.UTC);
+
+		Criteria criteria = new Criteria("dateField").is(dateTime);
+		Assert.assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testIsWithNegativeNumner() {
+		Criteria criteria = new Criteria("field_1").is(-100);
+		Assert.assertEquals("field_1:\\-100", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testNear() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(5));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=5.0}",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testNearWithDistanceUnitMiles() {
+		Criteria criteria = new Criteria("field_1")
+				.near(new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testNearWithDistanceUnitKilometers() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(1,
+				Unit.KILOMETERS));
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testNearWithNullDistance() {
+		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), null);
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testStringCriteria() {
+		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
+		Assert.assertEquals("field_1:value_1 AND field_2:value_2", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testStringCriteriaWithMoreFragments() {
+		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
+		criteria = criteria.and("field_3").is("value_3");
+		Assert.assertEquals("field_1:value_1 AND field_2:value_2 AND field_3:value_3",
+				queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testRegisterAlternateConverter() {
+		Criteria criteria = new Criteria("field_1").is(100);
+		queryParser.registerConverter(new Converter<Number, String>() {
+
+			@Override
+			public String convert(Number arg0) {
+				return StringUtils.reverse(arg0.toString());
+			}
+
+		});
+		Assert.assertEquals("field_1:001", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
 	@Test
