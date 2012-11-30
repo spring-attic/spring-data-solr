@@ -35,6 +35,7 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 public class GeoConverterTest {
 
 	public static class GeoLocationConverterTest {
+
 		@Test
 		public void testConvertGeoLocationToStringWithNull() {
 			Assert.assertNull(GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(null));
