@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<context version="7.1.7.187">
+<context version="7.1.8.189">
     <scope name="spring-data-solr" type="Project">
         <element name="Filter" type="TypeFilterReferenceOverridden">
             <element name="org.springframework.data.solr.**" type="IncludeTypePattern"/>
@@ -51,6 +51,7 @@
                         <element name="**.mapping.**" type="IncludeTypePattern"/>
                         <element name="**.convert.**" type="IncludeTypePattern"/>
                     </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Query"/>
                 </element>
                 <element name="Geospatial" type="Subsystem">
                     <element name="Assignment" type="TypeFilter">
@@ -62,13 +63,13 @@
                         <element name="**.query.**" type="IncludeTypePattern"/>
                     </element>
                     <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Geospatial"/>
-                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Mapping"/>
                 </element>
                 <element name="Core" type="Subsystem">
                     <element name="Assignment" type="TypeFilter">
                         <element name="**.core.**" type="WeakTypePattern"/>
                         <element name="**.solr.*" type="StrongTypePattern"/>
                     </element>
+                    <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Geospatial"/>
                     <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Mapping"/>
                     <dependency type="AllowedDependency" toName="Project|spring-data-solr::Layer|Core::Subsystem|Query"/>
                 </element>
