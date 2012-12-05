@@ -23,6 +23,9 @@
 			which implements
 			<interfacename>Update</interfacename>
 			.
+			<note>
+			With Solr 4.0.0 it is not possible to update mulitvalue fields.
+			</note>
 		</para>
 		<example>
 			<programlisting language="java">PartialUpdate update = new PartialUpdate("id", "123");

@@ -17,6 +17,7 @@ package org.springframework.data.solr.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,11 +26,13 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
+import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -103,6 +106,33 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 		Assert.assertEquals("updated-name", recalled.getName());
+		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
+	}
+
+	@Ignore("Partial Update of mutlivalue field does not work as expected. (https://issues.apache.org/jira/browse/SOLR-4134)")
+	@Test(expected = UncategorizedSolrException.class)
+	public void testPartialUpdateMultivaluedField() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.add("cat", Arrays.asList("spring", "data", "solr"));
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
+				ExampleSolrBean.class);
+
+		Assert.assertEquals(toInsert.getId(), recalled.getId());
+
+		Assert.assertEquals(3, recalled.getCategory().size());
+		Assert.assertEquals(Arrays.asList("spring", "data", "solr"), recalled.getCategory());
+
+		Assert.assertEquals(toInsert.getName(), recalled.getName());
 		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
 	}
 
