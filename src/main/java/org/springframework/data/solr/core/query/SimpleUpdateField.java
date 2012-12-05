@@ -18,10 +18,27 @@ package org.springframework.data.solr.core.query;
 /**
  * @author Christoph Strobl
  */
-public interface Update {
+public class SimpleUpdateField extends AbstractValueHoldingField implements UpdateField {
 
-	ValueHoldingField getIdField();
+	private static final UpdateAction DEFAULT_ACTION = UpdateAction.SET;
+	private UpdateAction action;
 
-	Iterable<UpdateField> getUpdates();
+	public SimpleUpdateField(String name) {
+		this(name, null);
+	}
+
+	public SimpleUpdateField(String name, Object value) {
+		this(name, value, DEFAULT_ACTION);
+	}
+
+	public SimpleUpdateField(String name, Object value, UpdateAction action) {
+		super(name, value);
+		this.action = action;
+	}
+
+	@Override
+	public UpdateAction getAction() {
+		return this.action != null ? this.action : DEFAULT_ACTION;
+	}
 
 }

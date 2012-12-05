@@ -18,10 +18,17 @@ package org.springframework.data.solr.core.query;
 /**
  * @author Christoph Strobl
  */
-public interface Update {
+public enum UpdateAction {
+	ADD("add"), INC("inc"), SET("set");
 
-	ValueHoldingField getIdField();
+	private String solrOperation;
 
-	Iterable<UpdateField> getUpdates();
+	UpdateAction(String solrOperation) {
+		this.solrOperation = solrOperation;
+	}
+
+	public String getSolrOperation() {
+		return this.solrOperation;
+	}
 
 }

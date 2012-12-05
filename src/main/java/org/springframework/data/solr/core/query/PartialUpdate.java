@@ -25,7 +25,7 @@ import java.util.List;
 public class PartialUpdate implements Update {
 
 	private final ValueHoldingField idField;
-	private final List<ValueHoldingField> updates = new ArrayList<ValueHoldingField>();
+	private final List<UpdateField> updates = new ArrayList<UpdateField>();
 
 	public PartialUpdate(String idFieldName, String idFieldValue) {
 		this(new IdField(idFieldName, idFieldValue));
@@ -45,7 +45,7 @@ public class PartialUpdate implements Update {
 	}
 
 	public void add(String fieldName, Object value) {
-		add(new UpdateField(fieldName, value));
+		add(new SimpleUpdateField(fieldName, value));
 	}
 
 	public void add(UpdateField field) {
@@ -53,7 +53,7 @@ public class PartialUpdate implements Update {
 	}
 
 	@Override
-	public List<ValueHoldingField> getUpdates() {
+	public List<UpdateField> getUpdates() {
 		return Collections.unmodifiableList(updates);
 	}
 

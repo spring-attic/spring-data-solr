@@ -18,7 +18,7 @@ package org.springframework.data.solr.core.query;
 /**
  * @author Christoph Strobl
  */
-abstract class AbstractValueHoldingField extends SimpleField implements ValueHoldingField {
+class AbstractValueHoldingField extends SimpleField implements ValueHoldingField {
 
 	private Object value;
 

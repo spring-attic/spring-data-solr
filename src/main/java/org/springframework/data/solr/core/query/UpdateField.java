@@ -18,14 +18,8 @@ package org.springframework.data.solr.core.query;
 /**
  * @author Christoph Strobl
  */
-public class UpdateField extends AbstractValueHoldingField {
+public interface UpdateField extends ValueHoldingField {
 
-	public UpdateField(String name) {
-		super(name);
-	}
-
-	public UpdateField(String name, Object value) {
-		super(name, value);
-	}
+	UpdateAction getAction();
 
 }

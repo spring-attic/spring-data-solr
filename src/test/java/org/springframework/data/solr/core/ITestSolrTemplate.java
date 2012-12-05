@@ -42,7 +42,9 @@ import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SimpleUpdateField;
 import org.springframework.data.solr.core.query.Update;
+import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.FacetEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.xml.sax.SAXException;
@@ -88,7 +90,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
-	public void testPartialUpdate() {
+	public void testPartialUpdateSetSingleValueField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
 		solrTemplate.saveBean(toInsert);
@@ -109,9 +111,61 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
 	}
 
+	@Test
+	public void testPartialUpdateAddSingleValueToMultivalueField() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		toInsert.setCategory(Arrays.asList("nosql"));
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.add(new SimpleUpdateField("cat", "spring-data-solr", UpdateAction.ADD));
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
+				ExampleSolrBean.class);
+
+		Assert.assertEquals(toInsert.getId(), recalled.getId());
+
+		Assert.assertEquals(2, recalled.getCategory().size());
+		Assert.assertEquals(Arrays.asList("nosql", "spring-data-solr"), recalled.getCategory());
+
+		Assert.assertEquals(toInsert.getName(), recalled.getName());
+		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
+	}
+
+	@Test
+	public void testPartialUpdateIncSingleValue() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.add(new SimpleUpdateField("popularity", 1, UpdateAction.INC));
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+
+		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
+				ExampleSolrBean.class);
+
+		Assert.assertEquals(toInsert.getId(), recalled.getId());
+
+		Assert.assertEquals(1, recalled.getCategory().size());
+
+		Assert.assertEquals(toInsert.getName(), recalled.getName());
+		Assert.assertEquals(Integer.valueOf(11), recalled.getPopularity());
+	}
+
 	@Ignore("Partial Update of mutlivalue field does not work as expected. (https://issues.apache.org/jira/browse/SOLR-4134)")
 	@Test(expected = UncategorizedSolrException.class)
-	public void testPartialUpdateMultivaluedField() {
+	public void testPartialUpdateSetMultipleValuesToMultivaluedField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
 		solrTemplate.saveBean(toInsert);
