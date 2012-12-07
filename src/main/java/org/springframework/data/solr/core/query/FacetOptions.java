@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.query;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -97,6 +98,15 @@ public class FacetOptions {
 	 */
 	public final FacetOptions addFacetOnField(String fieldname) {
 		addFacetOnField(new SimpleField(fieldname));
+		return this;
+	}
+
+	public final FacetOptions addFacetOnFlieldnames(Collection<String> fieldnames) {
+		Assert.notNull(fieldnames);
+
+		for (String fieldname : fieldnames) {
+			addFacetOnField(fieldname);
+		}
 		return this;
 	}
 

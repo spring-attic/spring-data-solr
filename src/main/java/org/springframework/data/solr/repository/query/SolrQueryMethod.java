@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.List;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
+import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -81,11 +84,50 @@ public class SolrQueryMethod extends QueryMethod {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<String> getProjectionFields() {
-		String[] fields = (String[]) AnnotationUtils.getValue(getQueryAnnotation(), "fields");
-		if (fields.length > 1 || (fields.length == 1 && StringUtils.hasText(fields[0]))) {
-			return CollectionUtils.arrayToList(fields);
+		return getAnnotationValuesAsStringList(getQueryAnnotation(), "fields");
+	}
+
+	public boolean isFacetQuery() {
+		return hasFacetFields();
+	}
+
+	public boolean hasFacetFields() {
+		if (hasFacetAnnotation()) {
+			return !CollectionUtils.isEmpty(getFacetFields());
+		}
+		return false;
+	}
+
+	private boolean hasFacetAnnotation() {
+		return getFacetAnnotation() != null;
+	}
+
+	List<String> getFacetFields() {
+		return getAnnotationValuesAsStringList(getFacetAnnotation(), "fields");
+	}
+
+	private Annotation getFacetAnnotation() {
+		return this.method.getAnnotation(Facet.class);
+	}
+
+	public FacetOptions getFacetOptions() {
+		if (!isFacetQuery()) {
+			return null;
+		}
+
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnFlieldnames(getFacetFields());
+		options.setFacetLimit((Integer) AnnotationUtils.getValue(getFacetAnnotation(), "limit"));
+		options.setFacetMinCount((Integer) AnnotationUtils.getValue(getFacetAnnotation(), "minCount"));
+		return options;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
+		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);
+		if (values.length > 1 || (values.length == 1 && StringUtils.hasText(values[0]))) {
+			return CollectionUtils.arrayToList(values);
 		}
 		return Collections.emptyList();
 	}

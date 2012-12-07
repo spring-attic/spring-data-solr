@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.support.SolrEntityInformationCreatorImpl;
@@ -96,6 +97,46 @@ public class SolrQueryMethodTest {
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
 	}
 
+	@Test
+	public void testWithSingleFieldFacet() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularity", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertTrue(method.hasFacetFields());
+
+		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
+
+		Assert.assertEquals(1, options.getFacetOnFields().size());
+		Assert.assertEquals(10, options.getFacetLimit());
+		Assert.assertEquals(1, options.getFacetMinCount());
+	}
+
+	@Test
+	public void testWithMultipleFieldFacets() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityAndPrice", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertEquals(2, method.getFacetFields().size());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+	}
+
+	@Test
+	public void testWithMultipleFieldFacetsLimitAndMinCount() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityAndPriceMinCount3Limit25", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+
+		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
+
+		Assert.assertEquals(2, options.getFacetOnFields().size());
+		Assert.assertEquals(25, options.getFacetLimit());
+		Assert.assertEquals(3, options.getFacetMinCount());
+	}
+
 	interface Repo1 extends Repository<ProductBean, String> {
 
 		@Query(value = "name:?0")
@@ -115,6 +156,14 @@ public class SolrQueryMethodTest {
 		@Query(value = "name:?0", fields = { "popularity", "price" })
 		List<ProductBean> findByAnnotatedQueryWithProjectionOnMultipleFields(String name);
 
+		@Facet(fields = { "popularity" })
+		List<ProductBean> findByNameFacetOnPopularity(String name);
+
+		@Facet(fields = { "popularity", "price" })
+		List<ProductBean> findByNameFacetOnPopularityAndPrice(String name);
+
+		@Facet(fields = { "popularity", "price" }, minCount = 3, limit = 25)
+		List<ProductBean> findByNameFacetOnPopularityAndPriceMinCount3Limit25(String name);
 	}
 
 }

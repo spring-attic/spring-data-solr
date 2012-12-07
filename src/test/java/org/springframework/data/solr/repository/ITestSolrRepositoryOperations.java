@@ -32,6 +32,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.result.FacetEntry;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -310,6 +313,35 @@ public class ITestSolrRepositoryOperations {
 			Assert.assertNotNull(bean.getId());
 
 			Assert.assertNull(bean.getPopularity());
+		}
+	}
+
+	@Test
+	public void testFacetOnSingleField() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularity(new PageRequest(0, 10));
+		Assert.assertEquals(1, facetPage.getFacetFields().size());
+		Page<FacetEntry> page = facetPage.getFacetResultPage(facetPage.getFacetFields().iterator().next());
+		Assert.assertEquals(3, page.getContent().size());
+		for (FacetEntry entry : page) {
+			Assert.assertEquals("popularity", entry.getField().getName());
+		}
+	}
+
+	@Test
+	public void testFacetOnMultipleFields() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularityAndAvailable(new PageRequest(0, 10));
+		Assert.assertEquals(2, facetPage.getFacetFields().size());
+
+		Page<FacetEntry> popularityPage = facetPage.getFacetResultPage(new SimpleField("popularity"));
+		Assert.assertEquals(3, popularityPage.getContent().size());
+		for (FacetEntry entry : popularityPage) {
+			Assert.assertEquals("popularity", entry.getField().getName());
+		}
+
+		Page<FacetEntry> availablePage = facetPage.getFacetResultPage(new SimpleField("inStock"));
+		Assert.assertEquals(2, availablePage.getContent().size());
+		for (FacetEntry entry : availablePage) {
+			Assert.assertEquals("inStock", entry.getField().getName());
 		}
 	}
 

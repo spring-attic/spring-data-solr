@@ -23,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.solr.core.query.result.FacetPage;
 
 /**
  * @author Christoph Strobl
@@ -81,5 +82,13 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByNameRegex(String name);
 
 	Page<ProductBean> findByNameStartingWith(String name, Pageable page);
+
+	@Query(value = "*:*")
+	@Facet(fields = { "popularity" })
+	FacetPage<ProductBean> findAllFacetOnPopularity(Pageable page);
+
+	@Query(value = "*:*")
+	@Facet(fields = { "popularity", "inStock" })
+	FacetPage<ProductBean> findAllFacetOnPopularityAndAvailable(Pageable page);
 
 }

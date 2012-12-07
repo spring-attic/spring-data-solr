@@ -55,27 +55,37 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	}
 
 	public static final Query fromQuery(Query source) {
-		if (source == null) {
+		return fromQuery(source, new SimpleQuery());
+	}
+
+	public static <T extends SimpleQuery> T fromQuery(Query source, T destination) {
+		if (source == null || destination == null) {
 			return null;
 		}
 
-		SimpleQuery query = new SimpleQuery();
 		if (source.getCriteria() != null) {
-			query.addCriteria(source.getCriteria());
+			destination.addCriteria(source.getCriteria());
 		}
 		if (!source.getFilterQueries().isEmpty()) {
-			query.filterQueries.addAll(source.getFilterQueries());
+			for (FilterQuery fq : source.getFilterQueries()) {
+				destination.addFilterQuery(fq);
+			}
 		}
 		if (!source.getProjectionOnFields().isEmpty()) {
-			query.projectionOnFields.addAll(source.getProjectionOnFields());
+			for (Field projectionField : source.getProjectionOnFields()) {
+				destination.addProjectionOnField(projectionField);
+			}
 		}
 		if (!source.getGroupByFields().isEmpty()) {
-			query.groupByFields.addAll(source.getGroupByFields());
+			for (Field groupByField : source.getGroupByFields()) {
+				destination.addGroupByField(groupByField);
+			}
 		}
 		if (source.getSort() != null) {
-			query.addSort(source.getSort());
+			destination.addSort(source.getSort());
 		}
-		return query;
+
+		return destination;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -20,8 +20,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.util.Assert;
 
 /**
@@ -48,6 +51,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		Query query = createQuery(accessor);
 
 		if (solrQueryMethod.isPageQuery()) {
+			if (solrQueryMethod.isFacetQuery()) {
+				FacetQuery facetQuery = SimpleFacetQuery.fromQuery(query, new SimpleFacetQuery());
+				facetQuery.setFacetOptions(solrQueryMethod.getFacetOptions());
+				return new FacetPageExecution(accessor.getPageable()).execute(facetQuery);
+			}
 			return new PagedExecution(accessor.getPageable()).execute(query);
 		} else if (solrQueryMethod.isCollectionQuery()) {
 			return new CollectionExecution(accessor.getPageable()).execute(query);
@@ -113,9 +121,29 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			query.setPageRequest(pageable);
+			query.setPageRequest(getPageable());
 			return executeFind(query);
 		}
+
+		protected Pageable getPageable() {
+			return this.pageable;
+		}
+	}
+
+	class FacetPageExecution extends PagedExecution {
+
+		public FacetPageExecution(Pageable pageable) {
+			super(pageable);
+		}
+
+		@Override
+		protected FacetPage<?> executeFind(Query query) {
+			Assert.isInstanceOf(FacetQuery.class, query);
+
+			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			return solrOperations.queryForFacetPage((FacetQuery) query, metadata.getJavaType());
+		}
+
 	}
 
 	class SingleEntityExecution implements QueryExecution {
