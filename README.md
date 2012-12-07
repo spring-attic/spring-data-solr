@@ -8,10 +8,12 @@ The Spring Data Solr project provides integration with the [Apache Solr](http://
 Getting Help
 ------------
 
-Help is currently under construction but on its way.
+* [Reference Documentation](http://static.springsource.org/spring-data/data-solr/docs/current/reference/html/)
+* [API Documentation](http://static.springsource.org/spring-data/data-solr/docs/current/api/)
+* [Spring Data Project](http://www.springsource.org/spring-data)
+* [Issues](https://jira.springsource.org/browse/DATASOLR)
 
 If you are new to Spring as well as to Spring Data, look for information about [Spring projects](http://www.springsource.org/projects). 
-
 
 Quick Start
 -----------
@@ -113,6 +115,29 @@ Furthermore you may provide a custom implementation for some operations.
   
     }
 ```
+
+### XML Namespace
+
+You can set up repository scanning via xml configuration, which will happily create your repositories.
+ 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:solr="http://www.springframework.org/schema/data/solr"
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<solr:repositories base-package="com.acme.repository" />
+	<solr:solr-server id="httpSolrServer" url="http://localhost:8983/solr" />
+	
+	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+		<constructor-arg ref="solrServer" />
+	</bean>
+	
+</beans>
+```
+
 
 Contributing to Spring Data
 ---------------------------
