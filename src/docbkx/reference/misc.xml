@@ -24,7 +24,7 @@
 			<interfacename>Update</interfacename>
 			.
 			<note>
-			With Solr 4.0.0 it is not possible to update mulitvalue fields.
+				With Solr 4.0.0 it is not possible to update mulitvalue fields.
 			</note>
 		</para>
 		<example>
@@ -59,6 +59,16 @@ List&lt;ProductBean&gt; findByNameStartingWith(String name);</programlisting>
   .setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5));
 FacetPage&lt;Product&gt; page = solrTemplate.queryForFacetPage(query, Product.class);</programlisting>
 		</example>
+		<para>
+			Facets on fields can also be defined using
+			<interfacename>@Facet</interfacename>
+			. Please mind that the result will be a
+			<classname>FacetPage</classname>
+			.
+			<programlisting language="java">@Query(value = "*:*")
+@Facet(fields = { "name" }, limit = 5)
+FacetPage&lt;Product&gt; findAllFacetOnPopularity(Pageable page);</programlisting>
+		</para>
 	</section>
 	<section id="solr.misc.filter">
 		<title>Filter Query</title>
