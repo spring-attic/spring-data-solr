@@ -50,4 +50,11 @@ public @interface Query {
 	 */
 	String[] fields() default "";
 
+	/**
+	 * add query to filter results Corresponds to 'fq' in solr
+	 * 
+	 * @return
+	 */
+	String[] filters() default "";
+
 }

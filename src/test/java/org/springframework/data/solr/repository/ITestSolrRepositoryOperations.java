@@ -345,6 +345,25 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
+	@Test
+	public void testSingleFilter() {
+		List<ProductBean> found = repo.findAllFilterAvailableTrue();
+		Assert.assertEquals(3, found.size());
+		for (ProductBean bean : found) {
+			Assert.assertTrue(bean.isAvailable());
+		}
+	}
+
+	@Test
+	public void testMultipleFilters() {
+		List<ProductBean> found = repo.findAllFilterAvailableTrueAndPopularityLessThanEqual3();
+		Assert.assertEquals(2, found.size());
+		for (ProductBean bean : found) {
+			Assert.assertTrue(bean.isAvailable());
+			Assert.assertTrue(bean.getPopularity() <= 3);
+		}
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}

@@ -24,6 +24,8 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimpleFilterQuery;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.util.Assert;
 
@@ -49,6 +51,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		SolrParameterAccessor accessor = new SolrParametersParameterAccessor(solrQueryMethod, parameters);
 
 		Query query = createQuery(accessor);
+		decorateWithFilterQuery(query);
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery()) {
@@ -62,6 +65,14 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 
 		return new SingleEntityExecution().execute(query);
+	}
+
+	private void decorateWithFilterQuery(Query query) {
+		if (solrQueryMethod.hasFilterQuery()) {
+			for (String filterQuery : solrQueryMethod.getFilterQueries()) {
+				query.addFilterQuery(new SimpleFilterQuery(new SimpleStringCriteria(filterQuery)));
+			}
+		}
 	}
 
 	@Override

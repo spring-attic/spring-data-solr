@@ -47,6 +47,7 @@ public class SolrQueryMethodTest {
 		Assert.assertTrue(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
 	}
 
@@ -55,6 +56,7 @@ public class SolrQueryMethodTest {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithoutExplicitAttribute", String.class);
 		Assert.assertTrue(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
 	}
 
@@ -63,6 +65,7 @@ public class SolrQueryMethodTest {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedNamedQueryName", String.class);
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertTrue(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertEquals("ProductRepository.namedQuery-1", method.getAnnotatedNamedQueryName());
 	}
 
@@ -70,6 +73,7 @@ public class SolrQueryMethodTest {
 	public void testWithoutAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByName", String.class);
 		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 	}
 
@@ -79,6 +83,7 @@ public class SolrQueryMethodTest {
 		Assert.assertTrue(method.hasAnnotatedQuery());
 		Assert.assertTrue(method.hasProjectionFields());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
 	}
 
@@ -87,14 +92,10 @@ public class SolrQueryMethodTest {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithProjectionOnMultipleFields", String.class);
 		Assert.assertTrue(method.hasAnnotatedQuery());
 		Assert.assertTrue(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertEquals(2, method.getProjectionFields().size());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertEquals("name:?0", method.getAnnotatedQuery());
-	}
-
-	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
-		Method method = Repo1.class.getMethod(name, parameters);
-		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
 	}
 
 	@Test
@@ -104,6 +105,7 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertFalse(method.hasFilterQuery());
 
 		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
 
@@ -120,6 +122,7 @@ public class SolrQueryMethodTest {
 		Assert.assertTrue(method.hasFacetFields());
 		Assert.assertEquals(2, method.getFacetFields().size());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
 	}
 
 	@Test
@@ -129,12 +132,42 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertTrue(method.hasFacetFields());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
 
 		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
 
 		Assert.assertEquals(2, options.getFacetOnFields().size());
 		Assert.assertEquals(25, options.getFacetLimit());
 		Assert.assertEquals(3, options.getFacetMinCount());
+	}
+
+	@Test
+	public void testWithSigleFilter() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameStringWith", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertTrue(method.hasFilterQuery());
+
+		Assert.assertEquals(1, method.getFilterQueries().size());
+	}
+
+	@Test
+	public void testWithMultipleFilters() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findAllFilterAvailableTrueAndPopularityLessThan5", String.class);
+		Assert.assertTrue(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertTrue(method.hasFilterQuery());
+
+		Assert.assertEquals(2, method.getFilterQueries().size());
+	}
+
+	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
+		Method method = Repo1.class.getMethod(name, parameters);
+		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
 	}
 
 	interface Repo1 extends Repository<ProductBean, String> {
@@ -164,6 +197,12 @@ public class SolrQueryMethodTest {
 
 		@Facet(fields = { "popularity", "price" }, minCount = 3, limit = 25)
 		List<ProductBean> findByNameFacetOnPopularityAndPriceMinCount3Limit25(String name);
+
+		@Query(filters = { "inStock:true" })
+		List<ProductBean> findByNameStringWith(String name);
+
+		@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 5]" })
+		List<ProductBean> findAllFilterAvailableTrueAndPopularityLessThan5(String name);
 	}
 
 }

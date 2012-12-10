@@ -88,5 +88,12 @@ FilterQuery fq = new SimpleFilterQuery(new Criteria("store")
   .near(new GeoLocation(48.305478, 14.286699), new Distance(5)));
 query.addFilterQuery(fq);</programlisting>
 		</example>
+		<para>
+			Simple filter queries can also be defined using
+			<interfacename>@Query</interfacename>
+			.
+		</para>
+		<programlisting language="java">@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
+List&lt;ProductBean&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</programlisting>
 	</section>
 </chapter>

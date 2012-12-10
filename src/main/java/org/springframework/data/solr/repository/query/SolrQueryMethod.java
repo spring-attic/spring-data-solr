@@ -123,6 +123,17 @@ public class SolrQueryMethod extends QueryMethod {
 		return options;
 	}
 
+	public boolean hasFilterQuery() {
+		if (hasQueryAnnotation()) {
+			return !CollectionUtils.isEmpty(getFilterQueries());
+		}
+		return false;
+	}
+
+	List<String> getFilterQueries() {
+		return getAnnotationValuesAsStringList(getQueryAnnotation(), "filters");
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
 		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);
