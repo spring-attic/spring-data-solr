@@ -44,7 +44,7 @@ public class PartialUpdateTest {
 	@Test
 	public void testIncreaseValueForField() {
 		PartialUpdate update = new PartialUpdate("id", "123");
-		update.increaseValueOfField("popularity", "2");
+		update.increaseValueOfField("popularity", 2);
 
 		Assert.assertEquals(1, update.getUpdates().size());
 		Assert.assertEquals(UpdateAction.INC, update.getUpdates().get(0).getAction());
