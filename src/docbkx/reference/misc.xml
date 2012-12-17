@@ -94,6 +94,6 @@ query.addFilterQuery(fq);</programlisting>
 			.
 		</para>
 		<programlisting language="java">@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
-List&lt;ProductBean&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</programlisting>
+List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</programlisting>
 	</section>
 </chapter>
