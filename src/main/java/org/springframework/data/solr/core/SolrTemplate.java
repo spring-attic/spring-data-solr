@@ -252,7 +252,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		FacetPage<T> page = new FacetPage<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults()
 				.getNumFound());
-		page.addAllFacetResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
 
 		return page;
 	}

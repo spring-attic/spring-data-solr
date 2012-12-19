@@ -34,4 +34,9 @@ public class SimpleStringCriteria extends Criteria implements QueryStringHolder 
 		return this.queryString;
 	}
 
+	@Override
+	public String toString() {
+		return getQueryString();
+	}
+
 }

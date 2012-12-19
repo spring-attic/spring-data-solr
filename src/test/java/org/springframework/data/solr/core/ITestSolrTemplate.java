@@ -45,8 +45,9 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
-import org.springframework.data.solr.core.query.result.FacetEntry;
+import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.xml.sax.SAXException;
 
 /**
@@ -242,7 +243,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
-	public void testFacetQuery() {
+	public void testFacetQueryWithFacetFields() {
 		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
@@ -255,23 +256,51 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
-		for (Page<FacetEntry> facetResultPage : page.getFacetResultPages()) {
+		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
 			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
 		}
 
-		Page<FacetEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
-		for (FacetEntry entry : facetPage) {
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
+		for (FacetFieldEntry entry : facetPage) {
 			Assert.assertNotNull(entry.getValue());
 			Assert.assertEquals("name", entry.getField().getName());
 			Assert.assertEquals(1l, entry.getValueCount());
 		}
 
 		facetPage = page.getFacetResultPage(new SimpleField("id"));
-		for (FacetEntry entry : facetPage) {
+		for (FacetFieldEntry entry : facetPage) {
 			Assert.assertNotNull(entry.getValue());
 			Assert.assertEquals("id", entry.getField().getName());
 			Assert.assertEquals(1l, entry.getValueCount());
 		}
+	}
+
+	@Test
+	public void testFacetQueryWithFacetQueries() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
+			bean.setInStock(i % 2 == 0);
+			values.add(bean);
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
+		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")), new SimpleQuery(
+				new SimpleStringCriteria("inStock:false"))));
+
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+
+		Page<FacetQueryEntry> facetQueryResultPage = page.getFacetQueryResult();
+		Assert.assertEquals(2, facetQueryResultPage.getContent().size());
+		Assert.assertEquals("inStock:true", facetQueryResultPage.getContent().get(0).getValue());
+		Assert.assertEquals(5, facetQueryResultPage.getContent().get(0).getValueCount());
+
+		Assert.assertEquals("inStock:false", facetQueryResultPage.getContent().get(1).getValue());
+		Assert.assertEquals(5, facetQueryResultPage.getContent().get(1).getValueCount());
+
+		Assert.assertEquals(1, page.getAllFacets().size());
 	}
 
 	@Test

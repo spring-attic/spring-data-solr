@@ -27,14 +27,18 @@ public class FacetOptionsTest {
 	@Test
 	public void testFacetOptionsEmptyConstructor() {
 		FacetOptions options = new FacetOptions();
+		Assert.assertFalse(options.hasFacets());
 		Assert.assertFalse(options.hasFields());
+		Assert.assertFalse(options.hasFacetQueries());
 	}
 
 	@Test
 	public void testFacetOptionsConstructorSingleField() {
 		FacetOptions options = new FacetOptions(new SimpleField("field_1"));
+		Assert.assertTrue(options.hasFacets());
 		Assert.assertTrue(options.hasFields());
 		Assert.assertEquals(1, options.getFacetOnFields().size());
+		Assert.assertFalse(options.hasFacetQueries());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -45,6 +49,7 @@ public class FacetOptionsTest {
 	@Test
 	public void testFacetOptionsConstructorSingleFieldname() {
 		FacetOptions options = new FacetOptions("field_1");
+		Assert.assertTrue(options.hasFacets());
 		Assert.assertTrue(options.hasFields());
 		Assert.assertEquals(1, options.getFacetOnFields().size());
 	}
@@ -55,7 +60,7 @@ public class FacetOptionsTest {
 	}
 
 	@Test
-	public void addFacetOnField() {
+	public void testAddFacetOnField() {
 		FacetOptions options = new FacetOptions();
 		options.addFacetOnField(new SimpleField("field_1"));
 		options.addFacetOnField(new SimpleField("field_2"));
@@ -64,13 +69,45 @@ public class FacetOptionsTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void addFacetOnFieldNullValue() {
+	public void testAddFacetOnFieldNullValue() {
 		new FacetOptions().addFacetOnField((Field) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void addFacetOnFieldWithoutFieldname() {
+	public void testAddFacetOnFieldWithoutFieldname() {
 		new FacetOptions().addFacetOnField(new SimpleField(""));
+	}
+
+	@Test
+	public void testAddFacetOnQueryConstructorSingleQuery() {
+		FacetOptions options = new FacetOptions(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")));
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasFacetQueries());
+		Assert.assertEquals(1, options.getFacetQueries().size());
+		Assert.assertFalse(options.hasFields());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnQueryConstructorSingleNullQuery() {
+		new FacetOptions((SolrDataQuery) null);
+	}
+
+	@Test
+	public void testAddFacetOnQuery() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")));
+		options.addFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[6 TO *]")));
+
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasFacetQueries());
+		Assert.assertEquals(2, options.getFacetQueries().size());
+		Assert.assertFalse(options.hasFields());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnNullQuery() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetQuery(null);
 	}
 
 	@Test

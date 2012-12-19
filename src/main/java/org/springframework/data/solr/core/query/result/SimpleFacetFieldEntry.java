@@ -16,47 +16,29 @@
 package org.springframework.data.solr.core.query.result;
 
 import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.SimpleField;
 
 /**
- * The most trivial implementation of FacetEntry
+ * The most trivial implementation of {@link FacetFieldEntry}
  * 
  * @author Christoph Strobl
  */
-public class SimpleFacetEntry implements FacetEntry {
+public class SimpleFacetFieldEntry extends AbstractFacetEntry implements FacetFieldEntry {
 
 	private final Field field;
-	private final long count;
-	private final String value;
 
-	public SimpleFacetEntry(String fieldname, String value, long count) {
-		this(new SimpleField(fieldname), value, count);
-	}
-
-	public SimpleFacetEntry(Field field, String value, long count) {
+	public SimpleFacetFieldEntry(Field field, String value, long count) {
+		super(value, count);
 		this.field = field;
-		this.value = value;
-		this.count = count;
 	}
 
 	@Override
-	public final Field getField() {
+	public Field getKey() {
+		return getField();
+	}
+
+	@Override
+	public Field getField() {
 		return this.field;
-	}
-
-	@Override
-	public final long getValueCount() {
-		return this.count;
-	}
-
-	@Override
-	public String getValue() {
-		return this.value;
-	}
-
-	@Override
-	public String toString() {
-		return "SimpleFacetEntry [field=" + field + ", count=" + count + ", value=" + value + "]";
 	}
 
 }

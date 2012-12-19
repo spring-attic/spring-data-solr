@@ -128,7 +128,10 @@ public class QueryParser {
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
-		appendFacetingOnFields(solrQuery, (FacetQuery) query);
+		if (enableFaceting(solrQuery, query)) {
+			appendFacetingOnFields(solrQuery, (FacetQuery) query);
+			appendFacetingQueries(solrQuery, (FacetQuery) query);
+		}
 	}
 
 	/**
@@ -298,13 +301,12 @@ public class QueryParser {
 		solrQuery.setParam(CommonParams.FL, StringUtils.join(fields, ","));
 	}
 
-	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
-		if (facetOptions == null || !facetOptions.hasFields()) {
-			return;
+		if (facetOptions == null || (!facetOptions.hasFields() && !facetOptions.hasFacetQueries())) {
+			return false;
 		}
 		solrQuery.setFacet(true);
-		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
 		solrQuery.setFacetMinCount(facetOptions.getFacetMinCount());
 		solrQuery.setFacetLimit(facetOptions.getPageable().getPageSize());
 		if (facetOptions.getPageable().getPageNumber() > 0) {
@@ -312,6 +314,25 @@ public class QueryParser {
 		}
 		if (FacetOptions.FacetSort.INDEX.equals(facetOptions.getFacetSort())) {
 			solrQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
+		}
+		return true;
+	}
+
+	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+		FacetOptions facetOptions = query.getFacetOptions();
+		if (facetOptions.getPageable().getPageNumber() > 0) {
+			solrQuery.set(FacetParams.FACET_OFFSET, facetOptions.getPageable().getOffset());
+		}
+		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
+	}
+
+	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query) {
+		FacetOptions facetOptions = query.getFacetOptions();
+		for (SolrDataQuery fq : facetOptions.getFacetQueries()) {
+			String facetQueryString = getQueryString(fq);
+			if (StringUtils.isNotBlank(facetQueryString)) {
+				solrQuery.addFacetQuery(facetQueryString);
+			}
 		}
 	}
 

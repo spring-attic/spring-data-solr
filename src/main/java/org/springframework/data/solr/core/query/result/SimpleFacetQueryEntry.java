@@ -15,33 +15,29 @@
  */
 package org.springframework.data.solr.core.query.result;
 
+import org.springframework.data.solr.core.query.FilterQuery;
+import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
+
 /**
- * FacetEntry is returned as result of a FacetQuery holding the key (eg. fieldname, query,...), value and valueCount for
- * the requested facet
+ * Trivial implementation of {@link FacetQueryEntry}
  * 
  * @author Christoph Strobl
  */
-public interface FacetEntry {
+public class SimpleFacetQueryEntry extends AbstractFacetEntry implements FacetQueryEntry {
 
-	/**
-	 * The key of the facetEntry
-	 * 
-	 * @return
-	 */
-	Object getKey();
+	public SimpleFacetQueryEntry(String value, long count) {
+		super(value, count);
+	}
 
-	/**
-	 * The nr of hits for the value
-	 * 
-	 * @return
-	 */
-	long getValueCount();
+	@Override
+	public String getKey() {
+		return getValue();
+	}
 
-	/**
-	 * The value within the field
-	 * 
-	 * @return
-	 */
-	String getValue();
+	@Override
+	public FilterQuery getQuery() {
+		return new SimpleQuery(new SimpleStringCriteria(getValue()));
+	}
 
 }

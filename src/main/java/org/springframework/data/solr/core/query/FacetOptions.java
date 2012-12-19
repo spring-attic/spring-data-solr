@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,7 @@ public class FacetOptions {
 	}
 
 	private List<Field> facetOnFields = new ArrayList<Field>(1);
+	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
 	private FacetSort facetSort = DEFAULT_FACET_SORT;
@@ -77,6 +79,18 @@ public class FacetOptions {
 	}
 
 	/**
+	 * Creates new instance faceting on given queries
+	 * 
+	 * @param facetQueries
+	 */
+	public FacetOptions(SolrDataQuery... facetQueries) {
+		Assert.notNull(facetQueries, "Facet Queries must not be null.");
+		Assert.noNullElements(facetQueries, "Cannot facet on null query.");
+
+		this.facetQueries.addAll(Arrays.asList(facetQueries));
+	}
+
+	/**
 	 * Append additional field for faceting
 	 * 
 	 * @param field
@@ -108,6 +122,23 @@ public class FacetOptions {
 			addFacetOnField(fieldname);
 		}
 		return this;
+	}
+
+	/**
+	 * Append facet filter query
+	 * 
+	 * @param filterQuery
+	 * @return
+	 */
+	public final FacetOptions addFacetQuery(SolrDataQuery facetQuery) {
+		Assert.notNull(facetQuery, "Facet Query must not be null.");
+
+		this.facetQueries.add(facetQuery);
+		return this;
+	}
+
+	public List<SolrDataQuery> getFacetQueries() {
+		return Collections.unmodifiableList(this.facetQueries);
 	}
 
 	/**
@@ -197,5 +228,18 @@ public class FacetOptions {
 	 */
 	public boolean hasFields() {
 		return !this.facetOnFields.isEmpty();
+	}
+
+	/**
+	 * true if filter queries applied for faceting
+	 * 
+	 * @return
+	 */
+	public boolean hasFacetQueries() {
+		return !this.facetQueries.isEmpty();
+	}
+
+	public boolean hasFacets() {
+		return hasFields() || hasFacetQueries();
 	}
 }

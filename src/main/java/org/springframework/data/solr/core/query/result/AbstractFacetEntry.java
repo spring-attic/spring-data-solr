@@ -16,32 +16,26 @@
 package org.springframework.data.solr.core.query.result;
 
 /**
- * FacetEntry is returned as result of a FacetQuery holding the key (eg. fieldname, query,...), value and valueCount for
- * the requested facet
- * 
  * @author Christoph Strobl
  */
-public interface FacetEntry {
+abstract class AbstractFacetEntry implements FacetEntry {
 
-	/**
-	 * The key of the facetEntry
-	 * 
-	 * @return
-	 */
-	Object getKey();
+	private final long count;
+	private final String value;
 
-	/**
-	 * The nr of hits for the value
-	 * 
-	 * @return
-	 */
-	long getValueCount();
+	protected AbstractFacetEntry(String value, long count) {
+		this.value = value;
+		this.count = count;
+	}
 
-	/**
-	 * The value within the field
-	 * 
-	 * @return
-	 */
-	String getValue();
+	@Override
+	public final long getValueCount() {
+		return this.count;
+	}
+
+	@Override
+	public String getValue() {
+		return this.value;
+	}
 
 }

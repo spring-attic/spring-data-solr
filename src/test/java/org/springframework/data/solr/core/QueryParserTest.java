@@ -370,7 +370,7 @@ public class QueryParserTest {
 	}
 
 	@Test
-	public void testConstructSolrQueryWithSingleFacet() {
+	public void testConstructSolrQueryWithSingleFacetOnField() {
 		Query query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions(
 				"facet_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
@@ -383,7 +383,7 @@ public class QueryParserTest {
 	}
 
 	@Test
-	public void testConstructSolrQueryWithMultipleFacet() {
+	public void testConstructSolrQueryWithMultipleFacetOnFields() {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions(
 				"facet_1", "facet_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
@@ -405,6 +405,35 @@ public class QueryParserTest {
 		query.getFacetOptions().setFacetSort(FacetOptions.FacetSort.COUNT);
 		solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertEquals("count", solrQuery.getFacetSortString());
+	}
+
+	@Test
+	public void testConstructSolrQueryWithSingleFacetFilterQuery() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions()
+				.addFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_2:[* TO 5]"))));
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		Assert.assertArrayEquals(new String[] { "field_2:[* TO 5]" }, solrQuery.getFacetQuery());
+	}
+
+	@Test
+	public void testConstructSolrQueryWithMultipleFacetFilterQuerues() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions()
+				.addFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_2:[* TO 5]"))).addFacetQuery(
+						new SimpleQuery(new Criteria("field_3").startsWith("prefix"))));
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		Assert.assertArrayEquals(new String[] { "field_2:[* TO 5]", "field_3:prefix*" }, solrQuery.getFacetQuery());
 	}
 
 	@Test
