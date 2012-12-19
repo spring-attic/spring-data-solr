@@ -20,6 +20,6 @@ package org.springframework.data.solr.core.query.result;
  */
 public interface PageKey {
 
-	public Object getKey();
+	Object getKey();
 
 }
