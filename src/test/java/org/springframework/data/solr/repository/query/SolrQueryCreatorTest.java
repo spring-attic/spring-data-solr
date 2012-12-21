@@ -145,6 +145,34 @@ public class SolrQueryCreatorTest {
 	}
 
 	@Test
+	public void testCreateQueryWithLikeClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByTitleLike", String.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { "j73x73r" }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Assert.assertEquals("title:j73x73r*", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateQueryWithLikeNotClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByTitleNotLike", String.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { "j73x73r" }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Assert.assertEquals("-title:j73x73r*", queryParser.getQueryString(query));
+	}
+
+	@Test
 	public void testCreateQueryWithStartsWithClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByTitleStartingWith", String.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
@@ -346,6 +374,10 @@ public class SolrQueryCreatorTest {
 		ProductBean findByAvailableTrue();
 
 		ProductBean findByAvailableFalse();
+
+		ProductBean findByTitleLike(String prefix);
+
+		ProductBean findByTitleNotLike(String prefix);
 
 		ProductBean findByTitleStartingWith(String prefix);
 

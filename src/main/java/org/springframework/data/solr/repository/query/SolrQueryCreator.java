@@ -102,6 +102,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		case LIKE:
 		case STARTING_WITH:
 			return criteria.startsWith(parameters.next().toString());
+		case NOT_LIKE:
+			return criteria.startsWith(parameters.next().toString()).not();
 		case ENDING_WITH:
 			return criteria.endsWith(parameters.next().toString());
 		case CONTAINING:

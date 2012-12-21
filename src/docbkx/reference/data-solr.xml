@@ -335,6 +335,17 @@ class ProductService {
 							</row>
 							<row>
 								<entry>
+									<code>NotLike</code>
+								</entry>
+								<entry>
+									<code>findByNameNotLike</code>
+								</entry>
+								<entry>
+									<code>q=-name:?0*</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
 									<code>StartingWith</code>
 								</entry>
 								<entry>
