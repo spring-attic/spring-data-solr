@@ -22,7 +22,7 @@
     <commons-lang.version>2.6</commons-lang.version>
     <solr.version>4.0.0</solr.version>
     <apache.httpcomponents.version>4.2.2</apache.httpcomponents.version>
-    <spring.data-commons.version>1.4.0.RELEASE</spring.data-commons.version>
+    <spring.data-commons.version>1.5.0.BUILD-SNAPSHOT</spring.data-commons.version>
     <joda-time.version>2.1</joda-time.version>
     <logback-classic.version>1.0.7</logback-classic.version>
     <mockito.version>1.9.5</mockito.version>
@@ -473,6 +473,10 @@
     <repository>
       <id>spring-releases</id>
       <url>http://repo.springsource.org/libs-release</url>
+    </repository>
+    <repository>
+	  <id>spring-snapshots</id>
+ 	  <url>http://repo.springsource.org/libs-snapshot</url>
     </repository>
   </repositories>
 </project>
