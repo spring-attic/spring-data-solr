@@ -91,6 +91,14 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Facet(fields = { "popularity", "inStock" })
 	FacetPage<ProductBean> findAllFacetOnPopularityAndAvailable(Pageable page);
 
+	@Query(value = "*:*")
+	@Facet(queries = { "popularity:[* TO 3]" })
+	FacetPage<ProductBean> findAllFacetQueryPopularity(Pageable page);
+
+	@Query(value = "*:*")
+	@Facet(queries = { "inStock:true", "inStock:false" })
+	FacetPage<ProductBean> findAllFacetQueryAvailableTrueAndAvailableFalse(Pageable page);
+
 	@Query(value = "*:*", filters = "inStock:true")
 	List<ProductBean> findAllFilterAvailableTrue();
 

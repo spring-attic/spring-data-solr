@@ -37,6 +37,13 @@ public @interface Facet {
 	String[] fields() default "";
 
 	/**
+	 * queries to facet on
+	 * 
+	 * @return
+	 */
+	String[] queries() default "";
+
+	/**
 	 * minimum number of hits for result to be included in response
 	 * 
 	 * @return

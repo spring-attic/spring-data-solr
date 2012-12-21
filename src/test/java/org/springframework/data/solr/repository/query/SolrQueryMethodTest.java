@@ -105,6 +105,7 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertFalse(method.hasFacetQueries());
 		Assert.assertFalse(method.hasFilterQuery());
 
 		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
@@ -120,6 +121,7 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertFalse(method.hasFacetQueries());
 		Assert.assertEquals(2, method.getFacetFields().size());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertFalse(method.hasFilterQuery());
@@ -131,6 +133,7 @@ public class SolrQueryMethodTest {
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertTrue(method.hasFacetFields());
+		Assert.assertFalse(method.hasFacetQueries());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertFalse(method.hasFilterQuery());
 
@@ -139,6 +142,65 @@ public class SolrQueryMethodTest {
 		Assert.assertEquals(2, options.getFacetOnFields().size());
 		Assert.assertEquals(25, options.getFacetLimit());
 		Assert.assertEquals(3, options.getFacetMinCount());
+	}
+
+	@Test
+	public void testWithSingleQueryFacet() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityQuery", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasFacetQueries());
+		Assert.assertFalse(method.hasFilterQuery());
+
+		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
+
+		Assert.assertEquals(0, options.getFacetOnFields().size());
+		Assert.assertEquals(1, options.getFacetQueries().size());
+		Assert.assertEquals(10, options.getFacetLimit());
+		Assert.assertEquals(1, options.getFacetMinCount());
+		Assert.assertEquals("popularity:[* TO 5]", options.getFacetQueries().get(0).getCriteria().toString());
+	}
+
+	@Test
+	public void testWithMultipleQueryFacets() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnAvailableQuery", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasFacetQueries());
+		Assert.assertFalse(method.hasFilterQuery());
+
+		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
+
+		Assert.assertEquals(0, options.getFacetOnFields().size());
+		Assert.assertEquals(2, options.getFacetQueries().size());
+		Assert.assertEquals(10, options.getFacetLimit());
+		Assert.assertEquals(1, options.getFacetMinCount());
+		Assert.assertEquals("inStock:true", options.getFacetQueries().get(0).getCriteria().toString());
+		Assert.assertEquals("inStock:false", options.getFacetQueries().get(1).getCriteria().toString());
+	}
+
+	@Test
+	public void testWithMultipleQueryFacetsLimitAndMinCount() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnAvailableQueryMinCount3Limit25", String.class);
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasFacetQueries());
+		Assert.assertFalse(method.hasFilterQuery());
+
+		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
+
+		Assert.assertEquals(0, options.getFacetOnFields().size());
+		Assert.assertEquals(2, options.getFacetQueries().size());
+		Assert.assertEquals(25, options.getFacetLimit());
+		Assert.assertEquals(3, options.getFacetMinCount());
+		Assert.assertEquals("inStock:true", options.getFacetQueries().get(0).getCriteria().toString());
+		Assert.assertEquals("inStock:false", options.getFacetQueries().get(1).getCriteria().toString());
 	}
 
 	@Test
@@ -197,6 +259,15 @@ public class SolrQueryMethodTest {
 
 		@Facet(fields = { "popularity", "price" }, minCount = 3, limit = 25)
 		List<ProductBean> findByNameFacetOnPopularityAndPriceMinCount3Limit25(String name);
+
+		@Facet(queries = { "popularity:[* TO 5]" })
+		List<ProductBean> findByNameFacetOnPopularityQuery(String name);
+
+		@Facet(queries = { "inStock:true", "inStock:false" })
+		List<ProductBean> findByNameFacetOnAvailableQuery(String name);
+
+		@Facet(queries = { "inStock:true", "inStock:false" }, minCount = 3, limit = 25)
+		List<ProductBean> findByNameFacetOnAvailableQueryMinCount3Limit25(String name);
 
 		@Query(filters = { "inStock:true" })
 		List<ProductBean> findByNameStringWith(String name);

@@ -35,6 +35,7 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -343,6 +344,28 @@ public class ITestSolrRepositoryOperations {
 		for (FacetFieldEntry entry : availablePage) {
 			Assert.assertEquals("inStock", entry.getField().getName());
 		}
+	}
+
+	@Test
+	public void testFacetOnSingleQuery() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(new PageRequest(0, 10));
+		Assert.assertEquals(0, facetPage.getFacetFields().size());
+		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
+		Assert.assertEquals(1, facets.getContent().size());
+		Assert.assertEquals("popularity:[* TO 3]", facets.getContent().get(0).getValue());
+		Assert.assertEquals(3, facets.getContent().get(0).getValueCount());
+	}
+
+	@Test
+	public void testFacetOnMulipleQueries() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryAvailableTrueAndAvailableFalse(new PageRequest(0, 10));
+		Assert.assertEquals(0, facetPage.getFacetFields().size());
+		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
+		Assert.assertEquals(2, facets.getContent().size());
+		Assert.assertEquals("inStock:true", facets.getContent().get(0).getValue());
+		Assert.assertEquals(3, facets.getContent().get(0).getValueCount());
+		Assert.assertEquals("inStock:false", facets.getContent().get(1).getValue());
+		Assert.assertEquals(1, facets.getContent().get(1).getValueCount());
 	}
 
 	@Test

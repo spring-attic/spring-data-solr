@@ -24,6 +24,8 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.util.ClassTypeInformation;
@@ -89,7 +91,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	public boolean isFacetQuery() {
-		return hasFacetFields();
+		return hasFacetFields() || hasFacetQueries();
 	}
 
 	public boolean hasFacetFields() {
@@ -107,6 +109,17 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotationValuesAsStringList(getFacetAnnotation(), "fields");
 	}
 
+	List<String> getFacetQueries() {
+		return getAnnotationValuesAsStringList(getFacetAnnotation(), "queries");
+	}
+
+	public boolean hasFacetQueries() {
+		if (hasFacetAnnotation()) {
+			return !CollectionUtils.isEmpty(getFacetQueries());
+		}
+		return false;
+	}
+
 	private Annotation getFacetAnnotation() {
 		return this.method.getAnnotation(Facet.class);
 	}
@@ -117,7 +130,14 @@ public class SolrQueryMethod extends QueryMethod {
 		}
 
 		FacetOptions options = new FacetOptions();
-		options.addFacetOnFlieldnames(getFacetFields());
+		if (hasFacetFields()) {
+			options.addFacetOnFlieldnames(getFacetFields());
+		}
+		if (hasFacetQueries()) {
+			for (String queryString : getFacetQueries()) {
+				options.addFacetQuery(new SimpleQuery(new SimpleStringCriteria(queryString)));
+			}
+		}
 		options.setFacetLimit((Integer) AnnotationUtils.getValue(getFacetAnnotation(), "limit"));
 		options.setFacetMinCount((Integer) AnnotationUtils.getValue(getFacetAnnotation(), "minCount"));
 		return options;
