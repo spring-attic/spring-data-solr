@@ -223,11 +223,11 @@ public class QueryParser {
 
 		if (StringUtils.equals(OperationKey.BETWEEN.getKey(), key)) {
 			Object[] args = (Object[]) value;
-			String rangeFragment = ((boolean) args[2]) ? "[" : "{";
+			String rangeFragment = ((Boolean) args[2]).booleanValue() ? "[" : "{";
 			rangeFragment += args[0] != null ? filterCriteriaValue(args[0]) : WILDCARD;
 			rangeFragment += RANGE_OPERATOR;
 			rangeFragment += args[1] != null ? filterCriteriaValue(args[1]) : WILDCARD;
-			rangeFragment += ((boolean) args[3]) ? "]" : "}";
+			rangeFragment += ((Boolean) args[3]).booleanValue() ? "]" : "}";
 			return rangeFragment;
 		}
 
