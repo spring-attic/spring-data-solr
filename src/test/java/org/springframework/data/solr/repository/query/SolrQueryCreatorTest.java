@@ -253,12 +253,26 @@ public class SolrQueryCreatorTest {
 
 		Query query = creator.createQuery();
 
-		Assert.assertEquals("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z]", queryParser.getQueryString(query));
+		Assert.assertEquals("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithLessThanClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByPriceLessThan", Float.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { 100f }), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Assert.assertEquals("price:[* TO 100.0}", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateQueryWithLessThanEqualsClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPriceLessThanEqual", Float.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
@@ -280,12 +294,25 @@ public class SolrQueryCreatorTest {
 				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) }), mappingContext);
 
 		Query query = creator.createQuery();
-		Assert.assertEquals("last_modified:[2012\\-10\\-15T05\\:31\\:00.000Z TO *]", queryParser.getQueryString(query));
+		Assert.assertEquals("last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithGreaterThanClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByPriceGreaterThan", Float.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { 10f }), mappingContext);
+
+		Query query = creator.createQuery();
+		Assert.assertEquals("price:{10.0 TO *]", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateQueryWithGreaterThanEqualsClause() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPriceGreaterThanEqual", Float.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
@@ -393,9 +420,13 @@ public class SolrQueryCreatorTest {
 
 		ProductBean findByPriceLessThan(Float price);
 
+		ProductBean findByPriceLessThanEqual(Float price);
+
 		ProductBean findByLastModifiedAfter(Date date);
 
 		ProductBean findByPriceGreaterThan(Float price);
+
+		ProductBean findByPriceGreaterThanEqual(Float price);
 
 		ProductBean findByPopularityIn(Integer... values);
 

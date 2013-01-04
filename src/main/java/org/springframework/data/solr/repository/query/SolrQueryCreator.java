@@ -110,10 +110,12 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.contains(parameters.next().toString());
 		case AFTER:
 		case GREATER_THAN:
+			return criteria.greaterThan(parameters.next());
 		case GREATER_THAN_EQUAL:
 			return criteria.greaterThanEqual(parameters.next());
 		case BEFORE:
 		case LESS_THAN:
+			return criteria.lessThan(parameters.next());
 		case LESS_THAN_EQUAL:
 			return criteria.lessThanEqual(parameters.next());
 		case BETWEEN:

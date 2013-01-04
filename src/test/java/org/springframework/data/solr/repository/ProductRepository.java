@@ -51,9 +51,13 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByPopularityLessThan(Integer up);
 
+	List<ProductBean> findByPopularityLessThanEqual(Integer up);
+
 	List<ProductBean> findByLastModifiedAfter(Date date);
 
 	List<ProductBean> findByPopularityGreaterThan(Integer low);
+
+	List<ProductBean> findByPopularityGreaterThanEqual(Integer low);
 
 	List<ProductBean> findByNameLike(String name);
 

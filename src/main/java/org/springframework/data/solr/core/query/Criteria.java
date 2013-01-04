@@ -304,11 +304,36 @@ public class Criteria {
 	 * @return
 	 */
 	public Criteria between(Object lowerBound, Object upperBound) {
+		return between(lowerBound, upperBound, true, true);
+	}
+
+	/**
+	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO upperBound]}
+	 * 
+	 * @param lowerBound
+	 * @param upperBound
+	 * @param includeLowerBound
+	 * @param includeUppderBound
+	 * @return
+	 */
+	public Criteria between(Object lowerBound, Object upperBound, boolean includeLowerBound, boolean includeUppderBound) {
 		if (lowerBound == null && upperBound == null) {
 			throw new InvalidDataAccessApiUsageException("Range [* TO *] is not allowed");
 		}
 
-		criteria.add(new CriteriaEntry(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound }));
+		criteria.add(new CriteriaEntry(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound, includeLowerBound,
+				includeUppderBound }));
+		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry for {@code RANGE [* TO upperBound&#125;}
+	 * 
+	 * @param upperBound
+	 * @return
+	 */
+	public Criteria lessThan(Object upperBound) {
+		between(null, upperBound, true, false);
 		return this;
 	}
 
@@ -320,6 +345,17 @@ public class Criteria {
 	 */
 	public Criteria lessThanEqual(Object upperBound) {
 		between(null, upperBound);
+		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry for {@code RANGE &#123;lowerBound TO *]}
+	 * 
+	 * @param lowerBound
+	 * @return
+	 */
+	public Criteria greaterThan(Object lowerBound) {
+		between(lowerBound, null, false, true);
 		return this;
 	}
 

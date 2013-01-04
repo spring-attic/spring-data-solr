@@ -182,6 +182,18 @@ public class QueryParserTest {
 	}
 
 	@Test
+	public void testBetweenExcludeLowerBound() {
+		Criteria criteria = new Criteria("field_1").between(100, 200, false, true);
+		Assert.assertEquals("field_1:{100 TO 200]", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testBetweenExcludeUpperBound() {
+		Criteria criteria = new Criteria("field_1").between(100, 200, true, false);
+		Assert.assertEquals("field_1:[100 TO 200}", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
 	public void testBetweenWithoutUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(100, null);
 		Assert.assertEquals("field_1:[100 TO *]", queryParser.createQueryStringFromCriteria(criteria));

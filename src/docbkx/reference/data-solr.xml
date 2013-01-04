@@ -280,10 +280,21 @@ class ProductService {
 							</row>
 							<row>
 								<entry>
-									<code>LessThanEqual</code>
+									<code>LessThan</code>
 								</entry>
 								<entry>
 									<code>findByPopularityLessThan</code>
+								</entry>
+								<entry>
+									<code>q=popularity:[* TO ?0}</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>LessThanEqual</code>
+								</entry>
+								<entry>
+									<code>findByPopularityLessThanEqual</code>
 								</entry>
 								<entry>
 									<code>q=popularity:[* TO ?0]</code>
@@ -291,10 +302,21 @@ class ProductService {
 							</row>
 							<row>
 								<entry>
-									<code>GreaterThanEqual</code>
+									<code>GreaterThan</code>
 								</entry>
 								<entry>
 									<code>findByPopularityGreaterThan</code>
+								</entry>
+								<entry>
+									<code>q=popularity:{?0 TO *]</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>GreaterThanEqual</code>
+								</entry>
+								<entry>
+									<code>findByPopularityGreaterThanEqual</code>
 								</entry>
 								<entry>
 									<code>q=popularity:[?0 TO *]</code>
@@ -308,7 +330,7 @@ class ProductService {
 									<code>findByLastModifiedBefore</code>
 								</entry>
 								<entry>
-									<code>q=last_modified:[* TO ?0]</code>
+									<code>q=last_modified:[* TO ?0}</code>
 								</entry>
 							</row>
 							<row>
@@ -319,7 +341,7 @@ class ProductService {
 									<code>findByLastModifiedAfter</code>
 								</entry>
 								<entry>
-									<code>q=last_modified:[?0 TO *]</code>
+									<code>q=last_modified:{?0 TO *]</code>
 								</entry>
 							</row>
 							<row>

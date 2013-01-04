@@ -161,9 +161,15 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFindByLessThan() {
-		List<ProductBean> found = repo.findByPopularityLessThan(2);
+		List<ProductBean> found = repo.findByPopularityLessThan(3);
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(UNPOPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByLessThanEqual() {
+		List<ProductBean> found = repo.findByPopularityLessThanEqual(3);
+		Assert.assertEquals(3, found.size());
 	}
 
 	@Test
@@ -184,9 +190,15 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFindByGreaterThan() {
-		List<ProductBean> found = repo.findByPopularityGreaterThan(4);
+		List<ProductBean> found = repo.findByPopularityGreaterThan(3);
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByGreaterThanEqual() {
+		List<ProductBean> found = repo.findByPopularityGreaterThanEqual(3);
+		Assert.assertEquals(3, found.size());
 	}
 
 	@Test
