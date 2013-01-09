@@ -38,6 +38,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
 	private Pageable pageable = DEFAULT_PAGE;
 	private Sort sort;
+	private Operator defaultOperator;
 
 	public SimpleQuery() {
 	}
@@ -188,6 +189,19 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@Override
 	public List<FilterQuery> getFilterQueries() {
 		return Collections.unmodifiableList(this.filterQueries);
+	}
+
+	@Override
+	public Operator getDefaultOperator() {
+		return this.defaultOperator != null ? this.defaultOperator : Operator.NONE;
+	}
+
+	public boolean hasDefaultOperatorDefined() {
+		return !Operator.NONE.equals(getDefaultOperator());
+	}
+
+	public void setDefaultOperator(Operator operator) {
+		this.defaultOperator = operator;
 	}
 
 }

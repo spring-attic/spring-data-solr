@@ -49,6 +49,7 @@ import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.QueryStringHolder;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.SolrDataQuery.Operator;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -125,6 +126,7 @@ public class QueryParser {
 		appendGroupByFields(solrQuery, query.getGroupByFields());
 		appendFilterQuery(solrQuery, query.getFilterQueries());
 		appendSort(solrQuery, query.getSort());
+		appendDefaultOperator(solrQuery, query.getDefaultOperator());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -373,6 +375,12 @@ public class QueryParser {
 		}
 		for (Order order : sort) {
 			solrQuery.addSortField(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
+		}
+	}
+
+	private void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
+		if (defaultOperator != null && !SolrDataQuery.Operator.NONE.equals(defaultOperator)) {
+			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
 		}
 	}
 

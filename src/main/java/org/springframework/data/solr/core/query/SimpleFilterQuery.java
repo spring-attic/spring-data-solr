@@ -29,4 +29,9 @@ public class SimpleFilterQuery extends AbstractQuery implements FilterQuery {
 		super(criteria);
 	}
 
+	@Override
+	public Operator getDefaultOperator() {
+		return Operator.NONE;
+	}
+
 }

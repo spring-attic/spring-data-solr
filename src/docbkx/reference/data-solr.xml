@@ -156,6 +156,23 @@ class ProductService {
 }</programlisting>
 			</example>
 		</section>
+		<section id="solr.transactions">
+			<title>Transaction Support</title>
+			<para>
+				Solr supports transactions on server level means create, updaet, delete actions since the 
+				last commit/optimize/rollback are queued on the server and committed/optimized/rolled back at once.
+				Spring Data Solr Repositories will participate in Spring Managed Transactions and commit/rollback 
+				changes on complete.
+			</para>
+			<example>
+				<programlisting language="java">@Transactional
+public Product save(Product product) {
+  Product savedProduct = jpaRepository.save(product);
+  solrRepository.save(savedProduct);
+  return savedProduct;
+}</programlisting>
+			</example>
+		</section>
 	</section>
 	<section id="solr.query-methods">
 		<title>Query methods</title>

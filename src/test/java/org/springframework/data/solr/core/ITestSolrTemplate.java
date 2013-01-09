@@ -43,6 +43,7 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
+import org.springframework.data.solr.core.query.SolrDataQuery.Operator;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -353,6 +354,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
 			prev = cur;
 		}
+	}
 
+	@Test
+	public void testQueryWithDefaultOperator() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
+			bean.setInStock(i % 2 == 0);
+			values.add(bean);
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("inStock:(true false)"));
+		query.setDefaultOperator(Operator.AND);
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(0, page.getContent().size());
+
+		query.setDefaultOperator(Operator.OR);
+		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(10, page.getContent().size());
 	}
 }

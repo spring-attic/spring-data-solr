@@ -45,6 +45,7 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SolrDataQuery.Operator;
 
 /**
  * @author Christoph Strobl
@@ -542,6 +543,45 @@ public class QueryParserTest {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertEquals("field_1 asc,field_2, field_3 desc", solrQuery.getSortField());
 		Assert.assertEquals(3, solrQuery.getSortFields().length);
+	}
+
+	@Test
+	public void testWithORDefaultOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefaultOperator(Operator.OR);
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("OR", solrQuery.get("q.op"));
+	}
+
+	@Test
+	public void testWithANDDefaultOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefaultOperator(Operator.AND);
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("AND", solrQuery.get("q.op"));
+	}
+
+	@Test
+	public void testWithNONEDefaultOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefaultOperator(Operator.NONE);
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("q.op"));
+	}
+
+	@Test
+	public void testWithoutDefaultOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("q.op"));
+	}
+
+	@Test
+	public void testWithNullDefaultOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefaultOperator(null);
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("q.op"));
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
