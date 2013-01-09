@@ -129,7 +129,7 @@ You can set up repository scanning via xml configuration, which will happily cre
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<solr:repositories base-package="com.acme.repository" />
-	<solr:solr-server id="httpSolrServer" url="http://localhost:8983/solr" />
+	<solr:solr-server id="solrServer" url="http://localhost:8983/solr" />
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrServer" />
