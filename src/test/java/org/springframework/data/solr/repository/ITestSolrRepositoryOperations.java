@@ -399,6 +399,24 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
+	@Test
+	public void testDefaultAndOperator() {
+		List<ProductBean> found = repo.findByAvailableIn(Arrays.asList(Boolean.TRUE));
+		Assert.assertEquals(3, found.size());
+
+		found = repo.findByAvailableIn(Arrays.asList(Boolean.TRUE, Boolean.FALSE));
+		Assert.assertTrue(found.isEmpty());
+	}
+
+	@Test
+	public void testDefaultOrOperator() {
+		List<ProductBean> found = repo.findByAvailableInWithOrOperator(Arrays.asList(Boolean.TRUE));
+		Assert.assertEquals(3, found.size());
+
+		found = repo.findByAvailableInWithOrOperator(Arrays.asList(Boolean.TRUE, Boolean.FALSE));
+		Assert.assertEquals(4, found.size());
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}

@@ -227,6 +227,18 @@ public class SolrQueryMethodTest {
 		Assert.assertEquals(2, method.getFilterQueries().size());
 	}
 
+	@Test
+	public void testWithoutQueryDefaultOperator() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameLike", String.class);
+		Assert.assertEquals(org.springframework.data.solr.core.query.Query.Operator.AND, method.getDefaultOperator());
+	}
+
+	@Test
+	public void testWithQueryDefaultOperator() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameStringWith", String.class);
+		Assert.assertEquals(org.springframework.data.solr.core.query.Query.Operator.NONE, method.getDefaultOperator());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -274,6 +286,9 @@ public class SolrQueryMethodTest {
 
 		@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 5]" })
 		List<ProductBean> findAllFilterAvailableTrueAndPopularityLessThan5(String name);
+
+		@Query(defaultOperator = org.springframework.data.solr.core.query.Query.Operator.AND)
+		List<ProductBean> findByNameLike(String prefix);
 	}
 
 }

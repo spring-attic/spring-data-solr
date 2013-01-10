@@ -154,6 +154,13 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotationValuesAsStringList(getQueryAnnotation(), "filters");
 	}
 
+	public org.springframework.data.solr.core.query.Query.Operator getDefaultOperator() {
+		if (hasQueryAnnotation()) {
+			return getQueryAnnotation().defaultOperator();
+		}
+		return org.springframework.data.solr.core.query.Query.Operator.NONE;
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
 		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);

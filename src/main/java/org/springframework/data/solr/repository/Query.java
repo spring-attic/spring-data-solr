@@ -57,4 +57,11 @@ public @interface Query {
 	 */
 	String[] filters() default "";
 
+	/**
+	 * Specifies the default operator {@code q.op}
+	 * 
+	 * @return
+	 */
+	org.springframework.data.solr.core.query.Query.Operator defaultOperator() default org.springframework.data.solr.core.query.Query.Operator.NONE;
+
 }

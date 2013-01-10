@@ -102,4 +102,41 @@ public interface Query extends SolrDataQuery {
 	 */
 	Sort getSort();
 
+	/**
+	 * Set the default operator {@code q.op} for query expressions
+	 * 
+	 * @return
+	 */
+	void setDefaultOperator(Operator operator);
+
+	/**
+	 * Get the specified default operator for query expressions, overriding the default operator specified in the
+	 * schema.xml file.
+	 * 
+	 * @return
+	 */
+	Operator getDefaultOperator();
+
+	/**
+	 * Operator to be used for {@code q.op}
+	 */
+	enum Operator {
+		AND("AND"), OR("OR"), NONE("");
+
+		private String operator;
+
+		private Operator(String operator) {
+			this.operator = operator;
+		}
+
+		public String asQueryStringRepresentation() {
+			return this.operator;
+		}
+
+		@Override
+		public String toString() {
+			return asQueryStringRepresentation();
+		}
+	}
+
 }

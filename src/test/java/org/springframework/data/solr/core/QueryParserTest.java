@@ -40,12 +40,12 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.SolrDataQuery.Operator;
 
 /**
  * @author Christoph Strobl

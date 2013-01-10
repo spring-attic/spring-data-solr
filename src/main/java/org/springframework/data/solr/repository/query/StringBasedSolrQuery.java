@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -94,6 +95,7 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 		return result;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private String getParameterWithIndex(SolrParameterAccessor accessor, int index) {
 
 		Object parameter = accessor.getBindableValue(index);
@@ -104,6 +106,19 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 
 		if (conversionService.canConvert(parameter.getClass(), String.class)) {
 			return conversionService.convert(parameter, String.class);
+		}
+
+		if (parameter instanceof Collection) {
+			StringBuilder sb = new StringBuilder();
+			for (Object o : (Collection) parameter) {
+				if (conversionService.canConvert(o.getClass(), String.class)) {
+					sb.append(conversionService.convert(o, String.class));
+				} else {
+					sb.append(o.toString());
+				}
+				sb.append(" ");
+			}
+			return sb.toString().trim();
 		}
 
 		return parameter.toString();

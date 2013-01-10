@@ -47,9 +47,9 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryStringHolder;
 import org.springframework.data.solr.core.query.SolrDataQuery;
-import org.springframework.data.solr.core.query.SolrDataQuery.Operator;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -379,7 +379,7 @@ public class QueryParser {
 	}
 
 	private void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
-		if (defaultOperator != null && !SolrDataQuery.Operator.NONE.equals(defaultOperator)) {
+		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
 			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
 		}
 	}

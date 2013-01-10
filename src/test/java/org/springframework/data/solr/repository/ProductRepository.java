@@ -109,4 +109,10 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
 	List<ProductBean> findAllFilterAvailableTrueAndPopularityLessThanEqual3();
 
+	@Query(defaultOperator = org.springframework.data.solr.core.query.Query.Operator.AND)
+	List<ProductBean> findByAvailableIn(List<Boolean> values);
+
+	@Query(value = "inStock:(?0)", defaultOperator = org.springframework.data.solr.core.query.Query.Operator.OR)
+	List<ProductBean> findByAvailableInWithOrOperator(List<Boolean> values);
+
 }
