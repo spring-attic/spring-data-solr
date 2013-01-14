@@ -36,6 +36,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -206,9 +207,11 @@ public class QueryParser {
 
 	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
 		for (CriteriaEntry entry : chainedCriterias) {
-			if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
+			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
 				return true;
-			}
+			} else if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
+
+            }
 		}
 		return false;
 	}
@@ -246,11 +249,12 @@ public class QueryParser {
         if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
             String nearFragment;
             Object[] args = (Object[]) value;
-            if(args[1] instanceof GeoLocation) {
+            if(args[0] instanceof BoundingBox) {
+                BoundingBox box = (BoundingBox) args[0];
                 nearFragment = fieldName + ":[";
-                nearFragment += filterCriteriaValue(args[0]);
+                nearFragment += filterCriteriaValue(box.getGeoLocationStart());
                 nearFragment += " TO ";
-                nearFragment += filterCriteriaValue(args[1]);
+                nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
                 nearFragment += "]";
             } else {
                 nearFragment = "{!bbox pt=";
