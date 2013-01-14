@@ -420,6 +420,16 @@ public class Criteria {
 		return this;
 	}
 
+    public Criteria within(GeoLocation location, Distance distance) {
+        Assert.notNull(location);
+        if (distance != null && distance.getValue() < 0) {
+            throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+        }
+        criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
+                distance != null ? distance : new Distance(0) }));
+        return this;
+    }
+
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
 			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
@@ -492,7 +502,7 @@ public class Criteria {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near");
+				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within");
 
 		private final String key;
 

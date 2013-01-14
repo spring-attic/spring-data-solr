@@ -234,7 +234,7 @@ public class QueryParser {
 		}
 
 		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
-			String nearFragment = "{!geofilt pt=";
+			String nearFragment = "{!bbox pt=";
 			Object[] args = (Object[]) value;
 			nearFragment += filterCriteriaValue(args[0]);
 			nearFragment += " sfield=" + fieldName;
@@ -242,6 +242,16 @@ public class QueryParser {
 			nearFragment += "}";
 			return nearFragment;
 		}
+
+        if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
+            String nearFragment = "{!bbox pt=";
+            Object[] args = (Object[]) value;
+            nearFragment += filterCriteriaValue(args[0]);
+            nearFragment += " sfield=" + fieldName;
+            nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
+            nearFragment += "}";
+            return nearFragment;
+        }
 
 		Object filteredValue = filterCriteriaValue(value);
 		if (StringUtils.equals(OperationKey.CONTAINS.getKey(), key)) {
