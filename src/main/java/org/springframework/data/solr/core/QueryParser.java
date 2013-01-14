@@ -233,7 +233,7 @@ public class QueryParser {
 			return rangeFragment;
 		}
 
-		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
+		if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
 			String nearFragment = "{!bbox pt=";
 			Object[] args = (Object[]) value;
 			nearFragment += filterCriteriaValue(args[0]);
@@ -243,7 +243,7 @@ public class QueryParser {
 			return nearFragment;
 		}
 
-        if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
+        if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
             String nearFragment = "{!bbox pt=";
             Object[] args = (Object[]) value;
             nearFragment += filterCriteriaValue(args[0]);
