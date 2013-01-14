@@ -422,8 +422,7 @@ public class Criteria {
 	}
 
     public Criteria near(BoundingBox box) {
-        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { box.getGeoLocationStart(),
-                box.getGeoLocationEnd()}));
+        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] {box}));
         return this;
     }
 
