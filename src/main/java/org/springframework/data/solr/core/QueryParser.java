@@ -247,11 +247,11 @@ public class QueryParser {
             String nearFragment;
             Object[] args = (Object[]) value;
             if(args[1] instanceof GeoLocation) {
-               nearFragment = fieldName + ":[";
-               nearFragment += filterCriteriaValue(args[0]);
-               nearFragment += " TO ";
-               nearFragment += filterCriteriaValue(args[1]);
-               nearFragment += "]";
+                nearFragment = fieldName + ":[";
+                nearFragment += filterCriteriaValue(args[0]);
+                nearFragment += " TO ";
+                nearFragment += filterCriteriaValue(args[1]);
+                nearFragment += "]";
             } else {
                 nearFragment = "{!bbox pt=";
                 nearFragment += filterCriteriaValue(args[0]);
