@@ -430,6 +430,14 @@ public class Criteria {
         return this;
     }
 
+    public Criteria within(GeoLocation location, GeoLocation location2) {
+        Assert.notNull(location);
+        Assert.notNull(location2);
+        criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
+                location2}));
+        return this;
+    }
+
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
 			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
