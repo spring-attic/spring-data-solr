@@ -251,7 +251,7 @@ public class QueryParser {
             Object[] args = (Object[]) value;
             if(args[0] instanceof BoundingBox) {
                 BoundingBox box = (BoundingBox) args[0];
-                nearFragment = fieldName + ":[";
+                nearFragment = "[";
                 nearFragment += filterCriteriaValue(box.getGeoLocationStart());
                 nearFragment += " TO ";
                 nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
