@@ -234,7 +234,7 @@ public class QueryParser {
 		}
 
 		if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
-			String nearFragment = "{!bbox pt=";
+			String nearFragment = "{!geofilt pt=";
 			Object[] args = (Object[]) value;
 			nearFragment += filterCriteriaValue(args[0]);
 			nearFragment += " sfield=" + fieldName;
