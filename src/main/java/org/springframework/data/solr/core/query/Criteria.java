@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.util.Assert;
@@ -410,33 +411,33 @@ public class Criteria {
 	 * @param distance
 	 * @return
 	 */
-	public Criteria near(GeoLocation location, Distance distance) {
+	public Criteria within(GeoLocation location, Distance distance) {
 		Assert.notNull(location);
 		if (distance != null && distance.getValue() < 0) {
 			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
 		}
-		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
+		criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
-    public Criteria within(GeoLocation location, Distance distance) {
+    public Criteria near(BoundingBox box) {
+        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { box.getGeoLocationStart(),
+                box.getGeoLocationEnd()}));
+        return this;
+    }
+
+    public Criteria near(GeoLocation location, Distance distance) {
         Assert.notNull(location);
         if (distance != null && distance.getValue() < 0) {
             throw new InvalidDataAccessApiUsageException("distance must not be negative.");
         }
-        criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
+        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
                 distance != null ? distance : new Distance(0) }));
         return this;
     }
 
-    public Criteria within(GeoLocation location, GeoLocation location2) {
-        Assert.notNull(location);
-        Assert.notNull(location2);
-        criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
-                location2}));
-        return this;
-    }
+
 
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {

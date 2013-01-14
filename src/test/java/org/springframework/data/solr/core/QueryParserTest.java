@@ -33,6 +33,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -276,7 +277,7 @@ public class QueryParserTest {
 	public void testNearWithDistanceUnitMiles() {
 		Criteria criteria = new Criteria("field_1")
 				.near(new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES));
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
@@ -284,14 +285,37 @@ public class QueryParserTest {
 	public void testNearWithDistanceUnitKilometers() {
 		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(1,
 				Unit.KILOMETERS));
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.0}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
+    @Test
+    public void testNearWithCoords() {
+        Criteria criteria = new Criteria("field_1").near(new BoundingBox(new GeoLocation(48.303056, 14.290556), new GeoLocation(48.303056, 14.290556)));
+        Assert.assertEquals("{field_1:[48.303056,14.290556 TO 48.303056,14.290556]}",
+                queryParser.createQueryStringFromCriteria(criteria));
+    }
+
+    @Test
+    public void testWithinWithDistanceUnitMiles() {
+        Criteria criteria = new Criteria("field_1")
+                .within(new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES));
+        Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
+                queryParser.createQueryStringFromCriteria(criteria));
+    }
+
+    @Test
+    public void testWithinWithDistanceUnitKilometers() {
+        Criteria criteria = new Criteria("field_1").within(new GeoLocation(48.303056, 14.290556), new Distance(1,
+                Unit.KILOMETERS));
+        Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+                queryParser.createQueryStringFromCriteria(criteria));
+    }
+
 	@Test
-	public void testNearWithNullDistance() {
-		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), null);
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}",
+	public void testWithinWithNullDistance() {
+		Criteria criteria = new Criteria("field_1").within(new GeoLocation(48.303056, 14.290556), null);
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=0.0}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
