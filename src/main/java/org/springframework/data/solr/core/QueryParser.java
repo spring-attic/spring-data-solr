@@ -210,7 +210,7 @@ public class QueryParser {
 			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
 				return true;
 			} else if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
-
+                return true;
             }
 		}
 		return false;
@@ -251,7 +251,7 @@ public class QueryParser {
             Object[] args = (Object[]) value;
             if(args[0] instanceof BoundingBox) {
                 BoundingBox box = (BoundingBox) args[0];
-                nearFragment = "[";
+                nearFragment = fieldName +":[";
                 nearFragment += filterCriteriaValue(box.getGeoLocationStart());
                 nearFragment += " TO ";
                 nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
