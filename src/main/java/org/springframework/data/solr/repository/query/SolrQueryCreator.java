@@ -34,7 +34,6 @@ import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
-import sun.security.x509.CertAttrSet;
 
 /**
  * Solr specific implmentation of an {@link AbstractQueryCreator} that constructs {@link Query}
