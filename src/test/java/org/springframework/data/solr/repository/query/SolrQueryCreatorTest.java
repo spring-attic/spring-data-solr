@@ -31,6 +31,7 @@ import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.QueryParser;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -376,6 +377,20 @@ public class SolrQueryCreatorTest {
 	}
 
 	@Test
+	public void testCreateQueryWithNearUsingBoundingBox() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationNear", BoundingBox.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree,
+				new SolrParametersParameterAccessor(queryMethod, new Object[] { new BoundingBox(new GeoLocation(48.303056,
+						14.290556), new GeoLocation(48.306377, 14.283128)) }), mappingContext);
+
+		Query query = creator.createQuery();
+		Assert.assertEquals("store:[48.303056,14.290556 TO 48.306377,14.283128]", queryParser.getQueryString(query));
+	}
+
+	@Test
 	public void testCreateQueryWithSortDesc() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByPopularityOrderByTitleDesc", Integer.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
@@ -435,6 +450,8 @@ public class SolrQueryCreatorTest {
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
 
 		ProductBean findByLocationNear(GeoLocation location, Distance distance);
+
+		ProductBean findByLocationNear(BoundingBox bbox);
 
 	}
 

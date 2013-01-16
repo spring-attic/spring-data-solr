@@ -211,8 +211,8 @@ public class QueryParser {
 			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
 				return true;
 			} else if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
-                return true;
-            }
+				return true;
+			}
 		}
 		return false;
 	}
@@ -240,32 +240,32 @@ public class QueryParser {
 		if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
 			String withinFragment = "{!geofilt pt=";
 			Object[] args = (Object[]) value;
-            withinFragment += filterCriteriaValue(args[0]);
-            withinFragment += " sfield=" + fieldName;
-            withinFragment += " d=" + filterCriteriaValue((Distance) args[1]);
-            withinFragment += "}";
+			withinFragment += filterCriteriaValue(args[0]);
+			withinFragment += " sfield=" + fieldName;
+			withinFragment += " d=" + filterCriteriaValue((Distance) args[1]);
+			withinFragment += "}";
 			return withinFragment;
 		}
 
-        if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
-            String nearFragment;
-            Object[] args = (Object[]) value;
-            if(args[0] instanceof BoundingBox) {
-                BoundingBox box = (BoundingBox) args[0];
-                nearFragment = fieldName +":[";
-                nearFragment += filterCriteriaValue(box.getGeoLocationStart());
-                nearFragment += " TO ";
-                nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
-                nearFragment += "]";
-            } else {
-                nearFragment = "{!bbox pt=";
-                nearFragment += filterCriteriaValue(args[0]);
-                nearFragment += " sfield=" + fieldName;
-                nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
-                nearFragment += "}";
-            }
-            return nearFragment;
-        }
+		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
+			String nearFragment;
+			Object[] args = (Object[]) value;
+			if (args[0] instanceof BoundingBox) {
+				BoundingBox box = (BoundingBox) args[0];
+				nearFragment = fieldName + ":[";
+				nearFragment += filterCriteriaValue(box.getGeoLocationStart());
+				nearFragment += RANGE_OPERATOR;
+				nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
+				nearFragment += "]";
+			} else {
+				nearFragment = "{!bbox pt=";
+				nearFragment += filterCriteriaValue(args[0]);
+				nearFragment += " sfield=" + fieldName;
+				nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
+				nearFragment += "}";
+			}
+			return nearFragment;
+		}
 
 		Object filteredValue = filterCriteriaValue(value);
 		if (StringUtils.equals(OperationKey.CONTAINS.getKey(), key)) {

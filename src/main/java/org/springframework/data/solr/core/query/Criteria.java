@@ -413,41 +413,44 @@ public class Criteria {
 	 */
 	public Criteria within(GeoLocation location, Distance distance) {
 		Assert.notNull(location);
-		if (distance != null && distance.getValue() < 0) {
-			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
-		}
+		assertPositiveDistanceValue(distance);
 		criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
-    /**
-     * Creates new CriteriaEntriy for {@code !bbox} with exact coordinates
-     * @param box
-     * @return
-     */
-    public Criteria near(BoundingBox box) {
-        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] {box}));
-        return this;
-    }
+	/**
+	 * Creates new CriteriaEntriy for {@code !bbox} with exact coordinates
+	 * 
+	 * @param box
+	 * @return
+	 */
+	public Criteria near(BoundingBox box) {
+		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { box }));
+		return this;
+	}
 
-    /**
-     * Creates new CriteriaEntry for {@code !bbox} for a specified distance.  The difference between this and {@code within} is this is approximate while {@code within} is exact.
-     * @param location
-     * @param distance
-     * @return
-     */
-    public Criteria near(GeoLocation location, Distance distance) {
-        Assert.notNull(location);
-        if (distance != null && distance.getValue() < 0) {
-            throw new InvalidDataAccessApiUsageException("distance must not be negative.");
-        }
-        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
-                distance != null ? distance : new Distance(0) }));
-        return this;
-    }
+	/**
+	 * Creates new CriteriaEntry for {@code !bbox} for a specified distance. The difference between this and
+	 * {@code within} is this is approximate while {@code within} is exact.
+	 * 
+	 * @param location
+	 * @param distance
+	 * @return
+	 */
+	public Criteria near(GeoLocation location, Distance distance) {
+		Assert.notNull(location);
+		assertPositiveDistanceValue(distance);
+		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
+				distance != null ? distance : new Distance(0) }));
+		return this;
+	}
 
-
+	private void assertPositiveDistanceValue(Distance distance) {
+		if (distance != null && distance.getValue() < 0) {
+			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+		}
+	}
 
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {

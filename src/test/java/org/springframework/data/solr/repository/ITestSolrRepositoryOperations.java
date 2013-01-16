@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.SimpleField;
@@ -251,6 +252,22 @@ public class ITestSolrRepositoryOperations {
 		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
 		List<ProductBean> found = repo.findByLocationNear(new GeoLocation(45.15, -93.85), new Distance(5));
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByNearWithBoundingBox() {
+		ProductBean locatedInBuffalow = createProductBean("100", 5, true);
+		locatedInBuffalow.setLocation("45.17614,-93.87341");
+
+		ProductBean locatedInNYC = createProductBean("200", 5, true);
+		locatedInNYC.setLocation("40.7143,-74.006");
+
+		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
+
+		List<ProductBean> found = repo.findByLocationNear(new BoundingBox(new GeoLocation(45, -94),
+				new GeoLocation(46, -93)));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}

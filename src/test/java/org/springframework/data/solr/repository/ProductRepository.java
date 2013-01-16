@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.result.FacetPage;
@@ -78,6 +79,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByPopularityOrAvailableFalse(Integer popularity);
 
 	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
+
+	List<ProductBean> findByLocationNear(BoundingBox bbox);
 
 	List<ProductBean> findByAvailableTrueOrderByNameDesc();
 
