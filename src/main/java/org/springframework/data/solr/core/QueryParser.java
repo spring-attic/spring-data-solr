@@ -63,6 +63,7 @@ import org.springframework.util.CollectionUtils;
  * </code>
  * 
  * @author Christoph Strobl
+ * @author John Dorman
  */
 public class QueryParser {
 

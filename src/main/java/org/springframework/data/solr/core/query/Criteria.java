@@ -421,11 +421,22 @@ public class Criteria {
 		return this;
 	}
 
+    /**
+     * Creates new CriteriaEntriy for {@code !bbox} with exact coordinates
+     * @param box
+     * @return
+     */
     public Criteria near(BoundingBox box) {
         criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] {box}));
         return this;
     }
 
+    /**
+     * Creates new CriteriaEntry for {@code !bbox} for a specified distance.  The difference between this and {@code within} is this is approximate while {@code within} is exact.
+     * @param location
+     * @param distance
+     * @return
+     */
     public Criteria near(GeoLocation location, Distance distance) {
         Assert.notNull(location);
         if (distance != null && distance.getValue() < 0) {

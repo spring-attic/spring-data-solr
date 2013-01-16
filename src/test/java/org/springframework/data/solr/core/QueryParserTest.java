@@ -50,6 +50,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 
 /**
  * @author Christoph Strobl
+ * @author John Dorman
  */
 public class QueryParserTest {
 
@@ -269,7 +270,7 @@ public class QueryParserTest {
 	@Test
 	public void testNear() {
 		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(5));
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=5.0}",
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=5.0}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
@@ -292,7 +293,7 @@ public class QueryParserTest {
     @Test
     public void testNearWithCoords() {
         Criteria criteria = new Criteria("field_1").near(new BoundingBox(new GeoLocation(48.303056, 14.290556), new GeoLocation(48.303056, 14.290556)));
-        Assert.assertEquals("{field_1:[48.303056,14.290556 TO 48.303056,14.290556]}",
+        Assert.assertEquals("field_1:[48.303056,14.290556 TO 48.303056,14.290556]",
                 queryParser.createQueryStringFromCriteria(criteria));
     }
 
@@ -315,7 +316,7 @@ public class QueryParserTest {
 	@Test
 	public void testWithinWithNullDistance() {
 		Criteria criteria = new Criteria("field_1").within(new GeoLocation(48.303056, 14.290556), null);
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=0.0}",
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
