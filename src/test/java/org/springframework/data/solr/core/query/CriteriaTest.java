@@ -32,6 +32,7 @@ import org.springframework.data.solr.core.query.Criteria.OperationKey;
 
 /**
  * @author Christoph Strobl
+ * @author John Dorman
  */
 public class CriteriaTest {
 
@@ -343,7 +344,6 @@ public class CriteriaTest {
 		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
 	}
 
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testNearWithNullLocation() {
 		new Criteria("field_1").near(null, new Distance(5));
@@ -354,20 +354,20 @@ public class CriteriaTest {
 		new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(-1));
 	}
 
-    @Test
-    public void testWithin() {
-        GeoLocation location = new GeoLocation(48.303056, 14.290556);
-        Criteria criteria = new Criteria("field_1").within(location, new Distance(5));
-        CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
-        Assert.assertEquals(OperationKey.WITHIN.getKey(), entry.getKey());
-        Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
-        Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
-    }
+	@Test
+	public void testWithin() {
+		GeoLocation location = new GeoLocation(48.303056, 14.290556);
+		Criteria criteria = new Criteria("field_1").within(location, new Distance(5));
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.WITHIN.getKey(), entry.getKey());
+		Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
+		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWithinWithNullLocation() {
-        new Criteria("field_1").within(null, new Distance(5));
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testWithinWithNullLocation() {
+		new Criteria("field_1").within(null, new Distance(5));
+	}
 
 	private void assertCriteriaEntry(Set<CriteriaEntry> entries, int position, OperationKey expectedKey,
 			Object expectedValue) {

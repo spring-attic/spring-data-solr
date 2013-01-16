@@ -248,7 +248,7 @@ public Product save(Product product) {
 									<code>findByNameAndPopularity</code>
 								</entry>
 								<entry>
-									<code>q=name:?0 AND popularity:?1</code>
+									<code>q=name:?1 AND popularity:?2</code>
 								</entry>
 							</row>
 							<row>
@@ -259,7 +259,7 @@ public Product save(Product product) {
 									<code>findByNameOrPopularity</code>
 								</entry>
 								<entry>
-									<code>q=name:?0 OR popularity:?1</code>
+									<code>q=name:?1 OR popularity:?2</code>
 								</entry>
 							</row>
 							<row>
@@ -270,7 +270,7 @@ public Product save(Product product) {
 									<code>findByName</code>
 								</entry>
 								<entry>
-									<code>q=name:?0</code>
+									<code>q=name:?1</code>
 								</entry>
 							</row>
 							<row>
@@ -281,7 +281,7 @@ public Product save(Product product) {
 									<code>findByNameNot</code>
 								</entry>
 								<entry>
-									<code>q=-name:?0</code>
+									<code>q=-name:?1</code>
 								</entry>
 							</row>
 							<row>
@@ -292,7 +292,7 @@ public Product save(Product product) {
 									<code>findByPopularityBetween</code>
 								</entry>
 								<entry>
-									<code>q=popularity:[?0 TO ?1]</code>
+									<code>q=popularity:[?1 TO ?2]</code>
 								</entry>
 							</row>
 							<row>
@@ -303,7 +303,7 @@ public Product save(Product product) {
 									<code>findByPopularityLessThan</code>
 								</entry>
 								<entry>
-									<code>q=popularity:[* TO ?0}</code>
+									<code>q=popularity:[* TO ?1}</code>
 								</entry>
 							</row>
 							<row>
@@ -314,7 +314,7 @@ public Product save(Product product) {
 									<code>findByPopularityLessThanEqual</code>
 								</entry>
 								<entry>
-									<code>q=popularity:[* TO ?0]</code>
+									<code>q=popularity:[* TO ?1]</code>
 								</entry>
 							</row>
 							<row>
@@ -325,7 +325,7 @@ public Product save(Product product) {
 									<code>findByPopularityGreaterThan</code>
 								</entry>
 								<entry>
-									<code>q=popularity:{?0 TO *]</code>
+									<code>q=popularity:{?1 TO *]</code>
 								</entry>
 							</row>
 							<row>
@@ -336,7 +336,7 @@ public Product save(Product product) {
 									<code>findByPopularityGreaterThanEqual</code>
 								</entry>
 								<entry>
-									<code>q=popularity:[?0 TO *]</code>
+									<code>q=popularity:[?1 TO *]</code>
 								</entry>
 							</row>
 							<row>
@@ -347,7 +347,7 @@ public Product save(Product product) {
 									<code>findByLastModifiedBefore</code>
 								</entry>
 								<entry>
-									<code>q=last_modified:[* TO ?0}</code>
+									<code>q=last_modified:[* TO ?1}</code>
 								</entry>
 							</row>
 							<row>
@@ -358,7 +358,7 @@ public Product save(Product product) {
 									<code>findByLastModifiedAfter</code>
 								</entry>
 								<entry>
-									<code>q=last_modified:{?0 TO *]</code>
+									<code>q=last_modified:{?1 TO *]</code>
 								</entry>
 							</row>
 							<row>
@@ -369,7 +369,7 @@ public Product save(Product product) {
 									<code>findByNameLike</code>
 								</entry>
 								<entry>
-									<code>q=name:?0*</code>
+									<code>q=name:?1*</code>
 								</entry>
 							</row>
 							<row>
@@ -380,7 +380,7 @@ public Product save(Product product) {
 									<code>findByNameNotLike</code>
 								</entry>
 								<entry>
-									<code>q=-name:?0*</code>
+									<code>q=-name:?1*</code>
 								</entry>
 							</row>
 							<row>
@@ -391,7 +391,7 @@ public Product save(Product product) {
 									<code>findByNameStartingWith</code>
 								</entry>
 								<entry>
-									<code>q=name:?0*</code>
+									<code>q=name:?1*</code>
 								</entry>
 							</row>
 							<row>
@@ -402,7 +402,7 @@ public Product save(Product product) {
 									<code>findByNameEndingWith</code>
 								</entry>
 								<entry>
-									<code>q=name:*?0</code>
+									<code>q=name:*?1</code>
 								</entry>
 							</row>
 							<row>
@@ -413,7 +413,7 @@ public Product save(Product product) {
 									<code>findByNameContaining</code>
 								</entry>
 								<entry>
-									<code>q=name:*?0*</code>
+									<code>q=name:*?1*</code>
 								</entry>
 							</row>
 							<row>
@@ -426,7 +426,7 @@ public Product save(Product product) {
 									</code>
 								</entry>
 								<entry>
-									<code>q=name:(?0... )</code>
+									<code>q=name:(?1... )</code>
 								</entry>
 							</row>
 							<row>
@@ -439,7 +439,7 @@ public Product save(Product product) {
 									</code>
 								</entry>
 								<entry>
-									<code>q=-name:(?0... )</code>
+									<code>q=-name:(?1... )</code>
 								</entry>
 							</row>
 							<row>
@@ -447,11 +447,24 @@ public Product save(Product product) {
 									<code>Near</code>
 								</entry>
 								<entry>
-									<code>findByStoreNear</code>
+									<code>findByStoreNear(GeoLocation, Distance)</code>
 								</entry>
 								<entry>
-									<code>q={!geofilt pt=?0.latitude,?0.longitude sfield=store
-										d=?1}
+									<code>q={!geofilt pt=?1.latitude,?1.longitude sfield=store
+										d=?2}
+									</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>Near</code>
+								</entry>
+								<entry>
+									<code>findByStoreNear(BoundingBox)</code>
+								</entry>
+								<entry>
+									<code>q=store[?1.start.latitude,?1.start.longitude TO
+									   ?1.end.latitude,?1.end.longitude]
 									</code>
 								</entry>
 							</row>

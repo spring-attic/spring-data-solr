@@ -197,7 +197,6 @@ public class SimpleQueryTest {
 		Assert.assertEquals(1, destination.getProjectionOnFields().size());
 	}
 
-
 	@Test
 	public void testCloneQueryWithGroupBy() {
 		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
