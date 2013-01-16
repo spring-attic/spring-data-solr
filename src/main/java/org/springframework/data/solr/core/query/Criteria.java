@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.util.Assert;
@@ -410,15 +411,43 @@ public class Criteria {
 	 * @param distance
 	 * @return
 	 */
-	public Criteria near(GeoLocation location, Distance distance) {
+	public Criteria within(GeoLocation location, Distance distance) {
 		Assert.notNull(location);
 		if (distance != null && distance.getValue() < 0) {
 			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
 		}
-		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
+		criteria.add(new CriteriaEntry(OperationKey.WITHIN, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
 		return this;
 	}
+
+    /**
+     * Creates new CriteriaEntriy for {@code !bbox} with exact coordinates
+     * @param box
+     * @return
+     */
+    public Criteria near(BoundingBox box) {
+        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] {box}));
+        return this;
+    }
+
+    /**
+     * Creates new CriteriaEntry for {@code !bbox} for a specified distance.  The difference between this and {@code within} is this is approximate while {@code within} is exact.
+     * @param location
+     * @param distance
+     * @return
+     */
+    public Criteria near(GeoLocation location, Distance distance) {
+        Assert.notNull(location);
+        if (distance != null && distance.getValue() < 0) {
+            throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+        }
+        criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
+                distance != null ? distance : new Distance(0) }));
+        return this;
+    }
+
+
 
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
@@ -492,7 +521,7 @@ public class Criteria {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near");
+				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within");
 
 		private final String key;
 
