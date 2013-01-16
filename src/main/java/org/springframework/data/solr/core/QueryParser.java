@@ -230,21 +230,14 @@ public class QueryParser {
 		if (StringUtils.equals(OperationKey.BETWEEN.getKey(), key)) {
 			Object[] args = (Object[]) value;
 			String rangeFragment = ((Boolean) args[2]).booleanValue() ? "[" : "{";
-			rangeFragment += args[0] != null ? filterCriteriaValue(args[0]) : WILDCARD;
-			rangeFragment += RANGE_OPERATOR;
-			rangeFragment += args[1] != null ? filterCriteriaValue(args[1]) : WILDCARD;
+			rangeFragment += createRangeFragment(args[0], args[1]);
 			rangeFragment += ((Boolean) args[3]).booleanValue() ? "]" : "}";
 			return rangeFragment;
 		}
 
 		if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
-			String withinFragment = "{!geofilt pt=";
 			Object[] args = (Object[]) value;
-			withinFragment += filterCriteriaValue(args[0]);
-			withinFragment += " sfield=" + fieldName;
-			withinFragment += " d=" + filterCriteriaValue((Distance) args[1]);
-			withinFragment += "}";
-			return withinFragment;
+			return createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1], "geofilt");
 		}
 
 		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
@@ -253,16 +246,10 @@ public class QueryParser {
 			if (args[0] instanceof BoundingBox) {
 				BoundingBox box = (BoundingBox) args[0];
 				nearFragment = fieldName + ":[";
-				nearFragment += filterCriteriaValue(box.getGeoLocationStart());
-				nearFragment += RANGE_OPERATOR;
-				nearFragment += filterCriteriaValue(box.getGeoLocationEnd());
+				nearFragment += createRangeFragment(box.getGeoLocationStart(), box.getGeoLocationEnd());
 				nearFragment += "]";
 			} else {
-				nearFragment = "{!bbox pt=";
-				nearFragment += filterCriteriaValue(args[0]);
-				nearFragment += " sfield=" + fieldName;
-				nearFragment += " d=" + filterCriteriaValue((Distance) args[1]);
-				nearFragment += "}";
+				nearFragment = createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1], "bbox");
 			}
 			return nearFragment;
 		}
@@ -310,6 +297,24 @@ public class QueryParser {
 			return DOUBLEQUOTE + criteriaValue + DOUBLEQUOTE;
 		}
 		return criteriaValue;
+	}
+
+	private String createRangeFragment(Object rangeStart, Object rangeEnd) {
+		String rangeFragment = "";
+		rangeFragment += (rangeStart != null ? filterCriteriaValue(rangeStart) : WILDCARD);
+		rangeFragment += RANGE_OPERATOR;
+		rangeFragment += (rangeEnd != null ? filterCriteriaValue(rangeEnd) : WILDCARD);
+		return rangeFragment;
+	}
+
+	private String createSpatialFunctionFragment(String fieldName, GeoLocation location, Distance distance,
+			String function) {
+		String spatialFragment = "{!" + function + " pt=";
+		spatialFragment += filterCriteriaValue(location);
+		spatialFragment += " sfield=" + fieldName;
+		spatialFragment += " d=" + filterCriteriaValue(distance);
+		spatialFragment += "}";
+		return spatialFragment;
 	}
 
 	private void appendPagination(SolrQuery query, Pageable pageable) {

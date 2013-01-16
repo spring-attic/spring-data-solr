@@ -28,6 +28,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 
 /**
  * @author Christoph Strobl
+ * @author John Dorman
  */
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
@@ -77,6 +78,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
 
 	List<ProductBean> findByPopularityOrAvailableFalse(Integer popularity);
+
+	List<ProductBean> findByLocationWithin(GeoLocation location, Distance distance);
 
 	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
 

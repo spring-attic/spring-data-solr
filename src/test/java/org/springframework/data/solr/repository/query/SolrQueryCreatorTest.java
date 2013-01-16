@@ -42,6 +42,7 @@ import org.springframework.data.solr.repository.ProductBean;
 
 /**
  * @author Christoph Strobl
+ * @author John Dorman
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryCreatorTest {
@@ -360,12 +361,38 @@ public class SolrQueryCreatorTest {
 				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }), mappingContext);
 
 		Query query = creator.createQuery();
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithNearWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES) }), mappingContext);
+
+		Query query = creator.createQuery();
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateQueryWithWithin() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }), mappingContext);
+
+		Query query = creator.createQuery();
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateQueryWithWithinWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
@@ -448,6 +475,8 @@ public class SolrQueryCreatorTest {
 		ProductBean findByPopularityNotIn(Integer... values);
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
+
+		ProductBean findByLocationWithin(GeoLocation location, Distance distance);
 
 		ProductBean findByLocationNear(GeoLocation location, Distance distance);
 
