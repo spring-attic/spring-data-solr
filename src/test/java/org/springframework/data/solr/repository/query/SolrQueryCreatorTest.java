@@ -360,7 +360,7 @@ public class SolrQueryCreatorTest {
 				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }), mappingContext);
 
 		Query query = creator.createQuery();
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
@@ -373,8 +373,34 @@ public class SolrQueryCreatorTest {
 				new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES) }), mappingContext);
 
 		Query query = creator.createQuery();
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
+
+    @Test
+    public void testCreateQueryWithWithin() throws NoSuchMethodException, SecurityException {
+        Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
+        PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+        SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+        SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+                new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }), mappingContext);
+
+        Query query = creator.createQuery();
+        Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
+    }
+
+    @Test
+    public void testCreateQueryWithWithinWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
+        Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
+        PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+        SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+        SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+                new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Unit.MILES) }), mappingContext);
+
+        Query query = creator.createQuery();
+        Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
+    }
 
 	@Test
 	public void testCreateQueryWithNearUsingBoundingBox() throws NoSuchMethodException, SecurityException {
@@ -449,7 +475,9 @@ public class SolrQueryCreatorTest {
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
 
-		ProductBean findByLocationNear(GeoLocation location, Distance distance);
+		ProductBean findByLocationWithin(GeoLocation location, Distance distance);
+
+        ProductBean findByLocationNear(GeoLocation location, Distance distance);
 
 		ProductBean findByLocationNear(BoundingBox bbox);
 

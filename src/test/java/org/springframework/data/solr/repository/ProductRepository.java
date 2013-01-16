@@ -78,6 +78,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByPopularityOrAvailableFalse(Integer popularity);
 
+	List<ProductBean> findByLocationWithin(GeoLocation location, Distance distance);
+
 	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
 
 	List<ProductBean> findByLocationNear(BoundingBox bbox);

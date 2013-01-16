@@ -444,10 +444,10 @@ public Product save(Product product) {
 							</row>
 							<row>
 								<entry>
-									<code>Near</code>
+									<code>Within</code>
 								</entry>
 								<entry>
-									<code>findByStoreNear(GeoLocation, Distance)</code>
+									<code>findByStoreWithin(GeoLocation, Distance)</code>
 								</entry>
 								<entry>
 									<code>q={!geofilt pt=?1.latitude,?1.longitude sfield=store
@@ -455,7 +455,21 @@ public Product save(Product product) {
 									</code>
 								</entry>
 							</row>
-							<row>
+                            <row>
+                                <entry>
+                                    <code>Near</code>
+                                </entry>
+                                <entry>
+                                    <code>findByStoreNear(GeoLocation, Distance)</code>
+                                </entry>
+                                <entry>
+                                    <code>q={!bbox pt=?1.latitude,?1.longitude sfield=store
+                                        d=?2}
+                                    </code>
+                                </entry>
+                            </row>
+
+                            <row>
 								<entry>
 									<code>Near</code>
 								</entry>

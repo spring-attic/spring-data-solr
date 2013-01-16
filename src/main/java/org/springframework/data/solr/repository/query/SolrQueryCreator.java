@@ -130,8 +130,10 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			if (value instanceof BoundingBox) {
 				return criteria.near((BoundingBox) value);
 			} else {
-				return criteria.within((GeoLocation) value, (Distance) parameters.next());
+				return criteria.near((GeoLocation) value, (Distance) parameters.next());
 			}
+        case WITHIN:
+            return criteria.within((GeoLocation) parameters.next(), (Distance) parameters.next());
 		default:
 			throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 		}
