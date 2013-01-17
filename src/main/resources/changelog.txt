@@ -2,7 +2,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M2 -
 ----------------------------------------------------------------
 
 ** New Feature
-    * [DATASOLR-7] - Add support for parameter 'facet.query' 
+    * [DATASOLR-7]  - Add support for parameter 'facet.query' 
     * [DATASOLR-18] - Participate in Transaction
     * [DATASOLR-27] - Facet Query definition via annotation
     * [DATASOLR-28] - Definition of fields included in result (CommonParams.FL) via @Query
@@ -10,6 +10,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M2 -
     * [DATASOLR-32] - FilterQuery definition via annotation
     * [DATASOLR-34] - Definition of facet.query in @Facet annotation
     * [DATASOLR-37] - Support q.op Parameter in SolrQuery
+    * [DATASOLR-39] - Support Bounding Box for spatial queries
 
 ** Improvement
     * [DATASOLR-31] - Add unit to distance for spatial search
