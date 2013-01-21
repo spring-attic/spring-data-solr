@@ -20,6 +20,11 @@ package org.springframework.data.solr.core.query.result;
  */
 public interface PageKey {
 
+	/**
+	 * Key to represent on page within a collection
+	 * 
+	 * @return
+	 */
 	Object getKey();
 
 }

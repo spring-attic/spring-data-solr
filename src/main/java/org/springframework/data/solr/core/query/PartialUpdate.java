@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Implementation of {@link Update}
+ * 
  * @author Christoph Strobl
  */
 public class PartialUpdate implements Update {

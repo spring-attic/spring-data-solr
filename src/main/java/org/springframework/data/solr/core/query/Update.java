@@ -16,12 +16,24 @@
 package org.springframework.data.solr.core.query;
 
 /**
+ * Update one or more fields of a Document without touching the others.
+ * 
  * @author Christoph Strobl
  */
 public interface Update {
 
+	/**
+	 * Id name and Value
+	 * 
+	 * @return
+	 */
 	ValueHoldingField getIdField();
 
+	/**
+	 * List of fields and values to for update
+	 * 
+	 * @return
+	 */
 	Iterable<UpdateField> getUpdates();
 
 }

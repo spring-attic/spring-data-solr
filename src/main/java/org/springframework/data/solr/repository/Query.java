@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 public @interface Query {
 
 	/**
-	 * Solr QueryString to be used when executing query. May contain placeholders eg. ?0
+	 * Solr QueryString to be used when executing query. May contain placeholders eg. ?1
 	 * 
 	 * @return
 	 */
@@ -51,7 +51,7 @@ public @interface Query {
 	String[] fields() default "";
 
 	/**
-	 * add query to filter results Corresponds to 'fq' in solr
+	 * add query to filter results Corresponds to {@code fq}
 	 * 
 	 * @return
 	 */

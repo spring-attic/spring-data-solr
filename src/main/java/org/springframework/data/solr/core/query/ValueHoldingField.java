@@ -20,6 +20,11 @@ package org.springframework.data.solr.core.query;
  */
 public interface ValueHoldingField extends Field {
 
+	/**
+	 * Get value for field
+	 * 
+	 * @return
+	 */
 	Object getValue();
 
 }

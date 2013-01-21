@@ -38,12 +38,20 @@ public class Distance {
 	private Unit unit;
 
 	/**
-	 * @param value {@link Distance.Unit.KILOMETERS} is default
+	 * Create new Distance with {@link Distance.Unit.KILOMETERS} as default unit
+	 * 
+	 * @param value
 	 */
 	public Distance(double value) {
 		this(value, Unit.KILOMETERS);
 	}
 
+	/**
+	 * Create new Distance
+	 * 
+	 * @param value
+	 * @param unit
+	 */
 	public Distance(double value, Unit unit) {
 		this.value = value;
 		this.unit = unit;

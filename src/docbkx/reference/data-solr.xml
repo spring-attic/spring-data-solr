@@ -418,6 +418,17 @@ public Product save(Product product) {
 							</row>
 							<row>
 								<entry>
+									<code>Matches</code>
+								</entry>
+								<entry>
+									<code>findByNameMatches</code>
+								</entry>
+								<entry>
+									<code>q=name:?1</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
 									<code>In</code>
 								</entry>
 								<entry>

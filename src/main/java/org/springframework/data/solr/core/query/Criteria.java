@@ -237,7 +237,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing -
+	 * Crates new CriteriaEntry with leading -
 	 * 
 	 * @param s
 	 * @return
@@ -481,14 +481,27 @@ public class Criteria {
 		return AND_OPERATOR;
 	}
 
+	/**
+	 * Get the collection of criterias
+	 * 
+	 * @return
+	 */
 	public List<Criteria> getCriteriaChain() {
 		return Collections.unmodifiableList(this.criteriaChain);
 	}
 
+	/**
+	 * @return true if {@code not()} criteria
+	 */
 	public boolean isNegating() {
 		return this.negating;
 	}
 
+	/**
+	 * Boost criteria value
+	 * 
+	 * @return {@code Float.NaN} if not set
+	 */
 	public float getBoost() {
 		return this.boost;
 	}

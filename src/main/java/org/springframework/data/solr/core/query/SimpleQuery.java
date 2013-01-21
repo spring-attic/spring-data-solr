@@ -200,6 +200,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return !Operator.NONE.equals(getDefaultOperator());
 	}
 
+	@Override
 	public void setDefaultOperator(Operator operator) {
 		this.defaultOperator = operator;
 	}

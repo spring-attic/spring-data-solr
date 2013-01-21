@@ -18,7 +18,7 @@ package org.springframework.data.solr.core.query;
 /**
  * Filter Queries are simple solr Queries applied after executing the original query.
  * 
- * This corresponds to the 'fq' Parameter within solr.
+ * This corresponds to the {@code fq} Parameter within solr.
  * 
  * @author Christoph Strobl
  */

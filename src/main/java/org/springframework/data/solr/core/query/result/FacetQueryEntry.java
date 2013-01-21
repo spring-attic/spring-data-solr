@@ -27,6 +27,11 @@ public interface FacetQueryEntry extends FacetEntry {
 	@Override
 	String getKey();
 
+	/**
+	 * get the associated Query
+	 * 
+	 * @return
+	 */
 	FilterQuery getQuery();
 
 }

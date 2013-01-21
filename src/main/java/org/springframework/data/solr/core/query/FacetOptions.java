@@ -115,6 +115,12 @@ public class FacetOptions {
 		return this;
 	}
 
+	/**
+	 * Append all fieldnames for faceting
+	 * 
+	 * @param fieldnames
+	 * @return
+	 */
 	public final FacetOptions addFacetOnFlieldnames(Collection<String> fieldnames) {
 		Assert.notNull(fieldnames);
 
@@ -125,7 +131,7 @@ public class FacetOptions {
 	}
 
 	/**
-	 * Append facet filter query
+	 * Append {@code facet.query}
 	 * 
 	 * @param filterQuery
 	 * @return
@@ -137,12 +143,17 @@ public class FacetOptions {
 		return this;
 	}
 
+	/**
+	 * Get the list of facetQueries
+	 * 
+	 * @return
+	 */
 	public List<SolrDataQuery> getFacetQueries() {
 		return Collections.unmodifiableList(this.facetQueries);
 	}
 
 	/**
-	 * Set minimum number of hits for result to be included in response
+	 * Set minimum number of hits {@code facet.mincount} for result to be included in response
 	 * 
 	 * @param minCount Default is 1
 	 * @return
@@ -153,7 +164,7 @@ public class FacetOptions {
 	}
 
 	/**
-	 * Set limit on nr results returned
+	 * Set {@code facet.limit}
 	 * 
 	 * @param rowsToReturn Default is 10
 	 * @return
@@ -164,9 +175,9 @@ public class FacetOptions {
 	}
 
 	/**
-	 * Set sorting (INDEX or COUNT)
+	 * Set {@code facet.sort} ({@code INDEX} or {@code COUNT})
 	 * 
-	 * @param facetSort Default is COUNT
+	 * @param facetSort Default is {@code COUNT}
 	 * @return
 	 */
 	public FacetOptions setFacetSort(FacetSort facetSort) {
@@ -195,7 +206,7 @@ public class FacetOptions {
 	}
 
 	/**
-	 * Get the max number of results per facet field
+	 * Get the max number of results per facet field.
 	 * 
 	 * @return
 	 */
@@ -212,10 +223,21 @@ public class FacetOptions {
 		return this.facetSort;
 	}
 
+	/**
+	 * Get the facet page requested.
+	 * 
+	 * @return
+	 */
 	public Pageable getPageable() {
 		return this.pageable != null ? this.pageable : new PageRequest(0, facetLimit);
 	}
 
+	/**
+	 * Set {@code facet.offet} and {@code facet.limit}
+	 * 
+	 * @param pageable
+	 * @return
+	 */
 	public FacetOptions setPageable(Pageable pageable) {
 		this.pageable = pageable;
 		return this;
@@ -239,6 +261,9 @@ public class FacetOptions {
 		return !this.facetQueries.isEmpty();
 	}
 
+	/**
+	 * @return true if either {@code facet.field} or {@code facet.query} set
+	 */
 	public boolean hasFacets() {
 		return hasFields() || hasFacetQueries();
 	}

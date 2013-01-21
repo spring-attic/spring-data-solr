@@ -27,6 +27,11 @@ public interface FacetFieldEntry extends FacetEntry {
 	@Override
 	Field getKey();
 
+	/**
+	 * get the associated Field
+	 * 
+	 * @return
+	 */
 	Field getField();
 
 }

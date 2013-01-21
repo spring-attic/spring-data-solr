@@ -20,6 +20,11 @@ package org.springframework.data.solr.core.query;
  */
 public interface UpdateField extends ValueHoldingField {
 
+	/**
+	 * {@link UpdateAction} to perform during update
+	 * 
+	 * @return
+	 */
 	UpdateAction getAction();
 
 }

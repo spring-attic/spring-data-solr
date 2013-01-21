@@ -33,6 +33,12 @@ class AbstractQuery {
 		this.addCriteria(criteria);
 	}
 
+	/**
+	 * Add an criteria to the query. The criteria will be connected using 'AND'.
+	 * 
+	 * @param criteria
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public final <T extends SolrDataQuery> T addCriteria(Criteria criteria) {
 		Assert.notNull(criteria, "Cannot add null criteria.");
