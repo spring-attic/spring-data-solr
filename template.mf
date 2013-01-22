@@ -1,0 +1,23 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.springframework.data.solr
+Bundle-Name: ${project.name}
+Bundle-Vendor: SpringSource
+Bundle-Version: ${project.version}
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Template: 
+ org.springframework.data.solr.*;version="${project.version}"
+Import-Template:
+ javax.enterprise.*;version="${cdi:[=.=.=,+1.0.0)}";resolution:=optional,
+ javax.xml.*;version="0.0.0",
+ org.aopalliance.*;version="[1.0.0,2.0.0)",
+ org.apache.commons.collections.*;version="${commons.collections:[=.=.=,+1.0.0)}",
+ org.apache.commons.lang.*;version="${commons.lang:[=.=.=,+1.0.0)}",
+ org.apache.http.*;version="${httpcomponents:[=.=.=,+1.0.0)}", 
+ org.apache.solr.*;version="${solr:[=.=.=,+1.0.0)}", 
+ org.joda.time.*;version="[1.5.0,2.0.0)";resolution:=optional,
+ org.slf4j.*;version="${slf4j:[=.=.=,+1.0.0)}",
+ org.springframework.*;version="${spring30:[=.=.=.=,+1.0.0)}",
+ org.springframework.data.*;version="${springdata.commons:[=.=.=.=,+1.0.0)}",
+ org.w3c.*;version="0.0.0",
+ org.xml.sax.*;version="0.0.0"
+ 
