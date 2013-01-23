@@ -74,45 +74,34 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
 Furthermore you may provide a custom implementation for some operations.
 
 ```java
-    public interface CustomSolrRepository {
+    public interface SolrProductRepository extends SolrCrudRepository<Product, String>, SolrProductRepositoryCustom {
+    	
+        @Query(fields = { "id", "name", "popularity" })
+        Page<Product> findByPopularity(Integer popularity, Pageable page);
+    	
+    }
+    
+    public interface SolrProductRepositoryCustom {
 
-        Page<Product> findProductsByCustomImplementation(String value, Pageable page);
+        Page<Product> findProductsByCustomImplementation(String value, Pageable page)
 	
     }
 
-    public class CustomSolrRepositoryImpl implements CustomSolrRepository {
+    public class SolrProductRepositoryImpl implements SolrProductRepositoryCustom {
 	
         private SolrOperations solrTemplate;
 	
-        public CustomSolrRepositoryImpl(SolrOperations solrTemplate) {
-            super();
-            this.solrTemplate = solrTemplate;
-        }
-
         @Override
         public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
             Query query = new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page);
             return solrTemplate.queryForPage(query, Product.class);
         }
-
-    }
-    
-    public interface SolrProductRepository extends CustomSolrRepository, SolrCrudRepository<Product, String> {
-    	
-    	Page<Product> findByPopularity(Integer popularity, Pageable page);
-    	
-    }
-    
-    public class CustomSolrProductSearchRepositoryFactory {
-
-        @Autwired
-        private SolrOperations solrOperations;
-  
-        public SolrProductRepository create() {
-  	        return new SolrRepositoryFactory(this.solrOperations)
-  	            .getRepository(SolrProductRepository.class, new CustomSolrRepositoryImpl(this.solrOperations));
+        
+        @Autowired
+        public void setOperations(SolrOperations operations) {
+            this.operations = operations;
         }
-  
+
     }
 ```
 
