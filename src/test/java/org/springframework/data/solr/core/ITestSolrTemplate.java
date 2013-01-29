@@ -26,6 +26,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -54,6 +55,9 @@ import org.xml.sax.SAXException;
  */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
+	private static final Query DEFAULT_BEAN_OBJECT_QUERY = new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID));
+	private static final Query ALL_DOCUMENTS_QUERY = new SimpleQuery(new SimpleStringCriteria("*:*"));
+
 	private SolrTemplate solrTemplate;
 
 	@Before
@@ -63,7 +67,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@After
 	public void tearDown() {
-		solrTemplate.delete(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+		solrTemplate.delete(ALL_DOCUMENTS_QUERY);
 		solrTemplate.commit();
 	}
 
@@ -101,10 +105,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBean(update);
 		solrTemplate.commit();
 
-		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
-				ExampleSolrBean.class);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 		Assert.assertEquals("updated-name", recalled.getName());
@@ -124,10 +127,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBean(update);
 		solrTemplate.commit();
 
-		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
-				ExampleSolrBean.class);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
@@ -150,10 +152,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBean(update);
 		solrTemplate.commit();
 
-		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
-				ExampleSolrBean.class);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
@@ -175,10 +176,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBean(update);
 		solrTemplate.commit();
 
-		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
-				ExampleSolrBean.class);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
@@ -202,10 +202,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBean(update);
 		solrTemplate.commit();
 
-		Assert.assertEquals(1, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		ExampleSolrBean recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID)),
-				ExampleSolrBean.class);
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
 
@@ -236,7 +235,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(updates);
 		solrTemplate.commit();
 
-		Assert.assertEquals(10, solrTemplate.count(new SimpleQuery(new SimpleStringCriteria("*:*"))));
+		Assert.assertEquals(10, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
 		Page<ExampleSolrBean> recalled = solrTemplate.queryForPage(
 				new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
@@ -247,6 +246,59 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(), bean.getCategory()
 					.get(0));
 		}
+	}
+
+	@Test
+	public void testPartialUpdateSetWithNullAtTheEnd() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		toInsert.setCategory(Arrays.asList("cat-1"));
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		ExampleSolrBean loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+
+		Assert.assertEquals(1, loaded.getCategory().size());
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.setValueOfField("popularity", 500);
+		update.setValueOfField("cat", Arrays.asList("cat-1", "cat-2", "cat-3"));
+		update.setValueOfField("name", null);
+
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Assert.assertEquals(Integer.valueOf(500), loaded.getPopularity());
+		Assert.assertEquals(3, loaded.getCategory().size());
+		Assert.assertNull(loaded.getName());
+	}
+
+	@Test
+	@Ignore("Value order matters when setting null values - see: https://issues.apache.org/jira/browse/SOLR-4297")
+	public void testPartialUpdateSetWithNullInTheMiddle() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setPopularity(10);
+		toInsert.setCategory(Arrays.asList("cat-1"));
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		ExampleSolrBean loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+
+		Assert.assertEquals(1, loaded.getCategory().size());
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.setValueOfField("popularity", 500);
+		update.setValueOfField("name", null);
+		update.setValueOfField("cat", Arrays.asList("cat-1", "cat-2", "cat-3"));
+
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Assert.assertEquals(Integer.valueOf(500), loaded.getPopularity());
+		Assert.assertNull(loaded.getName());
+		Assert.assertEquals(3, loaded.getCategory().size());
 	}
 
 	@Test
