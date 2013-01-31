@@ -64,6 +64,7 @@ import org.springframework.util.CollectionUtils;
  * 
  * @author Christoph Strobl
  * @author John Dorman
+ * @author Rosty Kerei
  */
 public class QueryParser {
 
@@ -129,6 +130,7 @@ public class QueryParser {
 		appendFilterQuery(solrQuery, query.getFilterQueries());
 		appendSort(solrQuery, query.getSort());
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
+		appendTimeAllowed(solrQuery, query.getTimeAllowed());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -410,6 +412,12 @@ public class QueryParser {
 	private void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
 		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
 			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
+		}
+	}
+
+	private void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
+		if (timeAllowed != null) {
+			solrQuery.setTimeAllowed(timeAllowed);
 		}
 	}
 

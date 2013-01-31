@@ -28,6 +28,7 @@ import org.springframework.util.Assert;
  * Full implementation of {@link Query} that allows multiple options like pagination, grouping,...
  * 
  * @author Christoph Strobl
+ * @author Rosty Kerei
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
@@ -39,6 +40,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Pageable pageable = DEFAULT_PAGE;
 	private Sort sort;
 	private Operator defaultOperator;
+	private Integer timeAllowed;
 
 	public SimpleQuery() {
 	}
@@ -184,6 +186,17 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public <T extends Query> T addFilterQuery(FilterQuery filterQuery) {
 		this.filterQueries.add(filterQuery);
 		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setTimeAllowed(Integer timeAllowed) {
+		this.timeAllowed = timeAllowed;
+		return (T) this;
+	}
+
+	public Integer getTimeAllowed() {
+		return this.timeAllowed;
 	}
 
 	@Override

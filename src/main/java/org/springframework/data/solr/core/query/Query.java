@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
  * A Query that can be translated into a solr understandable Query.
  * 
  * @author Christoph Strobl
+ * @author Rosty Kerei
  */
 public interface Query extends SolrDataQuery {
 
@@ -60,6 +61,14 @@ public interface Query extends SolrDataQuery {
 	 * @return
 	 */
 	<T extends Query> T addFilterQuery(FilterQuery query);
+
+	/**
+	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.
+	 * 
+	 * @param timeAllowed
+	 * @return
+	 */
+	<T extends Query> T setTimeAllowed(Integer timeAllowed);
 
 	/**
 	 * Get filter queries if defined
@@ -101,6 +110,13 @@ public interface Query extends SolrDataQuery {
 	 * @return null if not set
 	 */
 	Sort getSort();
+
+	/**
+	 * Return the time (in milliseconds) allowed for a search to finish
+	 * 
+	 * @return
+	 */
+	Integer getTimeAllowed();
 
 	/**
 	 * Set the default operator {@code q.op} for query expressions

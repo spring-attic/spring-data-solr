@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort.Order;
 
 /**
  * @author Christoph Strobl
+ * @author Rosty Kerei
  */
 public class SimpleQueryTests {
 
@@ -255,6 +256,15 @@ public class SimpleQueryTests {
 		Assert.assertNotNull(query.getSort().getOrderFor("field_1"));
 		Assert.assertNotNull(query.getSort().getOrderFor("field_2"));
 		Assert.assertNotNull(query.getSort().getOrderFor("field_3"));
+	}
+
+	@Test
+	public void testTimeAllowed() {
+		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		Assert.assertNull(query.getTimeAllowed());
+
+		query.setTimeAllowed(100);
+		Assert.assertEquals(new Integer(100), query.getTimeAllowed());
 	}
 
 }
