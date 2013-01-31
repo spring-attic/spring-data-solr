@@ -609,6 +609,21 @@ public class QueryParserTests {
 		Assert.assertNull(solrQuery.get("q.op"));
 	}
 
+    @Test
+    public void testWithTimeAllowed() {
+        SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+        query.setTimeAllowed(100);
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        Assert.assertEquals(new Integer(100), solrQuery.getTimeAllowed());
+    }
+
+    @Test
+    public void testWithoutTimeAllowed() {
+        SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        Assert.assertNull(solrQuery.getTimeAllowed());
+    }
+
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getFacetFields());
 	}
