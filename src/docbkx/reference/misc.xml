@@ -98,4 +98,18 @@ query.addFilterQuery(fq);</programlisting>
 		<programlisting language="java">@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
 List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</programlisting>
 	</section>
+    <section id="solr.misc.timeAllowed">
+        <title>Time allowed for a search</title>
+        <para>
+            It it possible to set the time allowed for a search to finish. This value only applies to the search and not to requests in general.
+            Time is in milliseconds. Values less than or equal to zero implies no time restriction. Partial results may be returned, if there are any.
+        </para>
+        <example>
+            <programlisting language="java">
+                Query query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+                // Allowing maximum of 100ms for this search
+                query.setTimeAllowed(100);
+            </programlisting>
+        </example>
+    </section>
 </chapter>
