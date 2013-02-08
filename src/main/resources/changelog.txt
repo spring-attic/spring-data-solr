@@ -1,27 +1,28 @@
-Release Notes - Spring Data Solr - Version 1.0.0.M2 - 
-----------------------------------------------------------------
-
-** New Feature
-    * [DATASOLR-7]  - Add support for parameter 'facet.query' 
-    * [DATASOLR-18] - Participate in Transaction
-    * [DATASOLR-27] - Facet Query definition via annotation
-    * [DATASOLR-28] - Definition of fields included in result (CommonParams.FL) via @Query
-    * [DATASOLR-29] - Partial Updates
-    * [DATASOLR-32] - FilterQuery definition via annotation
-    * [DATASOLR-34] - Definition of facet.query in @Facet annotation
-    * [DATASOLR-37] - Support q.op Parameter in SolrQuery
-    * [DATASOLR-39] - Support Bounding Box for spatial queries
+Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
+-----------------------------------------------------------------
 
 ** Improvement
     * [DATASOLR-31] - Add unit to distance for spatial search
+
+** New Feature
+    * [DATASOLR-7]  - Add support for parameter 'facet.query' within FacetQuery
+    * [DATASOLR-18] - Participate in Transaction
+    * [DATASOLR-27] - Allow Facet Query definition via annotation
+    * [DATASOLR-28] - Allow definition of fields included in result (CommonParams.FL) via @Query
+    * [DATASOLR-29] - Update Partial Document
+    * [DATASOLR-32] - Enable FilterQuery definition via annotation
+    * [DATASOLR-34] - Allow definition of facet.query in @Facet annotation
+    * [DATASOLR-37] - Support q.op Parameter in SolrQuery
+    * [DATASOLR-39] - Support Bounding Box
 
 ** Task
     * [DATASOLR-30] - Upgrade to Solr 4.0
     * [DATASOLR-33] - Upgrade to spring-data-commons 1.5
     * [DATASOLR-36] - Add missing support for keyword NotLike
     * [DATASOLR-38] - Use curly brackets for lessThan and greaterThan
-
-
+    * [DATASOLR-40] - Upgrade to new build infrastructure
+    * [DATASOLR-41] - Upgrade to solr 4.1
+    * [DATASOLR-47] - Release 1.0.0 RC1
 
 Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
 ----------------------------------------------------------------
