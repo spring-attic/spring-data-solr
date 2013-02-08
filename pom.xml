@@ -19,6 +19,7 @@
 	</parent>
 
 	<properties>
+		<dist.key>DATASOLR</dist.key>
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>2.6</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
@@ -230,6 +231,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -248,12 +253,5 @@
 		<system>Bamboo</system>
 		<url>http://build.springsource.org/browse/DATASOLR</url>
 	</ciManagement>
-
-	<repositories>
-		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>http://repo.springsource.org/libs-snapshot-local</url>
-		</repository>
-	</repositories>
 
 </project>
