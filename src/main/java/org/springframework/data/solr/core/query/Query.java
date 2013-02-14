@@ -138,5 +138,10 @@ public interface Query extends SolrDataQuery {
 			return asQueryStringRepresentation();
 		}
 	}
+	
+    boolean isQuoteVaule();
+    
+    void setQuoteValues(boolean quoteValues);
+
 
 }

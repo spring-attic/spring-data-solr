@@ -148,17 +148,24 @@ public class QueryParser {
 		if (query.getCriteria() == null) {
 			return null;
 		}
+		if (query instanceof Query) {
+    		return createQueryStringFromCriteria(query.getCriteria(), ((Query) query).isQuoteVaule());
+		}
 		return createQueryStringFromCriteria(query.getCriteria());
 	}
-
+	
 	String createQueryStringFromCriteria(Criteria criteria) {
+	    return createQueryStringFromCriteria(criteria, false);
+	}
+
+	String createQueryStringFromCriteria(Criteria criteria, boolean isQuoteVaule) {
 		StringBuilder query = new StringBuilder(StringUtils.EMPTY);
 
 		ListIterator<Criteria> chainIterator = criteria.getCriteriaChain().listIterator();
 		while (chainIterator.hasNext()) {
 			Criteria chainedCriteria = chainIterator.next();
 
-			query.append(createQueryFragmentForCriteria(chainedCriteria));
+			query.append(createQueryFragmentForCriteria(chainedCriteria, isQuoteVaule));
 
 			if (chainIterator.hasNext()) {
 				query.append(chainIterator.next().getConjunctionOperator());
@@ -168,8 +175,12 @@ public class QueryParser {
 
 		return query.toString();
 	}
-
+	
 	protected String createQueryFragmentForCriteria(Criteria chainedCriteria) {
+	    return createQueryFragmentForCriteria(chainedCriteria, false);
+	}
+
+	protected String createQueryFragmentForCriteria(Criteria chainedCriteria, boolean isQuoteValue) {
 		StringBuilder queryFragment = new StringBuilder();
 		Iterator<CriteriaEntry> it = chainedCriteria.getCriteriaEntries().iterator();
 		boolean singeEntryCriteria = (chainedCriteria.getCriteriaEntries().size() == 1);
@@ -187,7 +198,13 @@ public class QueryParser {
 			}
 			while (it.hasNext()) {
 				CriteriaEntry entry = it.next();
+				if(isQuoteValue) {
+				    queryFragment.append(DOUBLEQUOTE);
+				}
 				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue(), fieldName));
+				if(isQuoteValue) {
+                    queryFragment.append(DOUBLEQUOTE);
+                }
 				if (it.hasNext()) {
 					queryFragment.append(CRITERIA_VALUE_SEPERATOR);
 				}

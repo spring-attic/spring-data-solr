@@ -63,5 +63,16 @@ public @interface Query {
 	 * @return
 	 */
 	org.springframework.data.solr.core.query.Query.Operator defaultOperator() default org.springframework.data.solr.core.query.Query.Operator.NONE;
+	
+	/**
+	 * Specify the default type of the query. E.g. "lucene", "edismax"
+	 * 
+	 * @return 
+	 */
+	String defType() default "";
+	
+	
+	boolean quoteValues() default true;
+
 
 }
