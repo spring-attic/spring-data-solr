@@ -39,7 +39,8 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Pageable pageable = DEFAULT_PAGE;
 	private Sort sort;
 	private Operator defaultOperator;
-
+	private String defType;
+	
 	public SimpleQuery() {
 	}
 
@@ -199,10 +200,21 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public boolean hasDefaultOperatorDefined() {
 		return !Operator.NONE.equals(getDefaultOperator());
 	}
+	
+	@Override
+	public String getDefType() {
+	    return this.defType !=null ? this.defType : "";
+	}
 
 	@Override
 	public void setDefaultOperator(Operator operator) {
 		this.defaultOperator = operator;
 	}
+
+    @Override
+    public void setDefType(String defType) {
+        this.defType = defType;
+        
+    }
 
 }

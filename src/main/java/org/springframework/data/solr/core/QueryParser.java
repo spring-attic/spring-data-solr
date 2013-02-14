@@ -129,6 +129,7 @@ public class QueryParser {
 		appendFilterQuery(solrQuery, query.getFilterQueries());
 		appendSort(solrQuery, query.getSort());
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
+		appendDefType(solrQuery, query.getDefType());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -446,6 +447,13 @@ public class QueryParser {
 	 */
 	public void registerConverter(Converter<?, ?> converter) {
 		conversionService.addConverter(converter);
+	}
+	
+	
+	private void appendDefType(SolrQuery solrQuery, String defType) {
+	    if(defType !=null && !defType.equals("")) {
+	        solrQuery.set("defType", defType);
+	    }
 	}
 
 }

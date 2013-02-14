@@ -138,5 +138,18 @@ public interface Query extends SolrDataQuery {
 			return asQueryStringRepresentation();
 		}
 	}
+	
+	/**
+	 * Get the default type of query, if one has been specified. 
+	 * Overrides the default type specified in the solrconfig.xml file.
+	 * 
+	 * @return
+	 */
+	String getDefType();
+
+	/**
+	 * Sets the default type to be used by the query.
+	 */
+    void setDefType(String defType);
 
 }
