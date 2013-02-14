@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  * @author Rosty Kerei
+ * @author Luke Corpe
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
@@ -41,6 +42,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Sort sort;
 	private Operator defaultOperator;
 	private Integer timeAllowed;
+	private String defType;
 
 	public SimpleQuery() {
 	}
@@ -216,6 +218,16 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@Override
 	public void setDefaultOperator(Operator operator) {
 		this.defaultOperator = operator;
+	}
+
+	@Override
+	public String getDefType() {
+		return this.defType != null ? this.defType : "";
+	}
+
+	@Override
+	public void setDefType(String defType) {
+		this.defType = defType;
 	}
 
 }

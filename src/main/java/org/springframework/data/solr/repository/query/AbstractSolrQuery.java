@@ -39,11 +39,13 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Base implementation of a solr specific {@link RepositoryQuery}
  * 
  * @author Christoph Strobl
+ * @author Luke Corpe
  */
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
@@ -90,6 +92,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		decorateWithFilterQuery(query, accessor);
 		setDefaultQueryOperatorIfDefined(query);
 		setAllowedQueryExeutionTime(query);
+		setDefTypeIfDefined(query);
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery()) {
@@ -124,6 +127,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 	}
 
+	private void setDefTypeIfDefined(Query query) {
+		String defType = solrQueryMethod.getDefType();
+		if (StringUtils.hasText(defType)) {
+			query.setDefType(defType);
+		}
+	}
+
 	private void decorateWithFilterQuery(Query query, SolrParameterAccessor parameterAccessor) {
 		if (solrQueryMethod.hasFilterQuery()) {
 			for (String filterQuery : solrQueryMethod.getFilterQueries()) {
@@ -146,7 +156,6 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	}
 
 	private String replacePlaceholders(String input, SolrParameterAccessor accessor) {
-
 		Matcher matcher = PARAMETER_PLACEHOLDER.matcher(input);
 		String result = input;
 
@@ -160,7 +169,6 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	@SuppressWarnings("rawtypes")
 	private String getParameterWithIndex(SolrParameterAccessor accessor, int index) {
-
 		Object parameter = accessor.getBindableValue(index);
 
 		if (parameter == null) {

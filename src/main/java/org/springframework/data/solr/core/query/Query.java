@@ -25,8 +25,31 @@ import org.springframework.data.domain.Sort;
  * 
  * @author Christoph Strobl
  * @author Rosty Kerei
+ * @author Luke Corpe
  */
 public interface Query extends SolrDataQuery {
+
+	/**
+	 * Operator to be used for {@code q.op}
+	 */
+	enum Operator {
+		AND("AND"), OR("OR"), NONE("");
+
+		private String operator;
+
+		private Operator(String operator) {
+			this.operator = operator;
+		}
+
+		public String asQueryStringRepresentation() {
+			return this.operator;
+		}
+
+		@Override
+		public String toString() {
+			return asQueryStringRepresentation();
+		}
+	}
 
 	int DEFAULT_PAGE_SIZE = 10;
 
@@ -134,25 +157,16 @@ public interface Query extends SolrDataQuery {
 	Operator getDefaultOperator();
 
 	/**
-	 * Operator to be used for {@code q.op}
+	 * Get the default type of query, if one has been specified. Overrides the default type specified in the
+	 * solrconfig.xml file.
+	 * 
+	 * @return
 	 */
-	enum Operator {
-		AND("AND"), OR("OR"), NONE("");
+	String getDefType();
 
-		private String operator;
-
-		private Operator(String operator) {
-			this.operator = operator;
-		}
-
-		public String asQueryStringRepresentation() {
-			return this.operator;
-		}
-
-		@Override
-		public String toString() {
-			return asQueryStringRepresentation();
-		}
-	}
+	/**
+	 * Sets the default type to be used by the query.
+	 */
+	void setDefType(String defType);
 
 }

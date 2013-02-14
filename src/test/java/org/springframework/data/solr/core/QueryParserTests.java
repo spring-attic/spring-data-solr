@@ -626,6 +626,29 @@ public class QueryParserTests {
 		Assert.assertNull(solrQuery.getTimeAllowed());
 	}
 
+	@Test
+	public void testWithLuceneDefType() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefType("lucene");
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery.get("defType"));
+	}
+
+	@Test
+	public void testWithEdismaxDefType() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setDefType("edismax");
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery.get("defType"));
+	}
+
+	@Test
+	public void testWithUndefindedDefType() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("defType"));
+	}
+
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getFacetFields());
 	}

@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
  * Solr specific implementation of {@link QueryMethod} taking care of {@link Query}
  * 
  * @author Christoph Strobl
+ * @author Luke Corpe
  */
 public class SolrQueryMethod extends QueryMethod {
 
@@ -155,6 +156,13 @@ public class SolrQueryMethod extends QueryMethod {
 			return getQueryAnnotation().defaultOperator();
 		}
 		return org.springframework.data.solr.core.query.Query.Operator.NONE;
+	}
+
+	public String getDefType() {
+		if (hasQueryAnnotation()) {
+			return getQueryAnnotation().defType();
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
