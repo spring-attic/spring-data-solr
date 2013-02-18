@@ -158,14 +158,14 @@ public class QueryParser {
 	    return createQueryStringFromCriteria(criteria, false);
 	}
 
-	String createQueryStringFromCriteria(Criteria criteria, boolean isQuoteVaule) {
+	String createQueryStringFromCriteria(Criteria criteria, boolean quoteVaule) {
 		StringBuilder query = new StringBuilder(StringUtils.EMPTY);
 
 		ListIterator<Criteria> chainIterator = criteria.getCriteriaChain().listIterator();
 		while (chainIterator.hasNext()) {
 			Criteria chainedCriteria = chainIterator.next();
 
-			query.append(createQueryFragmentForCriteria(chainedCriteria, isQuoteVaule));
+			query.append(createQueryFragmentForCriteria(chainedCriteria, quoteVaule));
 
 			if (chainIterator.hasNext()) {
 				query.append(chainIterator.next().getConjunctionOperator());
@@ -180,7 +180,7 @@ public class QueryParser {
 	    return createQueryFragmentForCriteria(chainedCriteria, false);
 	}
 
-	protected String createQueryFragmentForCriteria(Criteria chainedCriteria, boolean isQuoteValue) {
+	protected String createQueryFragmentForCriteria(Criteria chainedCriteria, boolean quoteValue) {
 		StringBuilder queryFragment = new StringBuilder();
 		Iterator<CriteriaEntry> it = chainedCriteria.getCriteriaEntries().iterator();
 		boolean singeEntryCriteria = (chainedCriteria.getCriteriaEntries().size() == 1);
@@ -198,11 +198,11 @@ public class QueryParser {
 			}
 			while (it.hasNext()) {
 				CriteriaEntry entry = it.next();
-				if(isQuoteValue) {
+				if(quoteValue) {
 				    queryFragment.append(DOUBLEQUOTE);
 				}
 				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue(), fieldName));
-				if(isQuoteValue) {
+				if(quoteValue) {
                     queryFragment.append(DOUBLEQUOTE);
                 }
 				if (it.hasNext()) {
