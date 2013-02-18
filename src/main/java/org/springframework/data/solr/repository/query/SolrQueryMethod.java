@@ -160,6 +160,21 @@ public class SolrQueryMethod extends QueryMethod {
 		}
 		return org.springframework.data.solr.core.query.Query.Operator.NONE;
 	}
+	
+	public String getDefType() {
+	    if(hasQueryAnnotation()) {
+	        return getQueryAnnotation().defType();
+	    }
+	    return ""; 
+	}
+	
+	public boolean isQuoteValues() {
+	    if(hasQueryAnnotation()) {
+	        return getQueryAnnotation().quoteValues();
+	    }
+	    return false;
+	}
+
 
 	@SuppressWarnings("unchecked")
 	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {

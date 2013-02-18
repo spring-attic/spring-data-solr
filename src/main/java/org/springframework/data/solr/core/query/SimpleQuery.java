@@ -40,6 +40,10 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Sort sort;
 	private Operator defaultOperator;
 
+	private String defType;
+	private boolean quoteValues;
+	
+
 	public SimpleQuery() {
 	}
 
@@ -205,4 +209,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.defaultOperator = operator;
 	}
 
+    @Override
+    public boolean isQuoteVaule() {
+        return quoteValues;
+    }
+
+    @Override
+    public void setQuoteValues(boolean quoteValues) {
+            this.quoteValues=quoteValues; 
+    }
 }

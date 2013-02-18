@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -608,6 +609,42 @@ public class QueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertNull(solrQuery.get("q.op"));
 	}
+
+    @Test
+    public void testWithQuotedValues() {
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add("value_1");
+        strings.add("value_2");
+        SimpleQuery query = new SimpleQuery(new Criteria("field_1").in(strings));
+        query.setQuoteValues(true);
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        String queryString = solrQuery.getQuery();
+        Assert.assertEquals("field_1:(\"value_1\" \"value_2\")",queryString);
+    }
+    
+    @Test
+    public void testWithoutQuotedValues() {
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add("value_1");
+        strings.add("value_2");
+        SimpleQuery query = new SimpleQuery(new Criteria("field_1").in(strings));
+        query.setQuoteValues(false);
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        String queryString = solrQuery.getQuery();
+        Assert.assertEquals("field_1:(value_1 value_2)",queryString);
+    }
+    
+    @Test
+    public void testWithDefaultQuotedValues() {
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add("value_1");
+        strings.add("value_2");
+        SimpleQuery query = new SimpleQuery(new Criteria("field_1").in(strings));
+        SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+        String queryString = solrQuery.getQuery();
+        Assert.assertEquals("field_1:(value_1 value_2)",queryString);
+    }
+    
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getFacetFields());

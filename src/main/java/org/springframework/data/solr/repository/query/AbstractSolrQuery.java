@@ -53,6 +53,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		Query query = createQuery(accessor);
 		decorateWithFilterQuery(query);
 		setDefaultQueryOperatorIfDefined(query);
+		setIsQuoteValues(query);
+
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery()) {
@@ -74,6 +76,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			query.setDefaultOperator(defaultOperator);
 		}
 	}
+	private void setIsQuoteValues(Query query) {
+	    boolean quoteValues = solrQueryMethod.isQuoteValues();
+	    query.setQuoteValues(quoteValues);
+	}
+
 
 	private void decorateWithFilterQuery(Query query) {
 		if (solrQueryMethod.hasFilterQuery()) {
