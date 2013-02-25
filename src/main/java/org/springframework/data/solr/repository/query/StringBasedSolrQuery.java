@@ -15,21 +15,10 @@
  */
 package org.springframework.data.solr.repository.query;
 
-import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
-import org.springframework.data.solr.core.convert.DateTimeConverters;
-import org.springframework.data.solr.core.convert.NumberConverters;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
 
 /**
  * Solr specific implementation of {@link RepositoryQuery} that can handle string based queries
@@ -38,31 +27,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
  */
 public class StringBasedSolrQuery extends AbstractSolrQuery {
 
-	private static final Pattern PARAMETER_PLACEHOLDER = Pattern.compile("\\?(\\d+)");
-
 	private final String rawQueryString;
-	private final GenericConversionService conversionService = new GenericConversionService();
-
-	{
-		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Number.class, String.class)) {
-			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
-			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Distance.class, String.class)) {
-			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
-		}
-	}
 
 	public StringBasedSolrQuery(SolrQueryMethod method, SolrOperations solrOperations) {
 		this(method.getAnnotatedQuery(), method, solrOperations);
@@ -75,52 +40,9 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 
 	@Override
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
-		String queryString = replacePlaceholders(this.rawQueryString, parameterAccessor);
-
-		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria(queryString));
+		SimpleQuery query = createQueryFromString(this.rawQueryString, parameterAccessor);
 		appendProjection(query);
 		return query;
 	}
 
-	private String replacePlaceholders(String input, SolrParameterAccessor accessor) {
-
-		Matcher matcher = PARAMETER_PLACEHOLDER.matcher(input);
-		String result = input;
-
-		while (matcher.find()) {
-			String group = matcher.group();
-			int index = Integer.parseInt(matcher.group(1));
-			result = result.replace(group, getParameterWithIndex(accessor, index));
-		}
-		return result;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private String getParameterWithIndex(SolrParameterAccessor accessor, int index) {
-
-		Object parameter = accessor.getBindableValue(index);
-
-		if (parameter == null) {
-			return "null";
-		}
-
-		if (conversionService.canConvert(parameter.getClass(), String.class)) {
-			return conversionService.convert(parameter, String.class);
-		}
-
-		if (parameter instanceof Collection) {
-			StringBuilder sb = new StringBuilder();
-			for (Object o : (Collection) parameter) {
-				if (conversionService.canConvert(o.getClass(), String.class)) {
-					sb.append(conversionService.convert(o, String.class));
-				} else {
-					sb.append(o.toString());
-				}
-				sb.append(" ");
-			}
-			return sb.toString().trim();
-		}
-
-		return parameter.toString();
-	}
 }

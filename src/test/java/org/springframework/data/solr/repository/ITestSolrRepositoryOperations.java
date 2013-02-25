@@ -402,6 +402,16 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFacetWithParametrizedQuery() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(3, new PageRequest(0, 10));
+		Assert.assertEquals(0, facetPage.getFacetFields().size());
+		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
+		Assert.assertEquals(1, facets.getContent().size());
+		Assert.assertEquals("popularity:[* TO 3]", facets.getContent().get(0).getValue());
+		Assert.assertEquals(3, facets.getContent().get(0).getValueCount());
+	}
+
+	@Test
 	public void testFacetOnMulipleQueries() {
 		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryAvailableTrueAndAvailableFalse(new PageRequest(0, 10));
 		Assert.assertEquals(0, facetPage.getFacetFields().size());
@@ -420,6 +430,12 @@ public class ITestSolrRepositoryOperations {
 		for (ProductBean bean : found) {
 			Assert.assertTrue(bean.isAvailable());
 		}
+	}
+
+	@Test
+	public void testParametrizedFilter() {
+		List<ProductBean> found = repo.findByPopularityLessThan(4, true);
+		Assert.assertEquals(2, found.size());
 	}
 
 	@Test

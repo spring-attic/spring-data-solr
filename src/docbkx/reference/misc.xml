@@ -28,6 +28,11 @@
 				With Solr 4.0.0 it is not possible
 				to update mulitvalue fields.
 			</note>
+			<note>
+				With Solr 4.1.0 you have to take
+				care on parameter order when setting
+				null values. Order parameters with nulls last.
+			</note>
 		</para>
 		<example>
 			<programlisting language="java">PartialUpdate update = new PartialUpdate("id", "123");
@@ -67,6 +72,12 @@ FacetPage&lt;Product&gt; page = solrTemplate.queryForFacetPage(query, Product.cl
 			. Please mind that the result will be a
 			<classname>FacetPage</classname>
 			.
+			<note>
+				Using
+				<interfacename>@Facet</interfacename>
+				allows you to define place holders which will use your input
+				parameter as value.
+			</note>
 			<programlisting language="java">@Query(value = "*:*")
 @Facet(fields = { "name" }, limit = 5)
 FacetPage&lt;Product&gt; findAllFacetOnPopularity(Pageable page);</programlisting>
@@ -94,6 +105,12 @@ query.addFilterQuery(fq);</programlisting>
 			Simple filter queries can also be defined using
 			<interfacename>@Query</interfacename>
 			.
+			<note>
+				Using
+				<interfacename>@Query</interfacename>
+				allows you to define place holders which will use your input
+				parameter as value.
+			</note>
 		</para>
 		<programlisting language="java">@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
 List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</programlisting>

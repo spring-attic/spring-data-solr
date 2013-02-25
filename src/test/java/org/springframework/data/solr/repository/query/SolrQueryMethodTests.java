@@ -108,11 +108,9 @@ public class SolrQueryMethodTests {
 		Assert.assertFalse(method.hasFacetQueries());
 		Assert.assertFalse(method.hasFilterQuery());
 
-		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
-
-		Assert.assertEquals(1, options.getFacetOnFields().size());
-		Assert.assertEquals(10, options.getFacetLimit());
-		Assert.assertEquals(1, options.getFacetMinCount());
+		Assert.assertEquals(1, method.getFacetFields().size());
+		Assert.assertEquals(Integer.valueOf(10), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(1), method.getFacetMinCount());
 	}
 
 	@Test
@@ -137,11 +135,9 @@ public class SolrQueryMethodTests {
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertFalse(method.hasFilterQuery());
 
-		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
-
-		Assert.assertEquals(2, options.getFacetOnFields().size());
-		Assert.assertEquals(25, options.getFacetLimit());
-		Assert.assertEquals(3, options.getFacetMinCount());
+		Assert.assertEquals(2, method.getFacetFields().size());
+		Assert.assertEquals(Integer.valueOf(25), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(3), method.getFacetMinCount());
 	}
 
 	@Test
@@ -154,13 +150,11 @@ public class SolrQueryMethodTests {
 		Assert.assertTrue(method.hasFacetQueries());
 		Assert.assertFalse(method.hasFilterQuery());
 
-		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
-
-		Assert.assertEquals(0, options.getFacetOnFields().size());
-		Assert.assertEquals(1, options.getFacetQueries().size());
-		Assert.assertEquals(10, options.getFacetLimit());
-		Assert.assertEquals(1, options.getFacetMinCount());
-		Assert.assertEquals("popularity:[* TO 5]", options.getFacetQueries().get(0).getCriteria().toString());
+		Assert.assertEquals(0, method.getFacetFields().size());
+		Assert.assertEquals(1, method.getFacetQueries().size());
+		Assert.assertEquals(Integer.valueOf(10), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(1), method.getFacetMinCount());
+		Assert.assertEquals("popularity:[* TO 5]", method.getFacetQueries().get(0));
 	}
 
 	@Test
@@ -173,14 +167,12 @@ public class SolrQueryMethodTests {
 		Assert.assertTrue(method.hasFacetQueries());
 		Assert.assertFalse(method.hasFilterQuery());
 
-		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
-
-		Assert.assertEquals(0, options.getFacetOnFields().size());
-		Assert.assertEquals(2, options.getFacetQueries().size());
-		Assert.assertEquals(10, options.getFacetLimit());
-		Assert.assertEquals(1, options.getFacetMinCount());
-		Assert.assertEquals("inStock:true", options.getFacetQueries().get(0).getCriteria().toString());
-		Assert.assertEquals("inStock:false", options.getFacetQueries().get(1).getCriteria().toString());
+		Assert.assertEquals(0, method.getFacetFields().size());
+		Assert.assertEquals(2, method.getFacetQueries().size());
+		Assert.assertEquals(Integer.valueOf(10), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(1), method.getFacetMinCount());
+		Assert.assertEquals("inStock:true", method.getFacetQueries().get(0));
+		Assert.assertEquals("inStock:false", method.getFacetQueries().get(1));
 	}
 
 	@Test
@@ -193,14 +185,12 @@ public class SolrQueryMethodTests {
 		Assert.assertTrue(method.hasFacetQueries());
 		Assert.assertFalse(method.hasFilterQuery());
 
-		org.springframework.data.solr.core.query.FacetOptions options = method.getFacetOptions();
-
-		Assert.assertEquals(0, options.getFacetOnFields().size());
-		Assert.assertEquals(2, options.getFacetQueries().size());
-		Assert.assertEquals(25, options.getFacetLimit());
-		Assert.assertEquals(3, options.getFacetMinCount());
-		Assert.assertEquals("inStock:true", options.getFacetQueries().get(0).getCriteria().toString());
-		Assert.assertEquals("inStock:false", options.getFacetQueries().get(1).getCriteria().toString());
+		Assert.assertEquals(0, method.getFacetFields().size());
+		Assert.assertEquals(2, method.getFacetQueries().size());
+		Assert.assertEquals(Integer.valueOf(25), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(3), method.getFacetMinCount());
+		Assert.assertEquals("inStock:true", method.getFacetQueries().get(0));
+		Assert.assertEquals("inStock:false", method.getFacetQueries().get(1));
 	}
 
 	@Test
