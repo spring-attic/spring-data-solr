@@ -39,6 +39,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Pageable pageable = DEFAULT_PAGE;
 	private Sort sort;
 	private Operator defaultOperator;
+    private Integer timeAllowed;
 
 	public SimpleQuery() {
 	}
@@ -185,6 +186,15 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.filterQueries.add(filterQuery);
 		return (T) this;
 	}
+
+    public <T extends Query> T setTimeAllowed(Integer timeAllowed) {
+        this.timeAllowed = timeAllowed;
+        return (T) this;
+    }
+
+    public Integer getTimeAllowed() {
+        return this.timeAllowed;
+    }
 
 	@Override
 	public List<FilterQuery> getFilterQueries() {

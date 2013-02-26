@@ -129,6 +129,7 @@ public class QueryParser {
 		appendFilterQuery(solrQuery, query.getFilterQueries());
 		appendSort(solrQuery, query.getSort());
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
+        appendTimeAllowed(solrQuery, query.getTimeAllowed());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -412,6 +413,12 @@ public class QueryParser {
 			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
 		}
 	}
+
+    private void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
+        if (timeAllowed != null) {
+            solrQuery.setTimeAllowed(timeAllowed);
+        }
+    }
 
 	private String[] convertFieldListToStringArray(List<Field> fields) {
 		String[] strResult = new String[fields.size()];
