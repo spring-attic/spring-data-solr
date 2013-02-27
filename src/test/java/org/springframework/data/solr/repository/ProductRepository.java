@@ -128,4 +128,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(value = "inStock:(?0)", defaultOperator = org.springframework.data.solr.core.query.Query.Operator.OR)
 	List<ProductBean> findByAvailableInWithOrOperator(List<Boolean> values);
 
+	@Query(value = "*:*", timeAllowed = 250)
+	List<ProductBean> findAllWithExecutiontimeRestriction();
+
 }

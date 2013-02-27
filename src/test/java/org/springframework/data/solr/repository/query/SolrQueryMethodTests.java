@@ -229,6 +229,18 @@ public class SolrQueryMethodTests {
 		Assert.assertEquals(org.springframework.data.solr.core.query.Query.Operator.NONE, method.getDefaultOperator());
 	}
 
+	@Test
+	public void testQueryWithPositiveTimeAllowed() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findAllWithPositiveTimeRestriction", String.class);
+		Assert.assertEquals(Integer.valueOf(250), method.getTimeAllowed());
+	}
+
+	@Test
+	public void testQueryWithNegativeTimeAllowed() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findAllWithNegativeTimeRestriction", String.class);
+		Assert.assertNull(method.getTimeAllowed());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -279,6 +291,12 @@ public class SolrQueryMethodTests {
 
 		@Query(defaultOperator = org.springframework.data.solr.core.query.Query.Operator.AND)
 		List<ProductBean> findByNameLike(String prefix);
+
+		@Query(value = "*:*", timeAllowed = 250)
+		List<ProductBean> findAllWithPositiveTimeRestriction(String name);
+
+		@Query(value = "*:*", timeAllowed = -10)
+		List<ProductBean> findAllWithNegativeTimeRestriction(String name);
 	}
 
 }

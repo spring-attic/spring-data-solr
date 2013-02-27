@@ -89,6 +89,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		Query query = createQuery(accessor);
 		decorateWithFilterQuery(query, accessor);
 		setDefaultQueryOperatorIfDefined(query);
+		setAllowedQueryExeutionTime(query);
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery()) {
@@ -113,6 +114,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		Query.Operator defaultOperator = solrQueryMethod.getDefaultOperator();
 		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
 			query.setDefaultOperator(defaultOperator);
+		}
+	}
+
+	private void setAllowedQueryExeutionTime(Query query) {
+		Integer timeAllowed = solrQueryMethod.getTimeAllowed();
+		if (timeAllowed != null) {
+			query.setTimeAllowed(timeAllowed);
 		}
 	}
 

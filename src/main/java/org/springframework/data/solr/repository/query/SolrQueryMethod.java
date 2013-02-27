@@ -87,6 +87,16 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotationValuesAsStringList(getQueryAnnotation(), "fields");
 	}
 
+	public Integer getTimeAllowed() {
+		if (hasQueryAnnotation()) {
+			Integer timeAllowed = (Integer) AnnotationUtils.getValue(getQueryAnnotation(), "timeAllowed");
+			if (timeAllowed != null && timeAllowed.intValue() > 0) {
+				return timeAllowed;
+			}
+		}
+		return null;
+	}
+
 	public boolean isFacetQuery() {
 		return hasFacetFields() || hasFacetQueries();
 	}

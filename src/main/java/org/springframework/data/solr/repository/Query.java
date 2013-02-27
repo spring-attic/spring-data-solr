@@ -64,4 +64,11 @@ public @interface Query {
 	 */
 	org.springframework.data.solr.core.query.Query.Operator defaultOperator() default org.springframework.data.solr.core.query.Query.Operator.NONE;
 
+	/**
+	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.
+	 * 
+	 * @return
+	 */
+	int timeAllowed() default -1;
+
 }

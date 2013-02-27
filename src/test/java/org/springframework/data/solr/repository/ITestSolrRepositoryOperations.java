@@ -466,6 +466,12 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(4, found.size());
 	}
 
+	@Test
+	public void testTimeAllowed() {
+		List<ProductBean> found = repo.findAllWithExecutiontimeRestriction();
+		Assert.assertEquals(4, found.size());
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}
