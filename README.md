@@ -12,6 +12,7 @@ Getting Help
 * [API Documentation](http://static.springsource.org/spring-data/data-solr/docs/current/api/)
 * [Spring Data Project](http://www.springsource.org/spring-data)
 * [Issues](https://jira.springsource.org/browse/DATASOLR)
+* [Code Analysis](https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr)
 
 If you are new to Spring as well as to Spring Data, look for information about [Spring projects](http://www.springsource.org/projects). 
 
@@ -47,12 +48,18 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         //Derived Query will be "q=inStock:true&start=<page.number>&rows=<page.size>"
         Page<Product> findByAvailableTrue(Pageable page);
   
-        @Query("inStock:false")
-        Page<Product> findByAvailableFalseUsingAnnotatedQuery(Pageable page);
+        @Query("inStock:?0")
+        Page<Product> findByAvailableUsingAnnotatedQuery(boolean inStock, Pageable page);
         
         //Will execute count prior to determine total number of elements
         //Derived Query will be q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc
         List<ProductBean> findByAvailableFalseOrderByNameDesc();
+        
+        //Execute faceted search 
+        //Query will be q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>
+        @Query(value = "name:?0")
+        @Facet(fields = { "cat" }, limit=20)
+        FacetPage<ProductBean> findByNameAndFacetOnCategory(String name, Pageable page)
     }
 ```
 
