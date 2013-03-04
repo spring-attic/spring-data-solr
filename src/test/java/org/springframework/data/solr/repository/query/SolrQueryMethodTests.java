@@ -241,6 +241,12 @@ public class SolrQueryMethodTests {
 		Assert.assertNull(method.getTimeAllowed());
 	}
 
+	@Test
+	public void testQueryWithDefType() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameEndingWith", String.class);
+		Assert.assertEquals("lucene", method.getDefType());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -297,6 +303,9 @@ public class SolrQueryMethodTests {
 
 		@Query(value = "*:*", timeAllowed = -10)
 		List<ProductBean> findAllWithNegativeTimeRestriction(String name);
+
+		@Query(defType = "lucene")
+		List<ProductBean> findByNameEndingWith(String name);
 	}
 
 }
