@@ -121,6 +121,30 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFindByIsNull() {
+		ProductBean beanWithoutName = createProductBean("5", 3, true, "product");
+		beanWithoutName.setName(null);
+		repo.save(beanWithoutName);
+
+		List<ProductBean> found = repo.findByNameIsNull();
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(beanWithoutName.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testFindByIsNotNull() {
+		ProductBean beanWithoutName = createProductBean("5", 3, true, "product");
+		beanWithoutName.setName(null);
+		repo.save(beanWithoutName);
+
+		List<ProductBean> found = repo.findByNameIsNotNull();
+		Assert.assertEquals(4, found.size());
+		for (ProductBean foundBean : found) {
+			Assert.assertFalse(beanWithoutName.getId().equals(foundBean.getId()));
+		}
+	}
+
+	@Test
 	public void testFindSingleElementByIs() {
 		ProductBean product = repo.findById(POPULAR_AVAILABLE_PRODUCT.getId());
 		Assert.assertNotNull(product);

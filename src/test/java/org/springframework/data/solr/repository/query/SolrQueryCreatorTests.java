@@ -91,6 +91,34 @@ public class SolrQueryCreatorTests {
 	}
 
 	@Test
+	public void testCreateFindByNotNullCriteria() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityIsNotNull");
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] {}), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Assert.assertEquals("popularity:[* TO *]", queryParser.getQueryString(query));
+	}
+
+	@Test
+	public void testCreateFindByNullCriteria() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityIsNull");
+		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
+
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod,
+				new Object[] {}), mappingContext);
+
+		Query query = creator.createQuery();
+
+		Assert.assertEquals("-popularity:[* TO *]", queryParser.getQueryString(query));
+	}
+
+	@Test
 	public void testCreateFindByAndQuery() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByPopularityAndPrice", Integer.class, Float.class);
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
@@ -435,6 +463,10 @@ public class SolrQueryCreatorTests {
 		ProductBean findByPopularity(Integer popularity);
 
 		ProductBean findByPopularityIsNot(Integer popularity);
+
+		ProductBean findByPopularityIsNotNull();
+
+		ProductBean findByPopularityIsNull();
 
 		ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 

@@ -67,6 +67,50 @@ public class CriteriaTests {
 		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, "another is");
 	}
 
+	@Test
+	public void testIsWithNull() {
+		Criteria criteria = new Criteria("field_1").is(null);
+		Assert.assertEquals("field_1", criteria.getField().getName());
+
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+	}
+
+	@Test
+	public void testIsNull() {
+		Criteria criteria = new Criteria("field_1").isNull();
+		Assert.assertEquals("field_1", criteria.getField().getName());
+
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+
+		Assert.assertTrue(criteria.isNegating());
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+	}
+
+	@Test
+	public void testIsNotNull() {
+		Criteria criteria = new Criteria("field_1").isNotNull();
+		Assert.assertEquals("field_1", criteria.getField().getName());
+
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+
+		Assert.assertFalse(criteria.isNegating());
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+	}
+
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testContainsWithBlank() {
 		new Criteria("field_1").contains("no blank");
@@ -202,7 +246,7 @@ public class CriteriaTests {
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[1]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
@@ -212,7 +256,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").between(null, 200);
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
@@ -240,9 +284,15 @@ public class CriteriaTests {
 		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test
 	public void testBetweenWithoutLowerAndUpperBound() {
-		new Criteria("field_1").between(null, null);
+		Criteria criteria = new Criteria("field_1").between(null, null);
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
 
 	@Test
@@ -250,7 +300,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").lessThan(200);
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
@@ -261,15 +311,21 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").lessThanEqual(200);
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test
 	public void testLessThanEqualNull() {
-		new Criteria("field_1").lessThanEqual(null);
+		Criteria criteria = new Criteria("field_1").lessThanEqual(null);
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
 
 	@Test
@@ -278,7 +334,7 @@ public class CriteriaTests {
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[1]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
 		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
@@ -289,14 +345,21 @@ public class CriteriaTests {
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(null, ((Object[]) entry.getValue())[1]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
 		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test
 	public void testGreaterThanEqualNull() {
-		new Criteria("field_1").greaterThanEqual(null);
+		Criteria criteria = new Criteria("field_1").greaterThanEqual(null);
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		Assert.assertNull(((Object[]) entry.getValue())[0]);
+		Assert.assertNull(((Object[]) entry.getValue())[1]);
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
+		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+
 	}
 
 	@Test

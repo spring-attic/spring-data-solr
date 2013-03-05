@@ -194,8 +194,29 @@ public class Criteria {
 	 * @return
 	 */
 	public Criteria is(Object o) {
+		if (o == null) {
+			return isNull();
+		}
 		criteria.add(new CriteriaEntry(OperationKey.EQUALS, o));
 		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry for {@code null} values
+	 * 
+	 * @return
+	 */
+	public Criteria isNull() {
+		return between(null, null).not();
+	}
+
+	/**
+	 * Crates new CriteriaEntry for {@code !null} values
+	 * 
+	 * @return
+	 */
+	public Criteria isNotNull() {
+		return between(null, null);
 	}
 
 	/**
@@ -318,10 +339,6 @@ public class Criteria {
 	 * @return
 	 */
 	public Criteria between(Object lowerBound, Object upperBound, boolean includeLowerBound, boolean includeUppderBound) {
-		if (lowerBound == null && upperBound == null) {
-			throw new InvalidDataAccessApiUsageException("Range [* TO *] is not allowed");
-		}
-
 		criteria.add(new CriteriaEntry(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound, includeLowerBound,
 				includeUppderBound }));
 		return this;
