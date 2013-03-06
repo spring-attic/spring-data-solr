@@ -286,6 +286,28 @@ public Product save(Product product) {
 							</row>
 							<row>
 								<entry>
+									<code>IsNull</code>
+								</entry>
+								<entry>
+									<code>findByNameIsNull</code>
+								</entry>
+								<entry>
+									<code>q=-name:[* TO *]</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>IsNotNull</code>
+								</entry>
+								<entry>
+									<code>findByNameIsNotNull</code>
+								</entry>
+								<entry>
+									<code>q=name:[* TO *]</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
 									<code>Between</code>
 								</entry>
 								<entry>
