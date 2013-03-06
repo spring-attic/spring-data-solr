@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository.support;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ import org.springframework.util.Assert;
  * @param <T>
  * @author Christoph Strobl
  */
-public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
+public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
 
 	private static final String DEFAULT_ID_FIELD = "id";
 
@@ -81,7 +82,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	}
 
 	@Override
-	public T findOne(String id) {
+	public T findOne(ID id) {
 		return getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
@@ -113,7 +114,7 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	}
 
 	@Override
-	public Iterable<T> findAll(Iterable<String> ids) {
+	public Iterable<T> findAll(Iterable<ID> ids) {
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
 		query.setPageRequest(new PageRequest(0, Math.max(1, (int) count(query))));
 
@@ -154,16 +155,16 @@ public class SimpleSolrRepository<T> implements SolrCrudRepository<T, String> {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(ID id) {
 		return findOne(id) != null;
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(ID id) {
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.deleteById(id);
+		this.solrOperations.deleteById(id.toString());
 		commitIfTransactionSynchronisationIsInactive();
 	}
 

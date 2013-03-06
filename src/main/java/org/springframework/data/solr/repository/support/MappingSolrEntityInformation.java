@@ -60,7 +60,7 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<ID> getIdType() {
-		return (Class<ID>) String.class;
+		return (Class<ID>) entityMetadata.getIdProperty().getType();
 	}
 
 	@Override

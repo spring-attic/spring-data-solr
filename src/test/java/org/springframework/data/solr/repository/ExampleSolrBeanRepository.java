@@ -21,6 +21,6 @@ import org.springframework.data.solr.repository.support.SimpleSolrRepository;
 /**
  * @author Christoph Strobl
  */
-public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean> {
+public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean, String> {
 
 }

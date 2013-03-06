@@ -29,11 +29,11 @@ public class PartialUpdate implements Update {
 	private final ValueHoldingField idField;
 	private final List<UpdateField> updates = new ArrayList<UpdateField>();
 
-	public PartialUpdate(String idFieldName, String idFieldValue) {
+	public PartialUpdate(String idFieldName, Object idFieldValue) {
 		this(new IdField(idFieldName, idFieldValue));
 	}
 
-	public PartialUpdate(Field idField, String idFieldValue) {
+	public PartialUpdate(Field idField, Object idFieldValue) {
 		this(new IdField(idField.getName(), idFieldValue));
 	}
 

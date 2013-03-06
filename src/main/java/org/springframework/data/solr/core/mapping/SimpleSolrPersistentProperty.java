@@ -37,11 +37,15 @@ import org.springframework.util.StringUtils;
 public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> implements
 		SolrPersistentProperty {
 
-	private static final Set<Class<?>> SUPPORTED_ID_TYPES = new HashSet<Class<?>>();
-	private static final Set<String> SUPPORTED_ID_PROPERTY_NAMES = new HashSet<String>();
+	private static final String SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE = "#default";
+	private static final Set<Class<?>> SUPPORTED_ID_TYPES = new HashSet<Class<?>>(3);
+	private static final Set<String> SUPPORTED_ID_PROPERTY_NAMES = new HashSet<String>(1);
 
 	static {
 		SUPPORTED_ID_TYPES.add(String.class);
+		SUPPORTED_ID_TYPES.add(Long.class);
+		SUPPORTED_ID_TYPES.add(Integer.class);
+
 		SUPPORTED_ID_PROPERTY_NAMES.add("id");
 	}
 
@@ -52,10 +56,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 	@Override
 	public String getFieldName() {
-		org.apache.solr.client.solrj.beans.Field annotation = getField().getAnnotation(
-				org.apache.solr.client.solrj.beans.Field.class);
+		org.apache.solr.client.solrj.beans.Field annotation = findAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 
-		if (annotation != null && StringUtils.hasText(annotation.value()) && !"#default".equals(annotation.value())) {
+		if (annotation != null && StringUtils.hasText(annotation.value())
+				&& !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(annotation.value())) {
 			return annotation.value();
 		}
 		return field.getName();
