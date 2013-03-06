@@ -14,7 +14,7 @@ Getting Help
 * [Issues](https://jira.springsource.org/browse/DATASOLR)
 * [Code Analysis](https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr)
 
-If you are new to Spring as well as to Spring Data, look for information about [Spring projects](http://www.springsource.org/projects). 
+If you are new to Spring as well as to Spring Data, look for information about [Spring projects](http://www.springsource.org/projects).
 
 Quick Start
 -----------
@@ -134,6 +134,21 @@ You can set up repository scanning via xml configuration, which will happily cre
 </beans>
 ```
 
+Maven
+-----
+
+```xml
+<dependency>
+	<groupId>org.springframework.data</groupId>
+	<artifactId>spring-data-solr</artifactId>
+	<version>1.0.0.RC1</version>
+</dependency> 
+
+<repository>
+	<id>spring-maven-milesone</id>
+	<url>http://repo.springsource.org/libs-milestone</url>
+</repository>  
+```
 
 Contributing to Spring Data
 ---------------------------
