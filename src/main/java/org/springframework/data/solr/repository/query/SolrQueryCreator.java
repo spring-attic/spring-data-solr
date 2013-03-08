@@ -107,13 +107,13 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return criteria.expression(parameters.next().toString());
 		case LIKE:
 		case STARTING_WITH:
-			return criteria.startsWith(parameters.next().toString());
+			return criteria.startsWith(asStringArray(parameters.next()));
 		case NOT_LIKE:
-			return criteria.startsWith(parameters.next().toString()).not();
+			return criteria.startsWith(asStringArray(parameters.next())).not();
 		case ENDING_WITH:
-			return criteria.endsWith(parameters.next().toString());
+			return criteria.endsWith(asStringArray(parameters.next()));
 		case CONTAINING:
-			return criteria.contains(parameters.next().toString());
+			return criteria.contains(asStringArray(parameters.next()));
 		case AFTER:
 		case GREATER_THAN:
 			return criteria.greaterThan(parameters.next());
@@ -155,6 +155,27 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			return (Object[]) o;
 		}
 		return new Object[] { o };
+	}
+
+	@SuppressWarnings("unchecked")
+	private String[] asStringArray(Object o) {
+		if (o instanceof Collection) {
+			Collection<?> col = (Collection<?>) o;
+			if (col.isEmpty()) {
+				return new String[0];
+			} else {
+				if (!(col.iterator().next() instanceof String)) {
+					throw new IllegalArgumentException("Parameter has to be a collection of String.");
+				}
+				return (String[]) ((Collection<String>) o).toArray();
+			}
+		} else if (o.getClass().isArray()) {
+			if (!(o instanceof String[])) {
+				throw new IllegalArgumentException("Parameter has to be an array of String.");
+			}
+			return (String[]) o;
+		}
+		return new String[] { o.toString() };
 	}
 
 }

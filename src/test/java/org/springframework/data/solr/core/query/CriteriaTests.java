@@ -135,6 +135,16 @@ public class CriteriaTests {
 	}
 
 	@Test
+	public void testEndsWithCollection() {
+		Criteria criteria = new Criteria("field_1").endsWith(Arrays.asList("use", "multiple", "values"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.ENDS_WITH, "use");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.ENDS_WITH, "multiple");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.ENDS_WITH, "values");
+	}
+
+	@Test
 	public void testStartsWith() {
 		Criteria criteria = new Criteria("field_1").startsWith("start");
 
@@ -143,11 +153,31 @@ public class CriteriaTests {
 	}
 
 	@Test
+	public void testStartsWithCollection() {
+		Criteria criteria = new Criteria("field_1").startsWith(Arrays.asList("use", "multiple", "values"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.STARTS_WITH, "use");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.STARTS_WITH, "multiple");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.STARTS_WITH, "values");
+	}
+
+	@Test
 	public void testContains() {
 		Criteria criteria = new Criteria("field_1").contains("contains");
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
 		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.CONTAINS, "contains");
+	}
+
+	@Test
+	public void testContainWithCollection() {
+		Criteria criteria = new Criteria("field_1").contains(Arrays.asList("use", "multiple", "values"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.CONTAINS, "use");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.CONTAINS, "multiple");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.CONTAINS, "values");
 	}
 
 	@Test

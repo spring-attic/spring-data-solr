@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -85,6 +86,14 @@ public class QueryParserTests {
 	}
 
 	@Test
+	public void testEndsWithMulitpleValues() {
+		Criteria criteria = new Criteria("field_1").endsWith(Arrays.asList("one", "two", "three"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:(*one *two *three)", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
 	public void testStartsWith() {
 		Criteria criteria = new Criteria("field_1").startsWith("start");
 
@@ -93,11 +102,27 @@ public class QueryParserTests {
 	}
 
 	@Test
+	public void testStartsWithMultipleValues() {
+		Criteria criteria = new Criteria("field_1").startsWith(Arrays.asList("one", "two", "three"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:(one* two* three*)", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
 	public void testContains() {
 		Criteria criteria = new Criteria("field_1").contains("contains");
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
 		Assert.assertEquals("field_1:*contains*", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testContainsWithMultipleValues() {
+		Criteria criteria = new Criteria("field_1").contains(Arrays.asList("one", "two", "three"));
+
+		Assert.assertEquals("field_1", criteria.getField().getName());
+		Assert.assertEquals("field_1:(*one* *two* *three*)", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
 	@Test

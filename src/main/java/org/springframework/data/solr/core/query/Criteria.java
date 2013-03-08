@@ -233,6 +233,33 @@ public class Criteria {
 	}
 
 	/**
+	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
+	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria contains(String... values) {
+		assertValuesPresent((Object[]) values);
+		return contains(Arrays.asList(values));
+	}
+
+	/**
+	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
+	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria contains(Iterable<String> values) {
+		Assert.notNull(values, "Collection must not be null");
+		for (String value : values) {
+			contains(value);
+		}
+		return this;
+	}
+
+	/**
 	 * Crates new CriteriaEntry with trailing wildcard
 	 * 
 	 * @param o
@@ -241,6 +268,31 @@ public class Criteria {
 	public Criteria startsWith(String s) {
 		assertNoBlankInWildcardedQuery(s, true, false);
 		criteria.add(new CriteriaEntry(OperationKey.STARTS_WITH, s));
+		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry with trailing wildcard for each entry
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria startsWith(String... values) {
+		assertValuesPresent((Object[]) values);
+		return startsWith(Arrays.asList(values));
+	}
+
+	/**
+	 * Crates new CriteriaEntry with trailing wildcard for each entry
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria startsWith(Iterable<String> values) {
+		Assert.notNull(values, "Collection must not be null");
+		for (String value : values) {
+			startsWith(value);
+		}
 		return this;
 	}
 
@@ -254,6 +306,33 @@ public class Criteria {
 	public Criteria endsWith(String s) {
 		assertNoBlankInWildcardedQuery(s, false, true);
 		criteria.add(new CriteriaEntry(OperationKey.ENDS_WITH, s));
+		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
+	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria endsWith(String... values) {
+		assertValuesPresent((Object[]) values);
+		return endsWith(Arrays.asList(values));
+	}
+
+	/**
+	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
+	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria endsWith(Iterable<String> values) {
+		Assert.notNull(values, "Collection must not be null");
+		for (String value : values) {
+			endsWith(value);
+		}
 		return this;
 	}
 
@@ -395,11 +474,7 @@ public class Criteria {
 	 * @return
 	 */
 	public Criteria in(Object... values) {
-		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
-			throw new InvalidDataAccessApiUsageException("At least one element "
-					+ (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
-					+ " has to be present.");
-		}
+		assertValuesPresent(values);
 		return in(Arrays.asList(values));
 	}
 
@@ -463,19 +538,6 @@ public class Criteria {
 		return this;
 	}
 
-	private void assertPositiveDistanceValue(Distance distance) {
-		if (distance != null && distance.getValue() < 0) {
-			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
-		}
-	}
-
-	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
-		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
-			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
-					+ searchString + "\"" + (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
-		}
-	}
-
 	/**
 	 * Field targeted by this Criteria
 	 * 
@@ -521,6 +583,27 @@ public class Criteria {
 	 */
 	public float getBoost() {
 		return this.boost;
+	}
+
+	private void assertPositiveDistanceValue(Distance distance) {
+		if (distance != null && distance.getValue() < 0) {
+			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+		}
+	}
+
+	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
+		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
+			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
+					+ searchString + "\"" + (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
+		}
+	}
+
+	private void assertValuesPresent(Object... values) {
+		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
+			throw new InvalidDataAccessApiUsageException("At least one element "
+					+ (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
+					+ " has to be present.");
+		}
 	}
 
 	static class OrCriteria extends Criteria {
