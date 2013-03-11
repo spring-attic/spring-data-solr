@@ -159,9 +159,13 @@ class ProductService {
 		<section id="solr.transactions">
 			<title>Transaction Support</title>
 			<para>
-				Solr supports transactions on server level means create, updaet, delete actions since the 
-				last commit/optimize/rollback are queued on the server and committed/optimized/rolled back at once.
-				Spring Data Solr Repositories will participate in Spring Managed Transactions and commit/rollback 
+				Solr supports transactions on server level means create,
+				updaet, delete actions since the
+				last commit/optimize/rollback are queued on the server and
+				committed/optimized/rolled back at once.
+				Spring Data Solr
+				Repositories will participate in Spring Managed Transactions and
+				commit/rollback
 				changes on complete.
 			</para>
 			<example>
@@ -488,21 +492,20 @@ public Product save(Product product) {
 									</code>
 								</entry>
 							</row>
-                            <row>
-                                <entry>
-                                    <code>Near</code>
-                                </entry>
-                                <entry>
-                                    <code>findByStoreNear(GeoLocation, Distance)</code>
-                                </entry>
-                                <entry>
-                                    <code>q={!bbox pt=?0.latitude,?0.longitude sfield=store
-                                        d=?1}
-                                    </code>
-                                </entry>
-                            </row>
-
-                            <row>
+							<row>
+								<entry>
+									<code>Near</code>
+								</entry>
+								<entry>
+									<code>findByStoreNear(GeoLocation, Distance)</code>
+								</entry>
+								<entry>
+									<code>q={!bbox pt=?0.latitude,?0.longitude sfield=store
+										d=?1}
+									</code>
+								</entry>
+							</row>
+							<row>
 								<entry>
 									<code>Near</code>
 								</entry>
@@ -511,7 +514,7 @@ public Product save(Product product) {
 								</entry>
 								<entry>
 									<code>q=store[?0.start.latitude,?0.start.longitude TO
-									   ?0.end.latitude,?0.end.longitude]
+										?0.end.latitude,?0.end.longitude]
 									</code>
 								</entry>
 							</row>
@@ -551,6 +554,12 @@ public Product save(Product product) {
 						</tbody>
 					</tgroup>
 				</table>
+				<note>
+					Collections types can be used along with 'Like', 'NotLike',
+					'StartingWith', 'EndingWith' and 'Containing'.
+					<programlisting language="java">Page&lt;Product&gt; findByNameLike(Collection&lt;String&gt; name);
+</programlisting>
+				</note>
 			</para>
 		</section>
 		<section id="solr.query-methods.at-query">
