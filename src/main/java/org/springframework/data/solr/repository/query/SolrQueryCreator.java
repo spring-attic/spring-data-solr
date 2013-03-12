@@ -167,7 +167,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 				if (!(col.iterator().next() instanceof String)) {
 					throw new IllegalArgumentException("Parameter has to be a collection of String.");
 				}
-				return (String[]) ((Collection<String>) o).toArray();
+				return ((Collection<String>) o).toArray(new String[col.size()]);
 			}
 		} else if (o.getClass().isArray()) {
 			if (!(o instanceof String[])) {

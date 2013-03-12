@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
  * Solr specific repository implementation. Likely to be used as target within {@link SolrRepositoryFactory}
  * 
  * @param <T>
+ * @Param <ID>
  * @author Christoph Strobl
  */
 public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {

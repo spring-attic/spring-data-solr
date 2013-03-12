@@ -153,6 +153,21 @@ public class SolrQueryCreatorTests {
 	}
 
 	@Test
+	public void testCreateQueryWithArrayType() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityLike", String[].class);
+
+		Query query = createQueryForMethodWithArgs(method, new Object[] { new String[] { "one", "two", "three" } });
+		Assert.assertEquals("popularity:(one* two* three*)", queryParser.getQueryString(query));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateQueryWithInvalidArrayType() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByPopularityLike", Long[].class);
+
+		createQueryForMethodWithArgs(method, new Object[] { new Long[] { 1L, 2L, 3L } });
+	}
+
+	@Test
 	public void testCreateQueryWithLikeNotClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByTitleNotLike", String.class);
 
@@ -384,6 +399,10 @@ public class SolrQueryCreatorTests {
 		ProductBean findByTitleLike(Collection<String> prefix);
 
 		ProductBean findByPopularityLike(Collection<Long> prefix);
+
+		ProductBean findByPopularityLike(String[] prefix);
+
+		ProductBean findByPopularityLike(Long[] prefix);
 
 		ProductBean findByTitleNotLike(String prefix);
 
