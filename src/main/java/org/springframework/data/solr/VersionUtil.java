@@ -22,8 +22,22 @@ import org.springframework.util.ClassUtils;
  */
 public final class VersionUtil {
 
+	private VersionUtil() {
+		// hide utility class constructor
+	}
+
+	private static final boolean IS_JODATIME_AVAILABLE = ClassUtils.isPresent("org.joda.time.DateTime",
+			VersionUtil.class.getClassLoader());
+
 	private static final boolean IS_SOLR_4_2_AVAILABLE = ClassUtils.isPresent("org.apache.solr.parser.ParseException",
 			VersionUtil.class.getClassLoader());
+
+	/**
+	 * @return true if {@code org.joda.time.DateTime} is in path
+	 */
+	public static final boolean isJodaTimeAvailable() {
+		return IS_JODATIME_AVAILABLE;
+	}
 
 	/**
 	 * @return true if {@code org.apache.solr.parser.ParseException} is in path
