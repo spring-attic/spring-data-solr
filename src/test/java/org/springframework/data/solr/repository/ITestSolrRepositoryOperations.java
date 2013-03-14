@@ -313,21 +313,41 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
-	public void testFindWithSort() {
+	public void testFindWithSortAsc() {
 		repo.deleteAll();
 
 		List<ProductBean> values = new ArrayList<ProductBean>();
 		for (int i = 0; i < 10; i++) {
-			values.add(createProductBean(Integer.toString(i), 5, true));
+			values.add(createProductBean(Integer.toString(i), i, true));
 		}
 		repo.save(values);
 
-		List<ProductBean> found = repo.findByAvailableTrueOrderByNameDesc();
+		List<ProductBean> found = repo.findByAvailableTrueOrderByPopularityAsc();
 
 		ProductBean prev = found.get(0);
 		for (int i = 1; i < found.size(); i++) {
 			ProductBean cur = found.get(i);
-			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) > Long.valueOf(prev.getPopularity()));
+			prev = cur;
+		}
+	}
+
+	@Test
+	public void testFindWithSortDesc() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), i, true));
+		}
+		repo.save(values);
+
+		List<ProductBean> found = repo.findByAvailableTrueOrderByPopularityDesc();
+
+		ProductBean prev = found.get(0);
+		for (int i = 1; i < found.size(); i++) {
+			ProductBean cur = found.get(i);
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
 			prev = cur;
 		}
 	}

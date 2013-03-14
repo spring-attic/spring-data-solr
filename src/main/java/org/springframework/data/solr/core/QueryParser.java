@@ -34,6 +34,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.BoundingBox;
@@ -407,7 +408,12 @@ public class QueryParser {
 			return;
 		}
 		for (Order order : sort) {
-			solrQuery.addSortField(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
+			// addSort which is to be used instead of addSortField is not available in versions below 4.2.0
+			if (VersionUtil.isSolr420Available()) {
+				solrQuery.addSort(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
+			} else {
+				solrQuery.addSortField(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
+			}
 		}
 	}
 

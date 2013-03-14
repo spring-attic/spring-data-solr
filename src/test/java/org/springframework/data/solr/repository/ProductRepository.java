@@ -89,7 +89,9 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByLocationNear(BoundingBox bbox);
 
-	List<ProductBean> findByAvailableTrueOrderByNameDesc();
+	List<ProductBean> findByAvailableTrueOrderByPopularityDesc();
+
+	List<ProductBean> findByAvailableTrueOrderByPopularityAsc();
 
 	ProductBean findByNameAndAvailableTrue(String name);
 

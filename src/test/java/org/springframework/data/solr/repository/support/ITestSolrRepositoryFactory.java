@@ -112,27 +112,6 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 	}
 
 	@Test
-	public void testPartTreeQueryWithSort() {
-		ProductBean availableProduct = createProductBean("1");
-		ProductBean unavailableProduct1 = createProductBean("2");
-		unavailableProduct1.setAvailable(false);
-		ProductBean unavailableProduct2 = createProductBean("3");
-		unavailableProduct2.setAvailable(false);
-
-		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
-
-		repository.save(Arrays.asList(availableProduct, unavailableProduct1, unavailableProduct2));
-		Assert.assertEquals(3, repository.count());
-
-		List<ProductBean> result = repository.findByAvailableFalseOrderByNameDesc();
-		Assert.assertEquals(2, result.size());
-		int i = 3;
-		for (ProductBean bean : result) {
-			Assert.assertEquals("name-" + (i--), bean.getName());
-		}
-	}
-
-	@Test
 	public void testCollectionResultQuery() {
 		ProductBean availableProduct = createProductBean("1");
 		ProductBean unavailableProduct = createProductBean("2");
@@ -172,8 +151,6 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 	public interface ProductBeanRepository extends SolrCrudRepository<ProductBean, String> {
 
 		Page<ProductBean> findByAvailableTrue(Pageable page);
-
-		List<ProductBean> findByAvailableFalseOrderByNameDesc();
 
 		@Query("name:?0*")
 		Page<ProductBean> findByAnnotatedQuery(String prefix, Pageable page);

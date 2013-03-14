@@ -87,7 +87,7 @@ public class SolrExceptionTranslatorTests {
 	@Test
 	public void testWithParseException() {
 		SolrServerException solrServerException = new SolrServerException("meessage", new SolrException(
-				ErrorCode.BAD_REQUEST, new org.apache.lucene.queryparser.classic.ParseException("parse execption message")));
+				ErrorCode.BAD_REQUEST, new org.apache.solr.parser.ParseException("parse execption message")));
 
 		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(solrServerException)),
 				IsInstanceOf.instanceOf(InvalidDataAccessApiUsageException.class));
