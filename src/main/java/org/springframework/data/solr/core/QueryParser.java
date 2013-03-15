@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
+import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -87,12 +88,6 @@ public class QueryParser {
 		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
 			conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
-		}
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
@@ -101,6 +96,14 @@ public class QueryParser {
 		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
+		}
+		if (VersionUtil.isJodaTimeAvailable()) {
+			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+				conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
+			}
+			if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+				conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
+			}
 		}
 	}
 
@@ -314,10 +317,10 @@ public class QueryParser {
 
 	private String createSpatialFunctionFragment(String fieldName, GeoLocation location, Distance distance,
 			String function) {
-		String spatialFragment = "{!" + function + " pt=";
+		String spatialFragment = "{!" + function + " " + SpatialParams.POINT + "=";
 		spatialFragment += filterCriteriaValue(location);
-		spatialFragment += " sfield=" + fieldName;
-		spatialFragment += " d=" + filterCriteriaValue(distance);
+		spatialFragment += " " + SpatialParams.FIELD + "=" + fieldName;
+		spatialFragment += " " + SpatialParams.DISTANCE + "=" + filterCriteriaValue(distance);
 		spatialFragment += "}";
 		return spatialFragment;
 	}

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
@@ -60,12 +61,6 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
 			conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
-		}
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
@@ -74,6 +69,14 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
+		}
+		if (VersionUtil.isJodaTimeAvailable()) {
+			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
+				conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
+			}
+			if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
+				conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
+			}
 		}
 	}
 
