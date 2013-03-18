@@ -35,7 +35,7 @@ public final class VersionUtil {
 	/**
 	 * @return true if {@code org.joda.time.DateTime} is in path
 	 */
-	public static final boolean isJodaTimeAvailable() {
+	public static boolean isJodaTimeAvailable() {
 		return IS_JODATIME_AVAILABLE;
 	}
 
