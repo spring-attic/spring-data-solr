@@ -129,4 +129,15 @@ List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</pr
             </programlisting>
         </example>
     </section>
+    <section id="solr.misc.boost">
+        <title>Boost document Score</title>
+        <para>
+            Boost document score in case of matching criteria to influence result order. This can be done by either 
+            setting boost on <classname>Criteria</classname> or using <interfacename>@Boost</interfacename> for derived queries.
+        </para>
+        <example>
+            <programlisting language="java">Page&lt;Product&gt; findByNameOrDescription(@Boost(2) String name, String description);
+</programlisting>
+        </example>
+    </section>
 </chapter>

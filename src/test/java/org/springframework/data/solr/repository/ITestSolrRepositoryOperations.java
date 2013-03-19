@@ -516,6 +516,23 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(4, found.size());
 	}
 
+	@Test
+	public void testWithBoost() {
+		repo.deleteAll();
+		ProductBean beanWithName = createProductBean("1", 5, true, "stackoverflow");
+		beanWithName.setTitle(Arrays.asList("indexoutofbounds"));
+
+		ProductBean beanWithTitle = createProductBean("2", 5, true, "indexoutofbounds");
+		beanWithTitle.setTitle(Arrays.asList("stackoverflow"));
+
+		repo.save(Arrays.asList(beanWithName, beanWithTitle));
+
+		List<ProductBean> found = repo.findByNameStartsWithOrTitleStartsWith("indexoutofbounds", "indexoutofbounds");
+		Assert.assertEquals(2, found.size());
+		Assert.assertEquals(beanWithTitle.getId(), found.get(0).getId());
+		Assert.assertEquals(beanWithName.getId(), found.get(1).getId());
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}
