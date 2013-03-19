@@ -16,6 +16,8 @@
 package org.springframework.data.solr;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -56,6 +58,18 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 
 	public ExampleSolrBean createExampleBeanWithId(String id) {
 		return new ExampleSolrBean(id, "bean_" + id, "category_" + id);
+	}
+
+	public List<ExampleSolrBean> createBeansWithId(int nrObjectsToCreate) {
+		return createBeansWithIdAndPrefix(nrObjectsToCreate, null);
+	}
+
+	public List<ExampleSolrBean> createBeansWithIdAndPrefix(int nrObjectsToCreate, String idPrefix) {
+		ArrayList<ExampleSolrBean> list = new ArrayList<ExampleSolrBean>(nrObjectsToCreate);
+		for (int i = 1; i <= nrObjectsToCreate; i++) {
+			list.add(createExampleBeanWithId(idPrefix != null ? (idPrefix + Integer.toString(i)) : Integer.toString(i)));
+		}
+		return list;
 	}
 
 }
