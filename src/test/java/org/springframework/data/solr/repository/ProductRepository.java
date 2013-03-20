@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByPopularityAndAvailableTrue(Integer popularity);
 
 	List<ProductBean> findByPopularityOrAvailableFalse(Integer popularity);
+
+	List<ProductBean> findByNameStartsWithOrTitleStartsWith(@Boost(2) String name, String title);
 
 	List<ProductBean> findByLocationWithin(GeoLocation location, Distance distance);
 

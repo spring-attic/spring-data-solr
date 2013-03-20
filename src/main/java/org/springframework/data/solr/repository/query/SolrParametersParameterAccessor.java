@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,82 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import java.util.Iterator;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 
 /**
  * @author Christoph Strobl
  */
-public class SolrParametersParameterAccessor extends ParametersParameterAccessor implements SolrParameterAccessor {
+public class SolrParametersParameterAccessor implements SolrParameterAccessor {
+
+	private final SolrParameters parameters;
+	private final ParametersParameterAccessor parametersParameterAccessorDelegate;
 
 	public SolrParametersParameterAccessor(SolrQueryMethod solrQueryMethod, Object[] values) {
-		super(solrQueryMethod.getParameters(), values);
+		this.parameters = solrQueryMethod.getParameters();
+		this.parametersParameterAccessorDelegate = new ParametersParameterAccessor(this.parameters, values);
+	}
+
+	@Override
+	public float getBoost(int index) {
+		return parameters.getBindableParameter(index).getBoost();
+	}
+
+	@Override
+	public Pageable getPageable() {
+		return parametersParameterAccessorDelegate.getPageable();
+	}
+
+	@Override
+	public Sort getSort() {
+		return parametersParameterAccessorDelegate.getSort();
+	}
+
+	@Override
+	public Object getBindableValue(int index) {
+		return parametersParameterAccessorDelegate.getBindableValue(index);
+	}
+
+	@Override
+	public boolean hasBindableNullValue() {
+		return parametersParameterAccessorDelegate.hasBindableNullValue();
+	}
+
+	@Override
+	public Iterator<Object> iterator() {
+		return new BindableSolrParameterIterator(parametersParameterAccessorDelegate.iterator());
+	}
+
+	public class BindableSolrParameterIterator implements Iterator<Object> {
+
+		private final Iterator<Object> delegate;
+		private int currentIndex = 0;
+
+		public BindableSolrParameterIterator(Iterator<Object> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return delegate.hasNext();
+		}
+
+		@Override
+		public BindableSolrParameter next() {
+			BindableSolrParameter solrParameter = new BindableSolrParameter(currentIndex, delegate.next());
+			solrParameter.setBoost(parameters.getBindableParameter(currentIndex).getBoost());
+			currentIndex++;
+			return solrParameter;
+		}
+
+		@Override
+		public void remove() {
+			delegate.remove();
+		}
+
 	}
 
 }

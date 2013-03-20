@@ -452,4 +452,18 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
 		Assert.assertEquals(10, page.getContent().size());
 	}
+
+	@Test
+	public void testQueryWithDefType() {
+		List<ExampleSolrBean> values = createBeansWithIdAndPrefix(5, "id-");
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		SimpleQuery query = new SimpleQuery(new Criteria("id").in("id-1", "id-2", "id-3"));
+		query.setDefType("lucene");
+		query.setDefaultOperator(Operator.OR);
+
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(3, page.getContent().size());
+	}
 }

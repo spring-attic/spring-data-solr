@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,12 @@ import org.springframework.data.repository.query.ParameterAccessor;
  * @author Christoph Strobl
  */
 public interface SolrParameterAccessor extends ParameterAccessor {
+
+	/**
+	 * Get boost value for element at index if defined
+	 * @param index bindable parameter index
+	 * @return {@code Float.NaN} as default
+	 */
+	float getBoost(int index);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.context.PersistentPropertyPath;
-import org.springframework.data.repository.query.ParameterAccessor;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
@@ -45,12 +44,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
 	private final MappingContext<?, SolrPersistentProperty> context;
 
-	public SolrQueryCreator(PartTree tree, MappingContext<?, SolrPersistentProperty> context) {
-		super(tree);
-		this.context = context;
-	}
-
-	public SolrQueryCreator(PartTree tree, ParameterAccessor parameters, MappingContext<?, SolrPersistentProperty> context) {
+	public SolrQueryCreator(PartTree tree, SolrParameterAccessor parameters,
+			MappingContext<?, SolrPersistentProperty> context) {
 		super(tree, parameters);
 		this.context = context;
 	}
@@ -90,61 +85,88 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		if (criteria == null) {
 			criteria = new Criteria();
 		}
+
 		switch (type) {
 		case TRUE:
 			return criteria.is(true);
 		case FALSE:
 			return criteria.is(false);
 		case SIMPLE_PROPERTY:
-			return criteria.is(parameters.next());
+			return criteria.is(appendBoostAndGetParameterValue(criteria, parameters));
 		case NEGATING_SIMPLE_PROPERTY:
-			return criteria.is(parameters.next()).not();
+			return criteria.is(appendBoostAndGetParameterValue(criteria, parameters)).not();
 		case IS_NULL:
 			return criteria.isNull();
 		case IS_NOT_NULL:
 			return criteria.isNotNull();
 		case REGEX:
-			return criteria.expression(parameters.next().toString());
+			return criteria.expression(appendBoostAndGetParameterValue(criteria, parameters).toString());
 		case LIKE:
 		case STARTING_WITH:
-			return criteria.startsWith(asStringArray(parameters.next()));
+			return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
 		case NOT_LIKE:
-			return criteria.startsWith(asStringArray(parameters.next())).not();
+			return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
 		case ENDING_WITH:
-			return criteria.endsWith(asStringArray(parameters.next()));
+			return criteria.endsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
 		case CONTAINING:
-			return criteria.contains(asStringArray(parameters.next()));
+			return criteria.contains(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
 		case AFTER:
 		case GREATER_THAN:
-			return criteria.greaterThan(parameters.next());
+			return criteria.greaterThan(appendBoostAndGetParameterValue(criteria, parameters));
 		case GREATER_THAN_EQUAL:
-			return criteria.greaterThanEqual(parameters.next());
+			return criteria.greaterThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
 		case BEFORE:
 		case LESS_THAN:
-			return criteria.lessThan(parameters.next());
+			return criteria.lessThan(appendBoostAndGetParameterValue(criteria, parameters));
 		case LESS_THAN_EQUAL:
-			return criteria.lessThanEqual(parameters.next());
+			return criteria.lessThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
 		case BETWEEN:
-			return criteria.between(parameters.next(), parameters.next());
+			return criteria.between(appendBoostAndGetParameterValue(criteria, parameters),
+					appendBoostAndGetParameterValue(criteria, parameters));
 		case IN:
-			return criteria.in(asArray(parameters.next()));
+			return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters)));
 		case NOT_IN:
-			return criteria.in(asArray(parameters.next())).not();
+			return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
 		case NEAR:
 			return createNearCriteria(parameters, criteria);
 		case WITHIN:
-			return criteria.within((GeoLocation) parameters.next(), (Distance) parameters.next());
+			return criteria.within((GeoLocation) getBindableValue((BindableSolrParameter) parameters.next()),
+					(Distance) getBindableValue((BindableSolrParameter) parameters.next()));
 		default:
 			throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 		}
 	}
 
+	private Object appendBoostAndGetParameterValue(Criteria criteria, Iterator<?> iterator) {
+		Object param = iterator.next();
+		if (param instanceof BindableSolrParameter) {
+			BindableSolrParameter bindable = (BindableSolrParameter) param;
+			appendBoost(criteria, bindable);
+			return bindable.getValue();
+		}
+		return param;
+	}
+
+	private Criteria appendBoost(Criteria criteria, BindableSolrParameter parameter) {
+		if (!Float.isNaN(parameter.getBoost())) {
+			criteria.boost(parameter.getBoost());
+		}
+		return criteria;
+	}
+
+	private Object getBindableValue(BindableSolrParameter parameter) {
+		if (parameter == null) {
+			return null;
+		}
+		return parameter.getValue();
+	}
+
 	private Criteria createNearCriteria(Iterator<?> parameters, Criteria criteria) {
-		Object value = parameters.next();
+		Object value = getBindableValue((BindableSolrParameter) parameters.next());
 		if (value instanceof BoundingBox) {
 			return criteria.near((BoundingBox) value);
 		} else {
-			return criteria.near((GeoLocation) value, (Distance) parameters.next());
+			return criteria.near((GeoLocation) value, (Distance) getBindableValue((BindableSolrParameter) parameters.next()));
 		}
 	}
 

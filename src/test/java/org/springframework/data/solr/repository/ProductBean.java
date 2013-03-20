@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class ProductBean {
 	private String id;
 
 	@Field("title")
-	private String title;
+	private List<String> title;
 
 	@Field("name")
 	private String name;
@@ -56,7 +56,7 @@ public class ProductBean {
 
 	@Field("store")
 	private String location;
-	
+
 	@Field("last_modified")
 	private Date lastModified;
 
@@ -68,11 +68,11 @@ public class ProductBean {
 		this.id = id;
 	}
 
-	public String getTitle() {
+	public List<String> getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
+	public void setTitle(List<String> title) {
 		this.title = title;
 	}
 
