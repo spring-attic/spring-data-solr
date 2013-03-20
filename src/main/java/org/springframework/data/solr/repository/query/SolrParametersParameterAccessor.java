@@ -31,7 +31,7 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 
 	public SolrParametersParameterAccessor(SolrQueryMethod solrQueryMethod, Object[] values) {
 		this.parameters = solrQueryMethod.getParameters();
-		this.parametersParameterAccessorDelegate = new ParametersParameterAccessor(this.parameters, values);
+		this.parametersParameterAccessorDelegate = new ParametersParameterAccessor(this.parameters, values.clone());
 	}
 
 	@Override
