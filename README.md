@@ -59,7 +59,11 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         //Query will be q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>
         @Query(value = "name:?0")
         @Facet(fields = { "cat" }, limit=20)
-        FacetPage<ProductBean> findByNameAndFacetOnCategory(String name, Pageable page)
+        FacetPage<ProductBean> findByNameAndFacetOnCategory(String name, Pageable page);
+        
+        //Boosting criteria
+        //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>
+        Page<Product> findByNameOfDescription(@Boost(2) String name, String description, Pageable page);
     }
 ```
 
