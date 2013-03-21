@@ -63,7 +63,7 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         
         //Boosting criteria
         //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>
-        Page<Product> findByNameOfDescription(@Boost(2) String name, String description, Pageable page);
+        Page<Product> findByNameOrDescription(@Boost(2) String name, String description, Pageable page);
     }
 ```
 
