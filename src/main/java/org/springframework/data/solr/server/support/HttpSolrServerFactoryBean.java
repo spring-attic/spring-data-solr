@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,12 @@
  */
 package org.springframework.data.solr.server.support;
 
+import java.net.MalformedURLException;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -28,6 +32,7 @@ import org.springframework.util.Assert;
 public class HttpSolrServerFactoryBean extends HttpSolrServerFactory implements FactoryBean<SolrServer>,
 		InitializingBean, DisposableBean {
 
+	private static final String SERVER_URL_SEPARATOR = ",";
 	private String url;
 	private Integer timeout;
 	private Integer maxConnections;
@@ -39,6 +44,14 @@ public class HttpSolrServerFactoryBean extends HttpSolrServerFactory implements 
 	}
 
 	private void initSolrServer() {
+		if (this.url.contains(SERVER_URL_SEPARATOR)) {
+			createLoadBalancedHttpSolrServer();
+		} else {
+			createHttpSolrServer();
+		}
+	}
+
+	private void createHttpSolrServer() {
 		HttpSolrServer httpSolrServer = new HttpSolrServer(this.url);
 		if (timeout != null) {
 			httpSolrServer.setConnectionTimeout(timeout.intValue());
@@ -47,6 +60,18 @@ public class HttpSolrServerFactoryBean extends HttpSolrServerFactory implements 
 			httpSolrServer.setMaxTotalConnections(maxConnections);
 		}
 		this.setSolrServer(httpSolrServer);
+	}
+
+	private void createLoadBalancedHttpSolrServer() {
+		try {
+			LBHttpSolrServer lbHttpSolrServer = new LBHttpSolrServer(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
+			if (timeout != null) {
+				lbHttpSolrServer.setConnectionTimeout(timeout.intValue());
+			}
+			this.setSolrServer(lbHttpSolrServer);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Unable to create Load Balanced Http Solr Server", e);
+		}
 	}
 
 	@Override

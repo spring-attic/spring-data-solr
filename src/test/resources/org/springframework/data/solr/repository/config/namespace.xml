@@ -8,6 +8,7 @@
 	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
 	<solr:embedded-solr-server id="solrServer" solrHome="classpath:org/springframework/data/solr" /> 
 	<solr:solr-server id="httpSolrServer" url="http://localhost:8983/solr" />
+	<solr:solr-server id="lbHttpSolrServer" url="http://localhost:8983/solr,http://127.0.0.1:8983/solr" />
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrServer" />

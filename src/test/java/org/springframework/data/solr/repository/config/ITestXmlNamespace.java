@@ -15,11 +15,13 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,7 @@ public class ITestXmlNamespace {
 	public void createsRepositoryAndEmbeddedServerCorrectly() {
 		assertThat(context.getBean(PersonRepository.class), is(notNullValue()));
 		assertThat(context.getBean(EmbeddedSolrServer.class), is(notNullValue()));
-		assertThat(context.getBean(HttpSolrServer.class), is(notNullValue()));
+		assertThat(context.getBean("httpSolrServer", HttpSolrServer.class), is(notNullValue()));
+		assertThat(context.getBean("lbHttpSolrServer", LBHttpSolrServer.class), is(notNullValue()));
 	}
 }
