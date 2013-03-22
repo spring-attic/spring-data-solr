@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -531,6 +532,17 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(2, found.size());
 		Assert.assertEquals(beanWithTitle.getId(), found.get(0).getId());
 		Assert.assertEquals(beanWithName.getId(), found.get(1).getId());
+	}
+
+	@Test
+	public void testWithDefTypeLucene() {
+		final ProductBean anotherProductBean = createProductBean("5", 3, true, "an other product");
+		repo.save(anotherProductBean);
+
+		List<ProductBean> found = repo.findByNameIn(Arrays.asList(NAMED_PRODUCT.getName(), anotherProductBean.getName()));
+		Assert.assertEquals(2, found.size());
+
+		Assert.assertThat(found, Matchers.containsInAnyOrder(anotherProductBean, NAMED_PRODUCT));
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

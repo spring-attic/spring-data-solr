@@ -139,4 +139,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(value = "*:*", timeAllowed = 250)
 	List<ProductBean> findAllWithExecutiontimeRestriction();
 
+	@Query(defType = "lucene")
+	List<ProductBean> findByNameIn(Collection<String> name);
+
 }
