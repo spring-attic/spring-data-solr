@@ -53,13 +53,13 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         
         //Will execute count prior to determine total number of elements
         //Derived Query will be q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc
-        List<ProductBean> findByAvailableFalseOrderByNameDesc();
+        List<Product> findByAvailableFalseOrderByNameDesc();
         
         //Execute faceted search 
         //Query will be q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>
         @Query(value = "name:?0")
         @Facet(fields = { "cat" }, limit=20)
-        FacetPage<ProductBean> findByNameAndFacetOnCategory(String name, Pageable page);
+        FacetPage<Product> findByNameAndFacetOnCategory(String name, Pageable page);
         
         //Boosting criteria
         //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>
