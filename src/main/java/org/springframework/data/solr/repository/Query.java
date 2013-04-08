@@ -72,8 +72,15 @@ public @interface Query {
 	String defType() default "";
 
 	/**
+	 * Specifies the request handler {@code qt}
+	 *
+	 * @return
+	 */
+	String requestHandler() default "";
+
+	/**
 	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.
-	 * 
+	 *
 	 * @return
 	 */
 	int timeAllowed() default -1;

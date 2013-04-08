@@ -466,4 +466,24 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
 		Assert.assertEquals(3, page.getContent().size());
 	}
+
+	@Test
+	public void testQueryWithRequestHandler() {
+		List<ExampleSolrBean> values = createBeansWithIdAndPrefix(2, "rh-");
+		values.get(0).setInStock(false);
+		values.get(1).setInStock(true);
+
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		SimpleQuery query = new SimpleQuery(new Criteria("id").in("rh-1", "rh-2"));
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(2, page.getContent().size());
+
+		query = new SimpleQuery(new Criteria("id").in("rh-1", "rh-2"));
+		query.setRequestHandler("/instock");
+		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(1, page.getContent().size());
+		Assert.assertEquals("rh-2", page.getContent().get(0).getId());
+	}
 }

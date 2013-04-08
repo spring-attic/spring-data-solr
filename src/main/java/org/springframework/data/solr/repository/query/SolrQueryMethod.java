@@ -165,6 +165,13 @@ public class SolrQueryMethod extends QueryMethod {
 		return null;
 	}
 
+	public String getRequestHandler() {
+		if (hasQueryAnnotation()) {
+			return getQueryAnnotation().requestHandler();
+		}
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
 		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);
