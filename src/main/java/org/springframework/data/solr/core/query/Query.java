@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
  * @author Christoph Strobl
  * @author Rosty Kerei
  * @author Luke Corpe
+ * @author Andrey Paramonov
  */
 public interface Query extends SolrDataQuery {
 
@@ -169,4 +170,13 @@ public interface Query extends SolrDataQuery {
 	 */
 	void setDefType(String defType);
 
+	/**
+	 * Returns the request handler.
+	 */
+	String getRequestHandler();
+
+	/**
+	 * Sets the request handler.
+	 */
+	void setRequestHandler(String requestHandler);
 }

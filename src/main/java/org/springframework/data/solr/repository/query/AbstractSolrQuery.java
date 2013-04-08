@@ -47,6 +47,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author Christoph Strobl
  * @author Luke Corpe
+ * @author Andrey Paramonov
  */
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
@@ -96,6 +97,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setDefaultQueryOperatorIfDefined(query);
 		setAllowedQueryExeutionTime(query);
 		setDefTypeIfDefined(query);
+		setRequestHandlerIfDefined(query);
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery()) {
@@ -134,6 +136,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		String defType = solrQueryMethod.getDefType();
 		if (StringUtils.hasText(defType)) {
 			query.setDefType(defType);
+		}
+	}
+
+	private void setRequestHandlerIfDefined(Query query) {
+		String requestHandler = solrQueryMethod.getRequestHandler();
+		if (StringUtils.hasText(requestHandler)) {
+			query.setRequestHandler(requestHandler);
 		}
 	}
 

@@ -30,6 +30,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 /**
  * @author Christoph Strobl
  * @author John Dorman
+ * @author Andrey Paramonov
  */
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
@@ -154,5 +155,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	@Query(defType = "lucene")
 	List<ProductBean> findByNameIn(Collection<String> name);
+
+	@Query(requestHandler = "/instock")
+	List<ProductBean> findByText(String text);
 
 }

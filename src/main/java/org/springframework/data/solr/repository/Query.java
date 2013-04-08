@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author Christoph Strobl
+ * @author Andrey Paramonov
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -70,6 +71,13 @@ public @interface Query {
 	 * @return
 	 */
 	String defType() default "";
+
+	/**
+	 * Specifies the request handler {@code qt}
+	 * 
+	 * @return
+	 */
+	String requestHandler() default "";
 
 	/**
 	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.

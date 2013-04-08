@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author Christoph Strobl
  * @author Luke Corpe
+ * @author Andrey Paramonov
  */
 public class SolrQueryMethod extends QueryMethod {
 
@@ -161,6 +162,13 @@ public class SolrQueryMethod extends QueryMethod {
 	public String getDefType() {
 		if (hasQueryAnnotation()) {
 			return getQueryAnnotation().defType();
+		}
+		return null;
+	}
+
+	public String getRequestHandler() {
+		if (hasQueryAnnotation()) {
+			return getQueryAnnotation().requestHandler();
 		}
 		return null;
 	}

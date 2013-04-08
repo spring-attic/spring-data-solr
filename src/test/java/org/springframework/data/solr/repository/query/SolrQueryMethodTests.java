@@ -31,6 +31,7 @@ import org.springframework.data.solr.repository.support.SolrEntityInformationCre
 
 /**
  * @author Christoph Strobl
+ * @author Andrey Paramonov
  */
 public class SolrQueryMethodTests {
 
@@ -247,6 +248,12 @@ public class SolrQueryMethodTests {
 		Assert.assertEquals("lucene", method.getDefType());
 	}
 
+	@Test
+	public void testQueryWithRequestHandler() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByText", String.class);
+		Assert.assertEquals("/instock", method.getRequestHandler());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -306,6 +313,9 @@ public class SolrQueryMethodTests {
 
 		@Query(defType = "lucene")
 		List<ProductBean> findByNameEndingWith(String name);
+
+		@Query(requestHandler = "/instock")
+		List<ProductBean> findByText(String text);
 	}
 
 }
