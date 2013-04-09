@@ -35,6 +35,12 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByNamedQuery(Integer popularity);
 
+	@Query(name = "ProductBean.findByNamedQueryUsingAvailable")
+	List<ProductBean> findByAvailableWithSort(boolean available, Sort sort);
+
+	@Query(name = "ProductBean.findByNamedQueryUsingAvailable")
+	Page<ProductBean> findByAvailableWithSort(boolean available, Pageable pagebale);
+
 	List<ProductBean> findByName(String name);
 
 	List<ProductBean> findByNameNot(String name);

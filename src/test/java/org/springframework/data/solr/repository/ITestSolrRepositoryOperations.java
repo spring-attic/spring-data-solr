@@ -398,6 +398,47 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFindWithSortDescForNamedQuery() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), i, true));
+		}
+		repo.save(values);
+
+		List<ProductBean> found = repo.findByAvailableWithSort(true, new Sort(Direction.DESC, "popularity"));
+
+		ProductBean prev = found.get(0);
+		for (int i = 1; i < found.size(); i++) {
+			ProductBean cur = found.get(i);
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
+			prev = cur;
+		}
+	}
+
+	@Test
+	public void testFindWithSortDescInPageableForNamedQuery() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), i, true));
+		}
+		repo.save(values);
+
+		Page<ProductBean> found = repo.findByAvailableWithSort(true, new PageRequest(0, 30, new Sort(Direction.DESC,
+				"popularity")));
+
+		ProductBean prev = found.getContent().get(0);
+		for (int i = 1; i < found.getContent().size(); i++) {
+			ProductBean cur = found.getContent().get(i);
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
+			prev = cur;
+		}
+	}
+
+	@Test
 	public void testFindByRegex() {
 		List<ProductBean> found = repo.findByNameRegex("na*");
 		Assert.assertEquals(3, found.size());
