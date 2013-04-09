@@ -23,6 +23,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.SolrOperations;
@@ -166,6 +171,36 @@ public class StringBasedSolrQueryTests {
 		Assert.assertEquals("price", query.getProjectionOnFields().get(1).getName());
 	}
 
+	@Test
+	public void testWithSort() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByNameWithSort", String.class, Sort.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+		Sort sort = new Sort(Direction.DESC, "popularity", "price");
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { "spring", sort }));
+
+		Assert.assertEquals("name:spring", queryParser.getQueryString(query));
+		Assert.assertEquals(sort, query.getSort());
+	}
+
+	@Test
+	public void testWithSortInPageable() throws NoSuchMethodException, SecurityException {
+		Method method = SampleRepository.class.getMethod("findByNameWithSortInPageable", String.class, Pageable.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+		Sort sort = new Sort(Direction.DESC, "popularity", "price");
+
+		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
+				queryMethod, new Object[] { "spring", new PageRequest(0, 10, sort) }));
+
+		Assert.assertEquals("name:spring", queryParser.getQueryString(query));
+		Assert.assertEquals(sort, query.getSort());
+	}
+
 	private interface SampleRepository {
 
 		@Query("textGeneral:?0")
@@ -182,6 +217,12 @@ public class StringBasedSolrQueryTests {
 
 		@Query(value = "name:?0*", fields = { "popularity", "price" })
 		ProductBean findByNameProjectionOnPopularityAndPrice(String name);
+
+		@Query(value = "name:?0")
+		ProductBean findByNameWithSort(String name, Sort sort);
+
+		@Query(value = "name:?0")
+		Page<ProductBean> findByNameWithSortInPageable(String name, Pageable pageable);
 
 	}
 

@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -348,6 +350,48 @@ public class ITestSolrRepositoryOperations {
 		ProductBean prev = found.get(0);
 		for (int i = 1; i < found.size(); i++) {
 			ProductBean cur = found.get(i);
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
+			prev = cur;
+		}
+	}
+
+	@Test
+	public void testFindWithSortDescForAnnotatedQuery() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), i, true));
+		}
+		repo.save(values);
+
+		List<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSort(true, new Sort(Direction.DESC,
+				"popularity"));
+
+		ProductBean prev = found.get(0);
+		for (int i = 1; i < found.size(); i++) {
+			ProductBean cur = found.get(i);
+			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
+			prev = cur;
+		}
+	}
+
+	@Test
+	public void testFindWithSortDescInPageableForAnnotatedQuery() {
+		repo.deleteAll();
+
+		List<ProductBean> values = new ArrayList<ProductBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createProductBean(Integer.toString(i), i, true));
+		}
+		repo.save(values);
+
+		Page<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSortInPageable(true, new PageRequest(0, 50,
+				new Sort(Direction.DESC, "popularity")));
+
+		ProductBean prev = found.getContent().get(0);
+		for (int i = 1; i < found.getContent().size(); i++) {
+			ProductBean cur = found.getContent().get(i);
 			Assert.assertTrue(Long.valueOf(cur.getPopularity()) < Long.valueOf(prev.getPopularity()));
 			prev = cur;
 		}

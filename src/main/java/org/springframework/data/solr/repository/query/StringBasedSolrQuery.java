@@ -42,6 +42,7 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
 		SimpleQuery query = createQueryFromString(this.rawQueryString, parameterAccessor);
 		appendProjection(query);
+		query.addSort(parameterAccessor.getSort());
 		return query;
 	}
 
