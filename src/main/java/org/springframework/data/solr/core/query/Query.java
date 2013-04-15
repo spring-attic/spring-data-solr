@@ -169,4 +169,13 @@ public interface Query extends SolrDataQuery {
 	 */
 	void setDefType(String defType);
 
+	/**
+	 * Returns the request handler.
+	 */
+	String getRequestHandler();
+
+	/**
+	 * Sets the request handler.
+	 */
+	void setRequestHandler(String requestHandler);
 }

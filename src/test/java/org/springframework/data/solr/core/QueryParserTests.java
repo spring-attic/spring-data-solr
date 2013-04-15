@@ -674,6 +674,21 @@ public class QueryParserTests {
 		Assert.assertNull(solrQuery.get("defType"));
 	}
 
+	@Test
+	public void testWithFooRequestHandler() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setRequestHandler("/foo");
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery.get("qt"));
+	}
+
+	@Test
+	public void testWithUndefinedRequestHandler() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("qt"));
+	}
+
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getFacetFields());
 	}

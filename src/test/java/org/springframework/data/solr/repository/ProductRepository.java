@@ -155,4 +155,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(defType = "lucene")
 	List<ProductBean> findByNameIn(Collection<String> name);
 
+	@Query(requestHandler = "/instock")
+	List<ProductBean> findByText(String text);
+
 }

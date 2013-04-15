@@ -137,6 +137,7 @@ public class QueryParser {
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
 		appendTimeAllowed(solrQuery, query.getTimeAllowed());
 		appendDefType(solrQuery, query.getDefType());
+		appendRequestHandler(solrQuery, query.getRequestHandler());
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -435,6 +436,12 @@ public class QueryParser {
 	private void appendDefType(SolrQuery solrQuery, String defType) {
 		if (!StringUtils.isEmpty(defType)) {
 			solrQuery.set("defType", defType);
+		}
+	}
+
+	private void appendRequestHandler(SolrQuery solrQuery, String requestHandler) {
+		if (!StringUtils.isEmpty(requestHandler)) {
+			solrQuery.add(CommonParams.QT, requestHandler);
 		}
 	}
 
