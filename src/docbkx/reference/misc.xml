@@ -140,4 +140,16 @@ List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</pr
 </programlisting>
         </example>
     </section>
+    <section id="solr.misc.requesthandler">
+        <title>Select Request Handler</title>
+        <para>
+            Select the request handler via <code>qt</code> Parameter directly in 
+           <classname>Query</classname> or add <interfacename>@Query</interfacename> to your method signature.
+        </para>
+        <example>
+            <programlisting language="java">@Query(requestHandler = "/instock")
+Page&lt;Product&gt; findByNameOrDescription(String name, String description);
+</programlisting>
+        </example>
+    </section>
 </chapter>
