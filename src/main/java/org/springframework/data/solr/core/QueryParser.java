@@ -158,7 +158,18 @@ public class QueryParser {
 		if (query.getCriteria() == null) {
 			return null;
 		}
-		return createQueryStringFromCriteria(query.getCriteria());
+
+		String queryString = createQueryStringFromCriteria(query.getCriteria());
+		queryString = prependJoin(queryString, query);
+		return queryString;
+	}
+
+	private String prependJoin(String queryString, SolrDataQuery query) {
+		if (query == null || query.getJoin() == null) {
+			return queryString;
+		}
+		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName() + "}"
+				+ queryString;
 	}
 
 	String createQueryStringFromCriteria(Criteria criteria) {

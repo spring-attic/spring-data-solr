@@ -152,4 +152,18 @@ Page&lt;Product&gt; findByNameOrDescription(String name, String description);
 </programlisting>
         </example>
     </section>
+    <section id="solr.misc.join">
+        <title>Using Join</title>
+        <para>
+           Join attributes within one solr core by defining <classname>Join</classname> attribute of <classname>Query</classname>.
+           <note>
+             Join is not available prior to solr 4.x. 
+           </note>
+        </para>
+        <example>
+            <programlisting language="java">SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+query.setJoin(Join.from("manu_id_s").to("id"));
+</programlisting>
+        </example>
+    </section>
 </chapter>

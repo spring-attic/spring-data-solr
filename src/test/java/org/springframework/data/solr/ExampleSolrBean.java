@@ -51,6 +51,9 @@ public class ExampleSolrBean {
 	@Field
 	private String store;
 
+	@Field("manu_id_s")
+	private String manufacturerId;
+
 	public ExampleSolrBean() {
 		this.category = new ArrayList<String>();
 	}
@@ -134,6 +137,14 @@ public class ExampleSolrBean {
 
 	public void setStore(String store) {
 		this.store = store;
+	}
+
+	public String getManufacturerId() {
+		return manufacturerId;
+	}
+
+	public void setManufacturerId(String manufacturerId) {
+		this.manufacturerId = manufacturerId;
 	}
 
 }

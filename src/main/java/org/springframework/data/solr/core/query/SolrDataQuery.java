@@ -36,4 +36,17 @@ public interface SolrDataQuery {
 	 */
 	Criteria getCriteria();
 
+	/**
+	 * Set values for join {@code !join from=inner_id to=outer_id}
+	 * 
+	 * @param from
+	 * @param to
+	 */
+	void setJoin(Join join);
+
+	/**
+	 * @return
+	 */
+	Join getJoin();
+
 }

@@ -41,6 +41,7 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
@@ -688,6 +689,15 @@ public class QueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertNull(solrQuery.get("qt"));
+	}
+
+	@Test
+	public void testWithJoinOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setJoin(Join.from("inner_id").to("outer_id"));
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("{!join from=inner_id to=outer_id}field_1:value_1", solrQuery.getQuery());
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {

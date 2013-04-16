@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
@@ -486,5 +487,24 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
 		Assert.assertEquals(1, page.getContent().size());
 		Assert.assertEquals("rh-2", page.getContent().get(0).getId());
+	}
+
+	@Test
+	public void testQueryWithJoinOperation() {
+		ExampleSolrBean belkin = new ExampleSolrBean("belkin", "Belkin", null);
+		ExampleSolrBean apple = new ExampleSolrBean("apple", "Apple", null);
+
+		ExampleSolrBean ipod = new ExampleSolrBean("F8V7067-APL-KIT", "Belkin Mobile Power Cord for iPod", null);
+		ipod.setManufacturerId(belkin.getId());
+
+		solrTemplate.saveBeans(Arrays.asList(belkin, apple, ipod));
+		solrTemplate.commit();
+
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+		query.setJoin(Join.from("manu_id_s").to("id"));
+
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(1, page.getContent().size());
+		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
 }
