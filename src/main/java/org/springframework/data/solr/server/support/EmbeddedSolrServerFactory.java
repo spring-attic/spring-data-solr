@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanInstantiationException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
@@ -36,7 +37,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Christoph Strobl
  */
-public class EmbeddedSolrServerFactory implements SolrServerFactory {
+public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableBean {
 
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
@@ -104,12 +105,20 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory {
 
 	@Override
 	public String getCore() {
+		if (this.solrServer != null && solrServer.getCoreContainer() != null) {
+			return StringUtils.join(this.solrServer.getCoreContainer().getCoreNames(), ",");
+		}
 		return null;
 	}
 
 	public void setSolrHome(String solrHome) {
 		Assert.hasText(solrHome);
 		this.solrHome = solrHome;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		shutdownSolrServer();
 	}
 
 }

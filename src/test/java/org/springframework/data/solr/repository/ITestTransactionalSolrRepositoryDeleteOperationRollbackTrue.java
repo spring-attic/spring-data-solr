@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration("TransactionalSolrRepositoryTest-context.xml")
 @Transactional
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue {
+public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue extends TransactionalIntegrationTestsBase {
 
 	private static final String ID = "id-tansaction-rolled-back";
 
@@ -44,7 +44,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue {
 
 	@BeforeTransaction
 	public void cleanRepo() {
-		repo.deleteAll();
+		safeDelete(repo);
 
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
@@ -54,7 +54,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue {
 	@AfterTransaction
 	public void checkIfDeleted() {
 		Assert.assertNotNull(repo.findOne(ID));
-		repo.deleteAll();
+		safeDelete(repo);
 	}
 
 	@Test

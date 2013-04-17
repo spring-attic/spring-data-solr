@@ -81,7 +81,10 @@ public class HttpSolrServerFactoryBean extends HttpSolrServerFactory implements 
 
 	@Override
 	public Class<?> getObjectType() {
-		return HttpSolrServer.class;
+		if (getSolrServer() == null) {
+			return HttpSolrServer.class;
+		}
+		return getSolrServer().getClass();
 	}
 
 	@Override

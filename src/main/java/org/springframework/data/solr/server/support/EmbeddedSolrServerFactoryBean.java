@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,6 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class EmbeddedSolrServerFactoryBean extends EmbeddedSolrServerFactory implements FactoryBean<SolrServer>,
 		InitializingBean, DisposableBean {
-
-	@Override
-	public void destroy() throws Exception {
-		shutdownSolrServer();
-	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
@@ -121,6 +122,8 @@ public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean 
 	public void destroy() {
 		if (solrServer instanceof HttpSolrServer) {
 			((HttpSolrServer) solrServer).shutdown();
+		} else if (solrServer instanceof LBHttpSolrServer) {
+			((LBHttpSolrServer) solrServer).shutdown();
 		}
 	}
 

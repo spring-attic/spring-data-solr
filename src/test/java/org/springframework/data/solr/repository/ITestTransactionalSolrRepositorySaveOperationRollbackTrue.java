@@ -18,7 +18,6 @@ package org.springframework.data.solr.repository;
 import java.util.Arrays;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration("TransactionalSolrRepositoryTest-context.xml")
 @Transactional
 @TransactionConfiguration(defaultRollback = true, transactionManager = "transactionManager")
-public class ITestTransactionalSolrRepositorySaveOperationRollbackTrue {
+public class ITestTransactionalSolrRepositorySaveOperationRollbackTrue extends TransactionalIntegrationTestsBase {
 
 	private static final String ID = "id-tansaction-rolled-back";
 
@@ -45,13 +44,13 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackTrue {
 
 	@BeforeTransaction
 	public void cleanRepo() {
-		repo.deleteAll();
+		safeDelete(repo);
 	}
 
 	@AfterTransaction
 	public void checkIfSaved() {
 		Assert.assertNull(repo.findOne(ID));
-		repo.deleteAll();
+		safeDelete(repo);
 	}
 
 	@Test

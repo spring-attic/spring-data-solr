@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration("TransactionalSolrRepositoryTest-context.xml")
 @Transactional
 @TransactionConfiguration(defaultRollback = false, transactionManager = "transactionManager")
-public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse {
+public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse extends TransactionalIntegrationTestsBase {
 
 	private static final String ID = "id-tansaction-committed";
 
@@ -44,13 +44,13 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse {
 
 	@BeforeTransaction
 	public void cleanRepo() {
-		repo.deleteAll();
+		safeDelete(repo);
 	}
 
 	@AfterTransaction
 	public void checkIfSaved() {
 		Assert.assertNotNull(repo.findOne(ID));
-		cleanRepo();
+		safeDelete(repo);
 	}
 
 	@Test
