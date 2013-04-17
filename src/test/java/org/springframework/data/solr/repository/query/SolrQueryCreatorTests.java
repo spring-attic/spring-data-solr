@@ -32,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
+import org.springframework.data.solr.core.DefaultQueryParser;
 import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
@@ -62,7 +63,7 @@ public class SolrQueryCreatorTests {
 	@Before
 	public void setUp() {
 		mappingContext = new SimpleSolrMappingContext();
-		queryParser = new QueryParser();
+		queryParser = new DefaultQueryParser();
 	}
 
 	@Test

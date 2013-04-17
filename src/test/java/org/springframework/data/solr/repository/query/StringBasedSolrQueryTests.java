@@ -29,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.repository.core.RepositoryMetadata;
+import org.springframework.data.solr.core.DefaultQueryParser;
 import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.geo.Distance;
@@ -59,7 +60,7 @@ public class StringBasedSolrQueryTests {
 
 	@Before
 	public void setUp() {
-		this.queryParser = new QueryParser();
+		this.queryParser = new DefaultQueryParser();
 	}
 
 	@Test

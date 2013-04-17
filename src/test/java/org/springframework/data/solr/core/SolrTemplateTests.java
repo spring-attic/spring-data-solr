@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,14 +43,17 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.PartialUpdate;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /*
@@ -249,4 +253,31 @@ public class SolrTemplateTests {
 		Mockito.verify(solrServerMock, Mockito.times(1)).rollback();
 	}
 
+	@Test
+	public void testDifferentQueryParser() throws SolrServerException {
+		QueryParser parser = new QueryParser() {
+
+			@Override
+			public void registerConverter(Converter<?, ?> converter) {
+			}
+
+			@Override
+			public String getQueryString(SolrDataQuery query) {
+				return "*:*";
+			}
+
+			@Override
+			public SolrQuery constructSolrQuery(SolrDataQuery query) {
+				return new SolrQuery(getQueryString(query));
+			}
+		};
+
+		solrTemplate.setQueryParser(parser);
+		solrTemplate.query(new SimpleQuery(new SimpleStringCriteria("my:criteria")));
+
+		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
+
+		Mockito.verify(solrServerMock, Mockito.times(1)).query(captor.capture());
+		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
+	}
 }

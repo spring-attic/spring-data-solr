@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import org.springframework.util.Assert;
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
-	private static final QueryParser DEFAULT_QUERY_PARSER = new QueryParser();
+	private static final QueryParser DEFAULT_QUERY_PARSER = new DefaultQueryParser();
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
 	private ApplicationContext applicationContext;
 
@@ -347,6 +347,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
+	}
+
+	public void setQueryParser(QueryParser queryParser) {
+		this.queryParser = queryParser;
 	}
 
 	@Override

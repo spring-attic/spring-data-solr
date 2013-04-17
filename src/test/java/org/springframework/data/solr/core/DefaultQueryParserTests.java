@@ -56,13 +56,13 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
  * @author Rosty Kerei
  * @author Andrey Paramonov
  */
-public class QueryParserTests {
+public class DefaultQueryParserTests {
 
-	private QueryParser queryParser;
+	private DefaultQueryParser queryParser;
 
 	@Before
 	public void setUp() {
-		this.queryParser = new QueryParser();
+		this.queryParser = new DefaultQueryParser();
 	}
 
 	@Test
