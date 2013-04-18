@@ -44,6 +44,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 
 	@BeforeTransaction
 	public void cleanRepo() {
+		wait(250);
 		safeDelete(repo);
 
 		ProductBean bean = new ProductBean();
@@ -53,6 +54,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 
 	@AfterTransaction
 	public void checkIfDeleted() {
+		wait(250);
 		Assert.assertNull(repo.findOne(ID));
 		safeDelete(repo);
 	}

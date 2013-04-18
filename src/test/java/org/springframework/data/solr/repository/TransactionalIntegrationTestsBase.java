@@ -52,7 +52,7 @@ class TransactionalIntegrationTestsBase {
 		}
 	}
 
-	private void wait(int timeout) {
+	protected void wait(int timeout) {
 		try {
 			Thread.sleep(timeout);
 		} catch (InterruptedException e) {

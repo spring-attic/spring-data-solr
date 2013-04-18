@@ -49,8 +49,10 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackTrue extends T
 
 	@AfterTransaction
 	public void checkIfSaved() {
+		wait(250);
 		Assert.assertNull(repo.findOne(ID));
 		safeDelete(repo);
+		wait(250);
 	}
 
 	@Test
