@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,6 +195,19 @@ public class SolrQueryMethodTests {
 	}
 
 	@Test
+	public void testWithFacetPrefix() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findAllFacetOnNameWithPrefix");
+		Assert.assertEquals(1, method.getFacetFields().size());
+		Assert.assertEquals("ip", method.getFacetPrefix());
+	}
+
+	@Test
+	public void testWithoutFacetPrefix() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularity", String.class);
+		Assert.assertEquals("", method.getFacetPrefix());
+	}
+
+	@Test
 	public void testWithSigleFilter() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameStringWith", String.class);
 		Assert.assertFalse(method.hasAnnotatedQuery());
@@ -295,6 +308,9 @@ public class SolrQueryMethodTests {
 
 		@Facet(queries = { "inStock:true", "inStock:false" }, minCount = 3, limit = 25)
 		List<ProductBean> findByNameFacetOnAvailableQueryMinCount3Limit25(String name);
+
+		@Facet(fields = "name", prefix = "ip")
+		List<ProductBean> findAllFacetOnNameWithPrefix();
 
 		@Query(filters = { "inStock:true" })
 		List<ProductBean> findByNameStringWith(String name);

@@ -48,6 +48,7 @@ import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
@@ -369,6 +370,12 @@ public class DefaultQueryParser implements QueryParser {
 			solrQuery.set(FacetParams.FACET_OFFSET, facetOptions.getPageable().getOffset());
 		}
 		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
+		if (facetOptions.hasFacetPrefix()) {
+			solrQuery.setFacetPrefix(facetOptions.getFacetPrefix());
+		}
+		for (FieldWithFacetPrefix prefixedField : facetOptions.getFieldsWithPrefix()) {
+			solrQuery.setFacetPrefix(prefixedField.getName(), prefixedField.getFacetPrefix());
+		}
 	}
 
 	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query) {
@@ -416,6 +423,7 @@ public class DefaultQueryParser implements QueryParser {
 		if (sort == null) {
 			return;
 		}
+
 		for (Order order : sort) {
 			// addSort which is to be used instead of addSortField is not available in versions below 4.2.0
 			if (VersionUtil.isSolr420Available()) {

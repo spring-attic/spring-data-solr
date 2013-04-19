@@ -135,6 +135,14 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Facet(queries = { "inStock:true", "inStock:false" })
 	FacetPage<ProductBean> findAllFacetQueryAvailableTrueAndAvailableFalse(Pageable page);
 
+	@Query(value = "*:*")
+	@Facet(fields = "name", prefix = "pro")
+	FacetPage<ProductBean> findAllFacetOnNameWithStaticPrefix(Pageable page);
+
+	@Query(value = "*:*")
+	@Facet(fields = "name", prefix = "?0")
+	FacetPage<ProductBean> findAllFacetOnNameWithDynamicPrefix(String prefix, Pageable page);
+
 	@Query(value = "*:*", filters = "inStock:true")
 	List<ProductBean> findAllFilterAvailableTrue();
 

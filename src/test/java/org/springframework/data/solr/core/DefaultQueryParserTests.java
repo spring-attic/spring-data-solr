@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
@@ -463,6 +464,41 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
+	public void testConstructSolrQueryWithFacetPrefix() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"), new SimpleField("facet_2"));
+		facetOptions.setFacetPrefix("prefix");
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+		Assert.assertEquals(facetOptions.getFacetPrefix(), solrQuery.getParams("facet.prefix")[0]);
+	}
+
+	@Test
+	public void testConstructSolrQueryWithFieldFacetPrefix() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FieldWithFacetPrefix fieldWithFacetPrefix = new FieldWithFacetPrefix("facet_2", "prefix");
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"), fieldWithFacetPrefix);
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+		Assert.assertEquals(fieldWithFacetPrefix.getFacetPrefix(),
+				solrQuery.getParams("f." + fieldWithFacetPrefix.getName() + ".facet.prefix")[0]);
+	}
+
+	@Test
 	public void testConstructSolrQueryWithFacetSort() {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions(
 				"facet_1").setFacetSort(FacetOptions.FacetSort.INDEX));
@@ -545,7 +581,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertNull(solrQuery.getSortField());
-		Assert.assertNull(solrQuery.getSortFields());
+		Assert.assertTrue(solrQuery.getSorts().isEmpty());
 	}
 
 	@Test
@@ -555,7 +591,7 @@ public class DefaultQueryParserTests {
 		query.addSort(new Sort("field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertEquals("field_2 asc", solrQuery.getSortField());
-		Assert.assertEquals(1, solrQuery.getSortFields().length);
+		Assert.assertEquals(1, solrQuery.getSorts().size());
 	}
 
 	@Test
@@ -565,27 +601,27 @@ public class DefaultQueryParserTests {
 		query.addSort(new Sort(Sort.Direction.DESC, "field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertEquals("field_2 desc", solrQuery.getSortField());
-		Assert.assertEquals(1, solrQuery.getSortFields().length);
+		Assert.assertEquals(1, solrQuery.getSorts().size());
 	}
 
 	@Test
 	public void testWithSortAscMultipleFields() {
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort("field_2, field_3"));
+		query.addSort(new Sort("field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		Assert.assertEquals("field_2, field_3 asc", solrQuery.getSortField());
-		Assert.assertEquals(2, solrQuery.getSortFields().length);
+		Assert.assertEquals("field_2 asc,field_3 asc", solrQuery.getSortField());
+		Assert.assertEquals(2, solrQuery.getSorts().size());
 	}
 
 	@Test
 	public void testWithSortDescMultipleFields() {
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort(Sort.Direction.DESC, "field_2, field_3"));
+		query.addSort(new Sort(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		Assert.assertEquals("field_2, field_3 desc", solrQuery.getSortField());
-		Assert.assertEquals(2, solrQuery.getSortFields().length);
+		Assert.assertEquals("field_2 desc,field_3 desc", solrQuery.getSortField());
+		Assert.assertEquals(2, solrQuery.getSorts().size());
 	}
 
 	@Test
@@ -593,10 +629,10 @@ public class DefaultQueryParserTests {
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
 		query.addSort(new Sort("field_1"));
-		query.addSort(new Sort(Sort.Direction.DESC, "field_2, field_3"));
+		query.addSort(new Sort(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		Assert.assertEquals("field_1 asc,field_2, field_3 desc", solrQuery.getSortField());
-		Assert.assertEquals(3, solrQuery.getSortFields().length);
+		Assert.assertEquals("field_1 asc,field_2 desc,field_3 desc", solrQuery.getSortField());
+		Assert.assertEquals(3, solrQuery.getSorts().size());
 	}
 
 	@Test

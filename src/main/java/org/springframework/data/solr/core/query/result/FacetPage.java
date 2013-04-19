@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,9 +50,13 @@ public class FacetPage<T> extends PageImpl<T> {
 		super(content, pageable, total);
 	}
 
-	public final Page<FacetFieldEntry> getFacetResultPage(Field field) {
-		Page<FacetFieldEntry> page = facetResultPages.get(new StringPageKey(field.getName()));
+	public final Page<FacetFieldEntry> getFacetResultPage(String fieldname) {
+		Page<FacetFieldEntry> page = facetResultPages.get(new StringPageKey(fieldname));
 		return page != null ? page : new PageImpl<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList());
+	}
+
+	public final Page<FacetFieldEntry> getFacetResultPage(Field field) {
+		return this.getFacetResultPage(field.getName());
 	}
 
 	public final void addFacetResultPage(Page<FacetFieldEntry> page, Field field) {

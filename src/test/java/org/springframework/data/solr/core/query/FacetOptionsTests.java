@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,47 @@ public class FacetOptionsTests {
 
 		options.setFacetMinCount(-1);
 		Assert.assertEquals(0, options.getFacetMinCount());
+	}
+
+	@Test
+	public void testGetFieldsWithFacetPrefix() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnField(new SimpleField("field_1"));
+		options.addFacetOnField(new FieldWithFacetPrefix("field_2", "prefix"));
+
+		Assert.assertEquals(2, options.getFacetOnFields().size());
+		Assert.assertEquals(1, options.getFieldsWithPrefix().size());
+		Assert.assertEquals("field_2", options.getFieldsWithPrefix().iterator().next().getName());
+	}
+
+	@Test
+	public void testGetFieldsWithFacetPrefixNoFieldsAvailable() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnField(new SimpleField("field_1"));
+
+		Assert.assertEquals(1, options.getFacetOnFields().size());
+		Assert.assertTrue(options.getFieldsWithPrefix().isEmpty());
+	}
+
+	@Test
+	public void testHasFacetPrefix() {
+		FacetOptions options = new FacetOptions();
+		options.setFacetPrefix("prefix");
+		Assert.assertTrue(options.hasFacetPrefix());
+	}
+
+	@Test
+	public void testHasBlankFacetPrefix() {
+		FacetOptions options = new FacetOptions();
+		options.setFacetPrefix("  ");
+		Assert.assertFalse(options.hasFacetPrefix());
+	}
+
+	@Test
+	public void testHasNullFacetPrefix() {
+		FacetOptions options = new FacetOptions();
+		options.setFacetPrefix(null);
+		Assert.assertFalse(options.hasFacetPrefix());
 	}
 
 }

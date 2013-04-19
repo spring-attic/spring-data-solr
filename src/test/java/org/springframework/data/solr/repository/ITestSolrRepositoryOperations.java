@@ -554,6 +554,30 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	public void testFacetWithStaticPrefix() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithStaticPrefix(new PageRequest(0, 10));
+		Assert.assertEquals(1, facetPage.getFacetFields().size());
+		Page<FacetFieldEntry> page = facetPage.getFacetResultPage("name");
+		Assert.assertEquals(1, page.getContent().size());
+
+		Assert.assertEquals("name", page.getContent().get(0).getField().getName());
+		Assert.assertEquals("product", page.getContent().get(0).getValue());
+		Assert.assertEquals(1, page.getContent().get(0).getValueCount());
+	}
+
+	@Test
+	public void testFacetWithDynamicPrefix() {
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithDynamicPrefix("pro", new PageRequest(0, 10));
+		Assert.assertEquals(1, facetPage.getFacetFields().size());
+		Page<FacetFieldEntry> page = facetPage.getFacetResultPage("name");
+		Assert.assertEquals(1, page.getContent().size());
+
+		Assert.assertEquals("name", page.getContent().get(0).getField().getName());
+		Assert.assertEquals("product", page.getContent().get(0).getValue());
+		Assert.assertEquals(1, page.getContent().get(0).getValueCount());
+	}
+
+	@Test
 	public void testSingleFilter() {
 		List<ProductBean> found = repo.findAllFilterAvailableTrue();
 		Assert.assertEquals(3, found.size());

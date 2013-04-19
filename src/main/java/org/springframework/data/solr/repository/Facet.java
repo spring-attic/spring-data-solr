@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import java.lang.annotation.Target;
 public @interface Facet {
 
 	/**
+	 * {@code facet.field}
+	 * 
 	 * fields to facet on
 	 * 
 	 * @return
@@ -37,6 +39,8 @@ public @interface Facet {
 	String[] fields() default "";
 
 	/**
+	 * {@code facet.query}
+	 * 
 	 * queries to facet on
 	 * 
 	 * @return
@@ -44,6 +48,8 @@ public @interface Facet {
 	String[] queries() default "";
 
 	/**
+	 * {@code facet.mincount}
+	 * 
 	 * minimum number of hits for result to be included in response
 	 * 
 	 * @return
@@ -51,10 +57,19 @@ public @interface Facet {
 	int minCount() default 1;
 
 	/**
+	 * {@code facet.limit}
+	 * 
 	 * limit number results returned
 	 * 
 	 * @return
 	 */
 	int limit() default 10;
+
+	/**
+	 * {@code facet.prefix}
+	 * 
+	 * @return prefix
+	 */
+	String prefix() default "";
 
 }

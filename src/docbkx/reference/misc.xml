@@ -78,10 +78,17 @@ FacetPage&lt;Product&gt; page = solrTemplate.queryForFacetPage(query, Product.cl
 				allows you to define place holders which will use your input
 				parameter as value.
 			</note>
+		</para>
+		<example>		
 			<programlisting language="java">@Query(value = "*:*")
 @Facet(fields = { "name" }, limit = 5)
-FacetPage&lt;Product&gt; findAllFacetOnPopularity(Pageable page);</programlisting>
-		</para>
+FacetPage&lt;Product&gt; findAllFacetOnName(Pageable page);</programlisting>
+		</example>
+		<example>
+			<programlisting language="java">@Query(value = "popularity:?0")
+@Facet(fields = { "name" }, limit = 5, prefix="?1")
+FacetPage&lt;Product&gt; findByPopularityFacetOnName(int popularity, String prefix, Pageable page);</programlisting>
+		</example>
 	</section>
 	<section id="solr.misc.filter">
 		<title>Filter Query</title>

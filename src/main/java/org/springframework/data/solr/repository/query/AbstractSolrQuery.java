@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,6 +168,10 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	}
 
 	private String replacePlaceholders(String input, SolrParameterAccessor accessor) {
+		if (!StringUtils.hasText(input)) {
+			return input;
+		}
+
 		Matcher matcher = PARAMETER_PLACEHOLDER.matcher(input);
 		String result = input;
 
@@ -219,6 +223,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 		options.setFacetLimit(queryMethod.getFacetLimit());
 		options.setFacetMinCount(queryMethod.getFacetMinCount());
+		options.setFacetPrefix(replacePlaceholders(queryMethod.getFacetPrefix(), parameterAccessor));
 		return options;
 	}
 

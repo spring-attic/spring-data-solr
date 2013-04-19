@@ -35,6 +35,7 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
@@ -380,6 +381,58 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(5, facetQueryResultPage.getContent().get(1).getValueCount());
 
 		Assert.assertEquals(1, page.getAllFacets().size());
+	}
+
+	@Test
+	public void testFacetQueryWithFacetPrefix() {
+		ExampleSolrBean season = new ExampleSolrBean("1", "spring", "season");
+		ExampleSolrBean framework = new ExampleSolrBean("2", "spring", "framework");
+		ExampleSolrBean island = new ExampleSolrBean("3", "java", "island");
+		ExampleSolrBean language = new ExampleSolrBean("4", "java", "language");
+
+		solrTemplate.saveBeans(Arrays.asList(season, framework, island, language));
+		solrTemplate.commit();
+
+		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+				.setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5).setFacetPrefix("spr"));
+
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertEquals("spring", entry.getValue());
+			Assert.assertEquals("name", entry.getField().getName());
+			Assert.assertEquals(2l, entry.getValueCount());
+		}
+	}
+
+	@Test
+	public void testFacetQueryWithFieldFacetPrefix() {
+		ExampleSolrBean season = new ExampleSolrBean("1", "spring", "season");
+		ExampleSolrBean framework = new ExampleSolrBean("2", "spring", "framework");
+		ExampleSolrBean island = new ExampleSolrBean("3", "java", "island");
+		ExampleSolrBean language = new ExampleSolrBean("4", "java", "language");
+
+		solrTemplate.saveBeans(Arrays.asList(season, framework, island, language));
+		solrTemplate.commit();
+
+		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+				.setFacetOptions(new FacetOptions().addFacetOnField(new FieldWithFacetPrefix("name", "spr"))
+						.addFacetOnField("cat").setFacetPrefix("lan").setFacetLimit(5));
+
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertEquals("spring", entry.getValue());
+			Assert.assertEquals("name", entry.getField().getName());
+			Assert.assertEquals(2l, entry.getValueCount());
+		}
+
+		facetPage = page.getFacetResultPage(new SimpleField("cat"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertEquals("language", entry.getValue());
+			Assert.assertEquals("cat", entry.getField().getName());
+			Assert.assertEquals(1l, entry.getValueCount());
+		}
 	}
 
 	@Test

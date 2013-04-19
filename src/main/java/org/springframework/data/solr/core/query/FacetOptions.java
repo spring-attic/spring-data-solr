@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Set of options that can be set on a {@link FacetQuery}
@@ -44,6 +47,7 @@ public class FacetOptions {
 	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
+	private String facetPrefix;
 	private FacetSort facetSort = DEFAULT_FACET_SORT;
 	private Pageable pageable;
 
@@ -244,6 +248,26 @@ public class FacetOptions {
 	}
 
 	/**
+	 * get value used for {@code facet.prefix}
+	 * 
+	 * @return
+	 */
+	public String getFacetPrefix() {
+		return facetPrefix;
+	}
+
+	/**
+	 * Set {@code facet.prefix}
+	 * 
+	 * @param facetPrefix
+	 * @return
+	 */
+	public FacetOptions setFacetPrefix(String facetPrefix) {
+		this.facetPrefix = facetPrefix;
+		return this;
+	}
+
+	/**
 	 * true if at least one facet field set
 	 * 
 	 * @return
@@ -267,4 +291,26 @@ public class FacetOptions {
 	public boolean hasFacets() {
 		return hasFields() || hasFacetQueries();
 	}
+
+	/**
+	 * @return true if non empty prefix available
+	 */
+	public boolean hasFacetPrefix() {
+		return StringUtils.hasText(this.facetPrefix);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<FieldWithFacetPrefix> getFieldsWithPrefix() {
+		return (Collection<FieldWithFacetPrefix>) CollectionUtils.select(this.facetOnFields,
+				new IsFieldWithFacetPrefixInstancePredicate());
+	}
+
+	private static class IsFieldWithFacetPrefixInstancePredicate implements Predicate {
+
+		@Override
+		public boolean evaluate(Object object) {
+			return object instanceof FieldWithFacetPrefix;
+		}
+	}
+
 }

@@ -141,6 +141,10 @@ public class SolrQueryMethod extends QueryMethod {
 		return (Integer) AnnotationUtils.getValue(getFacetAnnotation(), "minCount");
 	}
 
+	public String getFacetPrefix() {
+		return (String) AnnotationUtils.getValue(getFacetAnnotation(), "prefix");
+	}
+
 	public boolean hasFilterQuery() {
 		if (hasQueryAnnotation()) {
 			return !CollectionUtils.isEmpty(getFilterQueries());
