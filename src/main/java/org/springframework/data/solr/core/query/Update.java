@@ -36,4 +36,11 @@ public interface Update {
 	 */
 	Iterable<UpdateField> getUpdates();
 
+	/**
+	 * Document Version {@code _version_}
+	 * 
+	 * @return
+	 */
+	Object getVersion();
+
 }

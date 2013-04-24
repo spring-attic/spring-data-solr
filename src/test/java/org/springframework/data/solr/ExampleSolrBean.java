@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.data.annotation.Version;
 
 /**
  * @author Christoph Strobl
@@ -53,6 +54,10 @@ public class ExampleSolrBean {
 
 	@Field("manu_id_s")
 	private String manufacturerId;
+
+	@Version
+	@Field("_version_")
+	private Long version;
 
 	public ExampleSolrBean() {
 		this.category = new ArrayList<String>();
@@ -145,6 +150,14 @@ public class ExampleSolrBean {
 
 	public void setManufacturerId(String manufacturerId) {
 		this.manufacturerId = manufacturerId;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public void setVersion(Long version) {
+		this.version = version;
 	}
 
 }

@@ -27,6 +27,7 @@ import java.util.List;
 public class PartialUpdate implements Update {
 
 	private final ValueHoldingField idField;
+	private Object version;
 	private final List<UpdateField> updates = new ArrayList<UpdateField>();
 
 	public PartialUpdate(String idFieldName, Object idFieldValue) {
@@ -99,6 +100,15 @@ public class PartialUpdate implements Update {
 	@Override
 	public List<UpdateField> getUpdates() {
 		return Collections.unmodifiableList(updates);
+	}
+
+	@Override
+	public Object getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(Object documentVersion) {
+		this.version = documentVersion;
 	}
 
 	static class IdField extends AbstractValueHoldingField {

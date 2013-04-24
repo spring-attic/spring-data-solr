@@ -32,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
+import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -302,6 +303,38 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(Integer.valueOf(500), loaded.getPopularity());
 		Assert.assertNull(loaded.getName());
 		Assert.assertEquals(3, loaded.getCategory().size());
+	}
+
+	@Test
+	public void testPartialUpdateWithVersion() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.setVersion(1L);
+		update.setValueOfField("popularity", 500);
+
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		ExampleSolrBean loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Assert.assertEquals(Integer.valueOf(500), loaded.getPopularity());
+	}
+
+	@Test(expected = UncategorizedSolrException.class)
+	public void testPartialUpdateWithInvalidVersion() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.setVersion(2L);
+		update.setValueOfField("popularity", 500);
+
+		solrTemplate.saveBean(update);
 	}
 
 	@Test

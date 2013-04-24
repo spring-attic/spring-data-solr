@@ -18,6 +18,7 @@ package org.springframework.data.solr.repository;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		ExampleSolrBean retrieved = repository.findOne(savedBean.getId());
 		Assert.assertNotNull(retrieved);
-		Assert.assertEquals(savedBean, retrieved);
+		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
 
 		Assert.assertEquals(1, repository.count());
 
@@ -76,7 +77,9 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		int counter = 0;
 		for (ExampleSolrBean retrievedBean : repository.findAll()) {
-			Assert.assertEquals(toInsert.get(counter), retrievedBean);
+			Assert
+					.assertTrue(EqualsBuilder.reflectionEquals(toInsert.get(counter), retrievedBean, new String[] { "version" }));
+
 			counter++;
 			if (counter > objectCount) {
 				Assert.fail("More beans return than added!");
@@ -90,5 +93,4 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		Assert.assertEquals(0, repository.count());
 	}
-
 }
