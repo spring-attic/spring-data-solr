@@ -47,6 +47,7 @@ class TransactionalIntegrationTestsBase {
 			if (tryCount > 3) {
 				// just give up and print error
 				System.err.println(e);
+				return;
 			}
 			wait(250);
 			doDelete(repo, tryCount + 1);
