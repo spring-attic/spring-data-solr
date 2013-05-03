@@ -15,11 +15,14 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Assert;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,15 +45,18 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse extends 
 	@Autowired
 	private ProductRepository repo;
 
+	@Autowired
+	private SolrServer solrServerMock;
+
 	@BeforeTransaction
-	public void cleanRepo() {
-		safeDelete(repo);
+	public void resetMock() {
+		Mockito.reset(solrServerMock);
 	}
 
 	@AfterTransaction
-	public void checkIfSaved() {
-		Assert.assertNotNull(repo.findOne(ID));
-		safeDelete(repo);
+	public void checkIfSaved() throws SolrServerException, IOException {
+		Mockito.verify(solrServerMock, Mockito.times(1)).commit();
+		Mockito.verify(solrServerMock, Mockito.never()).rollback();
 	}
 
 	@Test

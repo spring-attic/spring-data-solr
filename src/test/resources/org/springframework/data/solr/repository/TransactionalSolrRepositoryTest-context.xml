@@ -8,8 +8,10 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
-
-	<solr:embedded-solr-server id="solrServer" solrHome="classpath:org/springframework/data/solr" /> 
+	
+	<bean id="solrServer" class="org.springframework.data.solr.test.util.GenericMockFactory">
+		<property name="type" value="org.apache.solr.client.solrj.SolrServer" />
+	</bean>
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrServer" />
