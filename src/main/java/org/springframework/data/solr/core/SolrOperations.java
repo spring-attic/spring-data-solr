@@ -24,9 +24,11 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.HighlightPage;
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -139,6 +141,15 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz);
+
+	/**
+	 * Execute a query and highlight matches in result
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @return
+	 */
+	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
 
 	/**
 	 * Send commit command

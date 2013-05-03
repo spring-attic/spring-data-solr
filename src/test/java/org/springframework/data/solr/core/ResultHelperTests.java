@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
@@ -41,6 +43,9 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.HighlightEntry;
+import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.data.solr.core.query.result.SolrResultPage;
 
 /**
  * @author Christoph Strobl
@@ -168,6 +173,111 @@ public class ResultHelperTests {
 		Assert.assertEquals("field_1:[6 TO *]", result.get(1).getQuery().getCriteria().toString());
 	}
 
+	@Test
+	public void testParseAndAddHighlightQueryResponseToResultPageWithEmptyHighlighting() {
+		Mockito.when(response.getHighlighting()).thenReturn(Collections.<String, Map<String, List<String>>> emptyMap());
+		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
+				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+	}
+
+	@Test
+	public void testParseAndAddHighlightQueryResponseToResultPageWithNullHighlighting() {
+		Mockito.when(response.getHighlighting()).thenReturn(null);
+		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
+				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+	}
+
+	@Test
+	public void testParseAndAddHighlightQueryResponseToResultPageWithNullResponse() {
+		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(null,
+				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+	}
+
+	@Test
+	public void testParseAndAddHighlightQueryResponseToResultPage() {
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
+		Map<String, List<String>> fieldHighlights = new LinkedHashMap<String, List<String>>();
+		fieldHighlights.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
+		fieldHighlights.put("field_2", Arrays.asList("highlight 3"));
+		highlightingData.put("entity-id-1", fieldHighlights);
+
+		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
+
+		SolrBeanWithIdNamedField resultBean = new SolrBeanWithIdNamedField("entity-id-1");
+
+		List<HighlightEntry<SolrBeanWithIdNamedField>> result = ResultHelper
+				.convertAndAddHighlightQueryResponseToResultPage(response,
+						new SolrResultPage<SolrBeanWithIdNamedField>(Arrays.asList(resultBean)));
+
+		Assert.assertEquals(1, result.size());
+		Assert.assertEquals(resultBean, result.get(0).getEntity());
+		Assert.assertEquals(2, result.get(0).getHighlights().size());
+		for (HighlightEntry<SolrBeanWithIdNamedField> entry : result) {
+			Assert.assertEquals(resultBean, entry.getEntity());
+			for (Highlight highlight : entry.getHighlights()) {
+				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
+				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getHighlighted());
+			}
+		}
+	}
+
+	@Test
+	public void testParseAndAddHighlightQueryResponseWithMultipleEntriesToResultPage() {
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
+
+		Map<String, List<String>> fieldHighlightsEntity1 = new LinkedHashMap<String, List<String>>();
+		fieldHighlightsEntity1.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
+		fieldHighlightsEntity1.put("field_2", Arrays.asList("highlight 3"));
+		highlightingData.put("entity-id-1", fieldHighlightsEntity1);
+
+		Map<String, List<String>> fieldHighlightsEntity2 = new LinkedHashMap<String, List<String>>();
+		fieldHighlightsEntity2.put("field_3", Arrays.asList("highlight 3"));
+		highlightingData.put("entity-id-2", fieldHighlightsEntity2);
+
+		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
+
+		SolrBeanWithIdNamedField resultBean1 = new SolrBeanWithIdNamedField("entity-id-1");
+		SolrBeanWithIdNamedField resultBean2 = new SolrBeanWithIdNamedField("entity-id-2");
+
+		List<HighlightEntry<SolrBeanWithIdNamedField>> result = ResultHelper
+				.convertAndAddHighlightQueryResponseToResultPage(response,
+						new SolrResultPage<SolrBeanWithIdNamedField>(Arrays.asList(resultBean1, resultBean2)));
+
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(resultBean1, result.get(0).getEntity());
+		Assert.assertEquals(resultBean2, result.get(1).getEntity());
+		Assert.assertEquals(2, result.get(0).getHighlights().size());
+		Assert.assertEquals(1, result.get(1).getHighlights().size());
+	}
+
+	@Test
+	public void testParseAndAddHighlightQueryResponseForBeanWithAnnotatedId() {
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
+		Map<String, List<String>> fieldHighlights = new LinkedHashMap<String, List<String>>();
+		fieldHighlights.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
+		fieldHighlights.put("field_2", Arrays.asList("highlight 3"));
+		highlightingData.put("entity-id-1", fieldHighlights);
+
+		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
+
+		SolrBeanWithAnnoteatedIdNamedField resultBean = new SolrBeanWithAnnoteatedIdNamedField("entity-id-1");
+
+		List<HighlightEntry<SolrBeanWithAnnoteatedIdNamedField>> result = ResultHelper
+				.convertAndAddHighlightQueryResponseToResultPage(response,
+						new SolrResultPage<SolrBeanWithAnnoteatedIdNamedField>(Arrays.asList(resultBean)));
+
+		Assert.assertEquals(1, result.size());
+		Assert.assertEquals(resultBean, result.get(0).getEntity());
+		Assert.assertEquals(2, result.get(0).getHighlights().size());
+		for (HighlightEntry<SolrBeanWithAnnoteatedIdNamedField> entry : result) {
+			Assert.assertEquals(resultBean, entry.getEntity());
+			for (Highlight highlight : entry.getHighlights()) {
+				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
+				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getHighlighted());
+			}
+		}
+	}
+
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {
 		FacetQuery fq = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		fq.setFacetOptions(new FacetOptions(facetQueries));
@@ -186,6 +296,29 @@ public class ResultHelperTests {
 			ffield.add("value_" + i, values[i - 1]);
 		}
 		return ffield;
+	}
+
+	private static class SolrBeanWithIdNamedField {
+
+		@SuppressWarnings("unused")
+		private String id;
+
+		public SolrBeanWithIdNamedField(String id) {
+			this.id = id;
+		}
+
+	}
+
+	private static class SolrBeanWithAnnoteatedIdNamedField {
+
+		@SuppressWarnings("unused")
+		@Id
+		private String idField;
+
+		public SolrBeanWithAnnoteatedIdNamedField(String idField) {
+			this.idField = idField;
+		}
+
 	}
 
 }

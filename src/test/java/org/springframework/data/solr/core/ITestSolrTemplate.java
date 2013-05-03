@@ -37,12 +37,14 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
+import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
@@ -51,6 +53,7 @@ import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.xml.sax.SAXException;
 
 /**
@@ -593,4 +596,24 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(1, page.getContent().size());
 		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
+
+	@Test
+	public void testQueryWithHighlights() {
+		ExampleSolrBean belkin = new ExampleSolrBean("GB18030TEST", "Test with some GB18030TEST", null);
+		ExampleSolrBean apple = new ExampleSolrBean("UTF8TEST", "Test with some UTF8TEST", null);
+
+		solrTemplate.saveBeans(Arrays.asList(belkin, apple));
+		solrTemplate.commit();
+
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
+		query.setHighlightOptions(new HighlightOptions());
+
+		HighlightPage<ExampleSolrBean> page = solrTemplate.queryForHighlightPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(2, page.getHighlighted().size());
+
+		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
+		Assert.assertEquals("Test <em>with</em> some GB18030TEST", page.getHighlighted().get(0).getHighlights().get(0)
+				.getHighlighted().get(0));
+	}
+
 }

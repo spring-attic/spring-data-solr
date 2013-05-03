@@ -55,7 +55,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	private SolrOperations solrOperations;
 	private String idFieldName = DEFAULT_ID_FIELD;
 	private Class<T> entityClass;
-	private SolrEntityInformation<T, String> entityInformation;
+	private SolrEntityInformation<T, ?> entityInformation;
 
 	public SimpleSolrRepository() {
 
@@ -67,7 +67,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		this.setSolrOperations(solrOperations);
 	}
 
-	public SimpleSolrRepository(SolrEntityInformation<T, String> metadata, SolrOperations solrOperations) {
+	public SimpleSolrRepository(SolrEntityInformation<T, ?> metadata, SolrOperations solrOperations) {
 		this(solrOperations);
 		Assert.notNull(metadata);
 
@@ -182,7 +182,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 		ArrayList<String> idsToDelete = new ArrayList<String>();
 		for (T entity : entities) {
-			idsToDelete.add(extractIdFromBean(entity));
+			idsToDelete.add(extractIdFromBean(entity).toString());
 		}
 
 		registerTransactionSynchronisationIfSynchronisationActive();
@@ -256,7 +256,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return solrOperations;
 	}
 
-	private String extractIdFromBean(T entity) {
+	private Object extractIdFromBean(T entity) {
 		if (entityInformation != null) {
 			return entityInformation.getId(entity);
 		}

@@ -173,4 +173,29 @@ query.setJoin(Join.from("manu_id_s").to("id"));
 </programlisting>
         </example>
     </section>
+    <section id="solr.misc.highlighting">
+        <title>Highlighting</title>
+        <para>
+           To highlight matches in search result add <classname>HighlightOptions</classname> to the <classname>SimpleHighlightQuery</classname>.
+           Providing <classname>HighlightOptions</classname> without any further attributes will highlight apply highlighting on all fields within a <classname>SolrDocument</classname>.
+           
+           <note>
+             Field specific highlight parameters can be set by adding <classname>FieldWithHighlightParameters</classname> to <classname>HighlightOptions</classname>.
+           </note>
+        </para>
+        <example>
+            <programlisting language="java">SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
+query.setHighlightOptions(new HighlightOptions());
+HighlightPage&lt;Product&gt; page = solrTemplate.queryForHighlightPage(query, Product.class);
+</programlisting>
+        </example>
+        <para>
+        	Not all parameters are available via setters/getters but can be added directly.
+        </para>
+        <example>
+            <programlisting language="java">SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
+query.setHighlightOptions(new HighlightOptions().addHighlightParameter("hl.bs.country", "at"));
+</programlisting>
+        </example>
+    </section>
 </chapter>

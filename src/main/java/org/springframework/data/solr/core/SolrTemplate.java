@@ -45,9 +45,12 @@ import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
@@ -250,10 +253,24 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		QueryResponse response = query(query);
 
-		FacetPage<T> page = new FacetPage<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults()
-				.getNumFound());
+		SolrResultPage<T> page = new SolrResultPage<T>(response.getBeans(clazz), query.getPageRequest(), response
+				.getResults().getNumFound());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
+
+		return page;
+	}
+
+	@Override
+	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz) {
+		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(clazz, "Target class must not be 'null'.");
+
+		QueryResponse response = query(query);
+
+		SolrResultPage<T> page = new SolrResultPage<T>(response.getBeans(clazz), query.getPageRequest(), response
+				.getResults().getNumFound());
+		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
 
 		return page;
 	}

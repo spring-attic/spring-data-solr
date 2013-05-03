@@ -15,18 +15,10 @@
  */
 package org.springframework.data.solr.core.query.result;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.SimpleField;
 
 /**
  * FacetPage holds a page for each field targeted by the facet query as well as the page values returned by facet.query
@@ -35,77 +27,44 @@ import org.springframework.data.solr.core.query.SimpleField;
  * 
  * @author Christoph Strobl
  */
-public class FacetPage<T> extends PageImpl<T> {
+public interface FacetPage<T> extends Page<T> {
 
-	private static final long serialVersionUID = 9024455741261109788L;
+	/**
+	 * Get Facet results for field with given name
+	 * 
+	 * @param fieldname must not be null
+	 * @return
+	 */
+	Page<FacetFieldEntry> getFacetResultPage(String fieldname);
 
-	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(1);
-	private Page<FacetQueryEntry> facetQueryResult;
-
-	public FacetPage(List<T> content) {
-		super(content);
-	}
-
-	public FacetPage(List<T> content, Pageable pageable, long total) {
-		super(content, pageable, total);
-	}
-
-	public final Page<FacetFieldEntry> getFacetResultPage(String fieldname) {
-		Page<FacetFieldEntry> page = facetResultPages.get(new StringPageKey(fieldname));
-		return page != null ? page : new PageImpl<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList());
-	}
-
-	public final Page<FacetFieldEntry> getFacetResultPage(Field field) {
-		return this.getFacetResultPage(field.getName());
-	}
-
-	public final void addFacetResultPage(Page<FacetFieldEntry> page, Field field) {
-		facetResultPages.put(new StringPageKey(field.getName()), page);
-	}
-
-	public void addAllFacetFieldResultPages(Map<Field, Page<FacetFieldEntry>> pageMap) {
-		for (Map.Entry<Field, Page<FacetFieldEntry>> entry : pageMap.entrySet()) {
-			addFacetResultPage(entry.getValue(), entry.getKey());
-		}
-	}
+	/**
+	 * Get Facet results for field with given field
+	 * 
+	 * @param field
+	 * @return
+	 */
+	Page<FacetFieldEntry> getFacetResultPage(Field field);
 
 	/**
 	 * @return Collection holding faceting result pages
 	 */
-	public Collection<Page<FacetFieldEntry>> getFacetResultPages() {
-		return Collections.unmodifiableCollection(this.facetResultPages.values());
-	}
+	Collection<Page<FacetFieldEntry>> getFacetResultPages();
 
-	public final void setFacetQueryResultPage(List<FacetQueryEntry> facetQueryResult) {
-		this.facetQueryResult = new PageImpl<FacetQueryEntry>(facetQueryResult);
-	}
-
-	public Page<FacetQueryEntry> getFacetQueryResult() {
-		return this.facetQueryResult != null ? this.facetQueryResult : new PageImpl<FacetQueryEntry>(
-				Collections.<FacetQueryEntry> emptyList());
-	}
+	/**
+	 * @return empty collection if not set
+	 */
+	Page<FacetQueryEntry> getFacetQueryResult();
 
 	/**
 	 * Get Fields contained in Result.
 	 * 
 	 * @return
 	 */
-	public Collection<Field> getFacetFields() {
-		if (facetResultPages.isEmpty()) {
-			return Collections.emptyList();
-		}
-		List<Field> fields = new ArrayList<Field>(facetResultPages.size());
-		for (PageKey pageKey : this.facetResultPages.keySet()) {
-			fields.add(new SimpleField(pageKey.getKey().toString()));
-		}
-		return fields;
-	}
+	Collection<Field> getFacetFields();
 
-	public Collection<Page<? extends FacetEntry>> getAllFacets() {
-		List<Page<? extends FacetEntry>> entries = new ArrayList<Page<? extends FacetEntry>>(facetResultPages.size() + 1);
-		entries.addAll(facetResultPages.values());
-		entries.add(this.facetQueryResult);
-		return entries;
-	}
+	/**
+	 * @return empty collection if not available
+	 */
+	Collection<Page<? extends FacetEntry>> getAllFacets();
 
 }

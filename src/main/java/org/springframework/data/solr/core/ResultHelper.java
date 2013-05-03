@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,18 +26,24 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
+import org.springframework.data.mapping.model.MappingException;
+import org.springframework.data.repository.util.ClassUtils;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
+import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.util.Assert;
 
 /**
@@ -71,10 +78,10 @@ final class ResultHelper {
 								pageEntries.add(new SimpleFacetFieldEntry(field, count.getName(), count.getCount()));
 							}
 						}
-						facetResult.put(field, new FacetPage<FacetFieldEntry>(pageEntries, query.getFacetOptions().getPageable(),
-								facetField.getValueCount()));
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+								.getPageable(), facetField.getValueCount()));
 					} else {
-						facetResult.put(field, new FacetPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
 								.getFacetOptions().getPageable(), 0));
 					}
 				}
@@ -98,6 +105,61 @@ final class ResultHelper {
 			}
 		}
 		return facetResult;
+	}
+
+	static <T> List<HighlightEntry<T>> convertAndAddHighlightQueryResponseToResultPage(QueryResponse response,
+			SolrResultPage<T> page) {
+		if (response == null || MapUtils.isEmpty(response.getHighlighting()) || page == null) {
+			return Collections.emptyList();
+		}
+
+		List<HighlightEntry<T>> mappedHighlights = new ArrayList<HighlightEntry<T>>(page.getSize());
+		Map<String, Map<String, List<String>>> highlighting = response.getHighlighting();
+
+		for (T item : page) {
+			HighlightEntry<T> highlightEntry = processHighlightingForPageEntry(highlighting, item);
+			mappedHighlights.add(highlightEntry);
+		}
+		page.setHighlighted(mappedHighlights);
+		return mappedHighlights;
+	}
+
+	private static <T> HighlightEntry<T> processHighlightingForPageEntry(
+			Map<String, Map<String, List<String>>> highlighting, T pageEntry) {
+		HighlightEntry<T> highlightEntry = new HighlightEntry<T>(pageEntry);
+		Object itemId = getMappedId(pageEntry);
+
+		Map<String, List<String>> highlights = highlighting.get(itemId.toString());
+		if (MapUtils.isNotEmpty(highlights)) {
+			for (Map.Entry<String, List<String>> entry : highlights.entrySet()) {
+				highlightEntry.addHighlights(entry.getKey(), entry.getValue());
+			}
+		}
+		return highlightEntry;
+	}
+
+	private static Object getMappedId(Object o) {
+		if (ClassUtils.hasProperty(o.getClass(), "id")) {
+			try {
+				return FieldUtils.readDeclaredField(o, "id", true);
+			} catch (IllegalAccessException e) {
+				throw new MappingException("Id property could not be accessed!", e);
+			}
+		}
+
+		for (java.lang.reflect.Field field : o.getClass().getDeclaredFields()) {
+			Annotation annotation = AnnotationUtils.getAnnotation(field, Id.class);
+			if (annotation != null) {
+				try {
+					return FieldUtils.readField(field, o, true);
+				} catch (IllegalArgumentException e) {
+					throw new MappingException("Id property could not be accessed!", e);
+				} catch (IllegalAccessException e) {
+					throw new MappingException("Id property could not be accessed!", e);
+				}
+			}
+		}
+		throw new MappingException("Id property could not be found!");
 	}
 
 	private static boolean hasFacets(FacetQuery query, QueryResponse response) {

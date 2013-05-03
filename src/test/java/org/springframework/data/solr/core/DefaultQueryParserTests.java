@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
+import org.apache.solr.common.params.HighlightParams;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -42,12 +43,14 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
+import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
+import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 
@@ -734,6 +737,101 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertEquals("{!join from=inner_id to=outer_id}field_1:value_1", solrQuery.getQuery());
+	}
+
+	@Test
+	public void testConstructSolrQueryWithEmptyHighlightOption() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setHighlightOptions(new HighlightOptions());
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertTrue(solrQuery.getHighlight());
+		Assert.assertArrayEquals(new String[] { Criteria.WILDCARD }, solrQuery.getHighlightFields());
+	}
+
+	@Test
+	public void testConstructSolrQueryWithoutHighlightOption() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertFalse(solrQuery.getHighlight());
+	}
+
+	@Test
+	public void testConstructSolrQueryWithHighlightOptionHavingFields() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+		options.addField("field_2", "field_3");
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertArrayEquals(new String[] { "field_2", "field_3" }, solrQuery.getHighlightFields());
+	}
+
+	@Test
+	public void testConstructSorlQueryWithHighlightOptionFragsize() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+		options.setFragsize(10);
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals(options.getFragsize().intValue(), solrQuery.getHighlightFragsize());
+	}
+
+	@Test
+	public void testConstructSorlQueryWithHighlightOptionFormatter() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+		options.setFormatter("formatter");
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals(options.getFormatter(), solrQuery.getParams(HighlightParams.FORMATTER)[0]);
+	}
+
+	@Test
+	public void testConstructSorlQueryWithHighlightOptionNrSnipplets() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+		options.setNrSnipplets(10);
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals(options.getNrSnipplets().intValue(), solrQuery.getHighlightSnippets());
+	}
+
+	@Test
+	public void testConstructSorlQueryWithHighlightOptionsAndAnySolrParameter() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+		options.addHighlightParameter(HighlightParams.SIMPLE_PRE, "{pre}");
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals(options.<String> getHighlightParameterValue(HighlightParams.SIMPLE_PRE),
+				solrQuery.getHighlightSimplePre());
+	}
+
+	@Test
+	public void testConstructSorlQueryWithFieldSpecificHighlightOptions() {
+		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
+		HighlightOptions options = new HighlightOptions();
+
+		HighlightOptions.FieldWithHighlightParameters fieldWithHighlightParameters = new HighlightOptions.FieldWithHighlightParameters(
+				"field_2");
+		fieldWithHighlightParameters.setFormatter("formatter");
+		fieldWithHighlightParameters.setFragsize(10);
+
+		options.addField(fieldWithHighlightParameters);
+		query.setHighlightOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertArrayEquals(new String[] { "field_2" }, solrQuery.getHighlightFields());
+		Assert.assertEquals(fieldWithHighlightParameters.getFormatter(),
+				solrQuery.getParams("f.field_2." + HighlightParams.FORMATTER)[0]);
+		Assert.assertEquals(fieldWithHighlightParameters.getFragsize().toString(),
+				solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0]);
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
