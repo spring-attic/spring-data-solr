@@ -16,8 +16,11 @@
 package org.springframework.data.solr.repository.query;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +28,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.repository.Facet;
+import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.support.SolrEntityInformationCreatorImpl;
@@ -76,6 +80,7 @@ public class SolrQueryMethodTests {
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasFilterQuery());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.isHighlightQuery());
 	}
 
 	@Test
@@ -204,7 +209,7 @@ public class SolrQueryMethodTests {
 	@Test
 	public void testWithoutFacetPrefix() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularity", String.class);
-		Assert.assertEquals("", method.getFacetPrefix());
+		Assert.assertNull(method.getFacetPrefix());
 	}
 
 	@Test
@@ -265,6 +270,79 @@ public class SolrQueryMethodTests {
 	public void testQueryWithRequestHandler() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByText", String.class);
 		Assert.assertEquals("/instock", method.getRequestHandler());
+	}
+
+	@Test
+	public void testQueryWithEmptyHighlight() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextLike", String.class);
+		Assert.assertTrue(method.isHighlightQuery());
+		Assert.assertNull(method.getHighlightFormatter());
+		Assert.assertNull(method.getHighlightQuery());
+		Assert.assertNull(method.getHighlighSnipplets());
+		Assert.assertThat(method.getHighlightFieldNames(), IsEmptyCollection.empty());
+		Assert.assertNull(method.getHighlightFragsize());
+		Assert.assertNull(method.getHighlightPrefix());
+		Assert.assertNull(method.getHighlightPostfix());
+	}
+
+	@Test
+	public void testQueryWithHighlightSingleField() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightSingleField", String.class);
+		Assert.assertThat(Arrays.asList("field_1"), IsEqual.equalTo(method.getHighlightFieldNames()));
+	}
+
+	@Test
+	public void testQueryWithHighlightMultipleFields() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightMultipleFields", String.class);
+		Assert.assertThat(Arrays.asList("field_1", "field_2", "field_3"), IsEqual.equalTo(method.getHighlightFieldNames()));
+	}
+
+	@Test
+	public void testQueryWithHighlightFormatter() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightFormatter", String.class);
+		Assert.assertEquals("simple", method.getHighlightFormatter());
+	}
+
+	@Test
+	public void testQueryWithHighlightQuery() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightQuery", String.class);
+		Assert.assertEquals("field_1:value*", method.getHighlightQuery());
+	}
+
+	@Test
+	public void testQueryWithHighlightSnipplets() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightSnipplets", String.class);
+		Assert.assertEquals(Integer.valueOf(2), method.getHighlighSnipplets());
+	}
+
+	@Test
+	public void testQueryWithNegativeHighlightSnipplets() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextNegativeHighlightSnipplets", String.class);
+		Assert.assertNull(method.getHighlighSnipplets());
+	}
+
+	@Test
+	public void testQueryWithHighlightFragsize() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightFragsize", String.class);
+		Assert.assertEquals(Integer.valueOf(3), method.getHighlightFragsize());
+	}
+
+	@Test
+	public void testQueryWithNegativeHighlightFragsize() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextNegativeHighlightFragsize", String.class);
+		Assert.assertNull(method.getHighlightFragsize());
+	}
+
+	@Test
+	public void testQueryWithHighlightPrefix() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightPrefix", String.class);
+		Assert.assertEquals("{prefix}", method.getHighlightPrefix());
+	}
+
+	@Test
+	public void testQueryWithHighlightPostfix() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightPostfix", String.class);
+		Assert.assertEquals("{postfix}", method.getHighlightPostfix());
 	}
 
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
@@ -332,6 +410,39 @@ public class SolrQueryMethodTests {
 
 		@Query(requestHandler = "/instock")
 		List<ProductBean> findByText(String text);
+
+		@Highlight
+		List<ProductBean> findByTextLike(String text);
+
+		@Highlight(fields = "field_1")
+		List<ProductBean> findByTextHighlightSingleField(String text);
+
+		@Highlight(fields = { "field_1", "field_2", "field_3" })
+		List<ProductBean> findByTextHighlightMultipleFields(String text);
+
+		@Highlight(formatter = "simple")
+		List<ProductBean> findByTextHighlightFormatter(String text);
+
+		@Highlight(query = "field_1:value*")
+		List<ProductBean> findByTextHighlightQuery(String text);
+
+		@Highlight(snipplets = 2)
+		List<ProductBean> findByTextHighlightSnipplets(String text);
+
+		@Highlight(snipplets = -2)
+		List<ProductBean> findByTextNegativeHighlightSnipplets(String text);
+
+		@Highlight(fragsize = 3)
+		List<ProductBean> findByTextHighlightFragsize(String text);
+
+		@Highlight(fragsize = -3)
+		List<ProductBean> findByTextNegativeHighlightFragsize(String text);
+
+		@Highlight(prefix = "{prefix}")
+		List<ProductBean> findByTextHighlightPrefix(String text);
+
+		@Highlight(postfix = "{postfix}")
+		List<ProductBean> findByTextHighlightPostfix(String text);
 	}
 
 }

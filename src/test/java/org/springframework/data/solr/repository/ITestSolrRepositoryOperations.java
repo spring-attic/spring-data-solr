@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsNot;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -40,6 +42,8 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -645,13 +649,111 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testWithDefTypeLucene() {
-		final ProductBean anotherProductBean = createProductBean("5", 3, true, "an other product");
+		ProductBean anotherProductBean = createProductBean("5", 3, true, "an other product");
 		repo.save(anotherProductBean);
 
 		List<ProductBean> found = repo.findByNameIn(Arrays.asList(NAMED_PRODUCT.getName(), anotherProductBean.getName()));
 		Assert.assertEquals(2, found.size());
 
 		Assert.assertThat(found, Matchers.containsInAnyOrder(anotherProductBean, NAMED_PRODUCT));
+	}
+
+	@Test
+	public void testQueryWithRequestHandler() {
+		ProductBean availableBeanWithDescription = createProductBean("withDescriptionAvailable", 5, true);
+		availableBeanWithDescription.setDescription("some text with name in it");
+		repo.save(availableBeanWithDescription);
+
+		ProductBean unavailableBeanWithDescription = createProductBean("withDescriptionUnAvailable", 5, false);
+		unavailableBeanWithDescription.setDescription("some text with name in it");
+		repo.save(unavailableBeanWithDescription);
+
+		List<ProductBean> found = repo.findByDescription("some");
+
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(availableBeanWithDescription.getId(), found.get(0).getId());
+	}
+
+	@Test
+	public void testQueryWithHighlight() {
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAll("na", new PageRequest(0, 10));
+		Assert.assertEquals(3, page.getNumberOfElements());
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("name", highlight.getField().getName());
+				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testHighlightWithPrefixPostfix() {
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAllWithPreAndPostfix("na", new PageRequest(0, 10));
+		Assert.assertEquals(3, page.getNumberOfElements());
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("name", highlight.getField().getName());
+				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <b>name</b> but was \"" + s + "\"", s.contains("<b>name</b>"));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testHighlightWithFields() {
+		ProductBean beanWithText = createProductBean("withName", 5, true);
+		beanWithText.setDescription("some text with name in it");
+		repo.save(beanWithText);
+
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAllLimitToFields("na", new PageRequest(0, 10));
+		Assert.assertEquals(4, page.getNumberOfElements());
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			if (!product.getId().equals(beanWithText.getId())) {
+				Assert.assertThat(highlights, IsEmptyCollection.empty());
+			} else {
+				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				for (Highlight highlight : highlights) {
+					Assert.assertEquals("description", highlight.getField().getName());
+					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					for (String s : highlight.getSnipplets()) {
+						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testHighlightWithQueryOverride() {
+		ProductBean beanWithText = createProductBean("withName", 5, true);
+		beanWithText.setDescription("some text with name in it");
+		repo.save(beanWithText);
+
+		HighlightPage<ProductBean> page = repo.findByNameHighlightWihtQueryOverride("na", "some", new PageRequest(0, 10));
+		Assert.assertEquals(4, page.getNumberOfElements());
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("description", highlight.getField().getName());
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <em>some</em> but was \"" + s + "\"", s.contains("<em>some</em>"));
+				}
+			}
+		}
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

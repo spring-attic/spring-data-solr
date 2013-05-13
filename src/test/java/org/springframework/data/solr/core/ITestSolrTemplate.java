@@ -613,7 +613,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
 		Assert.assertEquals("Test <em>with</em> some GB18030TEST", page.getHighlighted().get(0).getHighlights().get(0)
-				.getHighlighted().get(0));
+				.getSnipplets().get(0));
 	}
 
 }

@@ -48,22 +48,37 @@ The SimpleSolrRepository implementation uses SolrJ converters for entity transfo
         //Derived Query will be "q=inStock:true&start=<page.number>&rows=<page.size>"
         Page<Product> findByAvailableTrue(Pageable page);
   
+        //Derived Query will be "q=inStock:<inStock>&start=<page.number>&rows=<page.size>"
         @Query("inStock:?0")
         Page<Product> findByAvailableUsingAnnotatedQuery(boolean inStock, Pageable page);
         
         //Will execute count prior to determine total number of elements
-        //Derived Query will be q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc
+        //Derived Query will be "q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc"
         List<Product> findByAvailableFalseOrderByNameDesc();
         
         //Execute faceted search 
-        //Query will be q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>
+        //Query will be "q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>"
         @Query(value = "name:?0")
         @Facet(fields = { "cat" }, limit=20)
         FacetPage<Product> findByNameAndFacetOnCategory(String name, Pageable page);
         
         //Boosting criteria
-        //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>
+        //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>"
         Page<Product> findByNameOrDescription(@Boost(2) String name, String description, Pageable page);
+        
+        //Highlighting results
+        //Query will be "q=name:(<name...>)&hl=true&hl.fl=*"
+        @Highlight
+        HighlightPage<Product> findByNameIn(Collection<String> name, Page page);
+        
+        //Spatial Search
+        //Query will be "q=location:[<bbox.start.latitude>,<bbox.start.longitude> TO <bbox.end.latitude>,<bbox.end.longitude>]"
+        Page<Product> findByLocationNear(BoundingBox bbox);
+        
+        //Spatial Search
+        //Query will be "q={!geofilt pt=<location.latitude>,<location.longitude> sfield=location d=<distance.value>}"
+        Page<Product> findByLocationWithin(GeoLocation location, Distance distance);
+  
     }
 ```
 

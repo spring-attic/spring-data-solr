@@ -19,7 +19,9 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.solr.common.params.HighlightParams;
 import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,12 +35,17 @@ import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.HighlightOptions;
+import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
+import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -100,10 +107,18 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setRequestHandlerIfDefined(query);
 
 		if (solrQueryMethod.isPageQuery()) {
+			if (solrQueryMethod.isFacetQuery() && solrQueryMethod.isHighlightQuery()) {
+				throw new InvalidDataAccessApiUsageException("Facet and Highlight cannot be combined.");
+			}
 			if (solrQueryMethod.isFacetQuery()) {
 				FacetQuery facetQuery = SimpleFacetQuery.fromQuery(query, new SimpleFacetQuery());
 				facetQuery.setFacetOptions(extractFacetOptions(solrQueryMethod, accessor));
 				return new FacetPageExecution(accessor.getPageable()).execute(facetQuery);
+			}
+			if (solrQueryMethod.isHighlightQuery()) {
+				HighlightQuery highlightQuery = SimpleHighlightQuery.fromQuery(query, new SimpleHighlightQuery());
+				highlightQuery.setHighlightOptions(extractHighlightOptions(solrQueryMethod, accessor));
+				return new HighlightPageExecution(accessor.getPageable()).execute(highlightQuery);
 			}
 			return new PagedExecution(accessor.getPageable()).execute(query);
 		} else if (solrQueryMethod.isCollectionQuery()) {
@@ -227,6 +242,54 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return options;
 	}
 
+	private HighlightOptions extractHighlightOptions(SolrQueryMethod queryMethod, SolrParameterAccessor accessor) {
+		HighlightOptions options = new HighlightOptions();
+		if (queryMethod.hasHighlightFields()) {
+			options.addFields(queryMethod.getHighlightFieldNames());
+		}
+		Integer fragsize = queryMethod.getHighlightFragsize();
+		if (fragsize != null) {
+			options.setFragsize(fragsize);
+		}
+		Integer snipplets = queryMethod.getHighlighSnipplets();
+		if (snipplets != null) {
+			options.setNrSnipplets(snipplets);
+		}
+		String queryString = queryMethod.getHighlightQuery();
+		if (queryString != null) {
+			options.setQuery(createQueryFromString(queryString, accessor));
+		}
+		appendHighlightFormatOptions(options, solrQueryMethod);
+		return options;
+	}
+
+	private void appendHighlightFormatOptions(HighlightOptions options, SolrQueryMethod queryMethod) {
+		String formatter = queryMethod.getHighlightFormatter();
+		if (formatter != null) {
+			options.setFormatter(formatter);
+		}
+		String highlightPrefix = queryMethod.getHighlightPrefix();
+		if (highlightPrefix != null) {
+			if (isSimpleHighlightingOption(formatter)) {
+				options.setSimplePrefix(highlightPrefix);
+			} else {
+				options.addHighlightParameter(new HighlightParameter(HighlightParams.TAG_PRE, highlightPrefix));
+			}
+		}
+		String highlightPostfix = queryMethod.getHighlightPostfix();
+		if (highlightPostfix != null) {
+			if (isSimpleHighlightingOption(formatter)) {
+				options.setSimplePostfix(highlightPostfix);
+			} else {
+				options.addHighlightParameter(new HighlightParameter(HighlightParams.TAG_POST, highlightPostfix));
+			}
+		}
+	}
+
+	private boolean isSimpleHighlightingOption(String formatter) {
+		return formatter == null || HighlightParams.SIMPLE.equalsIgnoreCase(formatter);
+	}
+
 	protected abstract Query createQuery(SolrParameterAccessor parameterAccessor);
 
 	private interface QueryExecution {
@@ -293,6 +356,21 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetPage((FacetQuery) query, metadata.getJavaType());
 		}
+
+	}
+
+	class HighlightPageExecution extends PagedExecution {
+
+		public HighlightPageExecution(Pageable pageable) {
+			super(pageable);
+		}
+
+		protected HighlightPage<?> executeFind(Query query) {
+			Assert.isInstanceOf(HighlightQuery.class, query);
+
+			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
+		};
 
 	}
 

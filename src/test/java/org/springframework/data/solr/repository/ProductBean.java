@@ -36,7 +36,9 @@ public class ProductBean {
 	@Field("name")
 	private String name;
 
-	@Field("textGeneral")
+	@Field("description")
+	private String description;
+
 	private String text;
 
 	@Field
@@ -76,12 +78,12 @@ public class ProductBean {
 		this.title = title;
 	}
 
-	public String getText() {
-		return text;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public List<String> getCategories() {
@@ -173,6 +175,14 @@ public class ProductBean {
 			return false;
 		}
 		return true;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 
 }

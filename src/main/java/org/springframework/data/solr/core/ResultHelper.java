@@ -132,7 +132,7 @@ final class ResultHelper {
 		Map<String, List<String>> highlights = highlighting.get(itemId.toString());
 		if (MapUtils.isNotEmpty(highlights)) {
 			for (Map.Entry<String, List<String>> entry : highlights.entrySet()) {
-				highlightEntry.addHighlights(entry.getKey(), entry.getValue());
+				highlightEntry.addSnipplets(entry.getKey(), entry.getValue());
 			}
 		}
 		return highlightEntry;

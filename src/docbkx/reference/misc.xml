@@ -197,5 +197,13 @@ HighlightPage&lt;Product&gt; page = solrTemplate.queryForHighlightPage(query, Pr
 query.setHighlightOptions(new HighlightOptions().addHighlightParameter("hl.bs.country", "at"));
 </programlisting>
         </example>
+        <para>
+        	In order to apply Highlighting to derived queries use <interfacename>@Highlight</interfacename>. If no <methodname>fields</methodname> are defined highlighting will be aplied on all fields.
+        </para>
+        <example>
+        	<programlisting language="java">@Highlight(prefix = "&lt;b&gt;", postfix = "&lt;/b&gt;")
+HighlightPage&lt;Product&gt; findByName(String name, Pageable page);
+</programlisting>
+        </example>
     </section>
 </chapter>

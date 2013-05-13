@@ -85,6 +85,21 @@ public class HighlightOptions {
 	}
 
 	/**
+	 * Add names of fields to highlight on
+	 * 
+	 * @param fieldnames
+	 * @return
+	 */
+	public HighlightOptions addFields(Collection<String> fieldnames) {
+		Assert.notNull(fieldnames);
+
+		for (String fieldname : fieldnames) {
+			addField(fieldname);
+		}
+		return this;
+	}
+
+	/**
 	 * @return null if not set
 	 */
 	public FilterQuery getQuery() {
@@ -150,6 +165,40 @@ public class HighlightOptions {
 	public HighlightOptions setNrSnipplets(Integer nrSnipplets) {
 		addHighlightParameter(HighlightParams.SNIPPETS, nrSnipplets);
 		return this;
+	}
+
+	/**
+	 * set {@code hl.simple.pre}
+	 * 
+	 * @param prefix
+	 */
+	public HighlightOptions setSimplePrefix(String prefix) {
+		addHighlightParameter(HighlightParams.SIMPLE_PRE, prefix);
+		return this;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSimplePrefix() {
+		return this.parameterHolder.getParameterValue(HighlightParams.SIMPLE_PRE);
+	}
+
+	/**
+	 * set {@code hl.simple.post}
+	 * 
+	 * @param postfix
+	 */
+	public HighlightOptions setSimplePostfix(String postfix) {
+		addHighlightParameter(HighlightParams.SIMPLE_POST, postfix);
+		return this;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getSimplePostfix() {
+		return this.parameterHolder.getParameterValue(HighlightParams.SIMPLE_POST);
 	}
 
 	/**

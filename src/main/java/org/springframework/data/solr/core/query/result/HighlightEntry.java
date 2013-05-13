@@ -57,18 +57,18 @@ public class HighlightEntry<T> {
 
 	/**
 	 * @param field
-	 * @param highlight
+	 * @param snipplets
 	 */
-	public void addHighlights(Field field, List<String> highlight) {
-		this.highlights.add(new Highlight(field, highlight));
+	public void addSnipplets(Field field, List<String> snipplets) {
+		this.highlights.add(new Highlight(field, snipplets));
 	}
 
 	/**
 	 * @param fieldname
-	 * @param highlights
+	 * @param snipplets
 	 */
-	public void addHighlights(String fieldname, List<String> highlights) {
-		addHighlights(new SimpleField(fieldname), highlights);
+	public void addSnipplets(String fieldname, List<String> snipplets) {
+		addSnipplets(new SimpleField(fieldname), snipplets);
 	}
 
 	/**
@@ -77,21 +77,21 @@ public class HighlightEntry<T> {
 	public static class Highlight {
 
 		private final Field field;
-		private final List<String> highlighted;
+		private final List<String> snipplets;
 
 		/**
 		 * @param field must not be null
-		 * @param highlighted
+		 * @param snipplets
 		 */
-		Highlight(Field field, List<String> highlighted) {
+		Highlight(Field field, List<String> snipplets) {
 			Assert.notNull(field);
 
 			this.field = field;
-			this.highlighted = highlighted;
+			this.snipplets = snipplets;
 		}
 
-		Highlight(String fieldname, List<String> highlighted) {
-			this(new SimpleField(fieldname), highlighted);
+		Highlight(String fieldname, List<String> snipplets) {
+			this(new SimpleField(fieldname), snipplets);
 		}
 
 		/**
@@ -104,8 +104,8 @@ public class HighlightEntry<T> {
 		/**
 		 * @return empty list none available
 		 */
-		public List<String> getHighlighted() {
-			return this.highlighted != null ? this.highlighted : Collections.<String> emptyList();
+		public List<String> getSnipplets() {
+			return this.snipplets != null ? this.snipplets : Collections.<String> emptyList();
 		}
 
 	}

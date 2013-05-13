@@ -26,6 +26,7 @@ import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.HighlightPage;
 
 /**
  * @author Christoph Strobl
@@ -165,6 +166,22 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findByNameIn(Collection<String> name);
 
 	@Query(requestHandler = "/instock")
-	List<ProductBean> findByText(String text);
+	List<ProductBean> findByDescription(String description);
+
+	@Query("name:?0*")
+	@Highlight
+	HighlightPage<ProductBean> findByNameHighlightAll(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(prefix = "<b>", postfix = "</b>")
+	HighlightPage<ProductBean> findByNameHighlightAllWithPreAndPostfix(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(fields = { "description" })
+	HighlightPage<ProductBean> findByNameHighlightAllLimitToFields(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(query = "description:?1")
+	HighlightPage<ProductBean> findByNameHighlightWihtQueryOverride(String name, String highlightOn, Pageable page);
 
 }

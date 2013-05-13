@@ -216,7 +216,7 @@ public class ResultHelperTests {
 			Assert.assertEquals(resultBean, entry.getEntity());
 			for (Highlight highlight : entry.getHighlights()) {
 				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
-				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getHighlighted());
+				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getSnipplets());
 			}
 		}
 	}
@@ -273,7 +273,7 @@ public class ResultHelperTests {
 			Assert.assertEquals(resultBean, entry.getEntity());
 			for (Highlight highlight : entry.getHighlights()) {
 				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
-				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getHighlighted());
+				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getSnipplets());
 			}
 		}
 	}

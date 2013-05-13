@@ -24,6 +24,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.solr.repository.Facet;
+import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -57,8 +58,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	String getAnnotatedQuery() {
-		String query = (String) AnnotationUtils.getValue(getQueryAnnotation(), "value");
-		return StringUtils.hasText(query) ? query : null;
+		return getAnnotationValueAsStringOrNullIfBlank(getQueryAnnotation(), "value");
 	}
 
 	public boolean hasAnnotatedNamedQueryName() {
@@ -66,8 +66,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	String getAnnotatedNamedQueryName() {
-		String namedQueryName = (String) AnnotationUtils.getValue(getQueryAnnotation(), "name");
-		return StringUtils.hasText(namedQueryName) ? namedQueryName : null;
+		return getAnnotationValueAsStringOrNullIfBlank(getQueryAnnotation(), "name");
 	}
 
 	private Query getQueryAnnotation() {
@@ -91,10 +90,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 	public Integer getTimeAllowed() {
 		if (hasQueryAnnotation()) {
-			Integer timeAllowed = (Integer) AnnotationUtils.getValue(getQueryAnnotation(), "timeAllowed");
-			if (timeAllowed != null && timeAllowed.intValue() > 0) {
-				return timeAllowed;
-			}
+			return getAnnotationValueAsIntOrNullIfNegative(getQueryAnnotation(), "timeAllowed");
 		}
 		return null;
 	}
@@ -142,7 +138,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	public String getFacetPrefix() {
-		return (String) AnnotationUtils.getValue(getFacetAnnotation(), "prefix");
+		return getAnnotationValueAsStringOrNullIfBlank(getFacetAnnotation(), "prefix");
 	}
 
 	public boolean hasFilterQuery() {
@@ -150,6 +146,71 @@ public class SolrQueryMethod extends QueryMethod {
 			return !CollectionUtils.isEmpty(getFilterQueries());
 		}
 		return false;
+	}
+
+	private Annotation getHighlightAnnotation() {
+		return this.method.getAnnotation(Highlight.class);
+	}
+
+	private boolean hasHighlightAnnotation() {
+		return this.getHighlightAnnotation() != null;
+	}
+
+	public boolean isHighlightQuery() {
+		return this.hasHighlightAnnotation();
+	}
+
+	public List<String> getHighlightFieldNames() {
+		if (hasHighlightAnnotation()) {
+			return this.getAnnotationValuesAsStringList(getHighlightAnnotation(), "fields");
+		}
+		return null;
+	}
+
+	public String getHighlightQuery() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "query");
+		}
+		return null;
+	}
+
+	public Integer getHighlighSnipplets() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsIntOrNullIfNegative(getHighlightAnnotation(), "snipplets");
+		}
+		return null;
+	}
+
+	public Integer getHighlightFragsize() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsIntOrNullIfNegative(getHighlightAnnotation(), "fragsize");
+		}
+		return null;
+	}
+
+	public String getHighlightFormatter() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "formatter");
+		}
+		return null;
+	}
+
+	public String getHighlightPrefix() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "prefix");
+		}
+		return null;
+	}
+
+	public String getHighlightPostfix() {
+		if (hasHighlightAnnotation()) {
+			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "postfix");
+		}
+		return null;
+	}
+
+	public boolean hasHighlightFields() {
+		return !getHighlightFieldNames().isEmpty();
 	}
 
 	List<String> getFilterQueries() {
@@ -173,6 +234,19 @@ public class SolrQueryMethod extends QueryMethod {
 	public String getRequestHandler() {
 		if (hasQueryAnnotation()) {
 			return getQueryAnnotation().requestHandler();
+		}
+		return null;
+	}
+
+	private String getAnnotationValueAsStringOrNullIfBlank(Annotation annotation, String attributeName) {
+		String value = (String) AnnotationUtils.getValue(annotation, attributeName);
+		return StringUtils.hasText(value) ? value : null;
+	}
+
+	private Integer getAnnotationValueAsIntOrNullIfNegative(Annotation annotation, String attributeName) {
+		Integer timeAllowed = (Integer) AnnotationUtils.getValue(annotation, attributeName);
+		if (timeAllowed != null && timeAllowed.intValue() > 0) {
+			return timeAllowed;
 		}
 		return null;
 	}
