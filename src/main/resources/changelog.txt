@@ -1,3 +1,35 @@
+Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
+-----------------------------------------------------------------
+
+** Fix
+    * [DATASOLR-62] - Sort parameter passed to a query method is ignored when annotated query is used
+    * [DATASOLR-63] - Sort parameter passed to a query method is ignored when query method uses named query
+    * [DATASOLR-75] - Criteria.is(Arrays.asList(......)) calls toString() instead of traversing list
+	
+** Improvement
+    * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
+    * [DATASOLR-58] - Support for 'boost' in derived queries via @Boost annotation
+    * [DATASOLR-48] - Support for numeric document ids
+    * [DATASOLR-59] - Support for LBHttpSolrServer
+    * [DATASOLR-55] - Allow usage of collections for 'startsWith', 'endsWith', 'contains'
+    * [DATASOLR-52] - Support for 'IsNull' and 'IsNotNull' keywords
+    * [DATASOLR-49] - Support parameter for default type
+    * [DATASOLR-43] - Support parameter for time allowed
+    * [DATASOLR-68] - Support for facet.prefix
+    * [DATASOLR-53] - Support for _version_ in PartialUpdates
+
+** New Feature
+    * [DATASOLR-46] - Placeholder support for 'queries' in @Facet
+    * [DATASOLR-45] - Placeholder support for 'filters' in @Query
+    * [DATASOLR-42] - Support for {!join
+    * [DATASOLR-65] - Support for non-default request handlers
+    * [DATASOLR-60] - Support for highlighting via @Highlight annotation
+	
+** Task
+    * [DATASOLR-73] - Upgrade to Solr 4.3.0
+    * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
+    * [DATASOLR-54] - Extract QueryParser Interface
+
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------
 
