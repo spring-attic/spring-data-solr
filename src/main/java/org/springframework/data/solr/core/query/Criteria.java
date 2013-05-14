@@ -188,7 +188,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry without any wildcards
+	 * Crates new CriteriaEntry without any wildcards. Strings with blanks will be escaped {@code "string\ with\ blank"}
 	 * 
 	 * @param o
 	 * @return
@@ -199,6 +199,26 @@ public class Criteria {
 		}
 		criteria.add(new CriteriaEntry(OperationKey.EQUALS, o));
 		return this;
+	}
+
+	/**
+	 * Crates new CriteriaEntry without any wildcards for each entry
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria is(Object... values) {
+		return in(values);
+	}
+
+	/**
+	 * rates new CriteriaEntry without any wildcards for each entry
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public Criteria is(Iterable<?> values) {
+		return in(values);
 	}
 
 	/**
@@ -221,10 +241,12 @@ public class Criteria {
 
 	/**
 	 * Crates new CriteriaEntry with leading and trailing wildcards <br/>
-	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
 	 * @param o
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria contains(String s) {
 		assertNoBlankInWildcardedQuery(s, true, true);
@@ -234,10 +256,11 @@ public class Criteria {
 
 	/**
 	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
-	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria contains(String... values) {
 		assertValuesPresent((Object[]) values);
@@ -246,10 +269,11 @@ public class Criteria {
 
 	/**
 	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
-	 * <strong>NOTE: </strong> mind your schema as leading wildcards may not be supported and/or execution might be slow.
+	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria contains(Iterable<String> values) {
 		Assert.notNull(values, "Collection must not be null");
@@ -260,13 +284,15 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing wildcard
+	 * Crates new CriteriaEntry with trailing wildcard <br/>
+	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
 	 * @param o
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria startsWith(String s) {
-		assertNoBlankInWildcardedQuery(s, true, false);
+		assertNoBlankInWildcardedQuery(s, false, true);
 		criteria.add(new CriteriaEntry(OperationKey.STARTS_WITH, s));
 		return this;
 	}
@@ -276,6 +302,7 @@ public class Criteria {
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria startsWith(String... values) {
 		assertValuesPresent((Object[]) values);
@@ -287,6 +314,7 @@ public class Criteria {
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria startsWith(Iterable<String> values) {
 		Assert.notNull(values, "Collection must not be null");
@@ -298,23 +326,26 @@ public class Criteria {
 
 	/**
 	 * Crates new CriteriaEntry with leading wildcard <br />
-	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
+	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
+	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
 	 * @param o
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria endsWith(String s) {
-		assertNoBlankInWildcardedQuery(s, false, true);
+		assertNoBlankInWildcardedQuery(s, true, false);
 		criteria.add(new CriteriaEntry(OperationKey.ENDS_WITH, s));
 		return this;
 	}
 
 	/**
 	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
-	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
+	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria endsWith(String... values) {
 		assertValuesPresent((Object[]) values);
@@ -323,10 +354,11 @@ public class Criteria {
 
 	/**
 	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
-	 * <strong>NOTE: </strong> mind your schema and execution times as leading wildcards may not be supported.
+	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * 
 	 * @param values
 	 * @return
+	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
 	public Criteria endsWith(Iterable<String> values) {
 		Assert.notNull(values, "Collection must not be null");

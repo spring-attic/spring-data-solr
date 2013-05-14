@@ -68,8 +68,17 @@ public class CriteriaTests {
 	}
 
 	@Test
+	public void testIsWithCollection() {
+		Criteria criteria = new Criteria("field_1").is(Arrays.asList("is", "another is"));
+		Assert.assertEquals("field_1", criteria.getField().getName());
+
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "is");
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, "another is");
+	}
+
+	@Test
 	public void testIsWithNull() {
-		Criteria criteria = new Criteria("field_1").is(null);
+		Criteria criteria = new Criteria("field_1").is((Object) null);
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
 		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
