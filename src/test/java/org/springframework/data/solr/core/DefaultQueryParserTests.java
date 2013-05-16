@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;

@@ -7,28 +7,29 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-75] - Criteria.is(Arrays.asList(......)) calls toString() instead of traversing list
 	
 ** Improvement
-    * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
-    * [DATASOLR-58] - Support for 'boost' in derived queries via @Boost annotation
-    * [DATASOLR-48] - Support for numeric document ids
-    * [DATASOLR-59] - Support for LBHttpSolrServer
-    * [DATASOLR-55] - Allow usage of collections for 'startsWith', 'endsWith', 'contains'
-    * [DATASOLR-52] - Support for 'IsNull' and 'IsNotNull' keywords
-    * [DATASOLR-49] - Support parameter for default type
     * [DATASOLR-43] - Support parameter for time allowed
-    * [DATASOLR-68] - Support for facet.prefix
+    * [DATASOLR-48] - Support for numeric document ids
+    * [DATASOLR-49] - Support parameter for default type
+    * [DATASOLR-52] - Support for 'IsNull' and 'IsNotNull' keywords
     * [DATASOLR-53] - Support for _version_ in PartialUpdates
+    * [DATASOLR-55] - Allow usage of collections for 'startsWith', 'endsWith', 'contains'
+    * [DATASOLR-58] - Support for 'boost' in derived queries via @Boost annotation
+    * [DATASOLR-59] - Support for LBHttpSolrServer
+    * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
+    * [DATASOLR-68] - Support for facet.prefix
 
 ** New Feature
-    * [DATASOLR-46] - Placeholder support for 'queries' in @Facet
-    * [DATASOLR-45] - Placeholder support for 'filters' in @Query
     * [DATASOLR-42] - Support for {!join
-    * [DATASOLR-65] - Support for non-default request handlers
+    * [DATASOLR-45] - Placeholder support for 'filters' in @Query
+    * [DATASOLR-46] - Placeholder support for 'queries' in @Facet
     * [DATASOLR-60] - Support for highlighting via @Highlight annotation
+    * [DATASOLR-65] - Support for non-default request handlers
 	
 ** Task
-    * [DATASOLR-73] - Upgrade to Solr 4.3.0
-    * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
     * [DATASOLR-54] - Extract QueryParser Interface
+    * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
+    * [DATASOLR-73] - Upgrade to Solr 4.3.0
+    * [DATASOLR-76] - Upgrade to commons-lang3
 
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------

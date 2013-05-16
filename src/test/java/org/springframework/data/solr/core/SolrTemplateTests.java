@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.ParseException;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -104,7 +103,7 @@ public class SolrTemplateTests {
 
 	@Test(expected = UncategorizedSolrException.class)
 	public void testQueryThrowsUntranslateableException() throws SolrServerException {
-		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(new NotImplementedException());
+		Mockito.when(solrServerMock.query(Matchers.any(SolrParams.class))).thenThrow(new SecurityException());
 		solrTemplate.executeSolrQuery(new SolrQuery());
 	}
 

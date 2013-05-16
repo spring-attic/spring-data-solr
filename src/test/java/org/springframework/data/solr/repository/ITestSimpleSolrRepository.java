@@ -18,7 +18,7 @@ package org.springframework.data.solr.repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

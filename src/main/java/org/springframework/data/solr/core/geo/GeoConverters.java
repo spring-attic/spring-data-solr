@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.geo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 
 /**

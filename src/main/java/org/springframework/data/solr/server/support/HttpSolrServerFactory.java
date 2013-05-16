@@ -17,7 +17,7 @@ package org.springframework.data.solr.server.support;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.params.AuthPNames;

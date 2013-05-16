@@ -25,8 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -45,6 +44,7 @@ import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Use Result Helper to extract various parameters from the QueryResponse and convert it into a proper Format taking
@@ -69,7 +69,7 @@ final class ResultHelper {
 		if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
 			int initalPageSize = query.getFacetOptions().getPageable().getPageSize();
 			for (FacetField facetField : response.getFacetFields()) {
-				if (facetField != null && StringUtils.isNotBlank(facetField.getName())) {
+				if (facetField != null && StringUtils.hasText(facetField.getName())) {
 					Field field = new SimpleField(facetField.getName());
 					if (CollectionUtils.isNotEmpty(facetField.getValues())) {
 						List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);

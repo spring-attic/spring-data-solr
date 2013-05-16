@@ -17,7 +17,7 @@ package org.springframework.data.solr.server.support;
 
 import java.net.MalformedURLException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
