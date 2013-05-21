@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
@@ -64,6 +63,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
+ * Implementation of {@link QueryParser}. <br/>
+ * Creates executable {@link SolrQuery} from {@link Query} by traversing {@link Criteria}. Reserved characters like
+ * {@code +} or {@code -} will be escaped to form a valid query.
+ * 
  * @author Christoph Strobl
  * @author John Dorman
  * @author Rosty Kerei
@@ -109,7 +112,7 @@ public class DefaultQueryParser implements QueryParser {
 	}
 
 	/**
-	 * Convert given Query into a SolrQuery executable via {@link SolrServer}
+	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrServer}
 	 * 
 	 * @param query
 	 * @return
@@ -475,6 +478,7 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void appendSort(SolrQuery solrQuery, Sort sort) {
 		if (sort == null) {
 			return;

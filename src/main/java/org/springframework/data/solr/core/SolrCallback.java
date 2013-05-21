@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 
 /**
- * Callback interface for data access code that works with SolrServer. To be used with SolrTemplate execute methods
+ * Callback interface for data access code that works with SolrServer. To be used with {@link SolrOperations} to execute
+ * methods.
  * 
  * @param <T>
  * 

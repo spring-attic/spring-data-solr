@@ -18,6 +18,10 @@ package org.springframework.data.solr;
 import org.springframework.util.ClassUtils;
 
 /**
+ * Version util uses {@link org.springframework.util.ClassUtils#isPresent(String)} to determine presence of certain
+ * classes that are unique to some libraries, which allows to en-/disable some of the features in eg.
+ * {@link org.springframework.data.solr.core.DefaultQueryParser}.
+ * 
  * @author Christoph Strobl
  */
 public final class VersionUtil {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.util.ClassUtils;
 
 /**
+ * Implementation of {@link org.springframework.dao.support.PersistenceExceptionTranslator} capable of translating
+ * {@link org.apache.solr.client.solrj.SolrServerException} instances to Spring's
+ * {@link org.springframework.dao.DataAccessException} hierarchy.
+ * 
  * @author Christoph Strobl
  * 
  */

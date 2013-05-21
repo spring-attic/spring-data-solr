@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ final class SolrjConverters {
 	}
 
 	abstract static class DocumentBinderConverter {
-		protected final DocumentObjectBinder documentObejctBinder;
+		protected final DocumentObjectBinder documentObjectBinder;
 
 		public DocumentBinderConverter(DocumentObjectBinder binder) {
-			this.documentObejctBinder = binder != null ? binder : new DocumentObjectBinder();
+			this.documentObjectBinder = binder != null ? binder : new DocumentObjectBinder();
 		}
 
 	}
@@ -59,7 +59,7 @@ final class SolrjConverters {
 				return null;
 			}
 
-			return documentObejctBinder.toSolrInputDocument(source);
+			return documentObjectBinder.toSolrInputDocument(source);
 		}
 	}
 
@@ -116,7 +116,7 @@ final class SolrjConverters {
 			SolrDocument document = new SolrDocument();
 			document.putAll(source);
 
-			return documentObejctBinder.getBean(clazz, document);
+			return documentObjectBinder.getBean(clazz, document);
 		}
 
 	}

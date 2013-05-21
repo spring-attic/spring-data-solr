@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,11 @@ import org.springframework.data.util.TypeInformation;
 import org.springframework.util.Assert;
 
 /**
+ * Converter to read/write {@link SolrDocument}/{@link SolrInputDocument} using
+ * {@link org.springframework.data.solr.core.convert.SolrjConverters.SolrInputDocumentToObjectConverter#convert(Map)}
+ * and
+ * {@link org.springframework.data.solr.core.convert.SolrjConverters.ObjectToSolrInputDocumentConverter#convert(Object)}
+ * 
  * @author Christoph Strobl
  */
 public class MappingSolrConverter implements SolrConverter, ApplicationContextAware, InitializingBean {
@@ -98,6 +103,7 @@ public class MappingSolrConverter implements SolrConverter, ApplicationContextAw
 		this.applicationContext = applicationContext;
 	}
 
+	@Override
 	public void afterPropertiesSet() {
 		initializeConverters();
 	}

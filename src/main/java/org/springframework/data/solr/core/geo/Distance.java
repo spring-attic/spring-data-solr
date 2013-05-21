@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.springframework.data.solr.core.geo;
 
 /**
+ * Distance implementation to be used for spatial queries taking solr's usage of metric system into account.
+ * 
  * @author Christoph Strobl
  */
 public class Distance {
@@ -34,8 +36,8 @@ public class Distance {
 		}
 	}
 
-	private double value;
-	private Unit unit;
+	private final double value;
+	private final Unit unit;
 
 	/**
 	 * Create new Distance with {@link Distance.Unit.KILOMETERS} as default unit
@@ -59,10 +61,6 @@ public class Distance {
 
 	public double getValue() {
 		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
 	}
 
 	public double getNormalizedValue() {

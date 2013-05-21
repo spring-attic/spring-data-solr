@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,46 @@
  */
 package org.springframework.data.solr.core.geo;
 
+import org.springframework.util.Assert;
+
 /**
+ * Implementation of bounding box which is an area defined by two longitudes and two latitudes to be used in spatial
+ * queries
+ * 
  * @author John Dorman
+ * @author Christoph Strobl
  */
 public class BoundingBox {
 
 	private GeoLocation geoLocationStart;
 	private GeoLocation geoLocationEnd;
 
+	private BoundingBox() {
+		// hide default constructor
+	}
+
+	/**
+	 * Create new BoundingBox for given locations
+	 * 
+	 * @param geoLocationStart must not be null
+	 * @param geoLocationEnd must not be null
+	 */
 	public BoundingBox(GeoLocation geoLocationStart, GeoLocation geoLocationEnd) {
+		Assert.notNull(geoLocationStart);
+		Assert.notNull(geoLocationEnd);
+
 		this.geoLocationStart = geoLocationStart;
 		this.geoLocationEnd = geoLocationEnd;
+	}
+
+	/**
+	 * create bounding box via builder. {@code BoundingBox.startingAt(locationStart).endingAt(locationEnd)}
+	 * 
+	 * @param start
+	 * @return
+	 */
+	public static Builder startingAt(GeoLocation start) {
+		return new Builder(start);
 	}
 
 	public GeoLocation getGeoLocationStart() {
@@ -42,5 +71,32 @@ public class BoundingBox {
 
 	public void setGeoLocationEnd(GeoLocation geoLocationEnd) {
 		this.geoLocationEnd = geoLocationEnd;
+	}
+
+	public static class Builder {
+
+		private BoundingBox bbox;
+
+		/**
+		 * @param start must not be null
+		 */
+		public Builder(GeoLocation start) {
+			Assert.notNull(start);
+
+			bbox = new BoundingBox();
+			bbox.geoLocationStart = start;
+		}
+
+		/**
+		 * @param end must not be null
+		 * @return
+		 */
+		public BoundingBox endingAt(GeoLocation end) {
+			Assert.notNull(end);
+
+			bbox.geoLocationEnd = end;
+			return bbox;
+		}
+
 	}
 }

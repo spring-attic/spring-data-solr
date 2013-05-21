@@ -23,6 +23,8 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.util.TypeInformation;
 
 /**
+ * Solr specific implementation of {@link org.springframework.data.mapping.context.MappingContext}
+ * 
  * @author Christoph Strobl
  * 
  */

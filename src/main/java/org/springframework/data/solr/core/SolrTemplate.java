@@ -56,7 +56,7 @@ import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
 
 /**
- * Implementation of SolrOperations
+ * Implementation of {@link SolrOperations}
  * 
  * @author Christoph Strobl
  */

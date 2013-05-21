@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +26,18 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.core.convert.converter.Converter;
 
 /**
- * Converts a Date values into a solr readable String that can be directly used within the 'q' parameter. Note that
- * Dates have to be UTC. 
+ * Converts a Date values into a solr readable String that can be directly used within the {@code q} parameter. Note
+ * that Dates have to be UTC. <br/>
  * <code>
  *   Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
  *   calendar.set(2012, 7, 23, 6, 10, 0);
- * </code> 
+ * </code>
  * 
  * will be formatted as
  * 
  * <pre>
- * 2012\-08\-23T06\:10\:00.000Z
- * <pre>
+ * 2012-08-23T06:10:00.000Z
+ * </pre>
  * 
  * @author Christoph Strobl
  */
