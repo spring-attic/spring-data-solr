@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,17 +94,17 @@ public class Criteria {
 	/**
 	 * Static factory method to create a new Criteria for field with given name
 	 * 
-	 * @param field
+	 * @param fieldname must not be null
 	 * @return
 	 */
-	public static Criteria where(String field) {
-		return where(new SimpleField(field));
+	public static Criteria where(String fieldname) {
+		return where(new SimpleField(fieldname));
 	}
 
 	/**
 	 * Static factory method to create a new Criteria for provided field
 	 * 
-	 * @param field
+	 * @param field must not be null
 	 * @return
 	 */
 	public static Criteria where(Field field) {
@@ -114,7 +114,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code AND}
 	 * 
-	 * @param field
+	 * @param field must not be null
 	 * @return
 	 */
 	public Criteria and(Field field) {
@@ -124,7 +124,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code AND}
 	 * 
-	 * @param field
+	 * @param fieldname must not be null
 	 * @return
 	 */
 	public Criteria and(String fieldname) {
@@ -134,7 +134,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code AND}
 	 * 
-	 * @param field
+	 * @param criteria
 	 * @return
 	 */
 	public Criteria and(Criteria criteria) {
@@ -145,7 +145,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code AND}
 	 * 
-	 * @param field
+	 * @param criterias
 	 * @return
 	 */
 	public Criteria and(Criteria... criterias) {
@@ -166,7 +166,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code OR}
 	 * 
-	 * @param field
+	 * @param criteria
 	 * @return
 	 */
 	public Criteria or(Criteria criteria) {
@@ -180,7 +180,7 @@ public class Criteria {
 	/**
 	 * Chain using {@code OR}
 	 * 
-	 * @param field
+	 * @param fieldname
 	 * @return
 	 */
 	public Criteria or(String fieldname) {
@@ -188,7 +188,8 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry without any wildcards. Strings with blanks will be escaped {@code "string\ with\ blank"}
+	 * Crates new {@link CriteriaEntry} without any wildcards. Strings with blanks will be escaped
+	 * {@code "string\ with\ blank"}
 	 * 
 	 * @param o
 	 * @return
@@ -202,7 +203,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry without any wildcards for each entry
+	 * Crates new {@link CriteriaEntry} without any wildcards for each entry
 	 * 
 	 * @param values
 	 * @return
@@ -212,7 +213,7 @@ public class Criteria {
 	}
 
 	/**
-	 * rates new CriteriaEntry without any wildcards for each entry
+	 * Creates new {@link CriteriaEntry} without any wildcards for each entry
 	 * 
 	 * @param values
 	 * @return
@@ -222,7 +223,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code null} values
+	 * Crates new {@link CriteriaEntry} for {@code null} values
 	 * 
 	 * @return
 	 */
@@ -231,7 +232,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code !null} values
+	 * Crates new {@link CriteriaEntry} for {@code !null} values
 	 * 
 	 * @return
 	 */
@@ -240,11 +241,11 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading and trailing wildcards <br/>
+	 * Crates new {@link CriteriaEntry} with leading and trailing wildcards <br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
-	 * @param o
+	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
@@ -255,7 +256,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
+	 * Crates new {@link CriteriaEntry} with leading and trailing wildcards for each entry<br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * 
 	 * @param values
@@ -268,7 +269,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading and trailing wildcards for each entry<br/>
+	 * Crates new {@link CriteriaEntry} with leading and trailing wildcards for each entry<br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * 
 	 * @param values
@@ -284,10 +285,10 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing wildcard <br/>
+	 * Crates new {@link CriteriaEntry} with trailing wildcard <br/>
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
-	 * @param o
+	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
@@ -298,7 +299,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing wildcard for each entry
+	 * Crates new {@link CriteriaEntry} with trailing wildcard for each entry
 	 * 
 	 * @param values
 	 * @return
@@ -310,7 +311,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing wildcard for each entry
+	 * Crates new {@link CriteriaEntry} with trailing wildcard for each entry
 	 * 
 	 * @param values
 	 * @return
@@ -325,11 +326,11 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading wildcard <br />
+	 * Crates new {@link CriteriaEntry} with leading wildcard <br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
 	 * 
-	 * @param o
+	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
 	 */
@@ -340,7 +341,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
+	 * Crates new {@link CriteriaEntry} with leading wildcard for each entry<br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * 
 	 * @param values
@@ -353,7 +354,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading wildcard for each entry<br />
+	 * Crates new {@link CriteriaEntry} with leading wildcard for each entry<br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * 
 	 * @param values
@@ -369,9 +370,8 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with leading -
+	 * Negates current criteria usinng {@code -} operator
 	 * 
-	 * @param s
 	 * @return
 	 */
 	public Criteria not() {
@@ -380,7 +380,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing ~
+	 * Crates new {@link CriteriaEntry} with trailing {@code ~}
 	 * 
 	 * @param s
 	 * @return
@@ -390,7 +390,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry with trailing ~ followed by levensteinDistance
+	 * Crates new {@link CriteriaEntry} with trailing {@code ~} followed by levensteinDistance
 	 * 
 	 * @param s
 	 * @param levenshteinDistance
@@ -405,9 +405,9 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry allowing native solr expressions
+	 * Crates new {@link CriteriaEntry} allowing native solr expressions
 	 * 
-	 * @param o
+	 * @param s
 	 * @return
 	 */
 	public Criteria expression(String s) {
@@ -430,7 +430,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO upperBound]}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE [lowerBound TO upperBound]}
 	 * 
 	 * @param lowerBound
 	 * @param upperBound
@@ -441,7 +441,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO upperBound]}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE [lowerBound TO upperBound]}
 	 * 
 	 * @param lowerBound
 	 * @param upperBound
@@ -456,7 +456,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE [* TO upperBound&#125;}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE [* TO upperBound&#125;}
 	 * 
 	 * @param upperBound
 	 * @return
@@ -467,7 +467,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE [* TO upperBound]}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE [* TO upperBound]}
 	 * 
 	 * @param upperBound
 	 * @return
@@ -478,7 +478,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE &#123;lowerBound TO *]}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE &#123;lowerBound TO *]}
 	 * 
 	 * @param lowerBound
 	 * @return
@@ -489,7 +489,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for {@code RANGE [lowerBound TO *]}
+	 * Crates new {@link CriteriaEntry} for {@code RANGE [lowerBound TO *]}
 	 * 
 	 * @param lowerBound
 	 * @return
@@ -500,9 +500,9 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for multiple values {@code (arg0 arg1 arg2 ...)}
+	 * Crates new {@link CriteriaEntry} for multiple values {@code (arg0 arg1 arg2 ...)}
 	 * 
-	 * @param lowerBound
+	 * @param values
 	 * @return
 	 */
 	public Criteria in(Object... values) {
@@ -511,9 +511,9 @@ public class Criteria {
 	}
 
 	/**
-	 * Crates new CriteriaEntry for multiple values {@code (arg0 arg1 arg2 ...)}
+	 * Crates new {@link CriteriaEntry} for multiple values {@code (arg0 arg1 arg2 ...)}
 	 * 
-	 * @param c the collection containing the values to match against
+	 * @param values the collection containing the values to match against
 	 * @return
 	 */
 	public Criteria in(Iterable<?> values) {
@@ -529,9 +529,9 @@ public class Criteria {
 	}
 
 	/**
-	 * Creates new CriteriaEntry for {@code !geodist}
+	 * Creates new {@link CriteriaEntry} for {@code !geodist}
 	 * 
-	 * @param location Geolocation in degrees
+	 * @param location GeoLocation in degrees
 	 * @param distance
 	 * @return
 	 */
@@ -544,7 +544,7 @@ public class Criteria {
 	}
 
 	/**
-	 * Creates new CriteriaEntriy for {@code !bbox} with exact coordinates
+	 * Creates new {@link CriteriaEntry} for {@code !bbox} with exact coordinates
 	 * 
 	 * @param box
 	 * @return
@@ -571,14 +571,17 @@ public class Criteria {
 	}
 
 	/**
-	 * Field targeted by this Criteria
+	 * Target field
 	 * 
-	 * @return
+	 * @return null if not set
 	 */
 	public Field getField() {
 		return this.field;
 	}
 
+	/**
+	 * @return unmdifiable set of all {@link CriteriaEntry}
+	 */
 	public Set<CriteriaEntry> getCriteriaEntries() {
 		return Collections.unmodifiableSet(this.criteria);
 	}
@@ -683,6 +686,12 @@ public class Criteria {
 
 	}
 
+	/**
+	 * Single entry to be used when defining search criteria
+	 * 
+	 * @author Christoph Strobl
+	 * 
+	 */
 	public static class CriteriaEntry {
 
 		private String key;
@@ -697,14 +706,25 @@ public class Criteria {
 			this.value = value;
 		}
 
+		/**
+		 * @return null if not set
+		 */
 		public String getKey() {
 			return key;
 		}
 
+		/**
+		 * set the operation key to be applied when parsing query
+		 * 
+		 * @param key
+		 */
 		public void setKey(String key) {
 			this.key = key;
 		}
 
+		/**
+		 * @return null if not set
+		 */
 		public Object getValue() {
 			return value;
 		}

@@ -18,7 +18,8 @@ package org.springframework.data.solr.core.query;
 import org.springframework.util.Assert;
 
 /**
- * Base QueryImplementation enables and conjunction by adding criterias
+ * Base QueryImplementation <br />
+ * Construct Query by adding {@link Criteria}.
  * 
  * @author Christoph Strobl
  */
@@ -56,14 +57,26 @@ class AbstractQuery {
 		return (T) this;
 	}
 
+	/**
+	 * @return null if not set
+	 */
 	public Criteria getCriteria() {
 		return this.criteria;
 	}
 
+	/**
+	 * Set values for join {@code !join from=inner_id to=outer_id}
+	 * 
+	 * @param from
+	 * @param to
+	 */
 	public void setJoin(Join join) {
 		this.join = join;
 	}
 
+	/**
+	 * @return null if not set
+	 */
 	public Join getJoin() {
 		return join;
 	}

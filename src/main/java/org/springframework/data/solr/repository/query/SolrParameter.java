@@ -20,6 +20,8 @@ import org.springframework.data.repository.query.Parameter;
 import org.springframework.data.solr.repository.Boost;
 
 /**
+ * Solr specific {@link Parameter} implementation
+ * 
  * @author Christoph Strobl
  */
 class SolrParameter extends Parameter {
@@ -39,6 +41,11 @@ class SolrParameter extends Parameter {
 		return getBoostAnnotation() != null;
 	}
 
+	/**
+	 * if method parameter has {@link Boost} use it
+	 * 
+	 * @return Float.NaN by default
+	 */
 	public float getBoost() {
 		if (hasBoostAnnotation()) {
 			return getBoostAnnotation().value();

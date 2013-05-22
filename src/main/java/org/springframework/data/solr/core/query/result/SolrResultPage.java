@@ -31,6 +31,8 @@ import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * Base implementation of page holding solr response entities.
+ * 
  * @author Christoph Strobl
  * 
  */

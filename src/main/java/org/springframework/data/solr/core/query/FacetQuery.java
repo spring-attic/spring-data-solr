@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 package org.springframework.data.solr.core.query;
 
 /**
+ * Query to be used for faceting.
+ * 
  * @author Christoph Strobl
  */
 public interface FacetQuery extends Query {
 
 	/**
-	 * Faceting options to apply when exectuing query
+	 * Faceting options to apply when executing query
 	 * 
 	 * @param facetOptions
 	 * @return
@@ -29,7 +31,7 @@ public interface FacetQuery extends Query {
 	<T extends SolrDataQuery> T setFacetOptions(FacetOptions facetOptions);
 
 	/**
-	 * @return
+	 * @return null if not set
 	 */
 	FacetOptions getFacetOptions();
 

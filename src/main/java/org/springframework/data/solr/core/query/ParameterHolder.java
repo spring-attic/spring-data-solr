@@ -24,6 +24,9 @@ import java.util.Map;
 import org.springframework.util.Assert;
 
 /**
+ * Generic holder of additional parameters that can be added to a query. eg. per field overrides. <br />
+ * The order in which elements are added will be preserved.
+ * 
  * @author Christoph Strobl
  */
 class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
@@ -39,15 +42,27 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 		return (S) parameter.getValue();
 	}
 
+	/**
+	 * add a query parameter
+	 * 
+	 * @param queryParameter must not be null
+	 */
 	public void add(T queryParameter) {
 		Assert.notNull(queryParameter);
 		this.parameters.put(queryParameter.getName(), queryParameter);
 	}
 
+	/**
+	 * @param parameterName
+	 * @return null if not found
+	 */
 	public T get(String parameterName) {
 		return this.parameters.get(parameterName);
 	}
 
+	/**
+	 * @return unmodifiable collection of all parameters present
+	 */
 	public Collection<T> getParameters() {
 		return Collections.unmodifiableCollection(this.parameters.values());
 	}
@@ -57,6 +72,9 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 		return this.parameters.values().iterator();
 	}
 
+	/**
+	 * @return true if holder does not contain any values
+	 */
 	public boolean isEmpty() {
 		return this.parameters.isEmpty();
 	}

@@ -24,6 +24,8 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.util.Assert;
 
 /**
+ * Highlight result entry holding reference to domain object ({@link #getEntity()) as well as the highlights
+ * 
  * @author Christoph Strobl
  */
 public class HighlightEntry<T> {
@@ -72,6 +74,8 @@ public class HighlightEntry<T> {
 	}
 
 	/**
+	 * Highlight holds reference to the field highlighting was applied to, as well as the snipplets
+	 * 
 	 * @author Christoph Strobl
 	 */
 	public static class Highlight {

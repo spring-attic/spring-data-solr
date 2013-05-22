@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public interface Query extends SolrDataQuery {
 	int DEFAULT_PAGE_SIZE = 10;
 
 	/**
-	 * add given Field to those included in result. Corresponds to the 'fl' parameter in solr.
+	 * add given Field to those included in result. Corresponds to the {@code fl} parameter in solr.
 	 * 
 	 * @param field
 	 * @return
@@ -63,7 +63,7 @@ public interface Query extends SolrDataQuery {
 	<T extends Query> T addProjectionOnField(Field field);
 
 	/**
-	 * restrict result to entries on given page. Corresponds to the 'start' and 'rows' parameter in solr
+	 * restrict result to entries on given page. Corresponds to the {@code start} and {@code row} parameter in solr
 	 * 
 	 * @param pageable
 	 * @return
@@ -79,7 +79,7 @@ public interface Query extends SolrDataQuery {
 	<T extends Query> T addGroupByField(Field field);
 
 	/**
-	 * add query to filter results Corresponds to 'fq' in solr
+	 * add query to filter results Corresponds to {@code fq} in solr
 	 * 
 	 * @param query
 	 * @return
@@ -151,7 +151,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * Get the specified default operator for query expressions, overriding the default operator specified in the
-	 * schema.xml file.
+	 * {@code schema.xml} file.
 	 * 
 	 * @return
 	 */

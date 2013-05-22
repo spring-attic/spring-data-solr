@@ -282,7 +282,6 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
-	@Ignore("Value order matters when setting null values - see: https://issues.apache.org/jira/browse/SOLR-4297")
 	public void testPartialUpdateSetWithNullInTheMiddle() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);

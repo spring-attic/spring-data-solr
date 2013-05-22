@@ -22,6 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 
 /**
+ * Implementation of {@link SolrParameterAccessor}
+ * 
  * @author Christoph Strobl
  */
 public class SolrParametersParameterAccessor implements SolrParameterAccessor {

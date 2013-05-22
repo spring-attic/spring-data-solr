@@ -88,7 +88,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 	}
 
-	public AbstractSolrQuery(SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
+	/**
+	 * @param solrOperations must not be null
+	 * @param solrQueryMethod must not be null
+	 */
+	protected AbstractSolrQuery(SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
 		Assert.notNull(solrOperations);
 		Assert.notNull(solrQueryMethod);
 		this.solrOperations = solrOperations;
@@ -296,6 +300,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		Object execute(Query query);
 	}
 
+	/**
+	 * Base class for query execution implementing {@link QueryExecution}
+	 * 
+	 * @author Christoph Strobl
+	 */
 	abstract class AbstractQueryExecution implements QueryExecution {
 
 		protected Page<?> executeFind(Query query) {
@@ -305,6 +314,14 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	}
 
+	/**
+	 * Implementation to query solr returning list of data without metadata. <br />
+	 * If not pageable argument is set count operation will be executed to determine total number of entities to be
+	 * fetched
+	 * 
+	 * @author Christoph Strobl
+	 * 
+	 */
 	class CollectionExecution extends AbstractQueryExecution {
 		private final Pageable pageable;
 
@@ -324,6 +341,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	}
 
+	/**
+	 * Implementation to query solr returning requested {@link Page}
+	 * 
+	 * @author Christoph Strobl
+	 */
 	class PagedExecution extends AbstractQueryExecution {
 		private final Pageable pageable;
 
@@ -343,6 +365,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 	}
 
+	/**
+	 * Implementation to query solr retuning {@link FacetPage}
+	 * 
+	 * @author Christoph Strobl
+	 */
 	class FacetPageExecution extends PagedExecution {
 
 		public FacetPageExecution(Pageable pageable) {
@@ -359,6 +386,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	}
 
+	/**
+	 * Implementation to execute query returning {@link HighlightPage}
+	 * 
+	 * @author Christoph Strobl
+	 */
 	class HighlightPageExecution extends PagedExecution {
 
 		public HighlightPageExecution(Pageable pageable) {
@@ -374,6 +406,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	}
 
+	/**
+	 * Implementation to query solr returning one single entity
+	 * 
+	 * @author Christoph Strobl
+	 */
 	class SingleEntityExecution implements QueryExecution {
 
 		@Override

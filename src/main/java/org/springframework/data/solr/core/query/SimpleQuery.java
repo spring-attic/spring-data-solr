@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,6 +145,12 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	/**
+	 * add grouping on fieldname
+	 * 
+	 * @param fieldname must not be null
+	 * @return
+	 */
 	public final <T extends Query> T addGroupByField(String fieldname) {
 		return addGroupByField(new SimpleField(fieldname));
 	}
@@ -199,6 +205,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@Override
 	public Integer getTimeAllowed() {
 		return this.timeAllowed;
 	}
@@ -213,6 +220,9 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return this.defaultOperator != null ? this.defaultOperator : Operator.NONE;
 	}
 
+	/**
+	 * @return true if current operator does not equal {@link Operator#NONE}
+	 */
 	public boolean hasDefaultOperatorDefined() {
 		return !Operator.NONE.equals(getDefaultOperator());
 	}

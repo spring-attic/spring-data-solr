@@ -137,13 +137,13 @@ public class FacetOptions {
 	/**
 	 * Append {@code facet.query}
 	 * 
-	 * @param filterQuery
+	 * @param query
 	 * @return
 	 */
-	public final FacetOptions addFacetQuery(SolrDataQuery facetQuery) {
-		Assert.notNull(facetQuery, "Facet Query must not be null.");
+	public final FacetOptions addFacetQuery(SolrDataQuery query) {
+		Assert.notNull(query, "Facet Query must not be null.");
 
-		this.facetQueries.add(facetQuery);
+		this.facetQueries.add(query);
 		return this;
 	}
 
@@ -268,18 +268,14 @@ public class FacetOptions {
 	}
 
 	/**
-	 * true if at least one facet field set
-	 * 
-	 * @return
+	 * @return true if at least one facet field set
 	 */
 	public boolean hasFields() {
 		return !this.facetOnFields.isEmpty();
 	}
 
 	/**
-	 * true if filter queries applied for faceting
-	 * 
-	 * @return
+	 * @return true if filter queries applied for faceting
 	 */
 	public boolean hasFacetQueries() {
 		return !this.facetQueries.isEmpty();

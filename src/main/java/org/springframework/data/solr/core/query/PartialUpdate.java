@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Implementation of {@link Update}
+ * Implementation of {@link Update} to be used when performing atomic updates against solr. <br />
+ * Update can directly be saved via {@link org.springframework.data.solr.core.SolrOperations#saveBean(Object)}
+ * 
  * 
  * @author Christoph Strobl
  */
@@ -107,6 +109,11 @@ public class PartialUpdate implements Update {
 		return this.version;
 	}
 
+	/**
+	 * set {@code _version_} of document to apply update to. Use null to skip version check in solr.
+	 * 
+	 * @param documentVersion
+	 */
 	public void setVersion(Object documentVersion) {
 		this.version = documentVersion;
 	}

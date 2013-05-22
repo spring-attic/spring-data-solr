@@ -36,7 +36,7 @@ public @interface Facet {
 	 * 
 	 * @return
 	 */
-	String[] fields() default "";
+	String[] fields() default {};
 
 	/**
 	 * {@code facet.query}
@@ -45,7 +45,7 @@ public @interface Facet {
 	 * 
 	 * @return
 	 */
-	String[] queries() default "";
+	String[] queries() default {};
 
 	/**
 	 * {@code facet.mincount}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.springframework.data.solr.core.query;
 
 /**
+ * Implementation of {@link UpdateField} to be used with {@link Update}
+ * 
  * @author Christoph Strobl
  */
 public class SimpleUpdateField extends AbstractValueHoldingField implements UpdateField {
@@ -27,10 +29,20 @@ public class SimpleUpdateField extends AbstractValueHoldingField implements Upda
 		this(name, null);
 	}
 
+	/**
+	 * Creates new instance with {@link #DEFAULT_ACTION}
+	 * @param name 
+	 * @param value
+	 */
 	public SimpleUpdateField(String name, Object value) {
 		this(name, value, DEFAULT_ACTION);
 	}
 
+	/**
+	 * @param name
+	 * @param value
+	 * @param action
+	 */
 	public SimpleUpdateField(String name, Object value, UpdateAction action) {
 		super(name, value);
 		this.action = action;

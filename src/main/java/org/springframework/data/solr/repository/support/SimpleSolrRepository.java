@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,12 +61,19 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	}
 
+	/**
+	 * @param solrOperations must not be null
+	 */
 	public SimpleSolrRepository(SolrOperations solrOperations) {
 		Assert.notNull(solrOperations);
 
 		this.setSolrOperations(solrOperations);
 	}
 
+	/**
+	 * @param metadata must not be null
+	 * @param solrOperations must not be null
+	 */
 	public SimpleSolrRepository(SolrEntityInformation<T, ?> metadata, SolrOperations solrOperations) {
 		this(solrOperations);
 		Assert.notNull(metadata);
@@ -76,6 +83,10 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		setEntityClass(this.entityInformation.getJavaType());
 	}
 
+	/**
+	 * @param solrOperations must not be null
+	 * @param entityClass
+	 */
 	public SimpleSolrRepository(SolrOperations solrOperations, Class<T> entityClass) {
 		this(solrOperations);
 

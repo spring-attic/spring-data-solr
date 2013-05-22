@@ -18,6 +18,8 @@ package org.springframework.data.solr.core.query;
 import org.springframework.util.Assert;
 
 /**
+ * Abstraction for solr {@code !join} operation on documents within a single collection.
+ * 
  * @author Christoph Strobl
  */
 public class Join {
@@ -34,18 +36,32 @@ public class Join {
 		this.to = to;
 	}
 
+	/**
+	 * @param from
+	 * @return builder allowing completion
+	 */
 	public static Builder from(Field from) {
 		return new Builder(from);
 	}
 
+	/**
+	 * @param fieldname
+	 * @return builder allowing completion
+	 */
 	public static Builder from(String fieldname) {
 		return from(new SimpleField(fieldname));
 	}
 
+	/**
+	 * @return null if not set
+	 */
 	public Field getFrom() {
 		return from;
 	}
 
+	/**
+	 * @return null if not set
+	 */
 	public Field getTo() {
 		return to;
 	}
@@ -65,6 +81,10 @@ public class Join {
 			this(new SimpleField(fieldname));
 		}
 
+		/**
+		 * @param to
+		 * @return completed {@link Join}
+		 */
 		public Join to(Field to) {
 			Assert.notNull(to);
 
@@ -72,6 +92,10 @@ public class Join {
 			return this.join;
 		}
 
+		/**
+		 * @param fieldname
+		 * @return completed {@link Join}
+		 */
 		public Join to(String fieldname) {
 			return to(new SimpleField(fieldname));
 		}

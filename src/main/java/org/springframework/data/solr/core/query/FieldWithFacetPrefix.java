@@ -16,6 +16,8 @@
 package org.springframework.data.solr.core.query;
 
 /**
+ * Faceted Search allows per field prefix. Use this one for adding such a field along with the prefix to use.
+ * 
  * @author Christoph Strobl
  */
 public class FieldWithFacetPrefix extends SimpleField {
@@ -31,10 +33,16 @@ public class FieldWithFacetPrefix extends SimpleField {
 		this.facetPrefix = prefix;
 	}
 
+	/**
+	 * @param facetPrefix
+	 */
 	public void setFacetPrefix(String facetPrefix) {
 		this.facetPrefix = facetPrefix;
 	}
 
+	/**
+	 * @return null if not set
+	 */
 	public String getFacetPrefix() {
 		return facetPrefix;
 	}
