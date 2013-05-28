@@ -45,13 +45,19 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 		this.operations = operations;
 	}
 
+	/**
+	 * @return SolrOperations to be used for eg. custom implementation
+	 */
+	protected SolrOperations getSolrOperations() {
+		return this.operations;
+	}
+
 	/* 
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport#afterPropertiesSet()
 	 */
 	@Override
 	public void afterPropertiesSet() {
-
 		super.afterPropertiesSet();
 		Assert.notNull(operations, "SolrOperations must be configured!");
 	}
