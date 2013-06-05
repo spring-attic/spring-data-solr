@@ -46,9 +46,10 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
@@ -164,9 +165,9 @@ public class DefaultQueryParser implements QueryParser {
 				for (Field field : highlightOptions.getFields()) {
 					solrQuery.addHighlightField(field.getName());
 				}
-				for (FieldWithHighlightParameters fieldWithHighlightOptions : highlightOptions
+				for (FieldWithHighlightParameters fieldWithHighlightParameters : highlightOptions
 						.getFieldsWithHighlightParameters()) {
-					addPerFieldHighlightOptions(solrQuery, fieldWithHighlightOptions);
+					addPerFieldHighlightParameters(solrQuery, fieldWithHighlightParameters);
 				}
 			}
 			for (HighlightParameter option : highlightOptions.getHighlightParameters()) {
@@ -184,16 +185,23 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
-	private void addFieldOptionToSolrQuery(SolrQuery solrQuery, Field field, QueryParameter option) {
+	private void addFieldSpecificParameterToSolrQuery(SolrQuery solrQuery, Field field, QueryParameter option) {
 		if (option != null && field != null && StringUtils.isNotBlank(option.getName())) {
-			solrQuery.add(createPerFieldOverrideParameterName(field, option.getName()),
-					conversionService.convert(option.getValue(), String.class));
+			if (option.getValue() == null) {
+				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName()), (String) null);
+			} else {
+				String value = option.getValue().toString();
+				if (conversionService.canConvert(option.getValue().getClass(), String.class)) {
+					value = conversionService.convert(option.getValue(), String.class);
+				}
+				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName()), value);
+			}
 		}
 	}
 
-	private void addPerFieldHighlightOptions(SolrQuery solrQuery, FieldWithHighlightParameters field) {
+	private void addPerFieldHighlightParameters(SolrQuery solrQuery, FieldWithHighlightParameters field) {
 		for (HighlightParameter option : field) {
-			addFieldOptionToSolrQuery(solrQuery, field, option);
+			addFieldSpecificParameterToSolrQuery(solrQuery, field, option);
 		}
 	}
 
@@ -432,8 +440,19 @@ public class DefaultQueryParser implements QueryParser {
 		if (facetOptions.hasFacetPrefix()) {
 			solrQuery.setFacetPrefix(facetOptions.getFacetPrefix());
 		}
-		for (FieldWithFacetPrefix prefixedField : facetOptions.getFieldsWithPrefix()) {
-			solrQuery.setFacetPrefix(prefixedField.getName(), prefixedField.getFacetPrefix());
+		for (FieldWithFacetParameters parametrizedField : facetOptions.getFieldsWithParameters()) {
+			addPerFieldFacetParameters(solrQuery, parametrizedField);
+			if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
+				addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,
+						FacetParams.FACET_SORT_INDEX));
+			}
+
+		}
+	}
+
+	private void addPerFieldFacetParameters(SolrQuery solrQuery, FieldWithFacetParameters field) {
+		for (FacetParameter parameter : field) {
+			addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter);
 		}
 	}
 

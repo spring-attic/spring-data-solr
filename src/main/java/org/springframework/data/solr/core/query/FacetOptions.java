@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.solr.common.params.FacetParams;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
@@ -163,7 +164,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public FacetOptions setFacetMinCount(int minCount) {
-		this.facetMinCount = java.lang.Math.max(0, minCount);
+		this.facetMinCount = Math.max(0, minCount);
 		return this;
 	}
 
@@ -174,7 +175,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public FacetOptions setFacetLimit(int rowsToReturn) {
-		this.facetLimit = java.lang.Math.max(1, rowsToReturn);
+		this.facetLimit = Math.max(1, rowsToReturn);
 		return this;
 	}
 
@@ -296,17 +297,171 @@ public class FacetOptions {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Collection<FieldWithFacetPrefix> getFieldsWithPrefix() {
-		return (Collection<FieldWithFacetPrefix>) CollectionUtils.select(this.facetOnFields,
-				new IsFieldWithFacetPrefixInstancePredicate());
+	public Collection<FieldWithFacetParameters> getFieldsWithParameters() {
+		return (Collection<FieldWithFacetParameters>) CollectionUtils.select(this.facetOnFields,
+				new IsFieldWithFacetParametersInstancePredicate());
 	}
 
-	private static class IsFieldWithFacetPrefixInstancePredicate implements Predicate {
+	private static class IsFieldWithFacetParametersInstancePredicate implements Predicate {
 
 		@Override
 		public boolean evaluate(Object object) {
-			return object instanceof FieldWithFacetPrefix;
+			return object instanceof FieldWithFacetParameters;
 		}
+	}
+
+	public static class FacetParameter extends QueryParameterImpl {
+
+		public FacetParameter(String parameter, Object value) {
+			super(parameter, value);
+		}
+
+	}
+
+	public static class FieldWithFacetParameters extends FieldWithQueryParameters<FacetParameter> {
+
+		private FacetSort sort;
+
+		public FieldWithFacetParameters(String name) {
+			super(name);
+		}
+
+		/**
+		 * @param prefix
+		 */
+		public FieldWithFacetParameters setPrefix(String prefix) {
+			addFacetParameter(FacetParams.FACET_PREFIX, prefix);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public String getPrefix() {
+			return getQueryParameterValue(FacetParams.FACET_PREFIX);
+		}
+
+		/**
+		 * @param sort
+		 */
+		public FieldWithFacetParameters setSort(FacetSort sort) {
+			this.sort = sort;
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public FacetSort getSort() {
+			return this.sort;
+		}
+
+		/**
+		 * @param limit
+		 */
+		public FieldWithFacetParameters setLimit(Integer limit) {
+			addFacetParameter(FacetParams.FACET_LIMIT, Math.max(0, limit), true);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public Integer getLimit() {
+			return getQueryParameterValue(FacetParams.FACET_LIMIT);
+		}
+
+		/**
+		 * @param offset
+		 */
+		public FieldWithFacetParameters setOffset(Integer offset) {
+			addFacetParameter(FacetParams.FACET_OFFSET, offset, true);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public Integer getOffset() {
+			return getQueryParameterValue(FacetParams.FACET_OFFSET);
+		}
+
+		/**
+		 * @param minCount
+		 */
+		public FieldWithFacetParameters setMinCount(Integer minCount) {
+			addFacetParameter(FacetParams.FACET_MINCOUNT, Math.max(0, minCount), true);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public Integer getMinCount() {
+			return getQueryParameterValue(FacetParams.FACET_MINCOUNT);
+		}
+
+		/**
+		 * @param missing
+		 * @return
+		 */
+		public FieldWithFacetParameters setMissing(Boolean missing) {
+			addFacetParameter(FacetParams.FACET_MISSING, missing, true);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public Boolean getMissing() {
+			return getQueryParameterValue(FacetParams.FACET_MISSING);
+		}
+
+		/**
+		 * @param method
+		 * @return
+		 */
+		public FieldWithFacetParameters setMethod(String method) {
+			addFacetParameter(FacetParams.FACET_METHOD, method, true);
+			return this;
+		}
+
+		/**
+		 * @return null if not set
+		 */
+		public String getMethod() {
+			return getQueryParameterValue(FacetParams.FACET_METHOD);
+		}
+
+		/**
+		 * Add field specific parameter by name
+		 * 
+		 * @param parameterName
+		 * @param value
+		 */
+		public FieldWithFacetParameters addFacetParameter(String parameterName, Object value) {
+			return addFacetParameter(parameterName, value, false);
+		}
+
+		protected FieldWithFacetParameters addFacetParameter(String parameterName, Object value, boolean removeIfValueIsNull) {
+			if (removeIfValueIsNull && value == null) {
+				removeQueryParameter(parameterName);
+				return this;
+			}
+			return this.addFacetParameter(new FacetParameter(parameterName, value));
+		}
+
+		/**
+		 * Add field specific facet parameter
+		 * 
+		 * @param parameter
+		 * @return
+		 */
+		public FieldWithFacetParameters addFacetParameter(FacetParameter parameter) {
+			this.addQueryParameter(parameter);
+			return this;
+		}
+
 	}
 
 }

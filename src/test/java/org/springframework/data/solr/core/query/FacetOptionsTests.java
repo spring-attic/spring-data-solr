@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.query;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 
 /**
  * @author Christoph Strobl
@@ -150,23 +151,23 @@ public class FacetOptionsTests {
 	}
 
 	@Test
-	public void testGetFieldsWithFacetPrefix() {
+	public void testGetFieldsWithFacetParameters() {
 		FacetOptions options = new FacetOptions();
 		options.addFacetOnField(new SimpleField("field_1"));
-		options.addFacetOnField(new FieldWithFacetPrefix("field_2", "prefix"));
+		options.addFacetOnField(new FieldWithFacetParameters("field_2").setPrefix("prefix"));
 
 		Assert.assertEquals(2, options.getFacetOnFields().size());
-		Assert.assertEquals(1, options.getFieldsWithPrefix().size());
-		Assert.assertEquals("field_2", options.getFieldsWithPrefix().iterator().next().getName());
+		Assert.assertEquals(1, options.getFieldsWithParameters().size());
+		Assert.assertEquals("field_2", options.getFieldsWithParameters().iterator().next().getName());
 	}
 
 	@Test
-	public void testGetFieldsWithFacetPrefixNoFieldsAvailable() {
+	public void testGetFieldsWithFacetParametersNoFieldsAvailable() {
 		FacetOptions options = new FacetOptions();
 		options.addFacetOnField(new SimpleField("field_1"));
 
 		Assert.assertEquals(1, options.getFacetOnFields().size());
-		Assert.assertTrue(options.getFieldsWithPrefix().isEmpty());
+		Assert.assertTrue(options.getFieldsWithParameters().isEmpty());
 	}
 
 	@Test

@@ -26,7 +26,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -35,8 +34,8 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -449,9 +448,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		solrTemplate.saveBeans(Arrays.asList(season, framework, island, language));
 		solrTemplate.commit();
-
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-				.setFacetOptions(new FacetOptions().addFacetOnField(new FieldWithFacetPrefix("name", "spr"))
+				.setFacetOptions(new FacetOptions().addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spr"))
 						.addFacetOnField("cat").setFacetPrefix("lan").setFacetLimit(5));
 
 		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);

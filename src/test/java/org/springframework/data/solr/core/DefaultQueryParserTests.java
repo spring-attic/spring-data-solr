@@ -41,8 +41,10 @@ import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
+import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.FieldWithFacetPrefix;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.Join;
 import org.springframework.data.solr.core.query.Query;
@@ -484,10 +486,11 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
-	public void testConstructSolrQueryWithFieldFacetPrefix() {
+	public void testConstructSolrQueryWithFieldFacetParameters() {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
-		FieldWithFacetPrefix fieldWithFacetPrefix = new FieldWithFacetPrefix("facet_2", "prefix");
-		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"), fieldWithFacetPrefix);
+		FieldWithFacetParameters fieldWithFacetParameters = new FieldWithFacetParameters("facet_2").setPrefix("prefix")
+				.setSort(FacetSort.INDEX).setLimit(3).setOffset(2).setMethod("method").setMissing(true);
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"), fieldWithFacetParameters);
 		query.setFacetOptions(facetOptions);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
@@ -497,8 +500,30 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
-		Assert.assertEquals(fieldWithFacetPrefix.getFacetPrefix(),
-				solrQuery.getParams("f." + fieldWithFacetPrefix.getName() + ".facet.prefix")[0]);
+		Assert.assertEquals(fieldWithFacetParameters.getPrefix(),
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.prefix")[0]);
+		Assert.assertEquals(FacetParams.FACET_SORT_INDEX,
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.sort")[0]);
+		Assert.assertEquals(Integer.toString(fieldWithFacetParameters.getOffset()),
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.offset")[0]);
+		Assert.assertEquals(Integer.toString(fieldWithFacetParameters.getLimit()),
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.limit")[0]);
+		Assert.assertEquals(fieldWithFacetParameters.getMethod(),
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.method")[0]);
+		Assert.assertEquals(fieldWithFacetParameters.getMissing().toString(),
+				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.missing")[0]);
+	}
+
+	@Test
+	public void testConstructSolrQueryWithCustomFieldFacetParameters() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FieldWithFacetParameters fieldWithFacetParameters = new FieldWithFacetParameters("facet_2")
+				.addFacetParameter(new FacetParameter(FacetParams.FACET_ZEROS, "on"));
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"), fieldWithFacetParameters);
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("on", solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.zeros")[0]);
 	}
 
 	@Test

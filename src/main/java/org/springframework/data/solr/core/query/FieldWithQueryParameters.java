@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
  */
 public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleField implements Iterable<T> {
 
-	private final ParameterHolder<T> optionHolder = new ParameterHolder<T>();
+	private final ParameterHolder<T> parameterHolder = new ParameterHolder<T>();
 
 	/**
 	 * @param fieldname must not be null
@@ -46,7 +46,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 * @return null if parameter does not exist
 	 */
 	public T getQueryParameter(String parameterName) {
-		return this.optionHolder.get(parameterName);
+		return this.parameterHolder.get(parameterName);
 	}
 
 	/**
@@ -54,7 +54,16 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 */
 	public void addQueryParameter(T parameter) {
 		Assert.notNull(parameter);
-		this.optionHolder.add(parameter);
+		this.parameterHolder.add(parameter);
+	}
+
+	/**
+	 * remove parameter with given name
+	 * 
+	 * @param parameterName
+	 */
+	public T removeQueryParameter(String parameterName) {
+		return this.parameterHolder.remove(parameterName);
 	}
 
 	/**
@@ -63,14 +72,14 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 * @return
 	 */
 	public Collection<T> getQueryParameters() {
-		return this.optionHolder.getParameters();
+		return this.parameterHolder.getParameters();
 	}
 
 	/**
 	 * @return true if parameters present
 	 */
 	public boolean hasQueryParameters() {
-		return !this.optionHolder.isEmpty();
+		return !this.parameterHolder.isEmpty();
 	}
 
 	/**
@@ -80,12 +89,12 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 * @return null if no parameter with given name present
 	 */
 	public <S> S getQueryParameterValue(String parameterName) {
-		return this.optionHolder.getParameterValue(parameterName);
+		return this.parameterHolder.getParameterValue(parameterName);
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		return this.optionHolder.iterator();
+		return this.parameterHolder.iterator();
 	}
 
 }

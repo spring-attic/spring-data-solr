@@ -61,6 +61,15 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 	}
 
 	/**
+	 * remove parameter with given name
+	 * 
+	 * @param parameterName
+	 */
+	public T remove(String parameterName) {
+		return this.parameters.remove(parameterName);
+	}
+
+	/**
 	 * @return unmodifiable collection of all parameters present
 	 */
 	public Collection<T> getParameters() {
