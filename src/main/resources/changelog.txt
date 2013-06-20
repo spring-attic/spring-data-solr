@@ -5,6 +5,8 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-62] - Sort parameter passed to a query method is ignored when annotated query is used
     * [DATASOLR-63] - Sort parameter passed to a query method is ignored when query method uses named query
     * [DATASOLR-75] - Criteria.is(Arrays.asList(......)) calls toString() instead of traversing list
+    * [DATASOLR-81] - GeoLocation cannot be used as property of type
+    * [DATASOLR-69] - Registering custom converters via XML 
 	
 ** Improvement
     * [DATASOLR-43] - Support parameter for time allowed
@@ -17,6 +19,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-59] - Support for LBHttpSolrServer
     * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
     * [DATASOLR-68] - Support for facet.prefix
+    * [DATASOLR-90] - Add custom converter for reading/wirting joda time
 
 ** New Feature
     * [DATASOLR-42] - Support for {!join
@@ -28,9 +31,9 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
 ** Task
     * [DATASOLR-54] - Extract QueryParser Interface
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
-    * [DATASOLR-73] - Upgrade to Solr 4.3.0
     * [DATASOLR-76] - Upgrade to commons-lang3
     * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
+    * [DATASOLR-91] - Upgrade to solr 4.3.1 
 
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------

@@ -85,7 +85,7 @@ public class CustomConversionsTests {
 
 		@Override
 		public Locale convert(String source) {
-			return Locale.forLanguageTag(source);
+			return Locale.GERMAN;
 		}
 
 	}
