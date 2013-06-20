@@ -30,6 +30,17 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 */
 	String getFieldName();
 
+	/**
+	 * @return true if {@link org.apache.solr.client.solrj.beans.Field} is present and not marked
+	 *         {@link org.springframework.data.solr.repository.Indexed#readonly()} = {@code true}
+	 */
+	boolean isReadonly();
+
+	/**
+	 * @return true if {@link org.apache.solr.client.solrj.beans.Field#value()} contains {@code *}
+	 */
+	boolean containsWildcard();
+
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 
 		INSTANCE;

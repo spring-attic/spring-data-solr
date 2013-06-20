@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.convert;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import org.hamcrest.core.IsEqual;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -39,6 +40,28 @@ public class DateTimeConvertersTests {
 		DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
 		Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z",
 				DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime));
+	}
+
+	@Test
+	public void testStringToJodaDateTime() {
+		String dateString = "2013-06-18T06:00:00Z";
+		DateTime dateTime = DateTimeConverters.StringToJodaDateTimeConverter.INSTANCE.convert(dateString);
+		Assert.assertThat(dateTime, IsEqual.equalTo(new DateTime(2013, 6, 18, 6, 0, 0, DateTimeZone.UTC)));
+	}
+
+	@Test
+	public void testDateToJodaDateTimeConverterWithNull() {
+		Assert.assertNull(DateTimeConverters.DateToJodaDateTimeConverter.INSTANCE.convert(null));
+	}
+
+	@Test
+	public void testDateToJodaLocalDateTimeConverter() {
+		Assert.assertNull(DateTimeConverters.DateToLocalDateTimeConverter.INSTANCE.convert(null));
+	}
+
+	@Test
+	public void testStringToJodaDateTimeWithNullValue() {
+		Assert.assertNull(DateTimeConverters.StringToJodaDateTimeConverter.INSTANCE.convert(null));
 	}
 
 	@Test

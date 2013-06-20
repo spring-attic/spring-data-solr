@@ -17,6 +17,8 @@ package org.springframework.data.solr.core.geo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 
 /**
  * @author Christoph Strobl
@@ -26,6 +28,7 @@ public final class GeoConverters {
 	/**
 	 * Converts a {@link GeoLocation} to a solrReadable request parameter.
 	 */
+	@WritingConverter
 	public enum GeoLocationToStringConverter implements Converter<GeoLocation, String> {
 		INSTANCE;
 
@@ -40,9 +43,29 @@ public final class GeoConverters {
 	}
 
 	/**
+	 * Converts comma separated string to {@link GeoLocation}
+	 */
+	@ReadingConverter
+	public enum StringToGeoLocationConverter implements Converter<String, GeoLocation> {
+		INSTANCE;
+
+		@Override
+		public GeoLocation convert(String source) {
+			if (source == null) {
+				return null;
+			}
+
+			String[] coordinates = source.split(",");
+			return new GeoLocation(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]));
+		}
+
+	}
+
+	/**
 	 * Converts a {@link Distance} to a solrReadable request parameter.
 	 * 
 	 */
+	@WritingConverter
 	public enum DistanceToStringConverter implements Converter<Distance, String> {
 		INSTANCE;
 

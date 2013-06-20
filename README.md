@@ -3,7 +3,9 @@ Spring Data Solr
 
 The primary goal of the [Spring Data](http://www.springsource.org/spring-data) project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
 
-The Spring Data Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine. 
+The Spring Data Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine 
+
+Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data Solr handles inheritance as well as usage of custom Types such as  ```GeoLocation``` or ```DateTime```.
 
 Getting Help
 ------------
@@ -104,6 +106,8 @@ Furthermore you may provide a custom implementation for some operations.
     	
         @Query(fields = { "id", "name", "popularity" })
         Page<Product> findByPopularity(Integer popularity, Pageable page);
+        
+        List<Product> findByAuthorLike(String author);
     	
     }
     
@@ -128,6 +132,33 @@ Furthermore you may provide a custom implementation for some operations.
             this.operations = operations;
         }
 
+    }
+```
+
+Go on and use it as shown below:
+
+```java
+    @Service
+    public class ProductService {
+    
+        private SolrProductRepository repository;
+    
+        public void doSomething() {
+            repository.deleteAll();
+    
+            Product product = new Product("spring-data-solr");
+            product.setAuthor("Christoph Strobl");
+            product.setCategory("search");
+            repository.save(product);
+    
+            Product singleProduct = repository.findById("spring-data-solr");
+            List<Product> productList = repository.findByAuthorLike("Chr");
+        }
+        
+        @Autowired
+        public void setRepository(SolrProductRepository repository) {
+            this.repository = repository;
+        }
     }
 ```
 
@@ -156,6 +187,8 @@ You can set up repository scanning via xml configuration, which will happily cre
 Maven
 -----
 
+### Milestone
+
 ```xml
 <dependency>
 	<groupId>org.springframework.data</groupId>
@@ -166,6 +199,21 @@ Maven
 <repository>
 	<id>spring-maven-milesone</id>
 	<url>http://repo.springsource.org/libs-milestone</url>
+</repository>  
+```
+
+### Build Snapshot
+
+```xml
+<dependency>
+	<groupId>org.springframework.data</groupId>
+	<artifactId>spring-data-solr</artifactId>
+	<version>1.0.0.BUILD-SNAPSHOT</version>
+</dependency> 
+
+<repository>
+	<id>spring-maven-snapshot</id>
+	<url>http://repo.springsource.org/libs-snapshot</url>
 </repository>  
 ```
 

@@ -24,6 +24,8 @@ import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.repository.Indexed;
 import org.springframework.util.StringUtils;
 
 /**
@@ -55,13 +57,20 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 	@Override
 	public String getFieldName() {
-		org.apache.solr.client.solrj.beans.Field annotation = findAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+		org.apache.solr.client.solrj.beans.Field annotation = getFieldAnnotation();
 
 		if (annotation != null && StringUtils.hasText(annotation.value())
 				&& !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(annotation.value())) {
 			return annotation.value();
 		}
 		return field.getName();
+	}
+
+	@Override
+	public boolean isReadonly() {
+		Indexed indexedAnnotation = getIndexAnnotation();
+		boolean readonly = indexedAnnotation != null ? indexedAnnotation.readonly() : false;
+		return readonly || getFieldAnnotation() == null;
 	}
 
 	@Override
@@ -76,6 +85,21 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	@Override
 	protected Association<SolrPersistentProperty> createAssociation() {
 		return null;
+	}
+
+	@Override
+	public boolean containsWildcard() {
+		String fieldName = getFieldName();
+		return fieldName != null ? (fieldName.startsWith(Criteria.WILDCARD) || fieldName.endsWith(Criteria.WILDCARD))
+				: false;
+	}
+
+	private org.apache.solr.client.solrj.beans.Field getFieldAnnotation() {
+		return findAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+	}
+
+	private Indexed getIndexAnnotation() {
+		return findAnnotation(Indexed.class);
 	}
 
 }

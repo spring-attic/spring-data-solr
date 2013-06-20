@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.convert;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.WritingConverter;
 
 /**
  * Converts a Number values into a solr readable String that can be directly used within the {@code q} parameter.
@@ -25,6 +26,7 @@ import org.springframework.core.convert.converter.Converter;
  */
 public final class NumberConverters {
 
+	@WritingConverter
 	public enum NumberConverter implements Converter<Number, String> {
 		INSTANCE;
 

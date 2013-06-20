@@ -631,4 +631,146 @@ Product.findByName=name:?0</programlisting>
 			</example>
 		</section>
 	</section>
+	<section id="solr.mapping">
+		<title>Document Mapping</title>
+		<para>
+			Though there is already support for Entity Mapping within SolrJ, Spring Data Solr ships with its own mapping mechanism shown
+			in the following section.
+			<note>
+				DocumentObjectBinder has superior performance. Therefore usage is recommended if there is not need for custom type mapping.
+				You can switch to DocumentObjectBinder by registering SolrJConverter within SolrTemplate.
+			</note>
+		</para>
+		<section id="solr.mapping.mappingSolr">
+			<title>Mapping Solr Converter</title>
+			<para>
+				<classname>MappingSolrConverter</classname> allows you to register custom converters for your <classname>SolrDocument</classname> 
+				and <classname>SolrInputDocument</classname> as well as for other types nested within your beans.
+				The Converter is not 100% compartible with <classname>DocumentObjectBinder</classname> and <interfacename>@Indexed</interfacename>
+				has to be added with <code>readonly=true</code> to ignore fields from beeing written to solr.
+			</para>
+			<example>
+				<title>
+					Sample Document Mapping
+				</title>
+				<programlisting>public class Product {
+  @Field
+  private String simpleProperty;
+  
+  @Field("somePropertyName")
+  private String namedPropery;
+  
+  @Field
+  private List&lt;String&gt; listOfValues;
+  
+  @Indexed(readonly = true)
+  @Field("property_*")
+  private List&lt;String&gt; ignoredFromWriting;
+  
+  @Field("mappedField_*")
+  private Map&lt;String, List&lt;String&gt;&gt; mappedFieldValues; 
+  
+  @Field
+  private GeoLocation location;
+				
+}</programlisting>
+			</example>	
+			<para>
+				Taking a look as the above <classname>MappingSolrConverter</classname> will do as follows:
+				<table>
+					<tgroup cols="2">
+						<colspec colwidth="1*" />
+						<colspec colwidth="3*" />
+						<thead>
+							<row>
+								<entry>Property</entry>
+								<entry>Write Mapping</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry>
+									simpleProperty
+								</entry>
+								<entry>
+									<code>&lt;field name="simpleProperty"&gt;value&lt;/field&gt;</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									namedPropery
+								</entry>
+								<entry>
+									<code>&lt;field name="somePropertyName"&gt;value&lt;/field&gt;</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									listOfValues
+								</entry>
+								<entry>
+									<code>&lt;field name="listOfValues"&gt;value 1&lt;/field&gt;</code>
+									<code>&lt;field name="listOfValues"&gt;value 2&lt;/field&gt;</code>
+									<code>&lt;field name="listOfValues"&gt;value 3&lt;/field&gt;</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									ignoredFromWriting
+								</entry>
+								<entry>
+									<code>//not written to document</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									mappedFieldValues
+								</entry>
+								<entry>
+									<code>&lt;field name="mapentry[0].key"&gt;mapentry[0].value[0]&lt;/field&gt;</code>
+									<code>&lt;field name="mapentry[0].key"&gt;mapentry[0].value[2]&lt;/field&gt;</code>
+									<code>&lt;field name="mapentry[1].key"&gt;mapentry[1].value[0]&lt;/field&gt;</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									location
+								</entry>
+								<entry>
+									<code>&lt;field name="location"&gt;48.362893,14.534437&lt;/field&gt;</code>
+								</entry>
+							</row>
+					    </tbody>		
+				    </tgroup> 
+				</table>
+			</para>
+			<para>
+				To register a custom converter one must add <classname>CustomConversions</classname> to <classname>SolrTemplate</classname>
+				initializing it with own <interfacename>Converter</interfacename> implementation.
+				<example>
+					<programlisting>&lt;bean id="solrConverter" class="org.springframework.data.solr.core.convert.MappingSolrConverter"&gt;
+	&lt;constructor-arg&gt;
+		&lt;bean class="org.springframework.data.solr.core.mapping.SimpleSolrMappingContext" /&gt;
+	&lt;/constructor-arg&gt;
+	&lt;property name="customConversions" ref="customConversions" /&gt;
+&lt;/bean&gt; 
+
+&lt;bean id="customConversions" class="org.springframework.data.solr.core.convert.CustomConversions"&gt;
+	&lt;constructor-arg&gt;
+		&lt;list&gt;
+			&lt;bean class="com.acme.MyBeanToSolrInputDocumentConverter" /&gt;
+		&lt;/list&gt;
+	&lt;/constructor-arg&gt;
+&lt;/bean&gt;
+
+&lt;bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate"&gt;
+	&lt;constructor-arg ref="solrServer" /&gt;
+	&lt;property name="solrConverter" ref="solrConverter" /&gt;
+&lt;/bean&gt;
+</programlisting>
+				</example>
+			
+			</para>
+		</section>
+	</section>
 </chapter>

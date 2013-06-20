@@ -22,6 +22,8 @@ import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateField;
 import org.springframework.util.Assert;
@@ -46,6 +48,12 @@ final class SolrjConverters {
 
 	}
 
+	/**
+	 * Converts any {@link Object} to {@link SolrInputDocument}
+	 * 
+	 * @author Christoph Strobl
+	 */
+	@WritingConverter
 	public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter implements
 			Converter<Object, SolrInputDocument> {
 
@@ -63,6 +71,13 @@ final class SolrjConverters {
 		}
 	}
 
+	/**
+	 * Converts any {@link Update} to {@link SolrInputDocument} for atomic update.
+	 * 
+	 * @author Christoph Strobl
+	 * 
+	 */
+	@WritingConverter
 	public static class UpdateToSolrInputDocumentConverter implements Converter<Update, SolrInputDocument> {
 
 		private static final String VERSION_FIELD_ID = "_version_";
@@ -94,6 +109,14 @@ final class SolrjConverters {
 		}
 	}
 
+	/**
+	 * Convert any {@link SolrDocument} to object of given {@link Class} using {@link DocumentObjectBinder}
+	 * 
+	 * @author Christoph Strobl
+	 * 
+	 * @param <T>
+	 */
+	@ReadingConverter
 	public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter implements
 			Converter<Map<String, ?>, T> {
 

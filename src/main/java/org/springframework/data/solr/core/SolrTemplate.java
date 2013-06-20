@@ -28,6 +28,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	private SolrServerFactory solrServerFactory;
 	private QueryParser queryParser = DEFAULT_QUERY_PARSER;
-	private final SolrConverter solrConverter;
+	private SolrConverter solrConverter;
 
 	public SolrTemplate(SolrServer solrServer) {
 		this(solrServer, null);
@@ -97,7 +99,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
 
 		this.solrServerFactory = solrServerFactory;
-		this.solrConverter = solrConverter == null ? getDefaultSolrConverter(solrServerFactory) : solrConverter;
+		this.solrConverter = solrConverter == null ? getDefaultSolrConverter() : solrConverter;
 	}
 
 	@Override
@@ -233,7 +235,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			if (response.getResults().size() > 1) {
 				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
 			}
-			return response.getBeans(clazz).get(0);
+			return (T) convertSolrDocumentListToBeans(response.getResults(), clazz).get(0);
 		}
 		return null;
 	}
@@ -243,7 +245,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		QueryResponse response = query(query);
-		return new PageImpl<T>(response.getBeans(clazz), query.getPageRequest(), response.getResults().getNumFound());
+		List<T> beans = convertQueryResponseToBeans(response, clazz);
+		return new PageImpl<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 	}
 
 	@Override
@@ -253,8 +256,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		QueryResponse response = query(query);
 
-		SolrResultPage<T> page = new SolrResultPage<T>(response.getBeans(clazz), query.getPageRequest(), response
-				.getResults().getNumFound());
+		List<T> beans = convertQueryResponseToBeans(response, clazz);
+		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
 
@@ -268,8 +271,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		QueryResponse response = query(query);
 
-		SolrResultPage<T> page = new SolrResultPage<T>(response.getBeans(clazz), query.getPageRequest(), response
-				.getResults().getNumFound());
+		List<T> beans = convertQueryResponseToBeans(response, clazz);
+		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
 
 		return page;
@@ -328,11 +331,28 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		if (beans == null) {
 			return Collections.emptyList();
 		}
+
 		List<SolrInputDocument> resultList = new ArrayList<SolrInputDocument>();
 		for (Object bean : beans) {
 			resultList.add(convertBeanToSolrInputDocument(bean));
 		}
 		return resultList;
+	}
+
+	public <T> List<T> convertQueryResponseToBeans(QueryResponse response, Class<T> targetClass) {
+		return response != null ? convertSolrDocumentListToBeans(response.getResults(), targetClass) : Collections
+				.<T> emptyList();
+	}
+
+	public <T> List<T> convertSolrDocumentListToBeans(SolrDocumentList documents, Class<T> targetClass) {
+		if (documents == null) {
+			return Collections.<T> emptyList();
+		}
+		return getConverter().read(documents, targetClass);
+	}
+
+	public <T> T convertSolrDocumentToBean(SolrDocument document, Class<T> targetClass) {
+		return getConverter().read(targetClass, document);
 	}
 
 	protected void assertNoCollection(Object o) {
@@ -341,8 +361,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	}
 
-	private final SolrConverter getDefaultSolrConverter(SolrServerFactory factory) {
-		MappingSolrConverter converter = new MappingSolrConverter(factory, new SimpleSolrMappingContext());
+	private final SolrConverter getDefaultSolrConverter() {
+		MappingSolrConverter converter = new MappingSolrConverter(new SimpleSolrMappingContext());
 		converter.afterPropertiesSet(); // have to call this one to initialize default converters
 		return converter;
 	}
@@ -370,13 +390,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.queryParser = queryParser;
 	}
 
+	public void setSolrConverter(SolrConverter solrConverter) {
+		this.solrConverter = solrConverter;
+	}
+
 	@Override
 	public void afterPropertiesSet() {
 		if (this.queryParser == null) {
 			LOGGER.warn("QueryParser not set, using default one.");
 			queryParser = DEFAULT_QUERY_PARSER;
 		}
-
+		if (this.solrConverter == null) {
+			this.solrConverter = getDefaultSolrConverter();
+		}
 		registerPersistenceExceptionTranslator();
 	}
 

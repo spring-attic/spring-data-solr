@@ -30,6 +30,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
     * [DATASOLR-73] - Upgrade to Solr 4.3.0
     * [DATASOLR-76] - Upgrade to commons-lang3
+    * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
 
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------
