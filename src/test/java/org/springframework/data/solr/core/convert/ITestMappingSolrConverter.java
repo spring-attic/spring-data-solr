@@ -117,6 +117,24 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		Assert.assertEquals(bean.name, loaded.name);
 	}
 
+	@Test
+	public void testProcessesEnumCorrectly() {
+		BeanWithEnum bean = new BeanWithEnum();
+		bean.id = DEFAULT_BEAN_ID;
+		bean.enumProperty = LiteralNumberEnum.TWO;
+
+		BeanWithEnum loaded = saveAndLoad(bean);
+
+		Assert.assertEquals(bean.id, loaded.id);
+		Assert.assertEquals(bean.enumProperty, loaded.enumProperty);
+
+		Query query = new SimpleQuery(new Criteria("enumProperty_s").is(LiteralNumberEnum.TWO));
+
+		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(query, BeanWithEnum.class);
+		Assert.assertEquals(bean.id, loadedViaProperty.id);
+		Assert.assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
 		solrTemplate.saveBean(o);
@@ -185,6 +203,21 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		@Field("name")
 		private String name;
+
+	}
+
+	private enum LiteralNumberEnum {
+		ONE, TWO, THREE;
+	}
+
+	private static class BeanWithEnum {
+
+		@Id
+		@Field
+		private String id;
+
+		@Field("enumProperty_s")
+		private LiteralNumberEnum enumProperty;
 
 	}
 
