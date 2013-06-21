@@ -30,6 +30,7 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.geo.GeoConverters.GeoLocationToStringConverter;
 import org.springframework.data.solr.core.geo.GeoConverters.StringToGeoLocationConverter;
 import org.springframework.data.solr.core.mapping.SolrSimpleTypes;
@@ -75,10 +76,17 @@ public class CustomConversions {
 		this.converters.add(StringToGeoLocationConverter.INSTANCE);
 		this.converters.add(GeoLocationToStringConverter.INSTANCE);
 		this.converters.add(new SolrjConverters.UpdateToSolrInputDocumentConverter());
-		this.converters.add(DateTimeConverters.DateToJodaDateTimeConverter.INSTANCE);
-		this.converters.add(DateTimeConverters.JodaDateTimeToDateConverter.INSTANCE);
-		this.converters.add(DateTimeConverters.DateToLocalDateTimeConverter.INSTANCE);
-		this.converters.add(DateTimeConverters.JodaLocalDateTimeToDateConverter.INSTANCE);
+
+        /*
+         * Register Joda-Time converters only if Joda-Time was found in the classpath.
+         * Reference: JIRA #DATASOLR-94 and #DATASOLR-56
+         */
+        if (VersionUtil.isJodaTimeAvailable()) {
+		    this.converters.add(DateTimeConverters.DateToJodaDateTimeConverter.INSTANCE);
+		    this.converters.add(DateTimeConverters.JodaDateTimeToDateConverter.INSTANCE);
+		    this.converters.add(DateTimeConverters.DateToLocalDateTimeConverter.INSTANCE);
+		    this.converters.add(DateTimeConverters.JodaLocalDateTimeToDateConverter.INSTANCE);
+        }
 
 		for (Object converter : this.converters) {
 			registerConversion(converter);
