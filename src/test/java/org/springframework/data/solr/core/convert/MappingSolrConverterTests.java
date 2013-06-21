@@ -34,10 +34,6 @@ import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -46,19 +42,14 @@ import org.springframework.data.solr.repository.Indexed;
 /**
  * @author Christoph Strobl
  */
-@RunWith(MockitoJUnitRunner.class)
 public class MappingSolrConverterTests {
 
 	private MappingSolrConverter converter;
 	private SimpleSolrMappingContext mappingContext;
 
-	@Mock
-	private ApplicationContext applicationContextMock;
-
 	@Before
 	public void setUp() {
 		mappingContext = new SimpleSolrMappingContext();
-		mappingContext.setApplicationContext(applicationContextMock);
 
 		converter = new MappingSolrConverter(mappingContext);
 		converter.afterPropertiesSet();

@@ -30,6 +30,10 @@ import org.springframework.data.mapping.model.SimpleTypeHolder;
  */
 public class SolrSimpleTypes {
 
+	private SolrSimpleTypes() {
+		// hide utility class constructor
+	}
+
 	static {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 		classes.add(BigInteger.class);

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -51,7 +50,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Implementation of {@link SolrConverter} to read/write {@link SolrDocument}/{@link SolrInputDocument}. <br/>
+ * Implementation of {@link SolrConverter} to read/write {@link org.apache.solr.common.SolrDocumen}/
+ * {@link SolrInputDocument}. <br/>
  * 
  * @author Christoph Strobl
  */
@@ -182,7 +182,8 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 		write(source, target, entity);
 	}
 
-	protected void write(Object source, final @SuppressWarnings("rawtypes") Map target, SolrPersistentEntity<?> entity) {
+	@SuppressWarnings("rawtypes")
+	protected void write(Object source, final Map target, SolrPersistentEntity<?> entity) {
 		final BeanWrapper<SolrPersistentEntity<Object>, Object> wrapper = BeanWrapper
 				.create(source, getConversionService());
 
