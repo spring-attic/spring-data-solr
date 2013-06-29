@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * easily chain together multiple criteria.
  * 
  * @author Christoph Strobl
+ * @author Philipp Jardas
  */
 public class Criteria {
 
@@ -401,6 +402,26 @@ public class Criteria {
 			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
 		}
 		criteria.add(new CriteriaEntry("$fuzzy#" + levenshteinDistance, s));
+		return this;
+	}
+
+	/**
+	 * Crates new {@link CriteriaEntry} with trailing {@code ~} followed by distance
+	 * 
+	 * @param phrase
+	 * @param distance
+	 * @return
+	 */
+	public Criteria sloppy(String phrase, int distance) {
+		if (distance <= 0) {
+			throw new InvalidDataAccessApiUsageException("Slop distance has to be greater than 0.");
+		}
+
+		if (!StringUtils.contains(phrase, CRITERIA_VALUE_SEPERATOR)) {
+			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
+		}
+
+		criteria.add(new CriteriaEntry("$sloppy#" + distance, phrase));
 		return this;
 	}
 

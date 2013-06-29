@@ -73,6 +73,7 @@ import org.springframework.util.CollectionUtils;
  * @author Rosty Kerei
  * @author Luke Corpe
  * @author Andrey Paramonov
+ * @author Philipp Jardas
  */
 public class DefaultQueryParser implements QueryParser {
 
@@ -354,6 +355,12 @@ public class DefaultQueryParser implements QueryParser {
 				distance = Float.parseFloat(sDistance);
 			}
 			return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance);
+		}
+
+		if (StringUtils.startsWith(key, "$sloppy")) {
+			String sDistance = StringUtils.substringAfter(key, "$sloppy#");
+			int distance = Integer.parseInt(sDistance);
+			return filteredValue + "~" + distance;
 		}
 
 		return filteredValue.toString();

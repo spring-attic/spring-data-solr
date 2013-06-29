@@ -61,6 +61,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
  * @author John Dorman
  * @author Rosty Kerei
  * @author Andrey Paramonov
+ * @author Philipp Jardas
  */
 public class DefaultQueryParserTests {
 
@@ -191,6 +192,12 @@ public class DefaultQueryParserTests {
 	public void testFuzzyWithDistance() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
 		Assert.assertEquals("field_1:value_1~0.5", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
+	public void testSloppy() {
+		Criteria criteria = new Criteria("field_1").sloppy("value1 value2", 2);
+		Assert.assertEquals("field_1:\"value1 value2\"~2", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
 	@Test

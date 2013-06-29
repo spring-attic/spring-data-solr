@@ -33,6 +33,7 @@ import org.springframework.data.solr.core.query.Criteria.OperationKey;
 /**
  * @author Christoph Strobl
  * @author John Dorman
+ * @author Philipp Jardas
  */
 public class CriteriaTests {
 
@@ -259,6 +260,22 @@ public class CriteriaTests {
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testFuzzyWithTooHighDistance() {
 		new Criteria("field_1").fuzzy("value_1", 1.5f);
+	}
+
+	@Test
+	public void testSloppy() {
+		Criteria criteria = new Criteria("field_1").sloppy("value0 value1", 2);
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, "$sloppy#2", "value0 value1");
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testSloppyWithNegativeDistance() {
+		new Criteria("field_1").sloppy("value0 value1", 0);
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testSloppyWithSingleWordPhrase() {
+		new Criteria("field_1").sloppy("value0", 0);
 	}
 
 	@Test
