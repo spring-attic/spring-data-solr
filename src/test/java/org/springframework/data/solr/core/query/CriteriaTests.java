@@ -261,6 +261,23 @@ public class CriteriaTests {
 		new Criteria("field_1").fuzzy("value_1", 1.5f);
 	}
 
+	//
+	@Test
+	public void testSlop() {
+		Criteria criteria = new Criteria("field_1").slop("value0 value1", 2);
+		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, "$slop#2", "value0 value1");
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testSlopNotPositiveDistance() {
+		new Criteria("field_1").slop("value0 value1", 0);
+	}
+
+	@Test(expected = InvalidDataAccessApiUsageException.class)
+	public void testSlopNoMultiPhrase() {
+		new Criteria("field_1").slop("value0", 0);
+	}
+
 	@Test
 	public void testBoost() {
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);

@@ -356,6 +356,12 @@ public class DefaultQueryParser implements QueryParser {
 			return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance);
 		}
 
+		if (StringUtils.startsWith(key, "$slop")) {
+			String sDistance = StringUtils.substringAfter(key, "$slop#");
+			int distance = Integer.parseInt(sDistance);
+			return filteredValue + "~" + distance;
+		}
+
 		return filteredValue.toString();
 	}
 
