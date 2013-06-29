@@ -194,6 +194,12 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
+	public void testSlop() {
+		Criteria criteria = new Criteria("field_1").sloppy("value1 value2", 2);
+		Assert.assertEquals("field_1:\"value1 value2\"~2", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
 	public void testBoost() {
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
 		Assert.assertEquals("field_1:value_1^2.0", queryParser.createQueryStringFromCriteria(criteria));

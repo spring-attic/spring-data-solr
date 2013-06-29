@@ -405,6 +405,26 @@ public class Criteria {
 	}
 
 	/**
+	 * Crates new {@link CriteriaEntry} with trailing {@code ~} followed by distance
+	 * 
+	 * @param phrase
+	 * @param distance
+	 * @return
+	 */
+	public Criteria sloppy(final String phrase, final int distance) {
+		if (distance <= 0) {
+			throw new InvalidDataAccessApiUsageException("Slop distance has to be greater than 0.");
+		}
+
+		if (!StringUtils.contains(phrase, CRITERIA_VALUE_SEPERATOR)) {
+			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
+		}
+
+		criteria.add(new CriteriaEntry("$sloppy#" + distance, phrase));
+		return this;
+	}
+
+	/**
 	 * Crates new {@link CriteriaEntry} allowing native solr expressions
 	 * 
 	 * @param s
