@@ -411,7 +411,7 @@ public class Criteria {
 	 * @param distance
 	 * @return
 	 */
-	public Criteria slop(final String phrase, final int distance) {
+	public Criteria sloppy(final String phrase, final int distance) {
 		if (distance <= 0) {
 			throw new InvalidDataAccessApiUsageException("Slop distance has to be greater than 0.");
 		}
@@ -420,7 +420,7 @@ public class Criteria {
 			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
 		}
 
-		criteria.add(new CriteriaEntry("$slop#" + distance, phrase));
+		criteria.add(new CriteriaEntry("$sloppy#" + distance, phrase));
 		return this;
 	}
 
