@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -665,6 +667,36 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(document.getFieldValue("intProperty"), target.intProperty);
 	}
 
+	@Test
+	public void testReadToMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("map_1", "value-1");
+		document.addField("map_2", "value-2");
+
+		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
+		Assert.assertThat(target.mapProperty, IsInstanceOf.instanceOf(HashMap.class));
+	}
+
+	@Test
+	public void testReadToHashMapMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("hashMap_1", "value-1");
+		document.addField("hashMap_2", "value-2");
+
+		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
+		Assert.assertThat(target.hashMapProperty, IsInstanceOf.instanceOf(HashMap.class));
+	}
+
+	@Test
+	public void testReadToLinkedHashMapMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("linkedHashMap_1", "value-1");
+		document.addField("linkedHashMap_2", "value-2");
+
+		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
+		Assert.assertThat(target.linkedHashMapProperty, IsInstanceOf.instanceOf(LinkedHashMap.class));
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -822,6 +854,18 @@ public class MappingSolrConverterTests {
 		@Field
 		Integer intProperty;
 
+	}
+
+	public static class BeanWithDifferentMaps {
+
+		@Field("map_*")
+		Map<String, String> mapProperty;
+
+		@Field("hashMap_*")
+		HashMap<String, String> hashMapProperty;
+
+		@Field("linkedHashMap_*")
+		LinkedHashMap<String, String> linkedHashMapProperty;
 	}
 
 }

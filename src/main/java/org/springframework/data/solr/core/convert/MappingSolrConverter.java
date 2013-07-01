@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -163,12 +164,12 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			return;
 		}
 
-		if (hasCustomWriteTarget(source.getClass(), SolrInputDocument.class)) {
-			if (canConvert(source.getClass(), SolrInputDocument.class)) {
-				SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
-				target.putAll(convertedDocument);
-				return;
-			}
+		if (hasCustomWriteTarget(source.getClass(), SolrInputDocument.class)
+				&& canConvert(source.getClass(), SolrInputDocument.class)) {
+			SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
+			target.putAll(convertedDocument);
+			return;
+
 		}
 
 		TypeInformation<? extends Object> type = ClassTypeInformation.from(source.getClass());
@@ -342,7 +343,8 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				TypeInformation<?> mapTypeInformation = property.getTypeInformation().getMapValueType();
 				Class<?> rawMapType = mapTypeInformation.getType();
 
-				Map<String, Object> values = new HashMap<String, Object>();
+				Map<String, Object> values = LinkedHashMap.class.isAssignableFrom(property.getActualType()) ? new LinkedHashMap<String, Object>()
+						: new HashMap<String, Object>();
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 					if (StringUtils.contains(potentialMatch.getKey(), fieldName)) {
 						Object value = potentialMatch.getValue();
