@@ -401,7 +401,7 @@ public class Criteria {
 		if (!Float.isNaN(levenshteinDistance) && (levenshteinDistance < 0 || levenshteinDistance > 1)) {
 			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
 		}
-		criteria.add(new CriteriaEntry(OperationKey.FUZZY, new Object[] { s, levenshteinDistance }));
+		criteria.add(new CriteriaEntry(OperationKey.FUZZY, new Object[] { s, Float.valueOf(levenshteinDistance) }));
 		return this;
 	}
 
@@ -421,7 +421,7 @@ public class Criteria {
 			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
 		}
 
-		criteria.add(new CriteriaEntry(OperationKey.SLOPPY, new Object[] { phrase, distance }));
+		criteria.add(new CriteriaEntry(OperationKey.SLOPPY, new Object[] { phrase, Integer.valueOf(distance) }));
 		return this;
 	}
 

@@ -483,8 +483,8 @@ public abstract class QueryParserBase implements QueryParser {
 		@Override
 		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
 			Object[] args = (Object[]) criteriaEntry.getValue();
-			float distance = (float) args[1];
-			return filterCriteriaValue(args[0]) + "~" + (Float.isNaN(distance) ? "" : distance);
+			Float distance = (Float) args[1];
+			return filterCriteriaValue(args[0]) + "~" + (distance.isNaN() ? "" : distance);
 		}
 
 	}
@@ -505,7 +505,7 @@ public abstract class QueryParserBase implements QueryParser {
 		@Override
 		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
 			Object[] args = (Object[]) criteriaEntry.getValue();
-			int distance = (int) args[1];
+			Integer distance = (Integer) args[1];
 			return filterCriteriaValue(args[0]) + "~" + distance;
 		}
 
