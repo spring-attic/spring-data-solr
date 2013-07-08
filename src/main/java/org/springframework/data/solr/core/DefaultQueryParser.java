@@ -16,10 +16,7 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -28,23 +25,12 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
-import org.apache.solr.common.params.SpatialParams;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.VersionUtil;
-import org.springframework.data.solr.core.convert.DateTimeConverters;
-import org.springframework.data.solr.core.convert.NumberConverters;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
-import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
@@ -58,7 +44,6 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryParameter;
-import org.springframework.data.solr.core.query.QueryStringHolder;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -75,43 +60,7 @@ import org.springframework.util.CollectionUtils;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  */
-public class DefaultQueryParser implements QueryParser {
-
-	private static final String WILDCARD = "*";
-	private static final String CRITERIA_VALUE_SEPERATOR = " ";
-	private static final String DELIMINATOR = ":";
-	private static final String RANGE_OPERATOR = " TO ";
-	private static final String DOUBLEQUOTE = "\"";
-
-	private static final String[] RESERVED_CHARS = { DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[",
-			"]", "^", "~", "*", "?", ":", "\\" };
-	private static final String[] RESERVED_CHARS_REPLACEMENT = { "\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|",
-			"\\!", "\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
-
-	private final GenericConversionService conversionService = new GenericConversionService();
-
-	{
-		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
-			conversionService.addConverter(DateTimeConverters.JavaDateConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Number.class, String.class)) {
-			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
-			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
-		}
-		if (!conversionService.canConvert(Distance.class, String.class)) {
-			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
-		}
-		if (VersionUtil.isJodaTimeAvailable()) {
-			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
-				conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
-			}
-			if (!conversionService.canConvert(org.joda.time.LocalDateTime.class, String.class)) {
-				conversionService.addConverter(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE);
-			}
-		}
-	}
+public class DefaultQueryParser extends QueryParserBase {
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrServer}
@@ -156,7 +105,13 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
-	private void processHighlightOptions(SolrQuery solrQuery, HighlightQuery query) {
+	/**
+	 * Append highlighting parameters to {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param query
+	 */
+	protected void processHighlightOptions(SolrQuery solrQuery, HighlightQuery query) {
 		if (query.hasHighlightOptions()) {
 			HighlightOptions highlightOptions = query.getHighlightOptions();
 			solrQuery.setHighlight(true);
@@ -211,202 +166,12 @@ public class DefaultQueryParser implements QueryParser {
 	}
 
 	/**
-	 * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
+	 * Append pagination information {@code start, rows} to {@link SolrQuery}
 	 * 
 	 * @param query
-	 * @return String representation of query without faceting, pagination, projection...
+	 * @param pageable
 	 */
-	public String getQueryString(SolrDataQuery query) {
-		if (query.getCriteria() == null) {
-			return null;
-		}
-
-		String queryString = createQueryStringFromCriteria(query.getCriteria());
-		queryString = prependJoin(queryString, query);
-		return queryString;
-	}
-
-	private String prependJoin(String queryString, SolrDataQuery query) {
-		if (query == null || query.getJoin() == null) {
-			return queryString;
-		}
-		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName() + "}"
-				+ queryString;
-	}
-
-	String createQueryStringFromCriteria(Criteria criteria) {
-		StringBuilder query = new StringBuilder(StringUtils.EMPTY);
-
-		ListIterator<Criteria> chainIterator = criteria.getCriteriaChain().listIterator();
-		while (chainIterator.hasNext()) {
-			Criteria chainedCriteria = chainIterator.next();
-
-			query.append(createQueryFragmentForCriteria(chainedCriteria));
-
-			if (chainIterator.hasNext()) {
-				query.append(chainIterator.next().getConjunctionOperator());
-				chainIterator.previous();
-			}
-		}
-
-		return query.toString();
-	}
-
-	protected String createQueryFragmentForCriteria(Criteria chainedCriteria) {
-		StringBuilder queryFragment = new StringBuilder();
-		Iterator<CriteriaEntry> it = chainedCriteria.getCriteriaEntries().iterator();
-		boolean singeEntryCriteria = (chainedCriteria.getCriteriaEntries().size() == 1);
-		if (chainedCriteria.getField() != null) {
-			String fieldName = chainedCriteria.getField().getName();
-			if (chainedCriteria.isNegating()) {
-				fieldName = "-" + fieldName;
-			}
-			if (!containsFunctionCriteria(chainedCriteria.getCriteriaEntries())) {
-				queryFragment.append(fieldName);
-				queryFragment.append(DELIMINATOR);
-			}
-			if (!singeEntryCriteria) {
-				queryFragment.append("(");
-			}
-			while (it.hasNext()) {
-				CriteriaEntry entry = it.next();
-				queryFragment.append(processCriteriaEntry(entry.getKey(), entry.getValue(), fieldName));
-				if (it.hasNext()) {
-					queryFragment.append(CRITERIA_VALUE_SEPERATOR);
-				}
-			}
-			if (!singeEntryCriteria) {
-				queryFragment.append(")");
-			}
-			if (!Float.isNaN(chainedCriteria.getBoost())) {
-				queryFragment.append("^" + chainedCriteria.getBoost());
-			}
-		} else {
-			if (chainedCriteria instanceof QueryStringHolder) {
-				return ((QueryStringHolder) chainedCriteria).getQueryString();
-			}
-		}
-		return queryFragment.toString();
-	}
-
-	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
-		for (CriteriaEntry entry : chainedCriterias) {
-			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
-				return true;
-			} else if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private String processCriteriaEntry(String key, Object value, String fieldName) {
-		if (value == null) {
-			return null;
-		}
-
-		// do not filter espressions
-		if (StringUtils.equals(OperationKey.EXPRESSION.getKey(), key)) {
-			return value.toString();
-		}
-
-		if (StringUtils.equals(OperationKey.BETWEEN.getKey(), key)) {
-			Object[] args = (Object[]) value;
-			String rangeFragment = ((Boolean) args[2]).booleanValue() ? "[" : "{";
-			rangeFragment += createRangeFragment(args[0], args[1]);
-			rangeFragment += ((Boolean) args[3]).booleanValue() ? "]" : "}";
-			return rangeFragment;
-		}
-
-		if (StringUtils.equals(OperationKey.WITHIN.getKey(), key)) {
-			Object[] args = (Object[]) value;
-			return createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1], "geofilt");
-		}
-
-		if (StringUtils.equals(OperationKey.NEAR.getKey(), key)) {
-			String nearFragment;
-			Object[] args = (Object[]) value;
-			if (args[0] instanceof BoundingBox) {
-				BoundingBox box = (BoundingBox) args[0];
-				nearFragment = fieldName + ":[";
-				nearFragment += createRangeFragment(box.getGeoLocationStart(), box.getGeoLocationEnd());
-				nearFragment += "]";
-			} else {
-				nearFragment = createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1], "bbox");
-			}
-			return nearFragment;
-		}
-
-		Object filteredValue = filterCriteriaValue(value);
-		if (StringUtils.equals(OperationKey.CONTAINS.getKey(), key)) {
-			return WILDCARD + filteredValue + WILDCARD;
-		}
-		if (StringUtils.equals(OperationKey.STARTS_WITH.getKey(), key)) {
-			return filteredValue + WILDCARD;
-		}
-		if (StringUtils.equals(OperationKey.ENDS_WITH.getKey(), key)) {
-			return WILDCARD + filteredValue;
-		}
-
-		if (StringUtils.startsWith(key, "$fuzzy")) {
-			String sDistance = StringUtils.substringAfter(key, "$fuzzy#");
-			float distance = Float.NaN;
-			if (StringUtils.isNotBlank(sDistance)) {
-				distance = Float.parseFloat(sDistance);
-			}
-			return filteredValue + "~" + (Float.isNaN(distance) ? "" : sDistance);
-		}
-
-		if (StringUtils.startsWith(key, "$sloppy")) {
-			String sDistance = StringUtils.substringAfter(key, "$sloppy#");
-			int distance = Integer.parseInt(sDistance);
-			return filteredValue + "~" + distance;
-		}
-
-		return filteredValue.toString();
-	}
-
-	private Object filterCriteriaValue(Object criteriaValue) {
-		if (!(criteriaValue instanceof String)) {
-			if (conversionService.canConvert(criteriaValue.getClass(), String.class)) {
-				return conversionService.convert(criteriaValue, String.class);
-			}
-			return criteriaValue;
-		}
-		String value = escapeCriteriaValue((String) criteriaValue);
-		return processWhiteSpaces(value);
-	}
-
-	private String escapeCriteriaValue(String criteriaValue) {
-		return StringUtils.replaceEach(criteriaValue, RESERVED_CHARS, RESERVED_CHARS_REPLACEMENT);
-	}
-
-	private String processWhiteSpaces(String criteriaValue) {
-		if (StringUtils.contains(criteriaValue, CRITERIA_VALUE_SEPERATOR)) {
-			return DOUBLEQUOTE + criteriaValue + DOUBLEQUOTE;
-		}
-		return criteriaValue;
-	}
-
-	private String createRangeFragment(Object rangeStart, Object rangeEnd) {
-		String rangeFragment = "";
-		rangeFragment += (rangeStart != null ? filterCriteriaValue(rangeStart) : WILDCARD);
-		rangeFragment += RANGE_OPERATOR;
-		rangeFragment += (rangeEnd != null ? filterCriteriaValue(rangeEnd) : WILDCARD);
-		return rangeFragment;
-	}
-
-	private String createSpatialFunctionFragment(String fieldName, GeoLocation location, Distance distance,
-			String function) {
-		String spatialFragment = "{!" + function + " " + SpatialParams.POINT + "=";
-		spatialFragment += filterCriteriaValue(location);
-		spatialFragment += " " + SpatialParams.FIELD + "=" + fieldName;
-		spatialFragment += " " + SpatialParams.DISTANCE + "=" + filterCriteriaValue(distance);
-		spatialFragment += "}";
-		return spatialFragment;
-	}
-
-	private void appendPagination(SolrQuery query, Pageable pageable) {
+	protected void appendPagination(SolrQuery query, Pageable pageable) {
 		if (pageable == null) {
 			return;
 		}
@@ -414,7 +179,13 @@ public class DefaultQueryParser implements QueryParser {
 		query.setRows(pageable.getPageSize());
 	}
 
-	private void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
+	/**
+	 * Append field list to {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param fields
+	 */
+	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
@@ -473,7 +244,13 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
-	private void appendGroupByFields(SolrQuery solrQuery, List<Field> fields) {
+	/**
+	 * Append grouping parameters to {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param fields
+	 */
+	protected void appendGroupByFields(SolrQuery solrQuery, List<Field> fields) {
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
@@ -493,7 +270,13 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
-	private void appendFilterQuery(SolrQuery solrQuery, List<FilterQuery> filterQueries) {
+	/**
+	 * Set filter filter queries for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param filterQueries
+	 */
+	protected void appendFilterQuery(SolrQuery solrQuery, List<FilterQuery> filterQueries) {
 		if (CollectionUtils.isEmpty(filterQueries)) {
 			return;
 		}
@@ -504,8 +287,14 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
+	/**
+	 * Append sorting parameters to {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param sort
+	 */
 	@SuppressWarnings("deprecation")
-	private void appendSort(SolrQuery solrQuery, Sort sort) {
+	protected void appendSort(SolrQuery solrQuery, Sort sort) {
 		if (sort == null) {
 			return;
 		}
@@ -520,25 +309,49 @@ public class DefaultQueryParser implements QueryParser {
 		}
 	}
 
-	private void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
+	/**
+	 * Set {@code q.op} parameter for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param defaultOperator
+	 */
+	protected void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
 		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
 			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
 		}
 	}
 
-	private void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
+	/**
+	 * Set {@link SolrQuery#setTimeAllowed(Integer)}
+	 * 
+	 * @param solrQuery
+	 * @param timeAllowed
+	 */
+	protected void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
 		if (timeAllowed != null) {
 			solrQuery.setTimeAllowed(timeAllowed);
 		}
 	}
 
-	private void appendDefType(SolrQuery solrQuery, String defType) {
+	/**
+	 * Set {@code defType} for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param defType
+	 */
+	protected void appendDefType(SolrQuery solrQuery, String defType) {
 		if (!StringUtils.isEmpty(defType)) {
 			solrQuery.set("defType", defType);
 		}
 	}
 
-	private void appendRequestHandler(SolrQuery solrQuery, String requestHandler) {
+	/**
+	 * Set request handler parameter for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param requestHandler
+	 */
+	protected void appendRequestHandler(SolrQuery solrQuery, String requestHandler) {
 		if (!StringUtils.isEmpty(requestHandler)) {
 			solrQuery.add(CommonParams.QT, requestHandler);
 		}
@@ -568,15 +381,6 @@ public class DefaultQueryParser implements QueryParser {
 			}
 		}
 		return filterQueryStrings;
-	}
-
-	/**
-	 * Register an additional converter for transforming object values to solr readable format
-	 * 
-	 * @param converter
-	 */
-	public void registerConverter(Converter<?, ?> converter) {
-		conversionService.addConverter(converter);
 	}
 
 }

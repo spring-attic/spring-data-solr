@@ -401,7 +401,7 @@ public class Criteria {
 		if (!Float.isNaN(levenshteinDistance) && (levenshteinDistance < 0 || levenshteinDistance > 1)) {
 			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
 		}
-		criteria.add(new CriteriaEntry("$fuzzy#" + levenshteinDistance, s));
+		criteria.add(new CriteriaEntry(OperationKey.FUZZY, new Object[] { s, levenshteinDistance }));
 		return this;
 	}
 
@@ -421,7 +421,7 @@ public class Criteria {
 			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
 		}
 
-		criteria.add(new CriteriaEntry("$sloppy#" + distance, phrase));
+		criteria.add(new CriteriaEntry(OperationKey.SLOPPY, new Object[] { phrase, distance }));
 		return this;
 	}
 
@@ -693,7 +693,7 @@ public class Criteria {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within");
+				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy");
 
 		private final String key;
 
@@ -718,11 +718,11 @@ public class Criteria {
 		private String key;
 		private Object value;
 
-		CriteriaEntry(OperationKey key, Object value) {
+		public CriteriaEntry(OperationKey key, Object value) {
 			this(key.getKey(), value);
 		}
 
-		CriteriaEntry(String key, Object value) {
+		public CriteriaEntry(String key, Object value) {
 			this.key = key;
 			this.value = value;
 		}

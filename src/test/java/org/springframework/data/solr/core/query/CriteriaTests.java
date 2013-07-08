@@ -239,17 +239,20 @@ public class CriteriaTests {
 		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "value_1");
 	}
 
-	//
 	@Test
 	public void testFuzzy() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, "$fuzzy#NaN", "value_1");
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
+		Assert.assertEquals(Float.NaN, ((Object[]) entry.getValue())[1]);
 	}
 
 	@Test
 	public void testFuzzyWithDistance() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, "$fuzzy#0.5", "value_1");
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
+		Assert.assertEquals(0.5F, ((Object[]) entry.getValue())[1]);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -265,7 +268,9 @@ public class CriteriaTests {
 	@Test
 	public void testSloppy() {
 		Criteria criteria = new Criteria("field_1").sloppy("value0 value1", 2);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, "$sloppy#2", "value0 value1");
+		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Assert.assertEquals("value0 value1", ((Object[]) entry.getValue())[0]);
+		Assert.assertEquals(2, ((Object[]) entry.getValue())[1]);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
