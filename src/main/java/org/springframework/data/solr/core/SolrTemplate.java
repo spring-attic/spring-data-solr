@@ -40,7 +40,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
@@ -246,7 +245,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		QueryResponse response = query(query);
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		return new PageImpl<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
+		return new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 	}
 
 	@Override
