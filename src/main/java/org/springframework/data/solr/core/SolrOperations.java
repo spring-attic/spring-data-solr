@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import java.util.Collection;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -29,6 +27,8 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+
+import java.util.Collection;
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -155,6 +155,11 @@ public interface SolrOperations {
 	 * Send commit command
 	 */
 	void commit();
+
+	/**
+	 * Send commit command with soft commit
+	 */
+	void commit(Boolean softCommit);
 
 	/**
 	 * send rollback command

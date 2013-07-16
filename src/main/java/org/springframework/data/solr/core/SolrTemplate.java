@@ -307,6 +307,16 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
+	public void commit(final Boolean softCommit) {
+		execute(new SolrCallback<UpdateResponse>() {
+			@Override
+			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+				return solrServer.commit(true, true, softCommit);
+			}
+		});
+	}
+
+	@Override
 	public void rollback() {
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
