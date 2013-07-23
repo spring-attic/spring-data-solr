@@ -30,17 +30,37 @@ public final class VersionUtil {
 		// hide utility class constructor
 	}
 
+	private static final boolean IS_SOLR_3_X_AVAILABLE = ClassUtils.isPresent(
+			"org.apache.solr.client.solrj.impl.CommonsHttpSolrServer", VersionUtil.class.getClassLoader());
+
 	private static final boolean IS_JODATIME_AVAILABLE = ClassUtils.isPresent("org.joda.time.DateTime",
 			VersionUtil.class.getClassLoader());
 
 	private static final boolean IS_SOLR_4_2_AVAILABLE = ClassUtils.isPresent("org.apache.solr.parser.ParseException",
 			VersionUtil.class.getClassLoader());
 
+	private static final boolean IS_SOLR_4_X_AVAILABLE = ClassUtils.isPresent(
+			"org.apache.solr.client.solrj.impl.CloudSolrServer", VersionUtil.class.getClassLoader());
+
 	/**
 	 * @return true if {@code org.joda.time.DateTime} is in path
 	 */
 	public static boolean isJodaTimeAvailable() {
 		return IS_JODATIME_AVAILABLE;
+	}
+
+	/**
+	 * @return true if {@link org.apache.solr.client.solrj.impl.CommonsHttpSolrServer} (removed in solr 4.0.0) is in path
+	 */
+	public static boolean isSolr3XAvailable() {
+		return IS_SOLR_3_X_AVAILABLE;
+	}
+
+	/**
+	 * @return true if {@link org.apache.solr.client.solrj.impl.CloudSolrServer} (introduced in solr 4.0.0) is in path
+	 */
+	public static boolean isSolr4XAvailable() {
+		return IS_SOLR_4_X_AVAILABLE;
 	}
 
 	/**

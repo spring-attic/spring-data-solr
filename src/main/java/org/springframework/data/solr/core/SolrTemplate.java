@@ -42,6 +42,7 @@ import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
+import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
@@ -301,6 +302,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
 				return solrServer.commit();
+			}
+		});
+	}
+
+	@Override
+	public void softCommit() {
+		if (VersionUtil.isSolr3XAvailable()) {
+			throw new UnsupportedOperationException(
+					"Soft commit is not available for solr version lower than 4.x - Please check your depdendencies.");
+		}
+		execute(new SolrCallback<UpdateResponse>() {
+			@Override
+			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+				return solrServer.commit(true, true, true);
 			}
 		});
 	}

@@ -240,14 +240,18 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testCommit() throws SolrServerException, IOException {
-		Mockito.when(solrServerMock.commit()).thenReturn(new UpdateResponse());
 		solrTemplate.commit();
 		Mockito.verify(solrServerMock, Mockito.times(1)).commit();
 	}
 
 	@Test
+	public void testSoftCommit() throws SolrServerException, IOException {
+		solrTemplate.softCommit();
+		Mockito.verify(solrServerMock, Mockito.times(1)).commit(Matchers.eq(true), Matchers.eq(true), Matchers.eq(true));
+	}
+
+	@Test
 	public void testRollback() throws SolrServerException, IOException {
-		Mockito.when(solrServerMock.rollback()).thenReturn(new UpdateResponse());
 		solrTemplate.rollback();
 		Mockito.verify(solrServerMock, Mockito.times(1)).rollback();
 	}

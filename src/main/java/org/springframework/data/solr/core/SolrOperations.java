@@ -152,12 +152,18 @@ public interface SolrOperations {
 	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
 
 	/**
-	 * Send commit command
+	 * Send commit command {@link SolrServer#commit()}
 	 */
 	void commit();
 
 	/**
-	 * send rollback command
+	 * Send soft commmit command {@link SolrServer#commit(boolean, boolean, boolean)}
+	 * 
+	 */
+	void softCommit();
+
+	/**
+	 * send rollback command {@link SolrServer#rollback()}
 	 */
 	void rollback();
 
