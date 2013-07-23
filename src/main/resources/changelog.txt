@@ -7,6 +7,9 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-75] - Criteria.is(Arrays.asList(......)) calls toString() instead of traversing list
     * [DATASOLR-81] - GeoLocation cannot be used as property of type
     * [DATASOLR-69] - Registering custom converters via XML 
+    * [DATASOLR-81] - Cannot index Geospatial with solr 4.x using GeoLocation 
+    * [DATASOLR-94] - Joda-Time registered without existence check
+    * [DATASOLR-98] - MappingSolrConverter does not retain element order when reading property
 	
 ** Improvement
     * [DATASOLR-43] - Support parameter for time allowed
@@ -20,6 +23,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
     * [DATASOLR-68] - Support for facet.prefix
     * [DATASOLR-90] - Add custom converter for reading/wirting joda time
+    * [DATASOLR-100] - Support sloppy search criteria
 
 ** New Feature
     * [DATASOLR-42] - Support for {!join
@@ -27,13 +31,17 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-46] - Placeholder support for 'queries' in @Facet
     * [DATASOLR-60] - Support for highlighting via @Highlight annotation
     * [DATASOLR-65] - Support for non-default request handlers
+    * [DATASOLR-93] - Support for soft commit
 	
 ** Task
     * [DATASOLR-54] - Extract QueryParser Interface
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
     * [DATASOLR-76] - Upgrade to commons-lang3
+    * [DATASOLR-79] - SolrOperations of SolrRepositoryFactoryBean cannot be accessed 
     * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
     * [DATASOLR-91] - Upgrade to solr 4.3.1 
+    * [DATASOLR-101] - Clean up fuzzy/sloppy criteria handling
+    * [DATASOLR-103] - Return Solr specific page when calling queryForPage
 
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------
