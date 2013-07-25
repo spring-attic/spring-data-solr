@@ -61,6 +61,7 @@ import org.springframework.util.Assert;
  * Implementation of {@link SolrOperations}
  * 
  * @author Christoph Strobl
+ * @author Joachim Uhrlass
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -146,42 +147,62 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse saveBean(final Object objectToAdd) {
+	public UpdateResponse saveBean(Object obj) {
+		return saveBean(obj, -1);
+	}
+
+	@Override
+	public UpdateResponse saveBean(final Object objectToAdd, final int commitWithinMs) {
 		assertNoCollection(objectToAdd);
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(convertBeanToSolrInputDocument(objectToAdd));
+				return solrServer.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs);
 			}
 		});
 	}
 
 	@Override
-	public UpdateResponse saveBeans(final Collection<?> beansToAdd) {
+	public UpdateResponse saveBeans(Collection<?> beans) {
+		return saveBeans(beans, -1);
+	}
+
+	@Override
+	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(convertBeansToSolrInputDocuments(beansToAdd));
+				return solrServer.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs);
 			}
 		});
 	}
 
 	@Override
-	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd) {
+	public UpdateResponse saveDocument(SolrInputDocument document) {
+		return saveDocument(document, -1);
+	}
+
+	@Override
+	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(documentToAdd);
+				return solrServer.add(documentToAdd, commitWithinMs);
 			}
 		});
 	}
 
 	@Override
-	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd) {
+	public UpdateResponse saveDocuments(Collection<SolrInputDocument> documents) {
+		return saveDocuments(documents, -1);
+	}
+
+	@Override
+	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(documentsToAdd);
+				return solrServer.add(documentsToAdd, commitWithinMs);
 			}
 		});
 	}

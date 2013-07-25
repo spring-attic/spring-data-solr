@@ -25,6 +25,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-68] - Support for facet.prefix
     * [DATASOLR-90] - Add custom converter for reading/wirting joda time
     * [DATASOLR-100] - Support sloppy search criteria
+    * [DATASOLR-107] - Add support for commitWithin to SolrTemplate
 
 ** New Feature
     * [DATASOLR-42] - Support for {!join

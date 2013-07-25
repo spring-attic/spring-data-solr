@@ -34,6 +34,7 @@ import org.springframework.data.solr.core.query.result.HighlightPage;
  * Interface that specifies a basic set of Solr operations.
  * 
  * @author Christoph Strobl
+ * @author Joachim Uhrlass
  */
 public interface SolrOperations {
 
@@ -68,12 +69,30 @@ public interface SolrOperations {
 	UpdateResponse saveBean(Object obj);
 
 	/**
+	 * Execute add operation against solr, which will do either insert or update with support for commitWithin strategy
+	 * 
+	 * @param obj
+	 * @param commitWithinMs
+	 * @return
+	 */
+	UpdateResponse saveBean(Object obj, int commitWithinMs);
+
+	/**
 	 * Add a collection of beans to solr, which will do either insert or update
 	 * 
 	 * @param beans
 	 * @return
 	 */
 	UpdateResponse saveBeans(Collection<?> beans);
+
+	/**
+	 * Add a collection of beans to solr, which will do either insert or update with support for commitWithin strategy
+	 * 
+	 * @param beans
+	 * @param commitWithinMs
+	 * @return
+	 */
+	UpdateResponse saveBeans(Collection<?> beans, int commitWithinMs);
 
 	/**
 	 * Add a solrj input document to solr, which will do either insert or update
@@ -84,12 +103,30 @@ public interface SolrOperations {
 	UpdateResponse saveDocument(SolrInputDocument document);
 
 	/**
+	 * Add a solrj input document to solr, which will do either insert or update with support for commitWithin strategy
+	 * 
+	 * @param document
+	 * @param commitWithinMs
+	 * @return
+	 */
+	UpdateResponse saveDocument(SolrInputDocument document, int commitWithinMs);
+
+	/**
 	 * Add multiple solrj input documents to solr, which will do either insert or update
 	 * 
 	 * @param documents
 	 * @return
 	 */
 	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents);
+
+	/**
+	 * Add multiple solrj input documents to solr, which will do either insert or update with support for commitWithin
+	 * strategy
+	 * 
+	 * @param documents
+	 * @return
+	 */
+	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents, int commitWithinMs);
 
 	/**
 	 * Find and delete all objects matching the provided Query
