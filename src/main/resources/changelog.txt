@@ -10,6 +10,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-81] - Cannot index Geospatial with solr 4.x using GeoLocation 
     * [DATASOLR-94] - Joda-Time registered without existence check
     * [DATASOLR-98] - MappingSolrConverter does not retain element order when reading property
+    * [DATASOLR-109] - Setting defaultOperator, timeAllowed and defType does not work for Facet and Highlight Query
 	
 ** Improvement
     * [DATASOLR-43] - Support parameter for time allowed
@@ -37,7 +38,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-54] - Extract QueryParser Interface
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
     * [DATASOLR-76] - Upgrade to commons-lang3
-    * [DATASOLR-79] - SolrOperations of SolrRepositoryFactoryBean cannot be accessed 
+    * [DATASOLR-79] - SolrOperations of SolrRepositoryFactoryBean cannot be accessed
     * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
     * [DATASOLR-91] - Upgrade to solr 4.3.1 
     * [DATASOLR-101] - Clean up fuzzy/sloppy criteria handling

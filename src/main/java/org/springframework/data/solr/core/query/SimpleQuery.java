@@ -92,6 +92,22 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 			destination.addSort(source.getSort());
 		}
 
+		if (source.getDefType() != null) {
+			destination.setDefType(source.getDefType());
+		}
+
+		if (source.getDefaultOperator() != null) {
+			destination.setDefaultOperator(source.getDefaultOperator());
+		}
+
+		if (source.getTimeAllowed() != null) {
+			destination.setTimeAllowed(source.getTimeAllowed());
+		}
+
+		if (source.getRequestHandler() != null) {
+			destination.setRequestHandler(source.getRequestHandler());
+		}
+
 		return destination;
 	}
 

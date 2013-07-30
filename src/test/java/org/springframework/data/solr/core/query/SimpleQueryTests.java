@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.solr.core.query.Query.Operator;
 
 /**
  * @author Christoph Strobl
@@ -214,6 +215,42 @@ public class SimpleQueryTests {
 
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertEquals(source.getSort(), destination.getSort());
+	}
+
+	@Test
+	public void testCloneWithDefType() {
+		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		source.setDefType("defType");
+
+		Query destination = SimpleQuery.fromQuery(source);
+		Assert.assertEquals(source.getDefType(), destination.getDefType());
+	}
+
+	@Test
+	public void testCloneWithDefaultOperator() {
+		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		source.setDefaultOperator(Operator.OR);
+
+		Query destination = SimpleQuery.fromQuery(source);
+		Assert.assertEquals(source.getDefaultOperator(), destination.getDefaultOperator());
+	}
+
+	@Test
+	public void testCloneWithTimeAllowed() {
+		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		source.setTimeAllowed(Integer.valueOf(10));
+
+		Query destination = SimpleQuery.fromQuery(source);
+		Assert.assertEquals(source.getTimeAllowed(), destination.getTimeAllowed());
+	}
+
+	@Test
+	public void testCloneWithRequestHandler() {
+		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
+		source.setRequestHandler("requestHandler");
+
+		Query destination = SimpleQuery.fromQuery(source);
+		Assert.assertEquals(source.getRequestHandler(), destination.getRequestHandler());
 	}
 
 	@Test
