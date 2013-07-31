@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.query;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.data.repository.query.Parameters;
@@ -23,10 +24,14 @@ import org.springframework.data.repository.query.Parameters;
 /**
  * @author Christoph Strobl
  */
-public class SolrParameters extends Parameters {
+public class SolrParameters extends Parameters<SolrParameters, SolrParameter> {
 
 	public SolrParameters(Method method) {
 		super(method);
+	}
+
+	public SolrParameters(List<SolrParameter> parameters) {
+		super(parameters);
 	}
 
 	@Override
@@ -35,13 +40,8 @@ public class SolrParameters extends Parameters {
 	}
 
 	@Override
-	public SolrParameter getParameter(int index) {
-		return (SolrParameter) super.getParameter(index);
-	}
-
-	@Override
-	public SolrParameter getBindableParameter(int bindableIndex) {
-		return (SolrParameter) super.getBindableParameter(bindableIndex);
+	protected SolrParameters createFrom(List<SolrParameter> parameters) {
+		return new SolrParameters(parameters);
 	}
 
 }
