@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +41,8 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 
 	@BeforeClass
 	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException {
-		System.setProperty("solr.solr.home", ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath());
-		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-		CoreContainer coreContainer = initializer.initialize();
-		solrServer = new EmbeddedSolrServer(coreContainer, "");
+		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
+		solrServer = new EmbeddedSolrServer(new CoreContainer(solrHome, new File(solrHome + "/solr.xml")), null);
 	}
 
 	@AfterClass

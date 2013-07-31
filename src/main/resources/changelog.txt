@@ -39,6 +39,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
     * [DATASOLR-76] - Upgrade to commons-lang3
     * [DATASOLR-79] - SolrOperations of SolrRepositoryFactoryBean cannot be accessed
+    * [DATASOLR-82] - Add MulticoreSolrServerFactory 
     * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
     * [DATASOLR-91] - Upgrade to solr 4.3.1 
     * [DATASOLR-101] - Clean up fuzzy/sloppy criteria handling

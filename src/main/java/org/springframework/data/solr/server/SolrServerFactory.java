@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.server;
 
+import java.util.List;
+
 import org.apache.solr.client.solrj.SolrServer;
 
 /**
@@ -25,17 +27,25 @@ import org.apache.solr.client.solrj.SolrServer;
 public interface SolrServerFactory {
 
 	/**
-	 * Get a configured SolrServer instance
+	 * Get base {@link SolrServer} instance
 	 * 
 	 * @return a reusable solrServer instance
 	 */
 	SolrServer getSolrServer();
 
 	/**
-	 * Get the core the SolrServer instance is bound to
+	 * Get configured {@link SolrServer} for specific core
 	 * 
-	 * @return null if no core defined
+	 * @param core
+	 * @return
 	 */
-	String getCore();
+	SolrServer getSolrServer(String core);
+
+	/**
+	 * Get list of cores
+	 * 
+	 * @return empty list if no cores defined
+	 */
+	List<String> getCores();
 
 }

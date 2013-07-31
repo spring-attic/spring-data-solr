@@ -17,10 +17,14 @@ package org.springframework.data.solr.server.support;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanInstantiationException;
@@ -104,11 +108,11 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 	}
 
 	@Override
-	public String getCore() {
+	public List<String> getCores() {
 		if (this.solrServer != null && solrServer.getCoreContainer() != null) {
-			return StringUtils.join(this.solrServer.getCoreContainer().getCoreNames(), ",");
+			return new ArrayList<String>(this.solrServer.getCoreContainer().getCoreNames());
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public void setSolrHome(String solrHome) {
@@ -119,6 +123,11 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 	@Override
 	public void destroy() throws Exception {
 		shutdownSolrServer();
+	}
+
+	@Override
+	public SolrServer getSolrServer(String core) {
+		return getSolrServer();
 	}
 
 }

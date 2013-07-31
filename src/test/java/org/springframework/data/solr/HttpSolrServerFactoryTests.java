@@ -24,6 +24,7 @@ import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,9 +52,16 @@ public class HttpSolrServerFactoryTests {
 	@Test
 	public void testInitFactory() {
 		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer);
-		Assert.assertNull(factory.getCore());
+		Assert.assertNotNull(factory.getCores());
+		Assert.assertThat(factory.getCores(), IsEmptyCollection.emptyCollectionOf(String.class));
 		Assert.assertEquals(solrServer, factory.getSolrServer());
 		Assert.assertEquals(URL, ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+	}
+
+	@Test
+	public void testFactoryReturnsReferenceSolrServerWhenCallingGetWithCoreNameAndNoCoreSet() {
+		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer);
+		Assert.assertEquals(solrServer, factory.getSolrServer("AnyCoreName"));
 	}
 
 	@Test
@@ -63,6 +71,12 @@ public class HttpSolrServerFactoryTests {
 
 		factory = new HttpSolrServerFactory(new HttpSolrServer(URL + "/"), "core");
 		Assert.assertEquals(URL + "/core", ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+	}
+
+	@Test
+	public void testFactoryReturnsReferenceSolrServerWhenCallingGetWithCoreNameAndCoreSet() {
+		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core");
+		Assert.assertEquals(solrServer, factory.getSolrServer("AnyCoreName"));
 	}
 
 	@Test

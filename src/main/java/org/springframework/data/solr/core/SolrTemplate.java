@@ -68,6 +68,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private static final QueryParser DEFAULT_QUERY_PARSER = new DefaultQueryParser();
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
 	private ApplicationContext applicationContext;
+	private String solrCore;
 
 	@SuppressWarnings("serial")
 	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
@@ -88,6 +89,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public SolrTemplate(SolrServer solrServer, String core) {
 		this(new HttpSolrServerFactory(solrServer, core));
+		this.solrCore = core;
 	}
 
 	public SolrTemplate(SolrServerFactory solrServerFactory) {
@@ -383,7 +385,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public final SolrServer getSolrServer() {
-		return solrServerFactory.getSolrServer();
+		return solrServerFactory.getSolrServer(this.solrCore);
 	}
 
 	@Override
@@ -408,6 +410,14 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.solrConverter = solrConverter;
 	}
 
+	public String getSolrCore() {
+		return solrCore;
+	}
+
+	public void setSolrCore(String solrCore) {
+		this.solrCore = solrCore;
+	}
+
 	@Override
 	public void afterPropertiesSet() {
 		if (this.queryParser == null) {
@@ -429,4 +439,5 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		}
 	}
+
 }

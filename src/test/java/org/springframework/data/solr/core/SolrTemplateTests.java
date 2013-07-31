@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.apache.http.ParseException;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -67,7 +67,7 @@ public class SolrTemplateTests {
 	private static final SolrInputDocument SIMPLE_DOCUMENT = new SolrInputDocument();
 
 	@Mock
-	private HttpSolrServer solrServerMock;
+	private SolrServer solrServerMock;
 
 	@Before
 	public void setUp() {

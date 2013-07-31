@@ -16,6 +16,8 @@
 package org.springframework.data.solr.server.support;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
@@ -25,8 +27,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
 
@@ -37,10 +37,8 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  */
-public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean {
+public class HttpSolrServerFactory extends SolrServerFactoryBase {
 
-	private static final String SLASH = "/";
-	private SolrServer solrServer;
 	private String core;
 	private Credentials credentials;
 	private String authPolicy;
@@ -58,45 +56,47 @@ public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean 
 	}
 
 	public HttpSolrServerFactory(SolrServer solrServer, String core, Credentials credentials, String authPolicy) {
+		super(solrServer);
 		Assert.notNull(solrServer, "SolrServer must not be null");
+
 		if (authPolicy != null) {
 			Assert.hasText(authPolicy);
 		}
 
 		this.core = core;
-		this.solrServer = solrServer;
 		this.credentials = credentials;
 		this.authPolicy = authPolicy;
 
-		appendCoreToBaseUrl(this.core, this.solrServer);
-		appendAuthentication(this.credentials, this.authPolicy, this.solrServer);
+		appendCoreToBaseUrl(this.core, this.getSolrServer());
+		appendAuthentication(this.credentials, this.authPolicy, this.getSolrServer());
 	}
 
 	@Override
-	public SolrServer getSolrServer() {
-		return this.solrServer;
+	public List<String> getCores() {
+		return this.core != null ? Arrays.asList(this.core) : Collections.<String> emptyList();
 	}
 
+	/**
+	 * returns the reference solrServer
+	 * 
+	 * @see SolrServerFactory#getSolrServer()
+	 */
 	@Override
-	public String getCore() {
-		return this.core;
+	public SolrServer getSolrServer(String core) {
+		return getSolrServer();
 	}
 
-	private void appendCoreToBaseUrl(String core, SolrServer solrServer) {
-		if (StringUtils.isNotEmpty(core) && assertSolrServerInstance(solrServer)) {
+	protected void appendCoreToBaseUrl(String core, SolrServer solrServer) {
+		if (StringUtils.isNotEmpty(core) && isHttpSolrServer(solrServer)) {
 			HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
 
-			String url = httpSolrServer.getBaseURL();
-			if (!StringUtils.endsWith(SLASH, url)) {
-				url = url + SLASH;
-			}
-			url = url + core;
+			String url = SolrServerUtils.appendCoreToBaseUrl(httpSolrServer.getBaseURL(), core);
 			httpSolrServer.setBaseURL(url);
 		}
 	}
 
 	private void appendAuthentication(Credentials credentials, String authPolicy, SolrServer solrServer) {
-		if (assertSolrServerInstance(solrServer)) {
+		if (isHttpSolrServer(solrServer)) {
 			HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
 
 			if (credentials != null && StringUtils.isNotBlank(authPolicy)
@@ -108,27 +108,10 @@ public class HttpSolrServerFactory implements SolrServerFactory, DisposableBean 
 		}
 	}
 
-	private boolean assertSolrServerInstance(SolrServer solrServer) {
-		return (solrServer instanceof HttpSolrServer);
-	}
-
 	private boolean assertHttpClientInstance(HttpClient httpClient) {
 		Assert.isInstanceOf(AbstractHttpClient.class, httpClient,
 				"HttpClient has to be derivate of AbstractHttpClient in order to allow authentication.");
 		return true;
-	}
-
-	@Override
-	public void destroy() {
-		if (solrServer instanceof HttpSolrServer) {
-			((HttpSolrServer) solrServer).shutdown();
-		} else if (solrServer instanceof LBHttpSolrServer) {
-			((LBHttpSolrServer) solrServer).shutdown();
-		}
-	}
-
-	protected void setSolrServer(SolrServer solrServer) {
-		this.solrServer = solrServer;
 	}
 
 }

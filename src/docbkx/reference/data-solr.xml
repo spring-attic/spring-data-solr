@@ -139,6 +139,45 @@ class ApplicationConfig {
 				</para>
 			</example>
 		</section>
+		<section id="solr.multicore">
+			<title>Multicore Support</title>
+			<para>Solr handles different collections within one core.
+			Use <classname>MulticoreSolrServerFactory</classname> to create separate <interfacename>SolrServer</interfacename>
+			for each core. 
+			</para>
+			<example>
+				<title>Multicore Configuration</title>
+				<programlisting language="java">@Configuration
+@EnableSolrRepositories
+class ApplicationConfig {
+
+  private static final String PROPERTY_NAME_SOLR_SERVER_URL = "solr.host";
+
+  @Resource
+  private Environment environment;
+  
+  @Bean
+  public SolrServerFactory solrServerFactory() {
+    return new MulticoreSolrServerFactory(new HttpSolrServer(
+      environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL)));
+  }
+  
+  @Bean
+  public SolrOperations solrTemplate1() {
+    SolrTemplate solrTemplate = new SolrTemplate(solrServerFactory());
+    solrTemplate.setSolrCore("core1");
+    return solrTemplate;
+  }
+  
+  @Bean
+  public SolrOperations solrTemplate2() {
+    SolrTemplate solrTemplate = new SolrTemplate(solrServerFactory());
+    solrTemplate.setSolrCore("core2");
+    return solrTemplate;
+  }
+}</programlisting>
+			</example>
+		</section>
 		<section id="solr.cdi">
 			<title>Solr Repositores using CDI</title>
 			<para>The Spring Data Solr repositories can also be set up using CDI
