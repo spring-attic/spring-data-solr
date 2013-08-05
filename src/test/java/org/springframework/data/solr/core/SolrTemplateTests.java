@@ -109,28 +109,42 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveBean() throws IOException, SolrServerException {
-		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class),Mockito.eq(-1))).thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_OBJECT);
 		Assert.assertNotNull(updateResponse);
 
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
-		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(),Mockito.eq(-1));
 
 		Assert.assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
 		Assert.assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
 	}
 
-	@SuppressWarnings("unchecked")
+    @Test
+    public void testSaveBeanCommitWithin() throws IOException, SolrServerException {
+        Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class),Mockito.eq(10000))).thenReturn(new UpdateResponse());
+        UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_OBJECT,10000);
+        Assert.assertNotNull(updateResponse);
+
+        ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+        Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(),Mockito.eq(10000));
+
+        Assert.assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
+        Assert.assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+    }
+
+
+    @SuppressWarnings("unchecked")
 	@Test
 	public void testPartialUpdate() throws SolrServerException, IOException {
-		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class),Mockito.eq(-1))).thenReturn(new UpdateResponse());
 
 		PartialUpdate update = new PartialUpdate("id", "update-id");
 		update.add("field_1", "update");
 
 		solrTemplate.saveBean(update);
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
-		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(),Mockito.eq(-1));
 
 		Assert.assertTrue(captor.getValue().getFieldValue("field_1") instanceof Map);
 		Assert.assertEquals("update", ((Map<String, Object>) captor.getValue().getFieldValue("field_1")).get("set"));
@@ -139,7 +153,7 @@ public class SolrTemplateTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSaveBeans() throws IOException, SolrServerException {
-		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class),Mockito.eq(-1))).thenReturn(new UpdateResponse());
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
 		UpdateResponse updateResponse = solrTemplate.saveBeans(collection);
@@ -147,27 +161,60 @@ public class SolrTemplateTests {
 
 		@SuppressWarnings("rawtypes")
 		ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture());
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(),Mockito.eq(-1));
 
 		Assert.assertEquals(3, captor.getValue().size());
 	}
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSaveBeansCommitWithin() throws IOException, SolrServerException {
+        Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class),Mockito.eq(10000))).thenReturn(new UpdateResponse());
+        List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
+                new SimpleJavaObject("3", 3l));
+        UpdateResponse updateResponse = solrTemplate.saveBeans(collection,10000);
+        Assert.assertNotNull(updateResponse);
+
+        @SuppressWarnings("rawtypes")
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(),Mockito.eq(10000));
+
+        Assert.assertEquals(3, captor.getValue().size());
+    }
+
 	@Test
 	public void testSaveDocument() throws IOException, SolrServerException {
-		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class),Mockito.eq(-1))).thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveDocument(SIMPLE_DOCUMENT);
 		Assert.assertNotNull(updateResponse);
-		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT));
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT),Mockito.eq(-1));
 	}
+
+    @Test
+    public void testSaveDocumentCommitWithin() throws IOException, SolrServerException {
+        Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class),Mockito.eq(10000))).thenReturn(new UpdateResponse());
+        UpdateResponse updateResponse = solrTemplate.saveDocument(SIMPLE_DOCUMENT,10000);
+        Assert.assertNotNull(updateResponse);
+        Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT),Mockito.eq(10000));
+    }
 
 	@Test
 	public void testSaveDocuments() throws IOException, SolrServerException {
-		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class))).thenReturn(new UpdateResponse());
+		Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class),Mockito.eq(-1))).thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection);
 		Assert.assertNotNull(updateResponse);
-		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection));
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection),Mockito.eq(-1));
 	}
+
+    @Test
+    public void testSaveDocumentsCommitWithin() throws IOException, SolrServerException {
+        Mockito.when(solrServerMock.add(Mockito.anyCollectionOf(SolrInputDocument.class),Mockito.eq(10000))).thenReturn(new UpdateResponse());
+        List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
+        UpdateResponse updateResponse = solrTemplate.saveDocuments(collection,10000);
+        Assert.assertNotNull(updateResponse);
+        Mockito.verify(solrServerMock, Mockito.times(1)).add(Mockito.eq(collection),Mockito.eq(10000));
+    }
 
 	@Test
 	public void testDeleteById() throws IOException, SolrServerException {
