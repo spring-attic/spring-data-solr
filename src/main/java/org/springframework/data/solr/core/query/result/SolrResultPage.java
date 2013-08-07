@@ -26,7 +26,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.PivotField;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.util.ObjectUtils;
 
@@ -41,6 +43,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private static final long serialVersionUID = -4199560685036530258L;
 
 	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(1);
+	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<PageKey, List<FacetPivotFieldEntry>>();
 	private Page<FacetQueryEntry> facetQueryResult;
 	private List<HighlightEntry<T>> highlighted;
 
@@ -62,14 +65,34 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	public final Page<FacetFieldEntry> getFacetResultPage(Field field) {
 		return this.getFacetResultPage(field.getName());
 	}
+	
+	@Override
+	public List<FacetPivotFieldEntry> getPivot(String fieldName) {
+		return facetPivotResultPages.get(new StringPageKey(fieldName));
+	}
+	
+	@Override
+	public List<FacetPivotFieldEntry> getPivot(PivotField field) {
+		return facetPivotResultPages.get(new StringPageKey(field.getName()));
+	}
 
 	public final void addFacetResultPage(Page<FacetFieldEntry> page, Field field) {
 		this.facetResultPages.put(new StringPageKey(field.getName()), page);
 	}
-
+	
+	public final void addFacetPivotResultPage(List<FacetPivotFieldEntry> result, PivotField field) {
+		this.facetPivotResultPages.put(new StringPageKey(field.getName()), result);
+	}
+	
 	public void addAllFacetFieldResultPages(Map<Field, Page<FacetFieldEntry>> pageMap) {
 		for (Map.Entry<Field, Page<FacetFieldEntry>> entry : pageMap.entrySet()) {
 			addFacetResultPage(entry.getValue(), entry.getKey());
+		}
+	}
+	
+	public void addAllFacetPivotFieldResult(Map<PivotField, List<FacetPivotFieldEntry>> resultMap) {
+		for (Map.Entry<PivotField, List<FacetPivotFieldEntry>> entry : resultMap.entrySet()) {
+			addFacetPivotResultPage(entry.getValue(), entry.getKey());
 		}
 	}
 
@@ -100,6 +123,20 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		return fields;
 	}
 
+	@Override
+	public Collection<PivotField> getFacetPivotFields() {
+		if (this.facetPivotResultPages.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<PivotField> fields = new ArrayList<PivotField>(this.facetPivotResultPages.size());
+		
+		for (PageKey pageKey : this.facetPivotResultPages.keySet()) {
+			fields.add(new SimplePivotField(pageKey.getKey().toString()));
+		}
+		
+		return fields;
+	}
+	
 	@Override
 	public Collection<Page<? extends FacetEntry>> getAllFacets() {
 		List<Page<? extends FacetEntry>> entries = new ArrayList<Page<? extends FacetEntry>>(

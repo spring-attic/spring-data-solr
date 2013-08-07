@@ -16,9 +16,11 @@
 package org.springframework.data.solr.core.query.result;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.PivotField;
 
 /**
  * FacetPage holds a page for each field targeted by the facet query as well as the page values returned by facet.query
@@ -44,6 +46,22 @@ public interface FacetPage<T> extends Page<T> {
 	 * @return
 	 */
 	Page<FacetFieldEntry> getFacetResultPage(Field field);
+	
+	/**
+	 * Get Facet Pivot results for fields with given fields.
+	 * 
+	 * @param fields pivot field name
+	 * @return
+	 */
+	List<FacetPivotFieldEntry> getPivot(String fieldName);
+
+	/**
+	 * Get Facet Pivot results for fields with given fields.
+	 * 
+	 * @param fields pivot field
+	 * @return
+	 */
+	List<FacetPivotFieldEntry> getPivot(PivotField field);
 
 	/**
 	 * @return Collection holding faceting result pages
@@ -61,6 +79,13 @@ public interface FacetPage<T> extends Page<T> {
 	 * @return
 	 */
 	Collection<Field> getFacetFields();
+	
+	/**
+	 * Get Pivot Fields contained in Result.
+	 * 
+	 * @return
+	 */
+	Collection<PivotField> getFacetPivotFields();
 
 	/**
 	 * @return empty collection if not available

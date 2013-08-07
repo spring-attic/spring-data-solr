@@ -67,7 +67,7 @@ public class FacetOptionsTests {
 
 		Assert.assertEquals(2, options.getFacetOnFields().size());
 	}
-
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void testAddFacetOnFieldNullValue() {
 		new FacetOptions().addFacetOnField((Field) null);
@@ -78,6 +78,16 @@ public class FacetOptionsTests {
 		new FacetOptions().addFacetOnField(new SimpleField(""));
 	}
 
+	@Test
+	public void testAddFacetOnPivot() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot("field_1,field2");
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasPivotFields());
+		Assert.assertEquals(1, options.getFacetOnPivots().size());
+		Assert.assertTrue(options.hasFields());
+	}
+	
 	@Test
 	public void testAddFacetOnQueryConstructorSingleQuery() {
 		FacetOptions options = new FacetOptions(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")));

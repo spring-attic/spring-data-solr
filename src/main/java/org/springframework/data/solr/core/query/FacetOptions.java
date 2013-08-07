@@ -44,6 +44,7 @@ public class FacetOptions {
 	}
 
 	private List<Field> facetOnFields = new ArrayList<Field>(1);
+	private List<PivotField> facetOnPivotFields = new ArrayList<PivotField>(0);
 	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
@@ -116,6 +117,23 @@ public class FacetOptions {
 	 */
 	public final FacetOptions addFacetOnField(String fieldname) {
 		addFacetOnField(new SimpleField(fieldname));
+		return this;
+	}
+
+	public final FacetOptions addFacetOnPivot(Field ... fields) {
+		for (int i = 0; i < fields.length; i++) {
+			Assert.notNull(fields[0], "Cannot facet on null field.");
+			Assert.hasText(fields[0].getName(), "Cannot facet on field with null/empty fieldname.");
+		}
+		List<Field> list = Arrays.asList(fields);
+		this.facetOnPivotFields.add(new SimplePivotField(list));
+		return this;
+	}
+
+	public final FacetOptions addFacetOnPivot(String fieldName) {
+		Assert.hasText(fieldName, "Cannot build a pivot on null field.");
+		Assert.isTrue(fieldName.contains(","), "Cannot perform a pivot using only " + fieldName + ", 2 or more solr fields needs to be used.");
+		this.facetOnPivotFields.add(new SimplePivotField(fieldName));
 		return this;
 	}
 
@@ -199,6 +217,15 @@ public class FacetOptions {
 	public final List<Field> getFacetOnFields() {
 		return Collections.unmodifiableList(this.facetOnFields);
 	}
+	
+	/**
+	 * Get the list of pivot Fields to face on
+	 * 
+	 * @return
+	 */
+	public final List<PivotField> getFacetOnPivots() {
+		return Collections.unmodifiableList(facetOnPivotFields);
+	}
 
 	/**
 	 * get the min number of hits a result has to have to get listed in result. Default is 1. Zero is not recommended.
@@ -271,7 +298,7 @@ public class FacetOptions {
 	 * @return true if at least one facet field set
 	 */
 	public boolean hasFields() {
-		return !this.facetOnFields.isEmpty();
+		return !this.facetOnFields.isEmpty() || !this.facetOnPivotFields.isEmpty();
 	}
 
 	/**
@@ -280,12 +307,16 @@ public class FacetOptions {
 	public boolean hasFacetQueries() {
 		return !this.facetQueries.isEmpty();
 	}
+	
+	public boolean hasPivotFields() {
+		return !facetOnPivotFields.isEmpty();
+	}
 
 	/**
 	 * @return true if either {@code facet.field} or {@code facet.query} set
 	 */
 	public boolean hasFacets() {
-		return hasFields() || hasFacetQueries();
+		return hasFields() || hasFacetQueries() || hasPivotFields();
 	}
 
 	/**

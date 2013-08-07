@@ -147,6 +147,51 @@ public class SolrQueryMethodTests {
 	}
 
 	@Test
+	public void testWithSingleFieldPivot() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2");
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasPivotFields());
+		Assert.assertFalse(method.hasFacetQueries());
+		Assert.assertFalse(method.hasFilterQuery());
+
+		Assert.assertEquals(1, method.getPivotFields().size());
+		Assert.assertEquals(Integer.valueOf(10), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(1), method.getFacetMinCount());
+	}
+
+	@Test
+	public void testWithMultipleFieldPivot() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3");
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasPivotFields());
+		Assert.assertFalse(method.hasFacetQueries());
+		Assert.assertEquals(2, method.getPivotFields().size());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
+	}
+
+	@Test
+	public void testWithMultipleFieldPivotsLimitAndMinCount() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount");
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasPivotFields());
+		Assert.assertFalse(method.hasFacetQueries());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
+
+		Assert.assertEquals(2, method.getPivotFields().size());
+		Assert.assertEquals(Integer.valueOf(25), method.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(3), method.getFacetMinCount());
+	}
+
+	@Test
 	public void testWithSingleQueryFacet() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityQuery", String.class);
 		Assert.assertFalse(method.hasAnnotatedQuery());
@@ -443,6 +488,16 @@ public class SolrQueryMethodTests {
 
 		@Highlight(postfix = "{postfix}")
 		List<ProductBean> findByTextHighlightPostfix(String text);
+		
+		@Facet(pivotFields = "field1,field2")
+		List<ProductBean> findByNamePivotOnField1VsField2();
+
+		@Facet(pivotFields = {"field1,field2","field2,field3"})
+		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3();
+	
+		@Facet(pivotFields = {"field1,field2","field2,field3"}, minCount = 3, limit = 25)
+		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount();
+
 	}
 
 }

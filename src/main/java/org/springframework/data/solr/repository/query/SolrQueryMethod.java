@@ -117,7 +117,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return true if {@link #hasFacetFields()} or {@link #hasFacetQueries()}
 	 */
 	public boolean isFacetQuery() {
-		return hasFacetFields() || hasFacetQueries();
+		return hasFacetFields() || hasFacetQueries() || hasPivotFields();
 	}
 
 	/**
@@ -126,6 +126,16 @@ public class SolrQueryMethod extends QueryMethod {
 	public boolean hasFacetFields() {
 		if (hasFacetAnnotation()) {
 			return !CollectionUtils.isEmpty(getFacetFields());
+		}
+		return false;
+	}
+
+	/**
+	 * @return true if {@link Facet#pivotFields()} is not empty
+	 */
+	public boolean hasPivotFields() {
+		if (hasFacetAnnotation()) {
+			return !CollectionUtils.isEmpty(getPivotFields());
 		}
 		return false;
 	}
@@ -148,6 +158,10 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotationValuesAsStringList(getFacetAnnotation(), "queries");
 	}
 
+	public List<String> getPivotFields() {
+		return getAnnotationValuesAsStringList(getFacetAnnotation(), "pivotFields");
+	}
+	
 	/**
 	 * @return true if {@link Facet#queries()} is not empty
 	 */
@@ -158,7 +172,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return false;
 	}
 
-	private Annotation getFacetAnnotation() {
+	private Facet getFacetAnnotation() {
 		return this.method.getAnnotation(Facet.class);
 	}
 

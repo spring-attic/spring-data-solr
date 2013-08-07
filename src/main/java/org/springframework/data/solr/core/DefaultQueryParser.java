@@ -54,6 +54,7 @@ import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
 import org.springframework.data.solr.core.query.HighlightQuery;
+import org.springframework.data.solr.core.query.PivotField;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryParameter;
@@ -151,6 +152,7 @@ public class DefaultQueryParser implements QueryParser {
 		if (enableFaceting(solrQuery, query)) {
 			appendFacetingOnFields(solrQuery, (FacetQuery) query);
 			appendFacetingQueries(solrQuery, (FacetQuery) query);
+			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
 		}
 	}
 
@@ -323,7 +325,8 @@ public class DefaultQueryParser implements QueryParser {
 				nearFragment += createRangeFragment(box.getGeoLocationStart(), box.getGeoLocationEnd());
 				nearFragment += "]";
 			} else {
-				nearFragment = createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1], "bbox");
+				nearFragment = createSpatialFunctionFragment(fieldName, (GeoLocation) args[0], (Distance) args[1],
+						"bbox");
 			}
 			return nearFragment;
 		}
@@ -408,7 +411,7 @@ public class DefaultQueryParser implements QueryParser {
 
 	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
-		if (facetOptions == null || (!facetOptions.hasFields() && !facetOptions.hasFacetQueries())) {
+		if (facetOptions == null || (!facetOptions.hasFields() && !facetOptions.hasFacetQueries() && !facetOptions.hasPivotFields())) {
 			return false;
 		}
 		solrQuery.setFacet(true);
@@ -445,6 +448,20 @@ public class DefaultQueryParser implements QueryParser {
 				solrQuery.addFacetQuery(facetQueryString);
 			}
 		}
+	}
+
+	private void appendFacetingOnPivot(SolrQuery solrQuery, FacetQuery query) {
+		FacetOptions facetOptions = query.getFacetOptions();
+
+		List<PivotField> facetOnPivots = facetOptions.getFacetOnPivots();
+
+		String[] pivotFields = new String[facetOnPivots.size()];
+
+		for (int i = 0; i < pivotFields.length; i++) {
+			pivotFields[i] = facetOnPivots.get(i).getName();
+		}
+
+		solrQuery.addFacetPivotField(pivotFields);
 	}
 
 	private void appendGroupByFields(SolrQuery solrQuery, List<Field> fields) {

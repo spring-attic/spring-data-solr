@@ -26,7 +26,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -52,6 +51,7 @@ import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.xml.sax.SAXException;
@@ -388,6 +388,37 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertEquals("id", entry.getField().getName());
 			Assert.assertEquals(1l, entry.getValueCount());
 		}
+	}
+
+	@Test
+	public void testFacetQueryWithPivotFields() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createExampleBeanWithId(Integer.toString(i)));
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+				.setFacetOptions(new FacetOptions().addFacetOnPivot("cat,name"));
+
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+
+		List<FacetPivotFieldEntry> pivotEntries = page.getPivot("cat,name");
+		Assert.assertNotNull(pivotEntries);
+		Assert.assertEquals(10, pivotEntries.size());
+
+		for (FacetPivotFieldEntry entry1 : pivotEntries) {
+			Assert.assertNotNull(entry1.getValue());
+			Assert.assertEquals("cat", entry1.getField().getName());
+			Assert.assertEquals(1l, entry1.getValueCount());
+			for (FacetPivotFieldEntry entry2 : entry1.getPivot()) {
+				Assert.assertNotNull(entry2.getValue());
+				Assert.assertEquals("name", entry2.getField().getName());
+				Assert.assertEquals(1l, entry2.getValueCount());
+			}
+		}
+
 	}
 
 	@Test

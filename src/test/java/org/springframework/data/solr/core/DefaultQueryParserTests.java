@@ -454,6 +454,18 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
+	public void testConstructSolrQueryWithSinglePivot() {
+		Query query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions().addFacetOnPivot("field_1,field_2"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		assertPivotFactingPresent(solrQuery, "field_1,field_2");
+	}
+
+	@Test
 	public void testConstructSolrQueryWithMultipleFacetOnFields() {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions(
 				"facet_1", "facet_2"));
@@ -464,6 +476,18 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+	}
+
+	@Test
+	public void testConstructSolrQueryWithMultiplePivot() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(new FacetOptions().addFacetOnPivot("field_1,field_2").addFacetOnPivot("field_2,field_3"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		assertPivotFactingPresent(solrQuery, "field_1,field_2", "field_2,field_3");
 	}
 
 	@Test
@@ -832,6 +856,10 @@ public class DefaultQueryParserTests {
 				solrQuery.getParams("f.field_2." + HighlightParams.FORMATTER)[0]);
 		Assert.assertEquals(fieldWithHighlightParameters.getFragsize().toString(),
 				solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0]);
+	}
+
+	private void assertPivotFactingPresent(SolrQuery solrQuery, String ... expected) {
+		Assert.assertArrayEquals(expected, solrQuery.getParams(FacetParams.FACET_PIVOT));
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {

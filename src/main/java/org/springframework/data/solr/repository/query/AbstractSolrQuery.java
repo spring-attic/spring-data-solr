@@ -240,6 +240,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 				options.addFacetQuery(createQueryFromString(queryString, parameterAccessor));
 			}
 		}
+		if (queryMethod.hasPivotFields()) {
+			for (String pivot : queryMethod.getPivotFields()) {
+				options.addFacetOnPivot(pivot);
+			}
+		}
 		options.setFacetLimit(queryMethod.getFacetLimit());
 		options.setFacetMinCount(queryMethod.getFacetMinCount());
 		options.setFacetPrefix(replacePlaceholders(queryMethod.getFacetPrefix(), parameterAccessor));

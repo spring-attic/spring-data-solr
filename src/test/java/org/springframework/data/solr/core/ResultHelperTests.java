@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.util.NamedList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,11 +38,14 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.PivotField;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
+import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
+import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
@@ -277,6 +281,66 @@ public class ResultHelperTests {
 			}
 		}
 	}
+	
+	@Test
+	public void testConvertFacetQueryResponseToFacetPivotMap() {
+		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<List<org.apache.solr.client.solrj.response.PivotField>>();
+		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+		{
+			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_1", 7, null));
+			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_2", 3, null));
+			vals.add(new org.apache.solr.client.solrj.response.PivotField("field_1", "value_1", 10, pivotValues));
+		}
+		{
+			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_2_1", 2, null));
+			vals.add(new org.apache.solr.client.solrj.response.PivotField("field_1", "value_2", 2, pivotValues));
+		}
+		pivotData.add("field_1,field_2", vals);
+		
+		Mockito.when(response.getFacetPivot()).thenReturn(pivotData);
+		
+		Map<PivotField, List<FacetPivotFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPivotMap(createFacetPivotQuery("field_1,field_2"), response);
+
+		List<FacetPivotFieldEntry> resultPivot = result.get(new SimplePivotField("field_1,field_2"));
+		Assert.assertNotNull(result);
+		Assert.assertEquals(2, resultPivot.size());
+
+		Assert.assertNotNull(resultPivot.get(0));
+		Assert.assertEquals("value_1", resultPivot.get(0).getValue());
+		Assert.assertNotNull(resultPivot.get(0).getField());
+		Assert.assertEquals("field_1", resultPivot.get(0).getField().getName());
+		Assert.assertEquals(10, resultPivot.get(0).getValueCount());
+		Assert.assertNotNull(resultPivot.get(0).getPivot());
+		Assert.assertEquals(2, resultPivot.get(0).getPivot().size());
+
+		{
+			List<FacetPivotFieldEntry> pivot = resultPivot.get(0).getPivot();
+			Assert.assertEquals("value_1_1", pivot.get(0).getValue());
+			Assert.assertNotNull(pivot.get(0).getField());
+			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
+			Assert.assertEquals(7, pivot.get(0).getValueCount());
+			Assert.assertNull(pivot.get(0).getPivot());
+			Assert.assertEquals("value_1_2", pivot.get(1).getValue());
+			Assert.assertNotNull(pivot.get(1).getField());
+			Assert.assertEquals("field_2", pivot.get(1).getField().getName());
+			Assert.assertEquals(3, pivot.get(1).getValueCount());
+			Assert.assertNull(pivot.get(1).getPivot());
+		}
+
+		{
+			List<FacetPivotFieldEntry> pivot = resultPivot.get(1).getPivot();
+			Assert.assertEquals("value_2_1", pivot.get(0).getValue());
+			Assert.assertNotNull(pivot.get(0).getField());
+			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
+			Assert.assertEquals(2, pivot.get(0).getValueCount());
+			Assert.assertNull(pivot.get(0).getPivot());
+		}
+
+		Assert.assertNotNull(resultPivot.get(0).getPivot().get(0));
+
+	}
 
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {
 		FacetQuery fq = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
@@ -287,6 +351,12 @@ public class ResultHelperTests {
 	private FacetQuery createFacetQuery(String... facetFields) {
 		FacetQuery fq = new SimpleFacetQuery(new Criteria(facetFields[0]));
 		fq.setFacetOptions(new FacetOptions(facetFields));
+		return fq;
+	}
+	
+	private FacetQuery createFacetPivotQuery(String pivotField) {
+		FacetQuery fq = new SimpleFacetQuery(new Criteria("field_1"));
+		fq.setFacetOptions(new FacetOptions().addFacetOnPivot(pivotField));
 		return fq;
 	}
 
@@ -311,7 +381,6 @@ public class ResultHelperTests {
 
 	private static class SolrBeanWithAnnoteatedIdNamedField {
 
-		@SuppressWarnings("unused")
 		@Id
 		private String idField;
 
