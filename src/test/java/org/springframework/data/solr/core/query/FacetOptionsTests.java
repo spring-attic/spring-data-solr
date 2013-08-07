@@ -80,6 +80,16 @@ public class FacetOptionsTests {
 	}
 
 	@Test
+	public void testAddFacetOnPivot() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot("field_1", "field2");
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasPivotFields());
+		Assert.assertEquals(1, options.getFacetOnPivots().size());
+		Assert.assertTrue(options.hasFields());
+	}
+
+	@Test
 	public void testAddFacetOnQueryConstructorSingleQuery() {
 		FacetOptions options = new FacetOptions(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")));
 		Assert.assertTrue(options.hasFacets());

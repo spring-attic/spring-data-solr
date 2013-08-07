@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
  * Set of options that can be set on a {@link FacetQuery}
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class FacetOptions {
 
@@ -45,6 +46,7 @@ public class FacetOptions {
 	}
 
 	private List<Field> facetOnFields = new ArrayList<Field>(1);
+	private List<PivotField> facetOnPivotFields = new ArrayList<PivotField>(0);
 	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
@@ -117,6 +119,37 @@ public class FacetOptions {
 	 */
 	public final FacetOptions addFacetOnField(String fieldname) {
 		addFacetOnField(new SimpleField(fieldname));
+		return this;
+	}
+
+	/**
+	 * Add pivot facet on given {@link Field}s.
+	 * 
+	 * @param fields
+	 * @return
+	 */
+	public final FacetOptions addFacetOnPivot(Field... fields) {
+		Assert.notNull(fields, "Pivot Facets must not be null.");
+
+		for (int i = 0; i < fields.length; i++) {
+			Assert.notNull(fields[0], "Cannot facet on null field.");
+			Assert.hasText(fields[0].getName(), "Cannot facet on field with null/empty fieldname.");
+		}
+		List<Field> list = Arrays.asList(fields);
+		this.facetOnPivotFields.add(new SimplePivotField(list));
+		return this;
+	}
+
+	/**
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	public final FacetOptions addFacetOnPivot(String... fieldnames) {
+		Assert.noNullElements(fieldnames, "Fieldnames must not contain null values");
+		Assert.state(fieldnames.length > 1, "2 or more fields required for pivot facets");
+
+		this.facetOnPivotFields.add(new SimplePivotField(fieldnames));
 		return this;
 	}
 
@@ -202,6 +235,15 @@ public class FacetOptions {
 	}
 
 	/**
+	 * Get the list of pivot Fields to face on
+	 * 
+	 * @return
+	 */
+	public final List<PivotField> getFacetOnPivots() {
+		return Collections.unmodifiableList(facetOnPivotFields);
+	}
+
+	/**
 	 * get the min number of hits a result has to have to get listed in result. Default is 1. Zero is not recommended.
 	 * 
 	 * @return
@@ -272,7 +314,7 @@ public class FacetOptions {
 	 * @return true if at least one facet field set
 	 */
 	public boolean hasFields() {
-		return !this.facetOnFields.isEmpty();
+		return !this.facetOnFields.isEmpty() || !this.facetOnPivotFields.isEmpty();
 	}
 
 	/**
@@ -283,10 +325,17 @@ public class FacetOptions {
 	}
 
 	/**
-	 * @return true if either {@code facet.field} or {@code facet.query} set
+	 * @return true if pivot facets apply fo faceting
+	 */
+	public boolean hasPivotFields() {
+		return !facetOnPivotFields.isEmpty();
+	}
+
+	/**
+	 * @return true if any {@code facet.field} or {@code facet.query} set
 	 */
 	public boolean hasFacets() {
-		return hasFields() || hasFacetQueries();
+		return hasFields() || hasFacetQueries() || hasPivotFields();
 	}
 
 	/**
