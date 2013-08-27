@@ -329,9 +329,10 @@ public class SolrTemplateTests {
 			public SolrQuery constructSolrQuery(SolrDataQuery query) {
 				return new SolrQuery(getQueryString(query));
 			}
+
 		};
 
-		solrTemplate.setQueryParser(parser);
+		solrTemplate.registerQueryParser(SimpleQuery.class, parser);
 		solrTemplate.query(new SimpleQuery(new SimpleStringCriteria("my:criteria")));
 
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);

@@ -27,6 +27,7 @@ class AbstractQuery {
 
 	private Criteria criteria;
 	private Join join;
+	private String requestHandler;
 
 	AbstractQuery() {
 	}
@@ -79,6 +80,14 @@ class AbstractQuery {
 	 */
 	public Join getJoin() {
 		return join;
+	}
+
+	public String getRequestHandler() {
+		return requestHandler;
+	}
+
+	public void setRequestHandler(String requestHandler) {
+		this.requestHandler = requestHandler;
 	}
 
 }

@@ -27,8 +27,10 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.TermsPage;
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -187,6 +189,14 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
+
+	/**
+	 * Execute query using terms handler
+	 * 
+	 * @param query
+	 * @return
+	 */
+	TermsPage queryForTermsPage(TermsQuery query);
 
 	/**
 	 * Send commit command {@link SolrServer#commit()}

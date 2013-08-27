@@ -22,9 +22,12 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
@@ -36,9 +39,12 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryStringHolder;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Base Implementation of {@link QueryParser} providing common functions for creating
@@ -46,7 +52,7 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  */
-public abstract class QueryParserBase implements QueryParser {
+public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
 	protected static final String CRITERIA_VALUE_SEPERATOR = " ";
 	protected static final String DELIMINATOR = ":";
@@ -120,7 +126,7 @@ public abstract class QueryParserBase implements QueryParser {
 	 * @return
 	 */
 	protected String createQueryStringFromCriteria(Criteria criteria) {
-		StringBuilder query = new StringBuilder(StringUtils.EMPTY);
+		StringBuilder query = new StringBuilder("");
 
 		ListIterator<Criteria> chainIterator = criteria.getCriteriaChain().listIterator();
 		while (chainIterator.hasNext()) {
@@ -196,6 +202,81 @@ public abstract class QueryParserBase implements QueryParser {
 				+ queryString;
 	}
 
+	/**
+	 * Append pagination information {@code start, rows} to {@link SolrQuery}
+	 * 
+	 * @param query
+	 * @param pageable
+	 */
+	protected void appendPagination(SolrQuery query, Pageable pageable) {
+		if (pageable == null) {
+			return;
+		}
+		query.setStart(pageable.getOffset());
+		query.setRows(pageable.getPageSize());
+	}
+
+	/**
+	 * Append field list to {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param fields
+	 */
+	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
+		if (CollectionUtils.isEmpty(fields)) {
+			return;
+		}
+		solrQuery.setParam(CommonParams.FL, StringUtils.join(fields, ","));
+	}
+
+	/**
+	 * Set {@code q.op} parameter for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param defaultOperator
+	 */
+	protected void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
+		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
+			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
+		}
+	}
+
+	/**
+	 * Set {@link SolrQuery#setTimeAllowed(Integer)}
+	 * 
+	 * @param solrQuery
+	 * @param timeAllowed
+	 */
+	protected void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
+		if (timeAllowed != null) {
+			solrQuery.setTimeAllowed(timeAllowed);
+		}
+	}
+
+	/**
+	 * Set {@code defType} for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param defType
+	 */
+	protected void appendDefType(SolrQuery solrQuery, String defType) {
+		if (StringUtils.isNotBlank(defType)) {
+			solrQuery.set("defType", defType);
+		}
+	}
+
+	/**
+	 * Set request handler parameter for {@link SolrQuery}
+	 * 
+	 * @param solrQuery
+	 * @param requestHandler
+	 */
+	protected void appendRequestHandler(SolrQuery solrQuery, String requestHandler) {
+		if (StringUtils.isNotBlank(requestHandler)) {
+			solrQuery.add(CommonParams.QT, requestHandler);
+		}
+	}
+
 	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
 		for (CriteriaEntry entry : chainedCriterias) {
 			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
@@ -206,6 +287,14 @@ public abstract class QueryParserBase implements QueryParser {
 		}
 		return false;
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public SolrQuery constructSolrQuery(SolrDataQuery query) {
+		return doConstructSolrQuery((QUERYTPYE) query);
+	}
+
+	public abstract SolrQuery doConstructSolrQuery(QUERYTPYE query);
 
 	/**
 	 * CriteriaEntryProcessor creates a solr reable query string representation for a given {@link CriteriaEntry}

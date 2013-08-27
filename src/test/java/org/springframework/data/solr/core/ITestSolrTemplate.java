@@ -46,14 +46,20 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SimpleTermsQuery;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
+import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.TermsFieldEntry;
+import org.springframework.data.solr.core.query.result.TermsPage;
 import org.xml.sax.SAXException;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author Christoph Strobl
@@ -611,6 +617,30 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
 		Assert.assertEquals("Test <em>with</em> some GB18030TEST", page.getHighlighted().get(0).getHighlights().get(0)
 				.getSnipplets().get(0));
+	}
+
+	@Test
+	public void testTermsQuery() {
+		TermsQuery query = SimpleTermsQuery.queryBuilder().fields("name").build();
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one two three", null);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two three", null);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "three", null);
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit();
+
+		TermsPage page = solrTemplate.queryForTermsPage(query);
+
+		ArrayList<TermsFieldEntry> values = Lists.newArrayList(page.getTermsForField("name"));
+		Assert.assertEquals("three", values.get(0).getValue());
+		Assert.assertEquals(3, values.get(0).getValueCount());
+
+		Assert.assertEquals("two", values.get(1).getValue());
+		Assert.assertEquals(2, values.get(1).getValueCount());
+
+		Assert.assertEquals("one", values.get(2).getValue());
+		Assert.assertEquals(1, values.get(2).getValueCount());
 	}
 
 }

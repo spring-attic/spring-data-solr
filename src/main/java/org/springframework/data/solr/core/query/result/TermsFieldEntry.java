@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ package org.springframework.data.solr.core.query.result;
 import org.springframework.data.solr.core.query.Field;
 
 /**
- * The most trivial implementation of {@link FacetFieldEntry}
- * 
  * @author Christoph Strobl
+ * 
  */
-public class SimpleFacetFieldEntry extends FieldValueCountEntry implements FacetFieldEntry {
+public interface TermsFieldEntry extends TermsEntry {
 
-	public SimpleFacetFieldEntry(Field field, String value, long count) {
-		super(value, count);
-		setField(field);
-	}
+	@Override
+	Field getKey();
+
+	/**
+	 * get the associated Field
+	 * 
+	 * @return
+	 */
+	Field getField();
 
 }

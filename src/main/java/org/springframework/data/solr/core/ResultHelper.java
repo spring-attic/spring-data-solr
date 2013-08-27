@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +30,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.TermsResponse;
+import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
@@ -42,7 +45,9 @@ import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
+import org.springframework.data.solr.core.query.result.SimpleTermsFieldEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -55,6 +60,28 @@ import org.springframework.util.StringUtils;
 final class ResultHelper {
 
 	private ResultHelper() {
+	}
+
+	static Map<String, List<TermsFieldEntry>> convertTermsQueryResponseToTermsMap(QueryResponse response) {
+		if (response == null || response.getTermsResponse() == null || response.getTermsResponse().getTermMap() == null) {
+			return Collections.emptyMap();
+		}
+
+		TermsResponse termsResponse = response.getTermsResponse();
+		Map<String, List<TermsFieldEntry>> result = new LinkedHashMap<String, List<TermsFieldEntry>>(termsResponse
+				.getTermMap().size());
+
+		for (Map.Entry<String, List<Term>> entry : termsResponse.getTermMap().entrySet()) {
+			List<TermsFieldEntry> terms = new ArrayList<TermsFieldEntry>(entry.getValue().size());
+			for (Term term : entry.getValue()) {
+				SimpleTermsFieldEntry termsEntry = new SimpleTermsFieldEntry(term.getTerm(), term.getFrequency());
+				termsEntry.setField(entry.getKey());
+				terms.add(termsEntry);
+			}
+			result.put(entry.getKey(), terms);
+		}
+
+		return result;
 	}
 
 	static Map<Field, Page<FacetFieldEntry>> convertFacetQueryResponseToFacetPageMap(FacetQuery query,

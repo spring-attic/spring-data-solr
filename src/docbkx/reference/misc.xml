@@ -90,6 +90,19 @@ FacetPage&lt;Product&gt; findAllFacetOnName(Pageable page);</programlisting>
 FacetPage&lt;Product&gt; findByPopularityFacetOnName(int popularity, String prefix, Pageable page);</programlisting>
 		</example>
 	</section>
+	<section id="solr.misc.terms">
+		<title>Terms</title>
+		<para>
+		  Terms Vector cannot directly be used within <interfacename>SolrRepository</interfacename>
+		  but can be applied via <classname>SolrTemplate</classname>.
+		  Please mind, that the result will be a <interfacename>TermsPage</interfacename>.
+		</para>
+		<example>		
+			<programlisting language="java">TermsQuery query = SimpleTermsQuery.queryBuilder().fields("name").build();
+TermsPage page = solrTemplate.queryForTermsPage(query);
+			</programlisting>
+		</example>
+	</section>
 	<section id="solr.misc.filter">
 		<title>Filter Query</title>
 		<para>

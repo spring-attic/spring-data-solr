@@ -36,6 +36,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
     * [DATASOLR-60] - Support for highlighting via @Highlight annotation
     * [DATASOLR-65] - Support for non-default request handlers
     * [DATASOLR-93] - Support for soft commit
+    * [DATASOLR-96] - Support for search term suggestions
 	
 ** Task
     * [DATASOLR-54] - Extract QueryParser Interface

@@ -21,7 +21,7 @@ package org.springframework.data.solr.core.query.result;
  * 
  * @author Christoph Strobl
  */
-public interface FacetEntry {
+public interface FacetEntry extends CountEntry {
 
 	/**
 	 * The key of the facetEntry
@@ -29,19 +29,5 @@ public interface FacetEntry {
 	 * @return
 	 */
 	Object getKey();
-
-	/**
-	 * The nr of hits for the value
-	 * 
-	 * @return
-	 */
-	long getValueCount();
-
-	/**
-	 * The value within the field
-	 * 
-	 * @return
-	 */
-	String getValue();
 
 }

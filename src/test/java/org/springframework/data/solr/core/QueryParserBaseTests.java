@@ -36,13 +36,13 @@ public class QueryParserBaseTests {
 	private static final String SOME_VALUE = "some value";
 	private static final String INVALID_OPERATION_KEY = "invalid";
 
-	private QueryParserBase parser;
+	private QueryParserBase<SolrDataQuery> parser;
 
 	@Before
 	public void setUp() {
-		parser = new QueryParserBase() {
+		parser = new QueryParserBase<SolrDataQuery>() {
 			@Override
-			public SolrQuery constructSolrQuery(SolrDataQuery query) {
+			public SolrQuery doConstructSolrQuery(SolrDataQuery query) {
 				return null;
 			}
 		};
@@ -78,6 +78,7 @@ public class QueryParserBaseTests {
 		assertProcessorCanProcess(this.parser.new SloppyProcessor(), OperationKey.SLOPPY);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testWildcardProcessorCanProcess() {
 		WildcardProcessor processor = this.parser.new WildcardProcessor();
@@ -87,6 +88,7 @@ public class QueryParserBaseTests {
 		assertProcessorCannotProcessInvalidOrNullOperationKey(processor);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testDefaultProcessorCanProcess() {
 		DefaultProcessor processor = this.parser.new DefaultProcessor();
@@ -94,6 +96,7 @@ public class QueryParserBaseTests {
 		Assert.assertTrue(processor.canProcess(new CriteriaEntry(INVALID_OPERATION_KEY, null)));
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
 	public void testBaseCritieraEntryProcessor() {
 		BaseCriteriaEntryProcessor processor = this.parser.new BaseCriteriaEntryProcessor() {

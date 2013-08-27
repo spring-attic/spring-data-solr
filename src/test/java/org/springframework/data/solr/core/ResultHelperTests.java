@@ -25,6 +25,10 @@ import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.TermsResponse;
+import org.apache.solr.client.solrj.response.TermsResponse.Term;
+import org.apache.solr.common.util.NamedList;
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +50,7 @@ import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
 /**
  * @author Christoph Strobl
@@ -276,6 +281,63 @@ public class ResultHelperTests {
 				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getSnipplets());
 			}
 		}
+	}
+
+	@Test
+	public void testConvertTermsQueryResponseReturnsTermsMapCorrectlyWhenOneFieldReturned() {
+		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		termsResponse.getTermMap().put("field_1", Arrays.asList(new Term("term_1", 10), new Term("term_2", 5)));
+
+		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
+
+		Map<String, List<TermsFieldEntry>> result = ResultHelper.convertTermsQueryResponseToTermsMap(response);
+
+		Assert.assertEquals(1, result.size());
+		Assert.assertEquals("term_1", result.get("field_1").get(0).getValue());
+		Assert.assertEquals(10L, result.get("field_1").get(0).getValueCount());
+		Assert.assertEquals("field_1", result.get("field_1").get(0).getField().getName());
+
+		Assert.assertEquals("term_2", result.get("field_1").get(1).getValue());
+		Assert.assertEquals(5L, result.get("field_1").get(1).getValueCount());
+		Assert.assertEquals("field_1", result.get("field_1").get(1).getField().getName());
+	}
+
+	@Test
+	public void testConvertTermsQueryResponseReturnsTermsMapCorrectlyWhenMultipleFieldsReturned() {
+		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		termsResponse.getTermMap().put("field_1", Arrays.asList(new Term("term_1", 10), new Term("term_2", 5)));
+		termsResponse.getTermMap().put("field_2", Arrays.asList(new Term("term_2", 2), new Term("term_3", 1)));
+
+		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
+
+		Map<String, List<TermsFieldEntry>> result = ResultHelper.convertTermsQueryResponseToTermsMap(response);
+
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals("field_1", result.get("field_1").get(0).getField().getName());
+		Assert.assertEquals("field_2", result.get("field_2").get(0).getField().getName());
+	}
+
+	@Test
+	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenResponseIsNull() {
+		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(null),
+				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+	}
+
+	@Test
+	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenTermsResponseIsNull() {
+		Mockito.when(response.getTermsResponse()).thenReturn(null);
+
+		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
+				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+	}
+
+	@Test
+	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenTermsMapIsEmpty() {
+		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
+
+		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
+				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
 	}
 
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {

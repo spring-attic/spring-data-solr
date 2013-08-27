@@ -50,9 +50,12 @@ import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.TermsPage;
+import org.springframework.data.solr.core.query.result.TermsResultPage;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
@@ -66,8 +69,9 @@ import org.springframework.util.Assert;
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
-	private static final QueryParser DEFAULT_QUERY_PARSER = new DefaultQueryParser();
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
+	private final QueryParsers queryParsers = new QueryParsers();
+
 	private ApplicationContext applicationContext;
 	private String solrCore;
 
@@ -81,7 +85,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	};
 
 	private SolrServerFactory solrServerFactory;
-	private QueryParser queryParser = DEFAULT_QUERY_PARSER;
+
 	private SolrConverter solrConverter;
 
 	public SolrTemplate(SolrServer solrServer) {
@@ -137,7 +141,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 			@Override
 			public Long doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+				SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 				solrQuery.setStart(0);
 				solrQuery.setRows(0);
 
@@ -211,7 +215,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse delete(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
-		final String queryString = this.queryParser.getQueryString(query);
+		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query);
 
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
@@ -263,6 +267,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return null;
 	}
 
+	@Override
 	public <T> Page<T> queryForPage(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
@@ -301,10 +306,21 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return page;
 	}
 
+	@Override
+	public TermsPage queryForTermsPage(TermsQuery query) {
+		Assert.notNull(query, "Query must not be 'null'.");
+
+		QueryResponse response = query(query);
+
+		TermsResultPage page = new TermsResultPage();
+		page.addAllTerms(ResultHelper.convertTermsQueryResponseToTermsMap(response));
+		return page;
+	}
+
 	final QueryResponse query(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'");
 
-		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
 
 		return executeSolrQuery(solrQuery);
@@ -423,8 +439,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.applicationContext = applicationContext;
 	}
 
-	public void setQueryParser(QueryParser queryParser) {
-		this.queryParser = queryParser;
+	public void registerQueryParser(Class<? extends SolrDataQuery> clazz, QueryParser queryParser) {
+		this.queryParsers.registerParser(clazz, queryParser);
 	}
 
 	public void setSolrConverter(SolrConverter solrConverter) {
@@ -441,10 +457,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void afterPropertiesSet() {
-		if (this.queryParser == null) {
-			LOGGER.warn("QueryParser not set, using default one.");
-			queryParser = DEFAULT_QUERY_PARSER;
-		}
 		if (this.solrConverter == null) {
 			this.solrConverter = getDefaultSolrConverter();
 		}

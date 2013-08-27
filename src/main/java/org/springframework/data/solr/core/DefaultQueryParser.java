@@ -26,7 +26,6 @@ import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.VersionUtil;
@@ -42,7 +41,6 @@ import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighli
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryParameter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.Assert;
@@ -60,7 +58,7 @@ import org.springframework.util.CollectionUtils;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  */
-public class DefaultQueryParser extends QueryParserBase {
+public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrServer}
@@ -68,7 +66,8 @@ public class DefaultQueryParser extends QueryParserBase {
 	 * @param query
 	 * @return
 	 */
-	public final SolrQuery constructSolrQuery(SolrDataQuery query) {
+	@Override
+	public final SolrQuery doConstructSolrQuery(SolrDataQuery query) {
 		Assert.notNull(query, "Cannot construct solrQuery from null value.");
 		Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
 
@@ -163,33 +162,6 @@ public class DefaultQueryParser extends QueryParserBase {
 
 	protected String createPerFieldOverrideParameterName(Field field, String parameterName) {
 		return "f." + field.getName() + "." + parameterName;
-	}
-
-	/**
-	 * Append pagination information {@code start, rows} to {@link SolrQuery}
-	 * 
-	 * @param query
-	 * @param pageable
-	 */
-	protected void appendPagination(SolrQuery query, Pageable pageable) {
-		if (pageable == null) {
-			return;
-		}
-		query.setStart(pageable.getOffset());
-		query.setRows(pageable.getPageSize());
-	}
-
-	/**
-	 * Append field list to {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param fields
-	 */
-	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
-		if (CollectionUtils.isEmpty(fields)) {
-			return;
-		}
-		solrQuery.setParam(CommonParams.FL, StringUtils.join(fields, ","));
 	}
 
 	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
@@ -306,54 +278,6 @@ public class DefaultQueryParser extends QueryParserBase {
 			} else {
 				solrQuery.addSortField(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
 			}
-		}
-	}
-
-	/**
-	 * Set {@code q.op} parameter for {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param defaultOperator
-	 */
-	protected void appendDefaultOperator(SolrQuery solrQuery, Operator defaultOperator) {
-		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
-			solrQuery.set("q.op", defaultOperator.asQueryStringRepresentation());
-		}
-	}
-
-	/**
-	 * Set {@link SolrQuery#setTimeAllowed(Integer)}
-	 * 
-	 * @param solrQuery
-	 * @param timeAllowed
-	 */
-	protected void appendTimeAllowed(SolrQuery solrQuery, Integer timeAllowed) {
-		if (timeAllowed != null) {
-			solrQuery.setTimeAllowed(timeAllowed);
-		}
-	}
-
-	/**
-	 * Set {@code defType} for {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param defType
-	 */
-	protected void appendDefType(SolrQuery solrQuery, String defType) {
-		if (!StringUtils.isEmpty(defType)) {
-			solrQuery.set("defType", defType);
-		}
-	}
-
-	/**
-	 * Set request handler parameter for {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param requestHandler
-	 */
-	protected void appendRequestHandler(SolrQuery solrQuery, String requestHandler) {
-		if (!StringUtils.isEmpty(requestHandler)) {
-			solrQuery.add(CommonParams.QT, requestHandler);
 		}
 	}
 

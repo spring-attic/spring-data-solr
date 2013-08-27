@@ -16,28 +16,29 @@
 package org.springframework.data.solr.core.query.result;
 
 /**
- * Base implementation of {@link FacetEntry}
+ * Implementation of {@link CountEntry}
  * 
  * @author Christoph Strobl
+ * 
  */
-abstract class AbstractFacetEntry implements FacetEntry {
+public class ValueCountEntry implements CountEntry {
 
-	private final long count;
+	private final long valueCount;
 	private final String value;
 
-	protected AbstractFacetEntry(String value, long count) {
+	public ValueCountEntry(String value, long valueCount) {
 		this.value = value;
-		this.count = count;
+		this.valueCount = valueCount;
 	}
 
 	@Override
-	public final long getValueCount() {
-		return this.count;
+	public long getValueCount() {
+		return valueCount;
 	}
 
 	@Override
 	public String getValue() {
-		return this.value;
+		return value;
 	}
 
 }

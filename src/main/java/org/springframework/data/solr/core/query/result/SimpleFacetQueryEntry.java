@@ -24,7 +24,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
  * 
  * @author Christoph Strobl
  */
-public class SimpleFacetQueryEntry extends AbstractFacetEntry implements FacetQueryEntry {
+public class SimpleFacetQueryEntry extends ValueCountEntry implements FacetQueryEntry {
 
 	public SimpleFacetQueryEntry(String value, long count) {
 		super(value, count);
