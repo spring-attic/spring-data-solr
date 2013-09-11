@@ -10,8 +10,8 @@ Providing its own extensible ```MappingSolrConverter``` as alternative to ```Doc
 Getting Help
 ------------
 
-* [Reference Documentation](http://static.springsource.org/spring-data/data-solr/docs/current/reference/html/)
-* [API Documentation](http://static.springsource.org/spring-data/data-solr/docs/current/api/)
+* [Reference Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/reference/html/)
+* [API Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/api/)
 * [Spring Data Project](http://www.springsource.org/spring-data)
 * [Issues](https://jira.springsource.org/browse/DATASOLR)
 * [Code Analysis](https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr)
