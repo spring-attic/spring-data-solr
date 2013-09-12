@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.1.1.RELEASE</version>
+		<version>1.2.0.RELEASE</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -264,8 +264,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>http://repo.springsource.org/libs-snapshot</url>
+			<id>spring-libs-release</id>
+			<url>http://repo.springsource.org/libs-release-local</url>
 		</repository>
 	</repositories>
 

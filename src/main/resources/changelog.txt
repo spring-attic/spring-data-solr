@@ -1,53 +1,56 @@
-Release Notes - Spring Data Solr - Version 1.0.0.RC2 - 2013-xx-xx
------------------------------------------------------------------
-
+Release Notes - Spring Data Solr - Version 1.0 GA - 2013-09-11
+--------------------------------------------------------------
 ** Fix
     * [DATASOLR-62] - Sort parameter passed to a query method is ignored when annotated query is used
     * [DATASOLR-63] - Sort parameter passed to a query method is ignored when query method uses named query
+    * [DATASOLR-69] - Registering custom converters via XML
     * [DATASOLR-75] - Criteria.is(Arrays.asList(......)) calls toString() instead of traversing list
-    * [DATASOLR-81] - GeoLocation cannot be used as property of type
-    * [DATASOLR-69] - Registering custom converters via XML 
-    * [DATASOLR-81] - Cannot index Geospatial with solr 4.x using GeoLocation 
-    * [DATASOLR-94] - Joda-Time registered without existence check
+    * [DATASOLR-81] - Cannot index Geospatial with solr4
+    * [DATASOLR-94] - Joda-Time registered with no check
     * [DATASOLR-98] - MappingSolrConverter does not retain element order when reading property
-    * [DATASOLR-109] - Setting defaultOperator, timeAllowed and defType does not work for Facet and Highlight Query
-	
+    * [DATASOLR-109] - set custom requestHandler does not work for SimpleFacetQuery and SimpleHighlightQuery
+
 ** Improvement
-    * [DATASOLR-43] - Support parameter for time allowed
-    * [DATASOLR-48] - Support for numeric document ids
-    * [DATASOLR-49] - Support parameter for default type
-    * [DATASOLR-52] - Support for 'IsNull' and 'IsNotNull' keywords
-    * [DATASOLR-53] - Support for _version_ in PartialUpdates
+    * [DATASOLR-43] - Add support Query Parameter for time allowed
+    * [DATASOLR-48] - Add support for numeric document ids
+    * [DATASOLR-49] - Add support Query Parameter for default type
+    * [DATASOLR-52] - Add support for 'IsNull' and 'IsNotNull' keywords
+    * [DATASOLR-53] - Add support for _version_ 
     * [DATASOLR-55] - Allow usage of collections for 'startsWith', 'endsWith', 'contains'
-    * [DATASOLR-58] - Support for 'boost' in derived queries via @Boost annotation
-    * [DATASOLR-59] - Support for LBHttpSolrServer
+    * [DATASOLR-58] - Support for 'boost' in derived queries via annotation
+    * [DATASOLR-59] - Add support for LBHttpSolrServer
     * [DATASOLR-61] - Build depends on Restlet which cannot be found in declared repositories
-    * [DATASOLR-68] - Support for facet.prefix
-    * [DATASOLR-80] - Multiple Facets with prefix
-    * [DATASOLR-82] - Add MulticoreSolrServerFactory 
+    * [DATASOLR-68] - Add support for facet.prefix
+    * [DATASOLR-80] - Multiple Facets with prefix 
+    * [DATASOLR-82] - Add MulticoreSolrServerFactory
     * [DATASOLR-90] - Add custom converter for reading/wirting joda time
-    * [DATASOLR-100] - Support sloppy search criteria
+    * [DATASOLR-100] - Support proximity or sloppy searches
     * [DATASOLR-107] - Add support for commitWithin to SolrTemplate
 
 ** New Feature
-    * [DATASOLR-42] - Support for {!join
-    * [DATASOLR-45] - Placeholder support for 'filters' in @Query
-    * [DATASOLR-46] - Placeholder support for 'queries' in @Facet
-    * [DATASOLR-60] - Support for highlighting via @Highlight annotation
-    * [DATASOLR-65] - Support for non-default request handlers
-    * [DATASOLR-93] - Support for soft commit
-    * [DATASOLR-96] - Support for search term suggestions
-	
+    * [DATASOLR-35] - Add support for non default constructors when mapping beans
+    * [DATASOLR-42] - Add support for {!join
+    * [DATASOLR-45] - Add placeholder support for 'filters' in @Query
+    * [DATASOLR-46] - Add placeholder support for 'queries' in @Facet
+    * [DATASOLR-60] - Support highlighting via annotation
+    * [DATASOLR-65] - Add support for non-default request handlers
+    * [DATASOLR-93] - Solr softCommit support
+
 ** Task
     * [DATASOLR-54] - Extract QueryParser Interface
     * [DATASOLR-56] - Register jodatime converters only if jodatime is in classpath
-    * [DATASOLR-76] - Upgrade to commons-lang3
+    * [DATASOLR-57] - Upgrade to solr 4.2
+    * [DATASOLR-66] - Upgrade to solr 4.2.1
+    * [DATASOLR-73] - Upgrade to Solr 4.3.0
+    * [DATASOLR-76] - Switch to commons-lang3
     * [DATASOLR-79] - SolrOperations of SolrRepositoryFactoryBean cannot be accessed
-    * [DATASOLR-87] - Custom mapper for SolrDocument and SolrInputDocument
-    * [DATASOLR-91] - Upgrade to solr 4.3.1 
-    * [DATASOLR-101] - Clean up fuzzy/sloppy criteria handling
-    * [DATASOLR-103] - Return Solr specific page when calling queryForPage
-    * [DATASOLR-110] - Adapt changes in Spring Data Commons (DATACMNS-350)
+    * [DATASOLR-87] - Create custom Mapping for SolrDocument and SolrInputDocument
+    * [DATASOLR-91] - Upgrade to solr 4.3.1
+    * [DATASOLR-92] - Upgrade to data-commons 1.6.0
+    * [DATASOLR-101] - Clean up $fuzzy / $sloppy by providing concrete class instead of substring
+    * [DATASOLR-103] - SolrTemplate#queryForPage should return a solr specific page
+    * [DATASOLR-110] - Refactor SolrParameters to match DATACMNS-350
+    * [DATASOLR-111] - Release 1.0 GA
 
 Release Notes - Spring Data Solr - Version 1.0.0.RC1 - 2013-02-08
 -----------------------------------------------------------------

@@ -188,19 +188,14 @@ You can set up repository scanning via xml configuration, which will happily cre
 Maven
 -----
 
-### Milestone
+### RELEASE
 
 ```xml
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.0.0.RC1</version>
-</dependency> 
-
-<repository>
-  <id>spring-maven-milesone</id>
-  <url>http://repo.springsource.org/libs-milestone</url>
-</repository>  
+  <version>1.0.0.RELEASE</version>
+</dependency>  
 ```
 
 ### Build Snapshot
@@ -209,7 +204,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.0.0.BUILD-SNAPSHOT</version>
+  <version>1.1.0.BUILD-SNAPSHOT</version>
 </dependency> 
 
 <repository>
