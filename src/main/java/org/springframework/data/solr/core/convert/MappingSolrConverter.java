@@ -59,6 +59,10 @@ import org.springframework.util.CollectionUtils;
 public class MappingSolrConverter extends SolrConverterBase implements SolrConverter, ApplicationContextAware,
 		InitializingBean {
 
+	private enum WildcardPosition {
+		LEADING, TRAILING
+	}
+
 	private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 	private final EntityInstantiators instantiators = new EntityInstantiators();
 
@@ -338,6 +342,8 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private Object readWildcard(Map<String, ?> source, SolrPersistentProperty property, Object parent) {
 			String fieldName = StringUtils.remove(property.getFieldName(), Criteria.WILDCARD);
+			WildcardPosition wildcardPosition = StringUtils.startsWith(property.getFieldName(), Criteria.WILDCARD) ? WildcardPosition.LEADING
+					: WildcardPosition.TRAILING;
 
 			if (property.isMap()) {
 				TypeInformation<?> mapTypeInformation = property.getTypeInformation().getMapValueType();
@@ -346,7 +352,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				Map<String, Object> values = LinkedHashMap.class.isAssignableFrom(property.getActualType()) ? new LinkedHashMap<String, Object>()
 						: new HashMap<String, Object>();
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
-					if (StringUtils.contains(potentialMatch.getKey(), fieldName)) {
+					if (isWildcardFieldNameMatch(fieldName, wildcardPosition, potentialMatch.getKey())) {
 						Object value = potentialMatch.getValue();
 						if (value instanceof Iterable) {
 							if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, value.getClass())) {
@@ -375,7 +381,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			} else if (property.isCollectionLike()) {
 				List<Object> values = new ArrayList<Object>();
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
-					if (StringUtils.contains(potentialMatch.getKey(), fieldName)) {
+					if (isWildcardFieldNameMatch(fieldName, wildcardPosition, potentialMatch.getKey())) {
 						Object value = potentialMatch.getValue();
 						if (value instanceof Iterable) {
 							for (Object o : (Iterable<?>) value) {
@@ -404,6 +410,16 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			return null;
 		}
 
+		private boolean isWildcardFieldNameMatch(String fieldname, WildcardPosition type, String candidate) {
+			switch (type) {
+			case LEADING:
+				return StringUtils.endsWith(candidate, fieldname);
+			case TRAILING:
+				return StringUtils.startsWith(candidate, fieldname);
+			}
+			return false;
+		}
+
 		@SuppressWarnings("unchecked")
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
 			Assert.notNull(type);
@@ -424,6 +440,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			}
 			return items;
 		}
+
 	}
 
 }

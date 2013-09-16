@@ -31,8 +31,10 @@ import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsInstanceOf;
+import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -697,6 +699,51 @@ public class MappingSolrConverterTests {
 		Assert.assertThat(target.linkedHashMapProperty, IsInstanceOf.instanceOf(LinkedHashMap.class));
 	}
 
+	@Test
+	public void testReadOverlappingWildcradsIgnoresNoWildcardFields() {
+		SolrDocument document = new SolrDocument();
+		document.addField("acme_s_com", "value_1");
+
+		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
+		Assert.assertThat(target.justAString, IsEqual.equalTo("value_1"));
+		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
+		Assert.assertThat(target.strings, IsNull.nullValue(Map.class));
+	}
+
+	@Test
+	public void testReadOverlappingWildcradsShouldPlaceStringInMultipleMatchingFields() {
+		SolrDocument document = new SolrDocument();
+		document.addField("some_key_s", "value_1");
+
+		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
+		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
+		Assert.assertThat(target.keys, IsMapContaining.hasEntry("some_key_s", "value_1"));
+		Assert.assertThat(target.strings, IsMapContaining.hasEntry("some_key_s", "value_1"));
+	}
+
+	@Test
+	public void testReadOverlappingWildcradsShouldPlaceStringInOnlyOneMatchingFieldWhenNoFullMatch() {
+		SolrDocument document = new SolrDocument();
+		document.addField("some_different_s", "value_1");
+
+		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
+		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
+		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
+		Assert.assertThat(target.strings, IsMapContaining.hasEntry("some_different_s", "value_1"));
+	}
+
+	@Test
+	public void testReadOverlappingWildcardsShouldMatchWildCardAtEndOfPattern() {
+		SolrDocument document = new SolrDocument();
+		document.addField("_s_prefixed", "value_1");
+
+		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
+		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
+		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
+		Assert.assertThat(target.strings, IsNull.nullValue(Map.class));
+		Assert.assertThat(target.stringWithPrefix, IsEqual.equalTo("value_1"));
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -866,6 +913,22 @@ public class MappingSolrConverterTests {
 
 		@Field("linkedHashMap_*")
 		LinkedHashMap<String, String> linkedHashMapProperty;
+	}
+
+	public static class BeanWithOverlappingWildcards {
+
+		@Field("*_key_s")
+		Map<String, String> keys;
+
+		@Field("*_s")
+		Map<String, String> strings;
+
+		@Field("acme_s_com")
+		String justAString;
+
+		@Field("_s*")
+		String stringWithPrefix;
+
 	}
 
 }
