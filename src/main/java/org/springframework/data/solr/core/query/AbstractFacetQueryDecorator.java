@@ -21,7 +21,8 @@ package org.springframework.data.solr.core.query;
  * @author Francisco Spaeth
  * @since 1.4
  */
-public abstract class AbstractFacetQueryDecorator extends AbstractQueryDecorator implements FacetQuery {
+public abstract class AbstractFacetQueryDecorator extends
+		AbstractQueryDecorator implements FacetQuery {
 
 	private FacetQuery query;
 
@@ -43,6 +44,22 @@ public abstract class AbstractFacetQueryDecorator extends AbstractQueryDecorator
 	@Override
 	public boolean hasFacetOptions() {
 		return query.hasFacetOptions();
+	}
+
+	@Override
+	public <T extends SolrDataQuery> T setFacetRangeOptions(
+			FacetRangeOptions facetRangeOptions) {
+		return query.setFacetRangeOptions(facetRangeOptions);
+	}
+
+	@Override
+	public FacetRangeOptions getFacetRangeOptions() {
+		return query.getFacetRangeOptions();
+	}
+
+	@Override
+	public boolean hasFacetRangeOptions() {
+		return query.hasFacetRangeOptions();
 	}
 
 }
