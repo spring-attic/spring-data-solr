@@ -17,6 +17,8 @@ package org.springframework.data.solr.server.support;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +30,11 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanInstantiationException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
@@ -98,7 +102,41 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 		if (StringUtils.isBlank(solrHomeDirectory)) {
 			solrHomeDirectory = ResourceUtils.getURL(path).getPath();
 		}
-		return new EmbeddedSolrServer(new CoreContainer(solrHomeDirectory, new File(solrHomeDirectory + "/solr.xml")), null);
+
+		solrHomeDirectory = URLDecoder.decode(solrHomeDirectory, "utf-8");
+		return new EmbeddedSolrServer(createCoreContainer(solrHomeDirectory), null);
+	}
+
+	private CoreContainer createCoreContainer(String solrHomeDirectory) {
+		File solrXmlFile = new File(solrHomeDirectory + "/solr.xml");
+		if (ClassUtils.hasConstructor(CoreContainer.class, String.class, File.class)) {
+			return createCoreContainerViaConstructor(solrHomeDirectory, solrXmlFile);
+		}
+		return createCoreContainer(solrHomeDirectory, solrXmlFile);
+	}
+
+	/**
+	 * Create {@link CoreContainer} via its constructor (Solr 3.6.0 - 4.3.1)
+	 * 
+	 * @param solrHomeDirectory
+	 * @param solrXmlFile
+	 * @return
+	 */
+	private CoreContainer createCoreContainerViaConstructor(String solrHomeDirectory, File solrXmlFile) {
+		Constructor<CoreContainer> constructor = ClassUtils.getConstructorIfAvailable(CoreContainer.class, String.class,
+				File.class);
+		return BeanUtils.instantiateClass(constructor, solrHomeDirectory, solrXmlFile);
+	}
+
+	/**
+	 * Create {@link CoreContainer} for Solr version 4.4+
+	 * 
+	 * @param solrHomeDirectory
+	 * @param solrXmlFile
+	 * @return
+	 */
+	private CoreContainer createCoreContainer(String solrHomeDirectory, File solrXmlFile) {
+		return CoreContainer.createAndLoad(solrHomeDirectory, solrXmlFile);
 	}
 
 	public void shutdownSolrServer() {
