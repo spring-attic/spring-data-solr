@@ -34,6 +34,9 @@ import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.FacetRangeOptions;
+import org.springframework.data.solr.core.query.FacetRangeOptions.FacetRangeParameter;
+import org.springframework.data.solr.core.query.FacetRangeOptions.FieldWithFacetRangeParameters;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
 import org.springframework.data.solr.core.query.HighlightOptions;
@@ -50,7 +53,7 @@ import org.springframework.util.CollectionUtils;
  * Implementation of {@link QueryParser}. <br/>
  * Creates executable {@link SolrQuery} from {@link Query} by traversing {@link Criteria}. Reserved characters like
  * {@code +} or {@code -} will be escaped to form a valid query.
- * 
+ *
  * @author Christoph Strobl
  * @author John Dorman
  * @author Rosty Kerei
@@ -62,7 +65,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrServer}
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -78,6 +81,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 		if (query instanceof FacetQuery) {
 			processFacetOptions(solrQuery, (FacetQuery) query);
+            processRangeFacetOptions(solrQuery, (FacetQuery) query);
 		}
 		if (query instanceof HighlightQuery) {
 			processHighlightOptions(solrQuery, (HighlightQuery) query);
@@ -104,9 +108,15 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
+    private void processRangeFacetOptions(SolrQuery solrQuery, FacetQuery query) {
+        if (enableFaceting(solrQuery, query)) {
+            appendRangeFacetingOnFields(solrQuery, (FacetQuery) query);
+        }
+    }
+
 	/**
 	 * Append highlighting parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param query
 	 */
@@ -206,6 +216,22 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
+    private void appendRangeFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+        FacetRangeOptions facetRangeOptions = query.getFacetRangeOptions();
+        if (facetRangeOptions != null) {
+            solrQuery.addFacetField(convertFieldListToStringArray(facetRangeOptions.getFacetRangeOnFields()));
+            for (FieldWithFacetRangeParameters parametrizedField : facetRangeOptions.getFieldsWithRangeParameters()) {
+                addPerFieldFacetRangeParameters(solrQuery, parametrizedField);
+            }
+        }
+    }
+
+    private void addPerFieldFacetRangeParameters(SolrQuery solrQuery, FieldWithFacetRangeParameters field) {
+        for (FacetRangeParameter parameter : field) {
+            addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter);
+        }
+    }
+
 	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
 		for (SolrDataQuery fq : facetOptions.getFacetQueries()) {
@@ -218,7 +244,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Append grouping parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param fields
 	 */
@@ -244,7 +270,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Set filter filter queries for {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param filterQueries
 	 */
@@ -261,7 +287,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Append sorting parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param sort
 	 */

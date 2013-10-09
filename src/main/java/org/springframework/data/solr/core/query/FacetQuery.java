@@ -40,4 +40,22 @@ public interface FacetQuery extends Query {
 	 */
 	boolean hasFacetOptions();
 
+    /**
+     * Faceting range options to apply when executing query
+     *
+     * @param facetRangeOptions
+     * @return
+     */
+    <T extends SolrDataQuery> T setFacetRangeOptions(FacetRangeOptions facetRangeOptions);
+
+    /**
+     * @return null if not set
+     */
+    FacetRangeOptions getFacetRangeOptions();
+
+    /**
+     * @return true if options set
+     */
+    boolean hasFacetRangeOptions();
+
 }
