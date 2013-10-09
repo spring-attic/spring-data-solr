@@ -35,6 +35,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
@@ -182,6 +183,42 @@ final class ResultHelper {
 		return pivotFieldEntries;
 	}
 
+    static Map<Field, Page<FacetFieldEntry>> convertFacetRangeQueryResponseToFacetPageMap(FacetQuery query,
+                                                                                     QueryResponse response) {
+        Assert.notNull(query, "Cannot convert response for 'null', query");
+
+        if (!hasRangeFacets(query, response)) {
+            return Collections.emptyMap();
+        }
+        Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
+
+        if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
+            int initalPageSize = query.getFacetRangeOptions().getPageable().getPageSize();
+            for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
+                if (rangeFacet != null && StringUtils.hasText(rangeFacet.getName())) {
+                    Field field = new SimpleField(rangeFacet.getName());
+                    if(rangeFacet instanceof RangeFacet.Date){
+                        RangeFacet.Date dateRangeFacet=(RangeFacet.Date)rangeFacet;
+                    if (CollectionUtils.isNotEmpty(dateRangeFacet.getCounts())) {
+                        List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+                        for (RangeFacet.Count count : dateRangeFacet.getCounts()) {
+                            if (count != null) {
+                                pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                            }
+                        }
+                        facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+                                .getPageable(), dateRangeFacet.getCounts().size(), null));
+                    } else {
+                        facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
+                                .getFacetOptions().getPageable(), 0, null));
+                    }
+                    }
+                }
+            }
+        }
+        return facetResult;
+    }
+
 	static List<FacetQueryEntry> convertFacetQueryResponseToFacetQueryResult(FacetQuery query, QueryResponse response) {
 		Assert.notNull(query, "Cannot convert response for 'null', query");
 
@@ -258,6 +295,10 @@ final class ResultHelper {
 		return query.hasFacetOptions() && response != null;
 	}
 
+    private static boolean hasRangeFacets(FacetQuery query, QueryResponse response) {
+        return query.hasFacetRangeOptions() && response != null;
+    }
+    
 	static <T> Map<Object, GroupResult<T>> convertGroupQueryResponseToGroupResultMap(Query query,
 			Map<String, Object> objectNames, QueryResponse response, SolrTemplate solrTemplate, Class<T> clazz) {
 

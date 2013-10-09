@@ -302,7 +302,46 @@ public class ResultHelperTests {
 		}
 	}
 
-	@Test
+    @Test
+    public void testConvertFacetRangeQueryResponseToFacetPageMapForNullQueryResponse() {
+        Map<Field, Page<FacetFieldEntry>> result =
+                ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(this.createFacetQuery("field_1"), null);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConvertFacetRangeQueryResponseForNullQuery() {
+        ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(null, null);
+    }
+
+    @Test
+    public void testConvertFacetRangeQueryResponseForQueryWithoutFacetOptions() {
+        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
+                new SimpleFacetQuery(new Criteria("field_1")), null);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testConvertFacetRangeQueryResponseForQueryResultWithNullFacetFields() {
+        Mockito.when(response.getFacetFields()).thenReturn(null);
+        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
+                createFacetQuery("field_1"), response);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testConvertFacetRangeQueryResponseForQueryResultWithEmptyFacetFields() {
+        Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
+        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
+                createFacetQuery("field_1"), response);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
+    }
+
+    @Test
 	public void testConvertFacetQueryResponseToFacetPivotMap() {
 		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<List<org.apache.solr.client.solrj.response.PivotField>>();
 		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
