@@ -118,9 +118,8 @@ final class ResultHelper {
 		return facetResult;
 	}
 
-
     static Map<Field, Page<FacetFieldEntry>> convertFacetRangeQueryResponseToFacetPageMap(FacetQuery query,
-                                                                                     QueryResponse response) {
+                                                                                          QueryResponse response) {
         Assert.notNull(query, "Cannot convert response for 'null', query");
 
         if (!hasRangeFacets(query, response)) {
@@ -133,22 +132,39 @@ final class ResultHelper {
             for (RangeFacet rangeFacet : response.getFacetRanges()) {
                 if (rangeFacet != null && StringUtils.hasText(rangeFacet.getName())) {
                     Field field = new SimpleField(rangeFacet.getName());
-                    if(rangeFacet instanceof RangeFacet.Date){
-                        RangeFacet.Date dateRangeFacet=(RangeFacet.Date)rangeFacet;
-                    if (CollectionUtils.isNotEmpty(dateRangeFacet.getCounts())) {
-                        List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
-                        for (RangeFacet.Count count : dateRangeFacet.getCounts()) {
-                            if (count != null) {
-                                pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                    if (rangeFacet instanceof RangeFacet.Date) {
+                        RangeFacet.Date dateRangeFacet = (RangeFacet.Date) rangeFacet;
+                        if (CollectionUtils.isNotEmpty(dateRangeFacet.getCounts())) {
+                            List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+                            for (RangeFacet.Count count : dateRangeFacet.getCounts()) {
+                                if (count != null) {
+                                    pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                                }
                             }
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+                                    .getPageable(), dateRangeFacet.getCounts().size()));
+                        } else {
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
+                                    .getFacetOptions().getPageable(), 0));
                         }
-                        facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
-                                .getPageable(), dateRangeFacet.getCounts().size()));
-                    } else {
-                        facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
-                                .getFacetOptions().getPageable(), 0));
+                    } else if (rangeFacet instanceof RangeFacet.Numeric) {
+                        RangeFacet.Numeric numericRangeFacet = (RangeFacet.Numeric) rangeFacet;
+                        if (CollectionUtils.isNotEmpty(numericRangeFacet.getCounts())) {
+                            List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+                            for (RangeFacet.Count count : numericRangeFacet.getCounts()) {
+                                if (count != null) {
+                                    pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                                }
+                            }
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+                                    .getPageable(), numericRangeFacet.getCounts().size()));
+                        } else {
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
+                                    .getFacetOptions().getPageable(), 0));
+                        }
                     }
-                    }
+
+
                 }
             }
         }

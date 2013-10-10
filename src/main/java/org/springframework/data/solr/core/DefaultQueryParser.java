@@ -219,16 +219,23 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
     private void appendRangeFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
         FacetRangeOptions facetRangeOptions = query.getFacetRangeOptions();
         if (facetRangeOptions != null) {
-            solrQuery.addFacetField(convertFieldListToStringArray(facetRangeOptions.getFacetRangeOnFields()));
             for (FieldWithFacetRangeParameters parametrizedField : facetRangeOptions.getFieldsWithRangeParameters()) {
-                addPerFieldFacetRangeParameters(solrQuery, parametrizedField);
+                if (parametrizedField instanceof FacetRangeOptions.FieldWithDateFacetRangeParameters) {
+                    final FacetRangeOptions.FieldWithDateFacetRangeParameters dateRangeField =
+                            ((FacetRangeOptions.FieldWithDateFacetRangeParameters) parametrizedField);
+                    solrQuery.addDateRangeFacet(dateRangeField.getName(),
+                            dateRangeField.getStart(),
+                            dateRangeField.getEnd(),
+                            dateRangeField.getGap());
+                } else if (parametrizedField instanceof FacetRangeOptions.FieldWithNumericFacetRangeParameters) {
+                    final FacetRangeOptions.FieldWithNumericFacetRangeParameters numericRangeField =
+                            ((FacetRangeOptions.FieldWithNumericFacetRangeParameters) parametrizedField);
+                    solrQuery.addNumericRangeFacet(numericRangeField.getName(),
+                            numericRangeField.getStart(),
+                            numericRangeField.getEnd(),
+                            numericRangeField.getGap());
+                }
             }
-        }
-    }
-
-    private void addPerFieldFacetRangeParameters(SolrQuery solrQuery, FieldWithFacetRangeParameters field) {
-        for (FacetRangeParameter parameter : field) {
-            addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter);
         }
     }
 

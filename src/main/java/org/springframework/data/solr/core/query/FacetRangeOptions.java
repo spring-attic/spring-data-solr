@@ -174,7 +174,92 @@ public class FacetRangeOptions {
 
     public static class FieldWithFacetRangeParameters extends FieldWithQueryParameters<FacetRangeParameter> {
         
-        public FieldWithFacetRangeParameters(String name) {
+        private FieldWithFacetRangeParameters(String name) {
+            super(name);
+        }
+
+        /**
+         * @param rangeHardEnd
+         * @return
+         */
+        public FieldWithFacetRangeParameters setHardEnd(boolean rangeHardEnd) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_HARD_END, rangeHardEnd, true);
+            return this;
+        }
+
+        /**
+         * @return null if not set
+         */
+        public boolean getHardEnd() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_HARD_END);
+        }
+
+        /**
+         * @param rangeOther
+         * @return
+         */
+        public FieldWithFacetRangeParameters setOther(FacetParams.FacetRangeOther rangeOther) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_OTHER, rangeOther, true);
+            return this;
+        }
+
+        /**
+         * @return null if not set
+         */
+        public FacetParams.FacetRangeOther getOther() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_OTHER);
+        }
+
+        /**
+         * @param rangeInclude
+         * @return
+         */
+        public FieldWithFacetRangeParameters setInclude(FacetParams.FacetRangeInclude rangeInclude) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_INCLUDE, rangeInclude, true);
+            return this;
+        }
+
+        /**
+         * @return null if not set
+         */
+        public FacetParams.FacetRangeInclude getInclude() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE);
+        }
+
+        /**
+         * Add field specific parameter by name
+         *
+         * @param parameterName
+         * @param value
+         */
+        public FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value) {
+            return addFacetRangeParameter(parameterName, value, false);
+        }
+
+        protected FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value, boolean removeIfValueIsNull) {
+            if (removeIfValueIsNull && value == null) {
+                removeQueryParameter(parameterName);
+                return this;
+            }
+            return this.addFacetRangeParameter(new FacetRangeParameter(parameterName, value));
+        }
+
+        /**
+         * Add field specific facet parameter
+         *
+         * @param parameter
+         * @return
+         */
+        public FieldWithFacetRangeParameters addFacetRangeParameter(FacetRangeParameter parameter) {
+            this.addQueryParameter(parameter);
+            return this;
+        }
+
+    }
+
+    public static class FieldWithDateFacetRangeParameters extends FieldWithFacetRangeParameters {
+
+        public FieldWithDateFacetRangeParameters(String name) {
             super(name);
         }
 
@@ -225,68 +310,62 @@ public class FacetRangeOptions {
         public Date getEnd() {
             return getQueryParameterValue(FacetParams.FACET_RANGE_END);
         }
+    }
+
+    public static class FieldWithNumericFacetRangeParameters extends FieldWithFacetRangeParameters{
+
+
+        public FieldWithNumericFacetRangeParameters(String name) {
+            super(name);
+        }
 
         /**
-         * @param rangeHardEnd
+         * @param rangeGap
          * @return
          */
-        public FieldWithFacetRangeParameters setHardEnd(String rangeHardEnd) {
-            addFacetRangeParameter(FacetParams.FACET_RANGE_HARD_END, rangeHardEnd, true);
+        public FieldWithFacetRangeParameters setGap(Number rangeGap) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_GAP, rangeGap, true);
             return this;
         }
 
         /**
          * @return null if not set
          */
-        public String getHardEnd() {
-            return getQueryParameterValue(FacetParams.FACET_RANGE_HARD_END);
+        public Number getGap() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_GAP);
         }
 
         /**
-         * @param rangeOther
+         * @param rangeStart
          * @return
          */
-        public FieldWithFacetRangeParameters setOther(String rangeOther) {
-            addFacetRangeParameter(FacetParams.FACET_RANGE_OTHER, rangeOther, true);
+        public FieldWithFacetRangeParameters setStart(Number rangeStart) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_START, rangeStart, true);
             return this;
         }
 
         /**
          * @return null if not set
          */
-        public String getOther() {
-            return getQueryParameterValue(FacetParams.FACET_RANGE_OTHER);
+        public Number getStart() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_START);
         }
 
         /**
-         * Add field specific parameter by name
-         *
-         * @param parameterName
-         * @param value
-         */
-        public FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value) {
-            return addFacetRangeParameter(parameterName, value, false);
-        }
-
-        protected FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value, boolean removeIfValueIsNull) {
-            if (removeIfValueIsNull && value == null) {
-                removeQueryParameter(parameterName);
-                return this;
-            }
-            return this.addFacetRangeParameter(new FacetRangeParameter(parameterName, value));
-        }
-
-        /**
-         * Add field specific facet parameter
-         *
-         * @param parameter
+         * @param rangeEnd
          * @return
          */
-        public FieldWithFacetRangeParameters addFacetRangeParameter(FacetRangeParameter parameter) {
-            this.addQueryParameter(parameter);
+        public FieldWithFacetRangeParameters setEnd(Number rangeEnd) {
+            addFacetRangeParameter(FacetParams.FACET_RANGE_END, rangeEnd, true);
             return this;
         }
 
+        /**
+         * @return null if not set
+         */
+        public Number getEnd() {
+            return getQueryParameterValue(FacetParams.FACET_RANGE_END);
+        }
     }
 
 
