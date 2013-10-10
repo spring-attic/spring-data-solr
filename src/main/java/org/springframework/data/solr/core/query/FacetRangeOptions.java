@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -197,7 +198,7 @@ public class FacetRangeOptions {
          * @param rangeStart
          * @return
          */
-        public FieldWithFacetRangeParameters setStart(String rangeStart) {
+        public FieldWithFacetRangeParameters setStart(Date rangeStart) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_START, rangeStart, true);
             return this;
         }
@@ -205,7 +206,7 @@ public class FacetRangeOptions {
         /**
          * @return null if not set
          */
-        public String getStart() {
+        public Date getStart() {
             return getQueryParameterValue(FacetParams.FACET_RANGE_START);
         }
 
@@ -213,7 +214,7 @@ public class FacetRangeOptions {
          * @param rangeEnd
          * @return
          */
-        public FieldWithFacetRangeParameters setEnd(String rangeEnd) {
+        public FieldWithFacetRangeParameters setEnd(Date rangeEnd) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_END, rangeEnd, true);
             return this;
         }
@@ -221,7 +222,7 @@ public class FacetRangeOptions {
         /**
          * @return null if not set
          */
-        public String getEnd() {
+        public Date getEnd() {
             return getQueryParameterValue(FacetParams.FACET_RANGE_END);
         }
 
