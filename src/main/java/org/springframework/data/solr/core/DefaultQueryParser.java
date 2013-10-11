@@ -235,7 +235,12 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
                             numericRangeField.getEnd(),
                             numericRangeField.getGap());
                 }
+                if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
+                    addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,
+                            FacetParams.FACET_SORT_INDEX));
+                }
             }
+
         }
     }
 

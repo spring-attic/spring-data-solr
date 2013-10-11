@@ -19,9 +19,11 @@ import java.util.List;
 public class FacetRangeOptions {
 
     public static final int DEFAULT_FACET_LIMIT = 10;
+    public static final FacetOptions.FacetSort DEFAULT_FACET_SORT = FacetOptions.FacetSort.COUNT;
 
     private List<Field> facetRangeOnFields = new ArrayList<Field>(1);
     private int facetLimit = DEFAULT_FACET_LIMIT;
+    private FacetOptions.FacetSort facetSort = DEFAULT_FACET_SORT;
     private Pageable pageable;
 
     /**
@@ -120,12 +122,34 @@ public class FacetRangeOptions {
     }
 
     /**
+     * Set {@code facet.sort} ({@code INDEX} or {@code COUNT})
+     *
+     * @param facetSort Default is {@code COUNT}
+     * @return
+     */
+    public FacetRangeOptions setFacetSort(FacetOptions.FacetSort facetSort) {
+        Assert.notNull(facetSort, "FacetSort must not be null.");
+
+        this.facetSort = facetSort;
+        return this;
+    }
+
+    /**
      * Get the max number of results per facet field.
      *
      * @return
      */
     public int getFacetLimit() {
         return this.facetLimit;
+    }
+
+    /**
+     * Get sorting of facet results. Default is COUNT
+     *
+     * @return
+     */
+    public FacetOptions.FacetSort getFacetSort() {
+        return this.facetSort;
     }
 
 
@@ -173,9 +197,25 @@ public class FacetRangeOptions {
     }
 
     public static class FieldWithFacetRangeParameters extends FieldWithQueryParameters<FacetRangeParameter> {
-        
+
         private FieldWithFacetRangeParameters(String name) {
             super(name);
+        }
+
+        /**
+         * @param rangeSort
+         * @return
+         */
+        public FieldWithFacetRangeParameters setSort(FacetOptions.FacetSort rangeSort) {
+            addFacetRangeParameter(FacetParams.FACET_SORT, rangeSort, true);
+            return this;
+        }
+
+        /**
+         * @return null if not set
+         */
+        public FacetOptions.FacetSort getSort() {
+            return getQueryParameterValue(FacetParams.FACET_SORT);
         }
 
         /**
@@ -312,7 +352,7 @@ public class FacetRangeOptions {
         }
     }
 
-    public static class FieldWithNumericFacetRangeParameters extends FieldWithFacetRangeParameters{
+    public static class FieldWithNumericFacetRangeParameters extends FieldWithFacetRangeParameters {
 
 
         public FieldWithNumericFacetRangeParameters(String name) {
