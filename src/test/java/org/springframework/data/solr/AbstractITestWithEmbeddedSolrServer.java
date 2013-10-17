@@ -40,19 +40,21 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 	protected static String DEFAULT_BEAN_ID = "1";
 
 	@BeforeClass
-	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException {
+	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException,
+			InterruptedException {
 		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
-		solrServer = new EmbeddedSolrServer(new CoreContainer(solrHome, new File(solrHome + "/solr.xml")), null);
+		CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome, new File(solrHome + "/solr.xml"));
+		solrServer = new EmbeddedSolrServer(coreContainer, null);
 	}
 
-	@AfterClass
 	public static void cleanDataInSolr() throws SolrServerException, IOException {
 		solrServer.deleteByQuery("*:*");
 		solrServer.commit();
 	}
 
 	@AfterClass
-	public static void shutdown() {
+	public static void shutdown() throws SolrServerException, IOException {
+		cleanDataInSolr();
 		solrServer.shutdown();
 	}
 

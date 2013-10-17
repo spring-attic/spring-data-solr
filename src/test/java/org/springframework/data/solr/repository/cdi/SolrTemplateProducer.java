@@ -17,38 +17,52 @@ package org.springframework.data.solr.repository.cdi;
 
 import java.io.IOException;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.CoreContainer;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.server.SolrServerFactory;
-import org.springframework.data.solr.server.support.HttpSolrServerFactory;
+import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.server.support.EmbeddedSolrServerFactory;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
 /**
  * @author Christoph Strobl
  */
+@ApplicationScoped
 class SolrTemplateProducer {
 
 	@Produces
-	@ApplicationScoped
 	public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
-		SolrServer solrServer = getSolrServerInstance();
-		SolrServerFactory factory = new HttpSolrServerFactory(solrServer);
+		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(ResourceUtils.getURL(
+				"classpath:org/springframework/data/solr").getPath());
 		return new SolrTemplate(factory);
 	}
 
-	private SolrServer getSolrServerInstance() throws IOException, ParserConfigurationException, SAXException {
-		System.setProperty("solr.solr.home", ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath());
-		CoreContainer.Initializer initializer = new CoreContainer.Initializer();
-		CoreContainer coreContainer = initializer.initialize();
-		return new EmbeddedSolrServer(coreContainer, "");
+	@PreDestroy
+	public void shutdown() {
+		// remove everything to avoid conflicts with other tests in case server not shut down properly
+		deleteAll();
+	}
+
+	private void deleteAll() {
+		SolrOperations template;
+		try {
+			template = createSolrTemplate();
+			template.delete(new SimpleQuery(new SimpleStringCriteria("*:*")));
+			template.commit();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e);
+		} catch (SAXException e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 }

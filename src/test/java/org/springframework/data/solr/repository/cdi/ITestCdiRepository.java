@@ -19,6 +19,7 @@ import org.apache.webbeans.cditest.CdiTestContainer;
 import org.apache.webbeans.cditest.CdiTestContainerLoader;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.data.solr.repository.ProductBean;
@@ -29,6 +30,7 @@ import org.springframework.data.solr.repository.ProductBean;
 public class ITestCdiRepository {
 
 	private static CdiTestContainer cdiContainer;
+	private CdiProductRepository repository;
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -39,19 +41,23 @@ public class ITestCdiRepository {
 
 	@AfterClass
 	public static void shutdown() throws Exception {
+		cdiContainer.stopContexts();
 		cdiContainer.shutdownContainer();
+	}
+
+	@Before
+	public void setUp() {
+		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
+		repository = client.getRepository();
 	}
 
 	@Test
 	public void testCdiRepository() {
-		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
-		CdiProductRepository repository = client.getRepository();
-
 		Assert.assertNotNull(repository);
 
 		ProductBean bean = new ProductBean();
 		bean.setId("id-1");
-		bean.setName("name-1");
+		bean.setName("cidContainerTest-1");
 
 		repository.save(bean);
 

@@ -23,7 +23,7 @@
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
-		<solr>4.3.1</solr>
+		<solr>4.5.0</solr>
 		<springdata.commons>1.6.1.RELEASE</springdata.commons>
 	</properties>
 	
@@ -171,6 +171,10 @@
 				<exclusion>
 					<groupId>org.restlet.jee</groupId>
 					<artifactId>org.restlet.ext.servlet</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jdk.tools</artifactId>
+					<groupId>jdk.tools</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
