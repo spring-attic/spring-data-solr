@@ -39,9 +39,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.PartialUpdate;
-import org.springframework.data.solr.repository.Indexed;
 
 /**
  * @author Christoph Strobl

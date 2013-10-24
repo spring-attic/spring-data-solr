@@ -32,7 +32,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 
 	/**
 	 * @return true if {@link org.apache.solr.client.solrj.beans.Field} is present and not marked
-	 *         {@link org.springframework.data.solr.repository.Indexed#readonly()} = {@code true}
+	 *         {@link org.springframework.data.solr.core.mapping.Indexed#readonly()} = {@code true}
 	 */
 	boolean isReadonly();
 

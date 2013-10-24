@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.repository;
+package org.springframework.data.solr.core.mapping;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * @author Christoph Strobl
@@ -36,5 +38,12 @@ public @interface Indexed {
 	 * @return
 	 */
 	boolean readonly() default false;
+
+	/**
+	 * if not set the fields name or the one defined via {@link Field} will be used
+	 * 
+	 * @return
+	 */
+	String value() default "";
 
 }

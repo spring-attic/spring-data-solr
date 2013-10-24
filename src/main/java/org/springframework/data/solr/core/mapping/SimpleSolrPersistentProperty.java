@@ -25,7 +25,6 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.repository.Indexed;
 import org.springframework.util.StringUtils;
 
 /**
@@ -57,13 +56,22 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 	@Override
 	public String getFieldName() {
-		org.apache.solr.client.solrj.beans.Field annotation = getFieldAnnotation();
+		String fieldName = readAnnotatedFieldName();
 
-		if (annotation != null && StringUtils.hasText(annotation.value())
-				&& !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(annotation.value())) {
-			return annotation.value();
+		if (StringUtils.hasText(fieldName) && !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(fieldName)) {
+			return fieldName;
 		}
 		return field.getName();
+	}
+
+	private String readAnnotatedFieldName() {
+		String fieldName = null;
+		if (isAnnotationPresent(org.apache.solr.client.solrj.beans.Field.class)) {
+			fieldName = findAnnotation(org.apache.solr.client.solrj.beans.Field.class).value();
+		} else if (isAnnotationPresent(Indexed.class)) {
+			fieldName = findAnnotation(Indexed.class).value();
+		}
+		return fieldName;
 	}
 
 	@Override
