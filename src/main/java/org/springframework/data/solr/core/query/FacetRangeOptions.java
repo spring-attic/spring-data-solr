@@ -29,7 +29,7 @@ public class FacetRangeOptions {
     /**
      * Creates new instance range faceting on fields with given name
      *
-     * @param fieldnames
+     * @param fieldnames the fieldnames to range facet on
      */
     public FacetRangeOptions(String... fieldnames) {
         Assert.notNull(fieldnames, "Fields must not be null.");
@@ -41,9 +41,9 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Creates new instance faceting on given fields
+     * Creates new instance range faceting on given fields
      *
-     * @param fields
+     * @param fields the {@link Field}'s to range facet on
      */
     public FacetRangeOptions(Field... fields) {
         Assert.notNull(fields, "Fields must not be null.");
@@ -55,10 +55,10 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Append additional field for faceting
+     * Append additional field for range faceting
      *
-     * @param field
-     * @return
+     * @param field the {@link Field} to append for range faceting
+     * @return this
      */
     public final FacetRangeOptions addFacetRangeOnField(Field field) {
         Assert.notNull(field, "Cannot facet on null field.");
@@ -69,10 +69,10 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Append additional field with given name for faceting
+     * Append additional field with given name for range faceting
      *
-     * @param fieldname
-     * @return
+     * @param fieldname the fieldname to append for range faceting
+     * @return this
      */
     public final FacetRangeOptions addFacetRangeOnField(String fieldname) {
         addFacetRangeOnField(new SimpleField(fieldname));
@@ -80,10 +80,10 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Append all fieldnames for faceting
+     * Append all fieldnames for range faceting
      *
-     * @param fieldnames
-     * @return
+     * @param fieldnames a collection of fieldnames for range faceting
+     * @return this
      */
     public final FacetRangeOptions addFacetRangeOnFieldnames(Collection<String> fieldnames) {
         Assert.notNull(fieldnames);
@@ -95,9 +95,9 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Get the list of Fields to facet on
+     * Get the list of {@link Field}'s to facet on
      *
-     * @return
+     * @return this
      */
     public final List<Field> getFacetRangeOnFields() {
         return Collections.unmodifiableList(this.facetRangeOnFields);
@@ -114,7 +114,7 @@ public class FacetRangeOptions {
      * Set {@code facet.limit}
      *
      * @param rowsToReturn Default is 10
-     * @return
+     * @return this
      */
     public FacetRangeOptions setFacetLimit(int rowsToReturn) {
         this.facetLimit = Math.max(1, rowsToReturn);
@@ -125,7 +125,7 @@ public class FacetRangeOptions {
      * Set {@code facet.sort} ({@code INDEX} or {@code COUNT})
      *
      * @param facetSort Default is {@code COUNT}
-     * @return
+     * @return this
      */
     public FacetRangeOptions setFacetSort(FacetOptions.FacetSort facetSort) {
         Assert.notNull(facetSort, "FacetSort must not be null.");
@@ -137,16 +137,16 @@ public class FacetRangeOptions {
     /**
      * Get the max number of results per facet field.
      *
-     * @return
+     * @return the facet limit
      */
     public int getFacetLimit() {
         return this.facetLimit;
     }
 
     /**
-     * Get sorting of facet results. Default is COUNT
+     * Get sorting of range facet results. Default is COUNT
      *
-     * @return
+     * @return FacetOptions.FacetSort.COUNT or FacetOptions.FacetSort.INDEX
      */
     public FacetOptions.FacetSort getFacetSort() {
         return this.facetSort;
@@ -156,7 +156,7 @@ public class FacetRangeOptions {
     /**
      * Get the facet page requested.
      *
-     * @return
+     * @return the {@link Pageable} for the range facet page
      */
     public Pageable getPageable() {
         return this.pageable != null ? this.pageable : new PageRequest(0, facetLimit);
@@ -165,8 +165,8 @@ public class FacetRangeOptions {
     /**
      * Set {@code facet.offet} and {@code facet.limit}
      *
-     * @param pageable
-     * @return
+     * @param pageable a {@link Pageable} for the range facet page
+     * @return this
      */
     public FacetRangeOptions setPageable(Pageable pageable) {
         this.pageable = pageable;
@@ -196,6 +196,9 @@ public class FacetRangeOptions {
 
     }
 
+    /**
+     * Class representing common facet range parameters
+     */
     public static class FieldWithFacetRangeParameters extends FieldWithQueryParameters<FacetRangeParameter> {
 
         private FieldWithFacetRangeParameters(String name) {
@@ -203,8 +206,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeSort
-         * @return
+         * @param rangeSort FacetOptions.FacetSort.COUNT or FacetOptions.FacetSort.INDEX
+         * @return this
          */
         public FieldWithFacetRangeParameters setSort(FacetOptions.FacetSort rangeSort) {
             addFacetRangeParameter(FacetParams.FACET_SORT, rangeSort, true);
@@ -219,8 +222,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeHardEnd
-         * @return
+         * @param rangeHardEnd the hard end param
+         * @return this
          */
         public FieldWithFacetRangeParameters setHardEnd(boolean rangeHardEnd) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_HARD_END, rangeHardEnd, true);
@@ -235,8 +238,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeOther
-         * @return
+         * @param rangeOther FacetParams.FacetRangeOther option
+         * @return this
          */
         public FieldWithFacetRangeParameters setOther(FacetParams.FacetRangeOther rangeOther) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_OTHER, rangeOther, true);
@@ -251,8 +254,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeInclude
-         * @return
+         * @param rangeInclude FacetParams.FacetRangeInclude option
+         * @return this
          */
         public FieldWithFacetRangeParameters setInclude(FacetParams.FacetRangeInclude rangeInclude) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_INCLUDE, rangeInclude, true);
@@ -267,10 +270,10 @@ public class FacetRangeOptions {
         }
 
         /**
-         * Add field specific parameter by name
+         * Add field specific facet range parameter by name
          *
-         * @param parameterName
-         * @param value
+         * @param parameterName the parameters name
+         * @param value         the parameters value
          */
         public FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value) {
             return addFacetRangeParameter(parameterName, value, false);
@@ -285,10 +288,10 @@ public class FacetRangeOptions {
         }
 
         /**
-         * Add field specific facet parameter
+         * Add field specific range facet parameter
          *
-         * @param parameter
-         * @return
+         * @param parameter the parameter as {@link FacetRangeParameter}
+         * @return this
          */
         public FieldWithFacetRangeParameters addFacetRangeParameter(FacetRangeParameter parameter) {
             this.addQueryParameter(parameter);
@@ -297,6 +300,9 @@ public class FacetRangeOptions {
 
     }
 
+    /**
+     * Class representing date field specific facet range parameters
+     */
     public static class FieldWithDateFacetRangeParameters extends FieldWithFacetRangeParameters {
 
         public FieldWithDateFacetRangeParameters(String name) {
@@ -304,8 +310,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeGap
-         * @return
+         * @param rangeGap the range gap
+         * @return this
          */
         public FieldWithFacetRangeParameters setGap(String rangeGap) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_GAP, rangeGap, true);
@@ -320,8 +326,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeStart
-         * @return
+         * @param rangeStart range start as {@link Date}
+         * @return this
          */
         public FieldWithFacetRangeParameters setStart(Date rangeStart) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_START, rangeStart, true);
@@ -336,8 +342,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeEnd
-         * @return
+         * @param rangeEnd range end as {@link Date}
+         * @return this
          */
         public FieldWithFacetRangeParameters setEnd(Date rangeEnd) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_END, rangeEnd, true);
@@ -352,6 +358,9 @@ public class FacetRangeOptions {
         }
     }
 
+    /**
+     * Class representing numeric field specific facet range parameters
+     */
     public static class FieldWithNumericFacetRangeParameters extends FieldWithFacetRangeParameters {
 
 
@@ -360,8 +369,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeGap
-         * @return
+         * @param rangeGap the rangeGap as Number
+         * @return this
          */
         public FieldWithFacetRangeParameters setGap(Number rangeGap) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_GAP, rangeGap, true);
@@ -376,8 +385,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeStart
-         * @return
+         * @param rangeStart range start as {@link Number}
+         * @return this
          */
         public FieldWithFacetRangeParameters setStart(Number rangeStart) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_START, rangeStart, true);
@@ -392,8 +401,8 @@ public class FacetRangeOptions {
         }
 
         /**
-         * @param rangeEnd
-         * @return
+         * @param rangeEnd range start as {@link Number}
+         * @return this
          */
         public FieldWithFacetRangeParameters setEnd(Number rangeEnd) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_END, rangeEnd, true);
