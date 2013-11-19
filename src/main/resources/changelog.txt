@@ -1,3 +1,18 @@
+Release Notes - Spring Data Solr - Version 1.1 M1 (Codd)
+--------------------------------------------------------
+** Bug
+    * [DATASOLR-116] - MappingSolrConverter doesn't honor Solr wildcard rules on read
+
+** Improvement
+    * [DATASOLR-99] - Allow defining Solr field name via @Indexed
+
+** New Feature
+    * [DATASOLR-113] - Add suport to Pivot fields
+
+** Task
+    * [DATASOLR-123] - Ensure compatibility with Spring Framework 4.0.0.X
+    * [DATASOLR-126] - Release 1.1 M1
+
 Release Notes - Spring Data Solr - Version 1.0 GA - 2013-09-11
 --------------------------------------------------------------
 ** Fix
