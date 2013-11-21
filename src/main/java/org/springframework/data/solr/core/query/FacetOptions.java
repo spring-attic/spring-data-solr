@@ -132,8 +132,8 @@ public class FacetOptions {
 		Assert.notNull(fields, "Pivot Facets must not be null.");
 
 		for (int i = 0; i < fields.length; i++) {
-			Assert.notNull(fields[0], "Cannot facet on null field.");
-			Assert.hasText(fields[0].getName(), "Cannot facet on field with null/empty fieldname.");
+			Assert.notNull(fields[i], "Cannot facet on null field.");
+			Assert.hasText(fields[i].getName(), "Cannot facet on field with null/empty fieldname.");
 		}
 		List<Field> list = Arrays.asList(fields);
 		this.facetOnPivotFields.add(new SimplePivotField(list));
@@ -146,8 +146,10 @@ public class FacetOptions {
 	 * @return
 	 */
 	public final FacetOptions addFacetOnPivot(String... fieldnames) {
-		Assert.noNullElements(fieldnames, "Fieldnames must not contain null values");
 		Assert.state(fieldnames.length > 1, "2 or more fields required for pivot facets");
+		for (String fieldname : fieldnames) {
+			Assert.hasText(fieldname, "Fieldnames must not contain null/empty values");
+		}
 
 		this.facetOnPivotFields.add(new SimplePivotField(fieldnames));
 		return this;
