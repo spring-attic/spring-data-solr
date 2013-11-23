@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.VersionUtil;
@@ -53,6 +52,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.query.result.TermsResultPage;
@@ -76,8 +76,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private ApplicationContext applicationContext;
 	private String solrCore;
 
-	@SuppressWarnings("serial")
-	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
+	@SuppressWarnings("serial") private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
 		{
 			add(List.class.getName());
 			add(Collection.class.getName());
@@ -269,13 +268,14 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> Page<T> queryForPage(Query query, Class<T> clazz) {
+	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		QueryResponse response = query(query);
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		return new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
+		SolrDocumentList results = response.getResults();
+		return new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(), results.getMaxScore());
 	}
 
 	@Override
@@ -286,7 +286,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		QueryResponse response = query(query);
 
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
+		SolrDocumentList results = response.getResults();
+		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(),
+				results.getMaxScore());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
 		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
@@ -302,7 +304,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		QueryResponse response = query(query);
 
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
+		SolrDocumentList results = response.getResults();
+		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(),
+				results.getMaxScore());
 		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
 
 		return page;

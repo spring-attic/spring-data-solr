@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
@@ -36,6 +37,7 @@ import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrServer {
 
@@ -93,6 +95,18 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
 		Assert.assertEquals(1, result.getContent().size());
+	}
+
+	@Test
+	public void testScoredAnnotatedQuery() {
+		ProductBean initial = createProductBean("1");
+
+		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+		repository.save(initial);
+
+		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", new PageRequest(0, 5));
+		Assert.assertEquals(1, result.getContent().size());
+		Assert.assertEquals(Float.valueOf(1), result.getMaxScore());
 	}
 
 	@Test
@@ -160,6 +174,9 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		@Query("id:?0")
 		ProductBean findSingleElement(String id);
+
+		@Query(value = "name:?0*", fields = { "*", "score" })
+		ScoredPage<ProductBean> findByAnnotatedQuery1(String prefix, Pageable page);
 
 	}
 

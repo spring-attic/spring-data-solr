@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,7 @@ import org.springframework.util.StringUtils;
  */
 final class ResultHelper {
 
-	private ResultHelper() {
-	}
+	private ResultHelper() {}
 
 	static Map<String, List<TermsFieldEntry>> convertTermsQueryResponseToTermsMap(QueryResponse response) {
 		if (response == null || response.getTermsResponse() == null || response.getTermsResponse().getTermMap() == null) {
@@ -113,10 +112,10 @@ final class ResultHelper {
 							}
 						}
 						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
-								.getPageable(), facetField.getValueCount()));
+								.getPageable(), facetField.getValueCount(), null));
 					} else {
 						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
-								.getFacetOptions().getPageable(), 0));
+								.getFacetOptions().getPageable(), 0, null));
 					}
 				}
 			}

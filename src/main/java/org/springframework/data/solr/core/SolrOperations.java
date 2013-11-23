@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 
 /**
@@ -37,6 +38,7 @@ import org.springframework.data.solr.core.query.result.TermsPage;
  * 
  * @author Christoph Strobl
  * @author Joachim Uhrlass
+ * @author Francisco Spaeth
  */
 public interface SolrOperations {
 
@@ -170,7 +172,7 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return
 	 */
-	<T> Page<T> queryForPage(Query query, Class<T> clazz);
+	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
 
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
@@ -205,7 +207,6 @@ public interface SolrOperations {
 
 	/**
 	 * Send soft commmit command {@link SolrServer#commit(boolean, boolean, boolean)}
-	 * 
 	 */
 	void softCommit();
 
