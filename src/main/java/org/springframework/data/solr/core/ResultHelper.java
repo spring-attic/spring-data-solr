@@ -113,10 +113,10 @@ final class ResultHelper {
 							}
 						}
 						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
-								.getPageable(), facetField.getValueCount()));
+								.getPageable(), facetField.getValueCount(), null));
 					} else {
 						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
-								.getFacetOptions().getPageable(), 0));
+								.getFacetOptions().getPageable(), 0, null));
 					}
 				}
 			}

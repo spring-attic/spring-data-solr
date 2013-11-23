@@ -30,6 +30,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 
 /**
@@ -170,7 +171,7 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return
 	 */
-	<T> Page<T> queryForPage(Query query, Class<T> clazz);
+	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
 
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
