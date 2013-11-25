@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository.support;
 
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +26,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.repository.ProductBean;
+import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
 
 /**
@@ -79,6 +82,12 @@ public class SolrRepositoryFactoryTests {
 		ProductRepository repository = repoFactory.getRepository(ProductRepository.class);
 		Assert.assertNotNull(repository);
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testGetRepositoryOfUnmanageableType() {
+		new SolrRepositoryFactory(new SolrTemplate(new HttpSolrServer(
+                "http://solrserver:8983/solr"), null)).getRepository(UnmanagedEntityRepository.class);
+	}
 
 	@SuppressWarnings("unchecked")
 	private void initMappingContext() {
@@ -90,4 +99,8 @@ public class SolrRepositoryFactoryTests {
 
 	}
 
+	interface UnmanagedEntityRepository extends SolrCrudRepository<Object, String> {
+	    
+	}
+	
 }

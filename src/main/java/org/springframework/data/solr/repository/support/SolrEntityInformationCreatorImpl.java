@@ -43,6 +43,8 @@ public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCr
 		SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext
 				.getPersistentEntity(domainClass);
 
+		Assert.notNull(persistentEntity, "not an managed type: " + domainClass);
+
 		return new MappingSolrEntityInformation<T, ID>(persistentEntity);
 	}
 
