@@ -72,7 +72,7 @@ public interface SolrProductRepository extends SolrCrudRepository<Product, Strin
   //Highlighting results
   //Query will be "q=name:(<name...>)&hl=true&hl.fl=*"
   @Highlight
-  HighlightPage<Product> findByNameIn(Collection<String> name, Page page);
+  HighlightPage<Product> findByNameIn(Collection<String> name, Pageable page);
   
   //Spatial Search
   //Query will be "q=location:[<bbox.start.latitude>,<bbox.start.longitude> TO <bbox.end.latitude>,<bbox.end.longitude>]"
