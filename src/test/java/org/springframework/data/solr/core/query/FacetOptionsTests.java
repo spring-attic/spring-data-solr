@@ -22,6 +22,7 @@ import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParam
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class FacetOptionsTests {
 
@@ -80,13 +81,62 @@ public class FacetOptionsTests {
 	}
 
 	@Test
-	public void testAddFacetOnPivot() {
+	public void testAddFacetOnPivotWithFieldNames() {
 		FacetOptions options = new FacetOptions();
 		options.addFacetOnPivot("field_1", "field2");
 		Assert.assertTrue(options.hasFacets());
 		Assert.assertTrue(options.hasPivotFields());
 		Assert.assertEquals(1, options.getFacetOnPivots().size());
 		Assert.assertTrue(options.hasFields());
+		Assert.assertEquals("field_1,field2", options.getFacetOnPivots().get(0).getName());
+	}
+
+	@Test
+	public void testAddFacetOnPivotWithField() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot(new SimpleField("field_1"), new SimpleField("field2"));
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasPivotFields());
+		Assert.assertEquals(1, options.getFacetOnPivots().size());
+		Assert.assertTrue(options.hasFields());
+		Assert.assertEquals("field_1,field2", options.getFacetOnPivots().get(0).getName());
+	}
+
+	@Test
+	public void testAddMultipleFacetOnPivotWithField() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot(new SimpleField("field_1"), new SimpleField("field2"));
+		options.addFacetOnPivot(new SimpleField("field_3"), new SimpleField("field4"));
+		Assert.assertTrue(options.hasFacets());
+		Assert.assertTrue(options.hasPivotFields());
+		Assert.assertEquals(2, options.getFacetOnPivots().size());
+		Assert.assertTrue(options.hasFields());
+		Assert.assertEquals("field_1,field2", options.getFacetOnPivots().get(0).getName());
+		Assert.assertEquals("field_3,field4", options.getFacetOnPivots().get(1).getName());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnPivotWithoutFieldName() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot("field_1", "");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnPivotWithNullFieldName() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot("field_1", null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnPivotWithEmptyField() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot(new SimpleField("field_1"), new SimpleField(""));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testAddFacetOnPivotWithNullField() {
+		FacetOptions options = new FacetOptions();
+		options.addFacetOnPivot(new SimpleField("field_1"), null);
 	}
 
 	@Test
