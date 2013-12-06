@@ -23,6 +23,8 @@ import java.lang.annotation.Target;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -71,5 +73,23 @@ public @interface Facet {
 	 * @return prefix
 	 */
 	String prefix() default "";
+
+	/**
+	 * {@code facet.pivot}
+	 * 
+	 * fields to pivot on
+	 * 
+	 * @return
+	 */
+	String[] pivotFields() default {};
+
+	/**
+	 * {@code facet.pivot.mincount}
+	 * 
+	 * minimum number of hits for result to be included in pivot response
+	 * 
+	 * @return
+	 */
+	int pivotMinCount() default 1;
 
 }

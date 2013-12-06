@@ -29,22 +29,28 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
+import org.apache.solr.common.util.NamedList;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.repository.util.ClassUtils;
+import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
+import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
+import org.springframework.data.solr.core.query.result.SimpleFacetPivotEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
 import org.springframework.data.solr.core.query.result.SimpleTermsFieldEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
@@ -57,6 +63,7 @@ import org.springframework.util.StringUtils;
  * care of non existent and null elements with the response.
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 final class ResultHelper {
 
@@ -170,6 +177,49 @@ final class ResultHelper {
         }
         return facetResult;
     }
+
+	static Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> convertFacetQueryResponseToFacetPivotMap(
+			FacetQuery query, QueryResponse response) {
+
+		if (VersionUtil.isSolr3XAvailable()) {
+			// pivot facets are a solr 4+ Feature
+			return Collections.emptyMap();
+		}
+
+		Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> facetResult = new HashMap<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>>();
+		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
+		if (facetPivot != null && facetPivot.size() > 0) {
+			for (int i = 0; i < facetPivot.size(); i++) {
+				String name = facetPivot.getName(i);
+				List<PivotField> pivotResult = facetPivot.get(name);
+				facetResult.put(new SimplePivotField(name), convertPivotResult(pivotResult));
+			}
+		}
+
+		return facetResult;
+	}
+
+	private static List<FacetPivotFieldEntry> convertPivotResult(List<PivotField> pivotResult) {
+		if (CollectionUtils.isEmpty(pivotResult)) {
+			return Collections.emptyList();
+		}
+
+		ArrayList<FacetPivotFieldEntry> pivotFieldEntries = new ArrayList<FacetPivotFieldEntry>();
+
+		for (PivotField pivotField : pivotResult) {
+			SimpleFacetPivotEntry pivotFieldEntry = new SimpleFacetPivotEntry(new SimpleField(pivotField.getField()),
+					String.valueOf(pivotField.getValue()), pivotField.getCount());
+
+			List<PivotField> pivot = pivotField.getPivot();
+			if (pivot != null) {
+				pivotFieldEntry.setPivot(convertPivotResult(pivot));
+			}
+
+			pivotFieldEntries.add(pivotFieldEntry);
+		}
+
+		return pivotFieldEntries;
+	}
 
 	static List<FacetQueryEntry> convertFacetQueryResponseToFacetQueryResult(FacetQuery query, QueryResponse response) {
 		Assert.notNull(query, "Cannot convert response for 'null', query");

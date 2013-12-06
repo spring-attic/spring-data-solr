@@ -60,6 +60,7 @@ import org.springframework.util.CollectionUtils;
  * @author Luke Corpe
  * @author Andrey Paramonov
  * @author Philipp Jardas
+ * @author Francisco Spaeth
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -105,6 +106,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (enableFaceting(solrQuery, query)) {
 			appendFacetingOnFields(solrQuery, (FacetQuery) query);
 			appendFacetingQueries(solrQuery, (FacetQuery) query);
+			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
 		}
 	}
 
@@ -176,7 +178,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
-		if (facetOptions == null || (!facetOptions.hasFields() && !facetOptions.hasFacetQueries())) {
+		if (facetOptions == null
+				|| (!facetOptions.hasFields() && !facetOptions.hasFacetQueries() && !facetOptions.hasPivotFields())) {
 			return false;
 		}
 		solrQuery.setFacet(true);
@@ -254,6 +257,17 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
+	private void appendFacetingOnPivot(SolrQuery solrQuery, FacetQuery query) {
+		if (VersionUtil.isSolr3XAvailable()) {
+			throw new UnsupportedOperationException(
+					"Pivot Facets are not available for solr version lower than 4.x - Please check your depdendencies.");
+		}
+
+		FacetOptions facetOptions = query.getFacetOptions();
+		String[] pivotFields = convertFieldListToStringArray(facetOptions.getFacetOnPivots());
+		solrQuery.addFacetPivotField(pivotFields);
+	}
+
 	/**
 	 * Append grouping parameters to {@link SolrQuery}
 	 *
@@ -319,7 +333,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
-	private String[] convertFieldListToStringArray(List<Field> fields) {
+	private String[] convertFieldListToStringArray(List<? extends Field> fields) {
 		String[] strResult = new String[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
 			strResult[i] = fields.get(i).getName();

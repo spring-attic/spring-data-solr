@@ -55,6 +55,7 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Luke Corpe
  * @author Andrey Paramonov
+ * @author Francisco Spaeth
  */
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
@@ -238,6 +239,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		if (queryMethod.hasFacetQueries()) {
 			for (String queryString : queryMethod.getFacetQueries()) {
 				options.addFacetQuery(createQueryFromString(queryString, parameterAccessor));
+			}
+		}
+		if (queryMethod.hasPivotFields()) {
+			for (String pivot : queryMethod.getPivotFields()) {
+				options.addFacetOnPivot(pivot);
 			}
 		}
 		options.setFacetLimit(queryMethod.getFacetLimit());

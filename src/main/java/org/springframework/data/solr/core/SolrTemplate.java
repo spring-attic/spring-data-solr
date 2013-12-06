@@ -65,6 +65,7 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  * @author Joachim Uhrlass
+ * @author Francisco Spaeth
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -288,6 +289,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
         page.addAllFacetFieldResultPages(ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(query, response));
+		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
 
 		return page;
