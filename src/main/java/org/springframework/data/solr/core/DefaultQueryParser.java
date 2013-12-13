@@ -47,6 +47,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Implementation of {@link QueryParser}. <br/>
@@ -248,6 +249,9 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
                             dateRangeField.getStart(),
                             dateRangeField.getEnd(),
                             dateRangeField.getGap());
+                    if(dateRangeField.getOther()!=null){
+                        solrQuery.add(String.format(Locale.ROOT, "f.%s.%s", dateRangeField.getName(),FacetParams.FACET_RANGE_OTHER),dateRangeField.getOther().name());
+                    }
                 } else if (parametrizedField instanceof FacetRangeOptions.FieldWithNumericFacetRangeParameters) {
                     final FacetRangeOptions.FieldWithNumericFacetRangeParameters numericRangeField =
                             ((FacetRangeOptions.FieldWithNumericFacetRangeParameters) parametrizedField);
@@ -255,6 +259,9 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
                             numericRangeField.getStart(),
                             numericRangeField.getEnd(),
                             numericRangeField.getGap());
+                    if(numericRangeField.getOther()!=null){
+                        solrQuery.add(String.format(Locale.ROOT, "f.%s.%s", numericRangeField.getName(),FacetParams.FACET_RANGE_OTHER),numericRangeField.getOther().name());
+                    }
                 }
                 if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
                     addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,

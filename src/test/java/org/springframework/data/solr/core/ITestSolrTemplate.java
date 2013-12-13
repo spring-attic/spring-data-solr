@@ -25,6 +25,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.params.FacetParams;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -448,10 +449,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
         final FacetRangeOptions.FieldWithNumericFacetRangeParameters popularityField =
                 new FacetRangeOptions.FieldWithNumericFacetRangeParameters("popularity");
-        popularityField.setSort(FacetOptions.FacetSort.COUNT);
+        popularityField.setSort(FacetOptions.FacetSort.INDEX);
         popularityField.setStart(100);
-        popularityField.setEnd(1000);
+        popularityField.setEnd(800);
         popularityField.setGap(200);
+        popularityField.setOther(FacetParams.FacetRangeOther.AFTER);
+        popularityField.setHardEnd(false);
 
         FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
                 .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(popularityField).setFacetLimit(5));
@@ -459,7 +462,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
         FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
         for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-            Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+            Assert.assertEquals(4, facetResultPage.getNumberOfElements());
         }
 
         Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("popularity"));
