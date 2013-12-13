@@ -18,13 +18,19 @@ import java.util.List;
  */
 public class FacetRangeOptions {
 
+    public static final int DEFAULT_FACET_MIN_COUNT = 1;
     public static final int DEFAULT_FACET_LIMIT = 10;
     public static final FacetOptions.FacetSort DEFAULT_FACET_SORT = FacetOptions.FacetSort.COUNT;
 
     private List<Field> facetRangeOnFields = new ArrayList<Field>(1);
+    private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
     private int facetLimit = DEFAULT_FACET_LIMIT;
     private FacetOptions.FacetSort facetSort = DEFAULT_FACET_SORT;
     private Pageable pageable;
+
+    public FacetRangeOptions() {
+
+    }
 
     /**
      * Creates new instance range faceting on fields with given name
@@ -111,6 +117,17 @@ public class FacetRangeOptions {
     }
 
     /**
+     * Set minimum number of hits {@code facet.mincount} for result to be included in response
+     *
+     * @param minCount Default is 1
+     * @return
+     */
+    public FacetRangeOptions setFacetMinCount(int minCount) {
+        this.facetMinCount = Math.max(0, minCount);
+        return this;
+    }
+
+    /**
      * Set {@code facet.limit}
      *
      * @param rowsToReturn Default is 10
@@ -132,6 +149,15 @@ public class FacetRangeOptions {
 
         this.facetSort = facetSort;
         return this;
+    }
+
+    /**
+     * get the min number of hits a result has to have to get listed in result. Default is 1. Zero is not recommended.
+     *
+     * @return
+     */
+    public int getFacetMinCount() {
+        return this.facetMinCount;
     }
 
     /**

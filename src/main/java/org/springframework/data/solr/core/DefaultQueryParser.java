@@ -15,9 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -35,7 +32,6 @@ import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.FacetRangeOptions;
-import org.springframework.data.solr.core.query.FacetRangeOptions.FacetRangeParameter;
 import org.springframework.data.solr.core.query.FacetRangeOptions.FieldWithFacetRangeParameters;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
@@ -48,6 +44,9 @@ import org.springframework.data.solr.core.query.QueryParameter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implementation of {@link QueryParser}. <br/>
@@ -111,7 +110,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	}
 
     private void processRangeFacetOptions(SolrQuery solrQuery, FacetQuery query) {
-        if (enableFaceting(solrQuery, query)) {
+        if (enableRangeFaceting(solrQuery, query)) {
             appendRangeFacetingOnFields(solrQuery, (FacetQuery) query);
         }
     }
@@ -193,6 +192,25 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 		return true;
 	}
+
+    private boolean enableRangeFaceting(SolrQuery solrQuery, FacetQuery query) {
+        FacetRangeOptions facetRangeOptions = query.getFacetRangeOptions();
+        if (facetRangeOptions == null
+                || (!facetRangeOptions.hasFields())) {
+            return false;
+        }
+        solrQuery.setFacet(true);
+        solrQuery.setFacetMinCount(facetRangeOptions.getFacetMinCount());
+        solrQuery.setFacetLimit(facetRangeOptions.getPageable().getPageSize());
+        if (facetRangeOptions.getPageable().getPageNumber() > 0) {
+            solrQuery.set(FacetParams.FACET_OFFSET, facetRangeOptions.getPageable().getOffset());
+        }
+        if (FacetOptions.FacetSort.INDEX.equals(facetRangeOptions.getFacetSort())) {
+            solrQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
+        }
+        return true;
+    }
+
 
 	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();

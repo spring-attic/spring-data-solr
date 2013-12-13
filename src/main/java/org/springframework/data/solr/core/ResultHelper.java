@@ -134,7 +134,7 @@ final class ResultHelper {
         }
         Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
 
-        if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
+        if (CollectionUtils.isNotEmpty(response.getFacetRanges())) {
             int initalPageSize = query.getFacetRangeOptions().getPageable().getPageSize();
             for (RangeFacet rangeFacet : response.getFacetRanges()) {
                 if (rangeFacet != null && StringUtils.hasText(rangeFacet.getName())) {
@@ -148,7 +148,7 @@ final class ResultHelper {
                                     pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
                                 }
                             }
-                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetRangeOptions()
                                     .getPageable(), dateRangeFacet.getCounts().size()));
                         } else {
                             facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
@@ -163,7 +163,7 @@ final class ResultHelper {
                                     pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
                                 }
                             }
-                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetRangeOptions()
                                     .getPageable(), numericRangeFacet.getCounts().size()));
                         } else {
                             facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
