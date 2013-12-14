@@ -33,20 +33,6 @@ public class FacetRangeOptions {
     }
 
     /**
-     * Creates new instance range faceting on fields with given name
-     *
-     * @param fieldnames the fieldnames to range facet on
-     */
-    public FacetRangeOptions(String... fieldnames) {
-        Assert.notNull(fieldnames, "Fields must not be null.");
-        Assert.noNullElements(fieldnames, "Cannot range facet on null fieldname.");
-
-        for (String fieldname : fieldnames) {
-            addFacetRangeOnField(fieldname);
-        }
-    }
-
-    /**
      * Creates new instance range faceting on given fields
      *
      * @param fields the {@link Field}'s to range facet on
@@ -71,32 +57,6 @@ public class FacetRangeOptions {
         Assert.hasText(field.getName(), "Cannot range facet on field with null/empty fieldname.");
 
         this.facetRangeOnFields.add(field);
-        return this;
-    }
-
-    /**
-     * Append additional field with given name for range faceting
-     *
-     * @param fieldname the fieldname to append for range faceting
-     * @return this
-     */
-    public final FacetRangeOptions addFacetRangeOnField(String fieldname) {
-        addFacetRangeOnField(new SimpleField(fieldname));
-        return this;
-    }
-
-    /**
-     * Append all fieldnames for range faceting
-     *
-     * @param fieldnames a collection of fieldnames for range faceting
-     * @return this
-     */
-    public final FacetRangeOptions addFacetRangeOnFieldnames(Collection<String> fieldnames) {
-        Assert.notNull(fieldnames);
-
-        for (String fieldname : fieldnames) {
-            addFacetRangeOnField(fieldname);
-        }
         return this;
     }
 
@@ -251,7 +211,7 @@ public class FacetRangeOptions {
          * @param rangeHardEnd the hard end param
          * @return this
          */
-        public FieldWithFacetRangeParameters setHardEnd(boolean rangeHardEnd) {
+        public FieldWithFacetRangeParameters setHardEnd(Boolean rangeHardEnd) {
             addFacetRangeParameter(FacetParams.FACET_RANGE_HARD_END, rangeHardEnd, true);
             return this;
         }
@@ -259,7 +219,7 @@ public class FacetRangeOptions {
         /**
          * @return null if not set
          */
-        public boolean getHardEnd() {
+        public Boolean getHardEnd() {
             return getQueryParameterValue(FacetParams.FACET_RANGE_HARD_END);
         }
 

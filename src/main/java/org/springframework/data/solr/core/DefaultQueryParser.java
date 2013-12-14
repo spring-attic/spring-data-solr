@@ -61,6 +61,7 @@ import java.util.Locale;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  * @author Francisco Spaeth
+ * @author Joachim Uhrlaß
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -248,10 +249,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
                     solrQuery.addDateRangeFacet(dateRangeField.getName(),
                             dateRangeField.getStart(),
                             dateRangeField.getEnd(),
-                            dateRangeField.getGap());
-                    if(dateRangeField.getOther()!=null){
-                        solrQuery.add(String.format(Locale.ROOT, "f.%s.%s", dateRangeField.getName(),FacetParams.FACET_RANGE_OTHER),dateRangeField.getOther().name());
-                    }
+                            dateRangeField.getGap());                   
                 } else if (parametrizedField instanceof FacetRangeOptions.FieldWithNumericFacetRangeParameters) {
                     final FacetRangeOptions.FieldWithNumericFacetRangeParameters numericRangeField =
                             ((FacetRangeOptions.FieldWithNumericFacetRangeParameters) parametrizedField);
@@ -259,13 +257,22 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
                             numericRangeField.getStart(),
                             numericRangeField.getEnd(),
                             numericRangeField.getGap());
-                    if(numericRangeField.getOther()!=null){
-                        solrQuery.add(String.format(Locale.ROOT, "f.%s.%s", numericRangeField.getName(),FacetParams.FACET_RANGE_OTHER),numericRangeField.getOther().name());
-                    }
                 }
                 if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
                     addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,
                             FacetParams.FACET_SORT_INDEX));
+                }
+                if (parametrizedField.getOther() != null) {
+                    addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_RANGE_OTHER,
+                            parametrizedField.getOther()));
+                }
+                if (parametrizedField.getInclude() != null) {
+                    addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_RANGE_INCLUDE,
+                            parametrizedField.getInclude()));
+                }
+                if (parametrizedField.getHardEnd()!=null && parametrizedField.getHardEnd()) {
+                    addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_DATE_HARD_END,
+                            true));
                 }
             }
 

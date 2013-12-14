@@ -402,6 +402,28 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
     @Test
+    public void testFacetQueryWithFacetRangeFields() {
+
+        final FacetRangeOptions.FieldWithDateFacetRangeParameters lastModifiedField =
+                new FacetRangeOptions.FieldWithDateFacetRangeParameters("last_modified");
+
+        lastModifiedField.setStart(new GregorianCalendar(2013, Calendar.NOVEMBER, 30).getTime());
+        lastModifiedField.setEnd(new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime());
+        lastModifiedField.setGap("+1DAY");
+
+        final FacetRangeOptions.FieldWithNumericFacetRangeParameters popularityField =
+                new FacetRangeOptions.FieldWithNumericFacetRangeParameters("popularity");
+
+        popularityField.setSort(FacetOptions.FacetSort.INDEX);
+        popularityField.setStart(100);
+        popularityField.setEnd(800);
+        popularityField.setGap(200);
+
+        FacetRangeOptions facetRangeOptions = new FacetRangeOptions(lastModifiedField, popularityField);
+        Assert.assertEquals(2, facetRangeOptions.getFacetRangeOnFields().size());
+    }
+
+    @Test
     public void testFacetQueryWithDateFacetRangeField() {
         List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
         for (int i = 0; i < 10; i++) {
@@ -418,6 +440,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
         lastModifiedField.setStart(new GregorianCalendar(2013, Calendar.NOVEMBER, 30).getTime());
         lastModifiedField.setEnd(new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime());
         lastModifiedField.setGap("+1DAY");
+        lastModifiedField.setOther(FacetParams.FacetRangeOther.ALL);
+        lastModifiedField.setInclude(FacetParams.FacetRangeInclude.LOWER);
 
         FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
                 .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(lastModifiedField).setFacetLimit(5));
@@ -453,8 +477,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
         popularityField.setStart(100);
         popularityField.setEnd(800);
         popularityField.setGap(200);
-        popularityField.setOther(FacetParams.FacetRangeOther.AFTER);
+        popularityField.setOther(FacetParams.FacetRangeOther.ALL);
         popularityField.setHardEnd(false);
+        popularityField.setInclude(FacetParams.FacetRangeInclude.LOWER);
 
         FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
                 .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(popularityField).setFacetLimit(5));
