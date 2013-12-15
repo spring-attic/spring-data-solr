@@ -145,7 +145,7 @@ public class FacetRangeOptions {
      * @return the {@link Pageable} for the range facet page
      */
     public Pageable getPageable() {
-        return this.pageable != null ? this.pageable : new PageRequest(0, facetLimit);
+        return this.pageable != null ? this.pageable : new PageRequest(0, getFacetLimit());
     }
 
     /**
@@ -253,16 +253,6 @@ public class FacetRangeOptions {
          */
         public FacetParams.FacetRangeInclude getInclude() {
             return getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE);
-        }
-
-        /**
-         * Add field specific facet range parameter by name
-         *
-         * @param parameterName the parameters name
-         * @param value         the parameters value
-         */
-        public FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value) {
-            return addFacetRangeParameter(parameterName, value, false);
         }
 
         protected FieldWithFacetRangeParameters addFacetRangeParameter(String parameterName, Object value, boolean removeIfValueIsNull) {

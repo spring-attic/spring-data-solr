@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
@@ -442,9 +443,15 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
         lastModifiedField.setGap("+1DAY");
         lastModifiedField.setOther(FacetParams.FacetRangeOther.ALL);
         lastModifiedField.setInclude(FacetParams.FacetRangeInclude.LOWER);
+        Assert.assertEquals(FacetParams.FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE));
+        lastModifiedField.setInclude(null);
+        Assert.assertEquals(null, lastModifiedField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE));
 
         FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(lastModifiedField).setFacetLimit(5));
+                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(lastModifiedField)
+                        .setFacetLimit(5)
+                        .setFacetMinCount(1)
+                        .setFacetSort(FacetOptions.FacetSort.COUNT).setPageable(new PageRequest(1,10)));
 
         FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
@@ -482,7 +489,10 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
         popularityField.setInclude(FacetParams.FacetRangeInclude.LOWER);
 
         FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(popularityField).setFacetLimit(5));
+                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(popularityField)
+                        .setFacetLimit(5)
+                        .setFacetMinCount(1)
+                        .setFacetSort(FacetOptions.FacetSort.COUNT));
 
         FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
