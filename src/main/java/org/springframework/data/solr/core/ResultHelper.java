@@ -31,6 +31,7 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.util.NamedList;
@@ -123,6 +124,59 @@ final class ResultHelper {
 		}
 		return facetResult;
 	}
+
+    static Map<Field, Page<FacetFieldEntry>> convertFacetRangeQueryResponseToFacetPageMap(FacetQuery query,
+                                                                                          QueryResponse response) {
+        Assert.notNull(query, "Cannot convert response for 'null', query");
+
+        if (!hasRangeFacets(query, response)) {
+            return Collections.emptyMap();
+        }
+        Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
+
+        if (CollectionUtils.isNotEmpty(response.getFacetRanges())) {
+            int initalPageSize = query.getFacetRangeOptions().getPageable().getPageSize();
+            for (RangeFacet rangeFacet : response.getFacetRanges()) {
+                if (rangeFacet != null && StringUtils.hasText(rangeFacet.getName())) {
+                    Field field = new SimpleField(rangeFacet.getName());
+                    if (rangeFacet instanceof RangeFacet.Date) {
+                        RangeFacet.Date dateRangeFacet = (RangeFacet.Date) rangeFacet;
+                        if (CollectionUtils.isNotEmpty(dateRangeFacet.getCounts())) {
+                            List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+                            for (RangeFacet.Count count : dateRangeFacet.getCounts()) {
+                                if (count != null) {
+                                    pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                                }
+                            }
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetRangeOptions()
+                                    .getPageable(), dateRangeFacet.getCounts().size()));
+                        } else {
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
+                                    .getFacetOptions().getPageable(), 0));
+                        }
+                    } else if (rangeFacet instanceof RangeFacet.Numeric) {
+                        RangeFacet.Numeric numericRangeFacet = (RangeFacet.Numeric) rangeFacet;
+                        if (CollectionUtils.isNotEmpty(numericRangeFacet.getCounts())) {
+                            List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+                            for (RangeFacet.Count count : numericRangeFacet.getCounts()) {
+                                if (count != null) {
+                                    pageEntries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+                                }
+                            }
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetRangeOptions()
+                                    .getPageable(), numericRangeFacet.getCounts().size()));
+                        } else {
+                            facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry>emptyList(), query
+                                    .getFacetOptions().getPageable(), 0));
+                        }
+                    }
+
+
+                }
+            }
+        }
+        return facetResult;
+    }
 
 	static Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> convertFacetQueryResponseToFacetPivotMap(
 			FacetQuery query, QueryResponse response) {
@@ -241,6 +295,10 @@ final class ResultHelper {
 
 	private static boolean hasFacets(FacetQuery query, QueryResponse response) {
 		return query.hasFacetOptions() && response != null;
+	}
+
+    private static boolean hasRangeFacets(FacetQuery query, QueryResponse response) {
+        return query.hasFacetRangeOptions() && response != null;
 	}
 
 }

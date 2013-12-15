@@ -288,6 +288,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
 		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), response.getResults().getNumFound());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+        page.addAllFacetFieldResultPages(ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(query, response));
 		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
 
