@@ -55,6 +55,9 @@ public class ExampleSolrBean {
 	@Field("manu_id_s")
 	private String manufacturerId;
 
+	@Field
+	private Float distance;
+
 	@Version
 	@Field("_version_")
 	private Long version;
@@ -158,6 +161,14 @@ public class ExampleSolrBean {
 
 	public void setVersion(Long version) {
 		this.version = version;
+	}
+
+	public Float getDistance() {
+		return distance;
+	}
+
+	public void setDistance(Float distance) {
+		this.distance = distance;
 	}
 
 }

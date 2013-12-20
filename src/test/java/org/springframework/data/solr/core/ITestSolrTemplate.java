@@ -23,6 +23,8 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,7 +34,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.DistanceField;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
@@ -43,6 +47,7 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
@@ -51,6 +56,7 @@ import org.springframework.data.solr.core.query.SimpleUpdateField;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
+import org.springframework.data.solr.core.query.functions.QueryFunction;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
@@ -674,6 +680,52 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals("one", values.get(2).getValue());
 		Assert.assertEquals(1, values.get(2).getValueCount());
+	}
+
+	@Test
+	public void testFuctionQueryInFilterReturnsProperResult() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.commit();
+
+		Query q = new SimpleQuery("*:*")
+				.addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction.query("name:o*"))));
+
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+	}
+
+	@Test
+	public void testFuctionQueryReturnsProperResult() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.commit();
+
+		Query q = new SimpleQuery(new Criteria(QueryFunction.query("name:o*")));
+
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+	}
+
+	@Test
+	public void testFunctionQueryInFieldProjection() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setStore("45.17614,-93.87341");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
+		bean2.setStore("40.7143,-74.006");
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.commit();
+
+		Query q = new SimpleQuery("*:*");
+		q.addProjectionOnField(new DistanceField("distance", "store", new GeoLocation(45.15, -93.85)));
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
+		for (ExampleSolrBean bean : result) {
+			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
+		}
+
 	}
 
 }

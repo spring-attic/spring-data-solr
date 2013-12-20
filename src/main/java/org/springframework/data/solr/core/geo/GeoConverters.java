@@ -37,8 +37,15 @@ public final class GeoConverters {
 			if (source == null) {
 				return null;
 			}
-			return StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLatitude()), "0") + ","
+			String formattedString = StringUtils.stripEnd(
+					String.format(java.util.Locale.ENGLISH, "%f", source.getLatitude()), "0")
+					+ ","
 					+ StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getLongitude()), "0");
+
+			if (formattedString.endsWith(".")) {
+				return formattedString.replace(".", ".0");
+			}
+			return formattedString;
 		}
 	}
 
@@ -63,7 +70,6 @@ public final class GeoConverters {
 
 	/**
 	 * Converts a {@link Distance} to a solrReadable request parameter.
-	 * 
 	 */
 	@WritingConverter
 	public enum DistanceToStringConverter implements Converter<Distance, String> {
@@ -76,5 +82,32 @@ public final class GeoConverters {
 			}
 			return String.format(java.util.Locale.ENGLISH, "%s", source.getNormalizedValue());
 		}
+	}
+
+	/**
+	 * Converts a {@link Point} to a solrReadable request parameter.
+	 * 
+	 * @since 1.1
+	 */
+	public enum PointToStringConverter implements Converter<Point, String> {
+		INSTANCE;
+
+		@Override
+		public String convert(Point source) {
+			if (source == null) {
+				return null;
+			}
+			String formattedString = StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getX()), "0")
+					+ ","
+					+ StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0")
+					+ (source.getZ() != null ? ("," + StringUtils.stripEnd(
+							String.format(java.util.Locale.ENGLISH, "%f", source.getZ()), "0")) : "");
+
+			if (formattedString.endsWith(".")) {
+				return formattedString.replace(".", "");
+			}
+			return formattedString;
+		}
+
 	}
 }

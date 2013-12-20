@@ -219,4 +219,136 @@ HighlightPage&lt;Product&gt; findByName(String name, Pageable page);
 </programlisting>
         </example>
     </section>
+     <section id="solr.misc.functions">
+        <title>Using Functions</title>
+        <para>
+           Solr supports several functional expressions within queries. Followig functions are supported out of the box. Custom functions can be added by implementing <interfacename>Function</interfacename>
+           <table>
+					<title>Functions</title>
+					<tgroup cols="2">
+						<colspec colwidth="1*" />
+						<colspec colwidth="2*" />
+						<thead>
+							<row>
+								<entry>Class</entry>
+								<entry>Solr Function</entry>
+								
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry>
+									<code>CurrencyFunction</code>
+								</entry>
+								<entry>
+									<code>currency(field_name,[CODE])</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>DefaultValueFunction</code>
+								</entry>
+								<entry>
+									<code>def(field|function,defaultValue)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>DistanceFunction</code>
+								</entry>
+								<entry>
+									<code>dist(power, pointA, pointB)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>DivideFunction</code>
+								</entry>
+								<entry>
+									<code>div(x,y)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>ExistsFunction</code>
+								</entry>
+								<entry>
+									<code>exists(field|function)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>GeoDistanceFunction</code>
+								</entry>
+								<entry>
+									<code>geodist(sfield, latitude, longitude)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>GeoHashFunction</code>
+								</entry>
+								<entry>
+									<code>geohash(latitude, longitude)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>IfFunction</code>
+								</entry>
+								<entry>
+									<code>if(value|field|function,trueValue,falseValue)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>MaxFunction</code>
+								</entry>
+								<entry>
+									<code>max(field|function,value)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>NotFunction</code>
+								</entry>
+								<entry>
+									<code>not(field|function)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>ProductFunction</code>
+								</entry>
+								<entry>
+									<code>product(x,y,...)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>QueryFunction</code>
+								</entry>
+								<entry>
+									<code>query(x)</code>
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<code>TermFrequencyFunction</code>
+								</entry>
+								<entry>
+									<code>termfreq(field,term)</code>
+								</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</table>
+           
+        </para>
+        <example>
+            <programlisting language="java">SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+query.addFilterQuery(new FilterQuery(Criteria.where(QueryFunction.query("name:sol*"))));
+</programlisting>
+        </example>
+    </section>
 </chapter>

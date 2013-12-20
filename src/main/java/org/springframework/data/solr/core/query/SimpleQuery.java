@@ -48,16 +48,42 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public SimpleQuery() {
 	}
 
+	/**
+	 * @param criteria
+	 */
 	public SimpleQuery(Criteria criteria) {
 		this(criteria, null);
 	}
 
+	/**
+	 * @param queryString
+	 * 
+	 * @since 1.1
+	 */
+	public SimpleQuery(String queryString) {
+		this(new SimpleStringCriteria(queryString));
+	}
+
+	/**
+	 * @param criteria
+	 * @param pageable
+	 */
 	public SimpleQuery(Criteria criteria, Pageable pageable) {
 		super(criteria);
 		this.pageable = pageable;
 		if (pageable != null) {
 			this.addSort(pageable.getSort());
 		}
+	}
+
+	/**
+	 * @param queryString
+	 * @param pageable
+	 * 
+	 * @since 1.1
+	 */
+	public SimpleQuery(String queryString, Pageable pageable) {
+		this(new SimpleStringCriteria(queryString), pageable);
 	}
 
 	public static final Query fromQuery(Query source) {

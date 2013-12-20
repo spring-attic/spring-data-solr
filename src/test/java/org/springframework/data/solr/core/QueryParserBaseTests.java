@@ -15,23 +15,40 @@
  */
 package org.springframework.data.solr.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.solr.client.solrj.SolrQuery;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.springframework.data.solr.core.QueryParserBase.BaseCriteriaEntryProcessor;
 import org.springframework.data.solr.core.QueryParserBase.CriteriaEntryProcessor;
 import org.springframework.data.solr.core.QueryParserBase.DefaultProcessor;
 import org.springframework.data.solr.core.QueryParserBase.WildcardProcessor;
+import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.solr.core.geo.Distance.Unit;
+import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.SimpleCalculatedField;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.functions.Function;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Christoph Strobl
  */
 public class QueryParserBaseTests {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private static final String SOME_VALUE = "some value";
 	private static final String INVALID_OPERATION_KEY = "invalid";
@@ -96,6 +113,11 @@ public class QueryParserBaseTests {
 		Assert.assertTrue(processor.canProcess(new CriteriaEntry(INVALID_OPERATION_KEY, null)));
 	}
 
+	@Test
+	public void testFunctionProcessorCanProcessFunctions() {
+		assertProcessorCanProcess(this.parser.new FunctionProcessor(), OperationKey.FUNCTION);
+	}
+
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testBaseCritieraEntryProcessor() {
@@ -115,7 +137,89 @@ public class QueryParserBaseTests {
 		Assert.assertNull(processor.process(null, null));
 		Assert.assertNull(processor.process(new CriteriaEntry("some key", null), null));
 		Assert.assertEquals("X", processor.process(new CriteriaEntry("some key", SOME_VALUE), null));
+	}
 
+	@Test
+	public void testFunctionFragmemtAppendsMultipleArgumentsCorrectly() {
+		Foo function = new Foo(Arrays.asList("one", "two"));
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(one,two)"));
+	}
+
+	@Test
+	public void testFunctionFragmemtAppendsSingleArgumentCorrectly() {
+		Foo function = new Foo(Arrays.asList("one"));
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(one)"));
+	}
+
+	@Test
+	public void testFunctionFragmemtIgnoresNullArguments() {
+		Foo function = new Foo(null);
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo()"));
+	}
+
+	@Test
+	public void testFunctionFragmemtIgnoresEmptyArguments() {
+		Foo function = new Foo(Collections.emptyList());
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo()"));
+	}
+
+	@Test
+	public void testCreateFunctionFragmemtThrowsExceptionOnNullInArguments() {
+		List<Object> args = new ArrayList<Object>(1);
+		args.add(null);
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("Unable to parse 'null' within function arguments.");
+		parser.createFunctionFragment(new Foo(args));
+	}
+
+	@Test
+	public void testCreateFunctionFragementsWihtNetsedFunction() {
+		Foo function = new Foo(Arrays.asList(new Bar(Arrays.asList("nested"))));
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(bar(nested))"));
+	}
+
+	@Test
+	public void testCreateFunctionFragmentConvertsGeoLocationProperty() {
+		Foo function = new Foo(Arrays.asList(new GeoLocation(37.767624D, -122.48526D)));
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(37.767624,-122.48526)"));
+	}
+
+	@Test
+	public void testCreateFunctionFragmentConvertsDistanceProperty() {
+		Foo function = new Foo(Arrays.asList(new Distance(5, Unit.KILOMETERS)));
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(5.0)"));
+	}
+
+	@Test
+	public void testCreateFunctionFragmentUsesToStringForUnknowObject() {
+		Foo function = new Foo(Arrays.asList(new FooBar()));
+
+		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(FooBar [])"));
+	}
+
+	@Test
+	public void testCreateFunctionFieldFragmentIgnoresBlankAlias() {
+		SimpleCalculatedField ff = new SimpleCalculatedField(" ", new Foo(null));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("foo()"));
+	}
+
+	@Test
+	public void testCreateFunctionFieldFragmentIgnoresNullAlias() {
+		SimpleCalculatedField ff = new SimpleCalculatedField(null, new Foo(null));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("foo()"));
+	}
+
+	@Test
+	public void testCreateFunctionFieldFragmentPrependsAliasCorrectly() {
+		SimpleCalculatedField ff = new SimpleCalculatedField("alias", new Foo(null));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:foo()"));
 	}
 
 	private void assertProcessorCanProcess(CriteriaEntryProcessor processor, OperationKey key) {
@@ -126,6 +230,66 @@ public class QueryParserBaseTests {
 	private void assertProcessorCannotProcessInvalidOrNullOperationKey(CriteriaEntryProcessor processor) {
 		Assert.assertFalse(processor.canProcess(new CriteriaEntry(INVALID_OPERATION_KEY, null)));
 		Assert.assertFalse(processor.canProcess(new CriteriaEntry((String) null, null)));
+	}
+
+	private static class Foo implements Function {
+
+		private List<?> arguments;
+
+		public Foo(List<?> args) {
+			this.arguments = args;
+		}
+
+		@Override
+		public String getOperation() {
+			return "foo";
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
+		public List getArguments() {
+			return this.arguments;
+		}
+
+		@Override
+		public boolean hasArguments() {
+			return !CollectionUtils.isEmpty(this.arguments);
+		}
+
+	}
+
+	private static class Bar implements Function {
+
+		private List<?> arguments;
+
+		public Bar(List<?> args) {
+			this.arguments = args;
+		}
+
+		@Override
+		public String getOperation() {
+			return "bar";
+		}
+
+		@Override
+		public Iterable<?> getArguments() {
+			return this.arguments;
+		}
+
+		@Override
+		public boolean hasArguments() {
+			return !CollectionUtils.isEmpty(this.arguments);
+		}
+
+	}
+
+	private static class FooBar {
+
+		@Override
+		public String toString() {
+			return "FooBar []";
+		}
+
 	}
 
 }

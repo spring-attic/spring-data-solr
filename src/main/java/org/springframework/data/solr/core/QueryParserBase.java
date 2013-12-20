@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
@@ -35,6 +36,8 @@ import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.solr.core.geo.Point;
+import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
@@ -43,6 +46,7 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryStringHolder;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.functions.Function;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -76,6 +80,9 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
 		}
+		if (!conversionService.canConvert(Point.class, String.class)) {
+			conversionService.addConverter(GeoConverters.PointToStringConverter.INSTANCE);
+		}
 		if (VersionUtil.isJodaTimeAvailable()) {
 			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {
 				conversionService.addConverter(DateTimeConverters.JodaDateTimeConverter.INSTANCE);
@@ -91,6 +98,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		critieraEntryProcessors.add(new FuzzyProcessor());
 		critieraEntryProcessors.add(new SloppyProcessor());
 		critieraEntryProcessors.add(new WildcardProcessor());
+		critieraEntryProcessors.add(new FunctionProcessor());
 	}
 
 	@Override
@@ -152,39 +160,93 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	protected String createQueryFragmentForCriteria(Criteria criteria) {
 		StringBuilder queryFragment = new StringBuilder();
 		boolean singeEntryCriteria = (criteria.getCriteriaEntries().size() == 1);
-		if (criteria.getField() != null) {
-			String fieldName = criteria.getField().getName();
-			if (criteria.isNegating()) {
-				fieldName = NOT + fieldName;
-			}
-			if (!containsFunctionCriteria(criteria.getCriteriaEntries())) {
-				queryFragment.append(fieldName);
-				queryFragment.append(DELIMINATOR);
-			}
-			if (!singeEntryCriteria) {
-				queryFragment.append("(");
-			}
+		if (criteria instanceof QueryStringHolder) {
+			return ((QueryStringHolder) criteria).getQueryString();
+		}
 
-			CriteriaQueryStringValueProvider valueProvider = new CriteriaQueryStringValueProvider(criteria);
-			while (valueProvider.hasNext()) {
-				queryFragment.append(valueProvider.next());
-				if (valueProvider.hasNext()) {
-					queryFragment.append(CRITERIA_VALUE_SEPERATOR);
-				}
-			}
+		String fieldName = getNullsafeFieldName(criteria.getField());
+		if (criteria.isNegating()) {
+			fieldName = NOT + fieldName;
+		}
+		if (!StringUtils.isEmpty(fieldName) && !containsFunctionCriteria(criteria.getCriteriaEntries())) {
+			queryFragment.append(fieldName);
+			queryFragment.append(DELIMINATOR);
+		}
+		if (!singeEntryCriteria) {
+			queryFragment.append("(");
+		}
 
-			if (!singeEntryCriteria) {
-				queryFragment.append(")");
-			}
-			if (!Float.isNaN(criteria.getBoost())) {
-				queryFragment.append(BOOST + criteria.getBoost());
-			}
-		} else {
-			if (criteria instanceof QueryStringHolder) {
-				return ((QueryStringHolder) criteria).getQueryString();
+		CriteriaQueryStringValueProvider valueProvider = new CriteriaQueryStringValueProvider(criteria);
+		while (valueProvider.hasNext()) {
+			queryFragment.append(valueProvider.next());
+			if (valueProvider.hasNext()) {
+				queryFragment.append(CRITERIA_VALUE_SEPERATOR);
 			}
 		}
+
+		if (!singeEntryCriteria) {
+			queryFragment.append(")");
+		}
+		if (!Float.isNaN(criteria.getBoost())) {
+			queryFragment.append(BOOST + criteria.getBoost());
+		}
+
 		return queryFragment.toString();
+	}
+
+	private String getNullsafeFieldName(Field field) {
+		if (field == null || field.getName() == null) {
+			return "";
+		}
+		return field.getName();
+	}
+
+	/**
+	 * Create {@link SolrServer} readable String representation for {@link CalculatedField}.
+	 * 
+	 * @param calculatedField
+	 * @return
+	 * 
+	 * @since 1.1
+	 */
+	protected String createCalculatedFieldFragment(CalculatedField calculatedField) {
+		return StringUtils.isNotBlank(calculatedField.getAlias()) ? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField
+				.getFunction())) : createFunctionFragment(calculatedField.getFunction());
+	}
+
+	/**
+	 * Create {@link SolrServer} readable String representation for {@link Function}
+	 * 
+	 * @param function
+	 * @return
+	 * 
+	 * @since 1.1
+	 */
+	protected String createFunctionFragment(Function function) {
+		StringBuilder sb = new StringBuilder(function.getOperation());
+		sb.append('(');
+		if (function.hasArguments()) {
+			List<String> solrReadableArguments = new ArrayList<String>();
+			for (Object arg : function.getArguments()) {
+				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
+				if (arg instanceof Function) {
+					solrReadableArguments.add(createFunctionFragment((Function) arg));
+				} else if (arg instanceof Criteria) {
+					solrReadableArguments.add(createQueryStringFromCriteria((Criteria) arg));
+				} else if (arg instanceof Field) {
+					solrReadableArguments.add(((Field) arg).getName());
+				} else if (arg instanceof Query) {
+					solrReadableArguments.add(getQueryString((Query) arg));
+				} else if (arg instanceof String || !conversionService.canConvert(arg.getClass(), String.class)) {
+					solrReadableArguments.add(arg.toString());
+				} else {
+					solrReadableArguments.add(conversionService.convert(arg, String.class));
+				}
+			}
+			sb.append(StringUtils.join(solrReadableArguments, ','));
+		}
+		sb.append(')');
+		return sb.toString();
 	}
 
 	/**
@@ -226,7 +288,15 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
-		solrQuery.setParam(CommonParams.FL, StringUtils.join(fields, ","));
+		List<String> solrReadableFields = new ArrayList<String>();
+		for (Field field : fields) {
+			if (field instanceof CalculatedField) {
+				solrReadableFields.add(createCalculatedFieldFragment((CalculatedField) field));
+			} else {
+				solrReadableFields.add(field.getName());
+			}
+		}
+		solrQuery.setParam(CommonParams.FL, StringUtils.join(solrReadableFields, ","));
 	}
 
 	/**
@@ -628,6 +698,25 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			}
 			return filteredValue;
 		}
+	}
+
+	/**
+	 * Handles {@link Criteria} with {@link OperationKey#FUNCTION}
+	 * 
+	 * @since 1.1
+	 */
+	class FunctionProcessor extends BaseCriteriaEntryProcessor {
+
+		@Override
+		public boolean canProcess(CriteriaEntry criteriaEntry) {
+			return OperationKey.FUNCTION.getKey().equals(criteriaEntry.getKey());
+		}
+
+		@Override
+		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
+			return createFunctionFragment((Function) criteriaEntry.getValue());
+		}
+
 	}
 
 }

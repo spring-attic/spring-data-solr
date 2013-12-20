@@ -29,6 +29,7 @@ import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
+import org.springframework.data.solr.core.query.functions.Function;
 
 /**
  * @author Christoph Strobl
@@ -506,5 +507,24 @@ public class CriteriaTests {
 
 	private CriteriaEntry getCriteriaEntryByPosition(Set<CriteriaEntry> entries, int position) {
 		return (CriteriaEntry) entries.toArray()[position];
+	}
+
+	private static class TestFunction implements Function {
+
+		@Override
+		public String getOperation() {
+			return "op";
+		}
+
+		@Override
+		public Iterable<Object> getArguments() {
+			return null;
+		}
+
+		@Override
+		public boolean hasArguments() {
+			return false;
+		}
+
 	}
 }

@@ -28,6 +28,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.solr.core.query.functions.Function;
 import org.springframework.util.Assert;
 
 /**
@@ -54,6 +55,16 @@ public class Criteria {
 	private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
 
 	public Criteria() {
+	}
+
+	/**
+	 * @param function
+	 * 
+	 * @since 1.1
+	 */
+	public Criteria(Function function) {
+		Assert.notNull(function, "Cannot create Critiera for 'null' function.");
+		this.criteriaChain.add(function(function));
 	}
 
 	/**
@@ -100,6 +111,18 @@ public class Criteria {
 	 */
 	public static Criteria where(String fieldname) {
 		return where(new SimpleField(fieldname));
+	}
+
+	/**
+	 * Static factory method to create a new Criteria for function
+	 * 
+	 * @param function must not be null
+	 * @return
+	 * 
+	 * @since 1.1
+	 */
+	public static Criteria where(Function function) {
+		return new Criteria(function);
 	}
 
 	/**
@@ -576,18 +599,36 @@ public class Criteria {
 	}
 
 	/**
-	 * Creates new CriteriaEntry for {@code !bbox} for a specified distance. The difference between this and
+	 * Creates new {@link CriteriaEntry} for {@code !bbox} for a specified distance. The difference between this and
 	 * {@code within} is this is approximate while {@code within} is exact.
 	 * 
 	 * @param location
 	 * @param distance
 	 * @return
+	 * @throws IllegalArgumentException if location is null
+	 * @throws InvalidDataAccessApiUsageException if distance is negative
 	 */
 	public Criteria near(GeoLocation location, Distance distance) {
-		Assert.notNull(location);
+		Assert.notNull(location, "Location must not be 'null' for near criteria.");
 		assertPositiveDistanceValue(distance);
+
 		criteria.add(new CriteriaEntry(OperationKey.NEAR, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
+		return this;
+	}
+
+	/**
+	 * Creates {@link CriteriaEntry} for given {@link Function}.
+	 * 
+	 * @param function must not be null
+	 * @return
+	 * @throws IllegalArgumentException if function is null
+	 * 
+	 * @since 1.1
+	 */
+	public Criteria function(Function function) {
+		Assert.notNull(function, "Cannot add 'null' function to criteria.");
+		criteria.add(new CriteriaEntry(OperationKey.FUNCTION, function));
 		return this;
 	}
 
@@ -693,7 +734,8 @@ public class Criteria {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy");
+				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy"), FUNCTION(
+				"$function");
 
 		private final String key;
 

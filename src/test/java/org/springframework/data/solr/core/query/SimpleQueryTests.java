@@ -38,11 +38,6 @@ public class SimpleQueryTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testAddCriteriaWithNullField() {
-		new SimpleQuery().addCriteria(new Criteria());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void testAddCriteriaWithEmptyFieldname() {
 		new SimpleQuery().addCriteria(new Criteria(new SimpleField("")));
 	}
