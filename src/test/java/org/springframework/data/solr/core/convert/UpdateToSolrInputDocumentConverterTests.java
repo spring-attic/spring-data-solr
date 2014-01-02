@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,13 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
+import org.hamcrest.collection.IsMapContaining;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.convert.SolrjConverters.UpdateToSolrInputDocumentConverter;
@@ -75,8 +79,8 @@ public class UpdateToSolrInputDocumentConverterTests {
 		Assert.assertEquals("valueToAdd", ((Map<String, Object>) document.getFieldValue("field_1")).get("add"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testConvertWhenIncreasingValue() {
 		PartialUpdate update = new PartialUpdate("id", "1");
 		update.increaseValueOfField("field_1", 1);
@@ -100,5 +104,36 @@ public class UpdateToSolrInputDocumentConverterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testConvertBlankIdField() {
 		converter.convert(new PartialUpdate("  ", "1"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testConvertFieldWithEmtpyCollectionsAddsNullValueForUpdate() {
+		PartialUpdate update = new PartialUpdate("id", "1");
+		update.add("field_1", Collections.emptyList());
+
+		SolrInputDocument document = converter.convert(update);
+		Assert.assertThat((Map<String, Object>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", null));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testConvertFieldWithNullValueIsTransformedCorrectly() {
+		PartialUpdate update = new PartialUpdate("id", "1");
+		update.add("field_1", null);
+
+		SolrInputDocument document = converter.convert(update);
+		Assert.assertThat((Map<String, Object>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", null));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testConvertFieldWithCollectionsIsTransformedCorrectlyToSolrInputDocument() {
+		List<String> values = Arrays.asList("go", "pivotal");
+		PartialUpdate update = new PartialUpdate("id", "1");
+		update.add("field_1", values);
+
+		SolrInputDocument document = converter.convert(update);
+		Assert.assertThat((Map<String, List<String>>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", values));
 	}
 }

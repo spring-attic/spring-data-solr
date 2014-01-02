@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.data.solr.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -204,6 +205,31 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals(3, recalled.getCategory().size());
 		Assert.assertEquals(Arrays.asList("spring", "data", "solr"), recalled.getCategory());
+
+		Assert.assertEquals(toInsert.getName(), recalled.getName());
+		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
+	}
+	
+	@Test
+	public void testPartialUpdateSetEmptyCollectionToMultivaluedFieldRemovesValuesFromDocument() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		toInsert.setCategory(Arrays.asList("spring", "data", "solr"));
+		toInsert.setPopularity(10);
+		solrTemplate.saveBean(toInsert);
+		solrTemplate.commit();
+
+		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
+		update.setValueOfField("cat", Collections.emptyList());
+
+		solrTemplate.saveBean(update);
+		solrTemplate.commit();
+
+		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+
+		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Assert.assertEquals(toInsert.getId(), recalled.getId());
+		
+		Assert.assertEquals(0, recalled.getCategory().size());
 
 		Assert.assertEquals(toInsert.getName(), recalled.getName());
 		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());

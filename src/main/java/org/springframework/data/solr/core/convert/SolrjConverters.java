@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateField;
+import org.springframework.data.solr.core.query.ValueHoldingField;
 import org.springframework.util.Assert;
 
 /**
@@ -54,8 +56,7 @@ final class SolrjConverters {
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
-	public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter implements
-			Converter<Object, SolrInputDocument> {
+	public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter implements Converter<Object, SolrInputDocument> {
 
 		public ObjectToSolrInputDocumentConverter(DocumentObjectBinder binder) {
 			super(binder);
@@ -99,14 +100,28 @@ final class SolrjConverters {
 			if (source.getVersion() != null) {
 				solrInputDocument.addField(VERSION_FIELD_ID, source.getVersion());
 			}
+
 			for (UpdateField field : source.getUpdates()) {
 				HashMap<String, Object> mapValue = new HashMap<String, Object>(1);
-				mapValue.put(field.getAction().getSolrOperation(), field.getValue());
+				mapValue.put(field.getAction().getSolrOperation(), getUpdateValue(field));
 				solrInputDocument.addField(field.getName(), mapValue);
 			}
 
 			return solrInputDocument;
 		}
+
+		private Object getUpdateValue(ValueHoldingField field) {
+			//Solr removes all values from document in case of empty colleciton
+			//therefore those values have to be set to null.
+			if (field.getValue() instanceof Collection) {
+				if (((Collection<?>) field.getValue()).isEmpty()) {
+					return null;
+				}
+			}
+
+			return field.getValue();
+		}
+
 	}
 
 	/**
@@ -117,8 +132,7 @@ final class SolrjConverters {
 	 * @param <T>
 	 */
 	@ReadingConverter
-	public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter implements
-			Converter<Map<String, ?>, T> {
+	public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter implements Converter<Map<String, ?>, T> {
 
 		private Class<T> clazz;
 
