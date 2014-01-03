@@ -28,7 +28,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.geo.BoundingBox;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
-import org.springframework.data.solr.core.query.functions.Function;
 import org.springframework.util.Assert;
 
 /**

@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core.query;
 
-import org.springframework.data.solr.core.query.functions.Function;
 import org.springframework.util.Assert;
 
 /**

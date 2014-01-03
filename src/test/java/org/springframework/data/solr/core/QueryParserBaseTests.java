@@ -37,9 +37,9 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.Function;
 import org.springframework.data.solr.core.query.SimpleCalculatedField;
 import org.springframework.data.solr.core.query.SolrDataQuery;
-import org.springframework.data.solr.core.query.functions.Function;
 import org.springframework.util.CollectionUtils;
 
 /**

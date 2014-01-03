@@ -29,7 +29,6 @@ import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
-import org.springframework.data.solr.core.query.functions.Function;
 
 /**
  * @author Christoph Strobl

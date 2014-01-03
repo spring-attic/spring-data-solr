@@ -16,7 +16,6 @@
 package org.springframework.data.solr.core.query;
 
 import org.springframework.data.solr.core.geo.GeoLocation;
-import org.springframework.data.solr.core.query.functions.GeoDistanceFunction;
 
 /**
  * Implementation of {@link CalculatedField} for {@code geodist}
