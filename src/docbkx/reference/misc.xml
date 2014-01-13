@@ -89,6 +89,15 @@ FacetPage&lt;Product&gt; findAllFacetOnName(Pageable page);</programlisting>
 @Facet(fields = { "name" }, limit = 5, prefix="?1")
 FacetPage&lt;Product&gt; findByPopularityFacetOnName(int popularity, String prefix, Pageable page);</programlisting>
 		</example>
+		<para>
+			Solr allows definition of facet parameters on a per field basis. In order to add special facet options to defined fields use <classname>FieldWithFacetParameters</classname>.
+		</para>
+		<example>
+			<programlisting language="java">// produces: f.name.facet.prefix=spring
+FacetOptions options = new FacetOptions();
+options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring"));
+			</programlisting>
+		</example>
 	</section>
 	<section id="solr.misc.terms">
 		<title>Terms</title>
