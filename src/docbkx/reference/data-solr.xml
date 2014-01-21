@@ -148,7 +148,7 @@ class ApplicationConfig {
 			<example>
 				<title>Multicore Configuration</title>
 				<programlisting language="java">@Configuration
-@EnableSolrRepositories
+@EnableSolrRepositories(multicoreSupport = true)
 class ApplicationConfig {
 
   private static final String PROPERTY_NAME_SOLR_SERVER_URL = "solr.host";
@@ -157,24 +157,10 @@ class ApplicationConfig {
   private Environment environment;
   
   @Bean
-  public SolrServerFactory solrServerFactory() {
-    return new MulticoreSolrServerFactory(new HttpSolrServer(
-      environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL)));
+  public SolrServer solrServer() {
+    return new HttpSolrServer(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL));
   }
   
-  @Bean
-  public SolrOperations solrTemplate1() {
-    SolrTemplate solrTemplate = new SolrTemplate(solrServerFactory());
-    solrTemplate.setSolrCore("core1");
-    return solrTemplate;
-  }
-  
-  @Bean
-  public SolrOperations solrTemplate2() {
-    SolrTemplate solrTemplate = new SolrTemplate(solrServerFactory());
-    solrTemplate.setSolrCore("core2");
-    return solrTemplate;
-  }
 }</programlisting>
 			</example>
 		</section>

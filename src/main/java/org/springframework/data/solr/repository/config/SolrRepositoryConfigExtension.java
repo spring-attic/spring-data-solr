@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 package org.springframework.data.solr.repository.config;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.data.repository.config.AnnotationRepositoryConfigurationSource;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
 import org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport;
+import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.data.repository.config.XmlRepositoryConfigurationSource;
+import org.springframework.data.solr.core.SolrExceptionTranslator;
 import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean;
 import org.w3c.dom.Element;
 
@@ -29,6 +32,7 @@ import org.w3c.dom.Element;
  * evaluating the {@link EnableSolrRepositories} annotation or the equivalent XML element.
  * 
  * @author Oliver Gierke
+ * @author Christoph Strobl
  */
 public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
 
@@ -58,7 +62,18 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	public void postProcess(BeanDefinitionBuilder builder, AnnotationRepositoryConfigurationSource config) {
 
 		AnnotationAttributes attributes = config.getAttributes();
-		builder.addPropertyReference("solrOperations", attributes.getString("solrTemplateRef"));
+		if (!attributes.getBoolean("multicoreSupport")) {
+			builder.addPropertyReference("solrOperations", attributes.getString("solrTemplateRef"));
+		}
+		builder.addPropertyReference("solrServer", attributes.getString("solrServerRef"));
+	}
+
+	@Override
+	public void registerBeansForRoot(BeanDefinitionRegistry registry, RepositoryConfigurationSource configurationSource) {
+		super.registerBeansForRoot(registry, configurationSource);
+
+		BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class);
+		registry.registerBeanDefinition("solrExceptionTranslator", definition.getBeanDefinition());
 	}
 
 	/* 
@@ -69,6 +84,9 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	public void postProcess(BeanDefinitionBuilder builder, XmlRepositoryConfigurationSource config) {
 
 		Element element = config.getElement();
-		builder.addPropertyReference("solrOperations", element.getAttribute("solr-template-ref"));
+		if (!Boolean.valueOf(element.getAttribute("multicore-support"))) {
+			builder.addPropertyReference("solrOperations", element.getAttribute("solr-template-ref"));
+		}
+		builder.addPropertyReference("solrServer", element.getAttribute("solr-server-ref"));
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.solr.VersionUtil;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -48,6 +50,22 @@ public class SolrServerUtils {
 	private static final String SLASH = "/";
 
 	private SolrServerUtils() {
+	}
+
+	/**
+	 * Resolve solr core/collection name for given type.
+	 * 
+	 * @param type
+	 * @return empty string if {@link SolrDocument} not present or {@link SolrDocument#solrCoreName()} is blank.
+	 * 
+	 * @since 1.1
+	 */
+	public static String resolveSolrCoreName(Class<?> type) {
+		SolrDocument annotation = AnnotationUtils.findAnnotation(type, SolrDocument.class);
+		if (annotation != null && StringUtils.isNotBlank(annotation.solrCoreName())) {
+			return annotation.solrCoreName();
+		}
+		return "";
 	}
 
 	public static <T extends SolrServer> T clone(T solrServer) {

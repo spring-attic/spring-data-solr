@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,14 @@
  */
 package org.springframework.data.solr.repository.support;
 
-import static org.springframework.data.querydsl.QueryDslUtils.QUERY_DSL_PRESENT;
+import static org.springframework.data.querydsl.QueryDslUtils.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.WeakHashMap;
 
+import org.apache.solr.client.solrj.SolrServer;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -28,12 +31,16 @@ import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.SolrRepository;
 import org.springframework.data.solr.repository.query.PartTreeSolrQuery;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
 import org.springframework.data.solr.repository.query.SolrEntityInformationCreator;
 import org.springframework.data.solr.repository.query.SolrQueryMethod;
 import org.springframework.data.solr.repository.query.StringBasedSolrQuery;
+import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.support.MulticoreSolrServerFactory;
+import org.springframework.data.solr.server.support.SolrServerUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -43,13 +50,23 @@ import org.springframework.util.Assert;
  */
 public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
-	private final SolrOperations solrOperations;
+	private SolrOperations solrOperations;
 	private final SolrEntityInformationCreator entityInformationCreator;
+	private SolrServerFactory factory;
+	private SolrTemplateHolder templateHolder = new SolrTemplateHolder();
 
 	public SolrRepositoryFactory(SolrOperations solrOperations) {
 		Assert.notNull(solrOperations);
 		this.solrOperations = solrOperations;
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(solrOperations.getConverter()
+				.getMappingContext());
+	}
+
+	public SolrRepositoryFactory(SolrServer solrServer) {
+		Assert.notNull(solrServer);
+		this.solrOperations = new SolrTemplate(solrServer);
+		factory = new MulticoreSolrServerFactory(solrServer);
+		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(this.solrOperations.getConverter()
 				.getMappingContext());
 	}
 
@@ -61,9 +78,19 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Object getTargetRepository(RepositoryMetadata metadata) {
+		SolrOperations operations = this.solrOperations;
+		if (factory != null) {
+			SolrTemplate template = new SolrTemplate(factory);
+			template.setSolrCore(SolrServerUtils.resolveSolrCoreName(metadata.getDomainType()));
+			template.afterPropertiesSet();
+			operations = template;
+		}
+
 		SimpleSolrRepository repository = new SimpleSolrRepository(getEntityInformation(metadata.getDomainType()),
-				solrOperations);
+				operations);
 		repository.setEntityClass(metadata.getDomainType());
+
+		this.templateHolder.add(metadata.getDomainType(), operations);
 		return repository;
 	}
 
@@ -92,6 +119,8 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 			SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, entityInformationCreator);
 			String namedQueryName = queryMethod.getNamedQueryName();
 
+			SolrOperations solrOperations = selectSolrOperations(metadata);
+
 			if (namedQueries.hasQuery(namedQueryName)) {
 				String namedQuery = namedQueries.getQuery(namedQueryName);
 				return new StringBasedSolrQuery(namedQuery, queryMethod, solrOperations);
@@ -102,6 +131,27 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 			}
 		}
 
+		private SolrOperations selectSolrOperations(RepositoryMetadata metadata) {
+			SolrOperations ops = templateHolder.getSolrOperations(metadata.getDomainType());
+			if (ops == null) {
+				ops = solrOperations;
+			}
+			return ops;
+		}
+
+	}
+
+	private static class SolrTemplateHolder {
+
+		private Map<Class<?>, SolrOperations> operationsMap = new WeakHashMap<Class<?>, SolrOperations>();
+
+		void add(Class<?> domainType, SolrOperations repository) {
+			operationsMap.put(domainType, repository);
+		}
+
+		SolrOperations getSolrOperations(Class<?> type) {
+			return operationsMap.get(type);
+		}
 	}
 
 }

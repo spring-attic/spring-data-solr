@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServer;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -100,12 +99,8 @@ public class MulticoreSolrServerFactory extends SolrServerFactoryBase {
 	public SolrServer getSolrServer(Class<?> clazz) {
 		Assert.notNull(clazz);
 
-		String coreName = getShortClassName(clazz);
-		SolrDocument annotation = AnnotationUtils.findAnnotation(clazz, SolrDocument.class);
-		if (annotation != null && StringUtils.hasText(annotation.solrCoreName())) {
-			coreName = annotation.solrCoreName();
-		}
-		return getSolrServer(coreName);
+		String coreName = SolrServerUtils.resolveSolrCoreName(clazz);
+		return getSolrServer(StringUtils.hasText(coreName) ? coreName : getShortClassName(clazz));
 	}
 
 	/**

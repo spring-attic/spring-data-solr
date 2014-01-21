@@ -18,6 +18,8 @@
 				<xsd:extension base="repository:repositories">
 					<xsd:attributeGroup ref="repository:transactional-repository-attributes" />
 					<xsd:attribute name="solr-template-ref" type="solrTemplateRef" default="solrTemplate" />
+					<xsd:attribute name="solr-server-ref" type="solrServerRef" default="solrServer" />
+					<xsd:attribute name="multicore-support" type="xsd:boolean" default="false" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>
@@ -34,11 +36,22 @@
 		<xsd:union memberTypes="xsd:string" />
 	</xsd:simpleType>
 	
+	<xsd:simpleType name="solrServerRef">
+		<xsd:annotation>
+			<xsd:appinfo>
+				<xsd:appinfo kind="ref">
+					<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer" />
+				</xsd:appinfo>
+			</xsd:appinfo>
+		</xsd:annotation>
+		<xsd:union memberTypes="xsd:string" />
+	</xsd:simpleType>
+	
 	<xsd:element name="embedded-solr-server">
 		<xsd:annotation>
 			<xsd:documentation source="java: org.springframework.data.solr.server.support.EmbeddedSolrServerFactoryBean" />
 			<xsd:appinfo>
-				<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer "/>
+				<tool:assignable-to type="org.apache.solr.client.solrj.SolrServer"/>
 			</xsd:appinfo>
 		</xsd:annotation>
 		<xsd:complexType>

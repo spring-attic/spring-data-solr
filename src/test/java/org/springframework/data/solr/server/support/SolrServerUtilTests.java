@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,19 @@
  */
 package org.springframework.data.solr.server.support;
 
+import static org.hamcrest.text.IsEmptyString.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsCollectionContaining.*;
+
 import java.net.MalformedURLException;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -96,7 +100,7 @@ public class SolrServerUtilTests {
 		LBHttpSolrServer clone = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
 
 		Map<String, ?> aliveServers = (Map<String, ?>) ReflectionTestUtils.getField(clone, FIELD_ALIVE_SERVERS);
-		Assert.assertThat(aliveServers.keySet(), IsCollectionContaining.hasItems(CORE_URL, ALTERNATE_CORE_URL));
+		Assert.assertThat(aliveServers.keySet(), hasItems(CORE_URL, ALTERNATE_CORE_URL));
 
 		assertLBHttpSolrServerProperties(lbSolrServer, clone);
 	}
@@ -127,7 +131,7 @@ public class SolrServerUtilTests {
 
 		LBHttpSolrServer lbClone = clone.getLbServer();
 		Map<String, ?> aliveServers = (Map<String, ?>) ReflectionTestUtils.getField(lbClone, FIELD_ALIVE_SERVERS);
-		Assert.assertThat(aliveServers.keySet(), IsCollectionContaining.hasItems(CORE_URL, ALTERNATE_CORE_URL));
+		Assert.assertThat(aliveServers.keySet(), hasItems(CORE_URL, ALTERNATE_CORE_URL));
 
 		assertLBHttpSolrServerProperties(lbSolrServer, lbClone);
 	}
@@ -156,6 +160,21 @@ public class SolrServerUtilTests {
 	public void testCreateUrlForCoreThrowsIllegalArgumentExceptionWhenBaseUrlIsNull() {
 		Assert.assertEquals(BASE_URL, SolrServerUtils.appendCoreToBaseUrl(null, null));
 	}
+	
+	@Test
+	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenNoAnnotationPresent() {
+		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithoutSolrDocumentAnnotation.class), isEmptyString());
+	}
+	
+	@Test
+	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenAnnotationHasNoValue() {
+		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithEmptySolrDocumentAnnotation.class), isEmptyString());
+	}
+	
+	@Test
+	public void testResolveSolrCoreNameShouldReturnAnnotationValueWhenPresent() {
+		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
+	}
 
 	private void assertHttpSolrServerProperties(HttpSolrServer httpSolrServer, HttpSolrServer clone) {
 		Assert.assertEquals(ReflectionTestUtils.getField(httpSolrServer, "followRedirects"),
@@ -169,6 +188,20 @@ public class SolrServerUtilTests {
 	private void assertLBHttpSolrServerProperties(LBHttpSolrServer lbSolrServer, LBHttpSolrServer clone) {
 		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrServer, "interval"),
 				ReflectionTestUtils.getField(clone, "interval"));
+	}
+	
+	private static class ClassWithoutSolrDocumentAnnotation {
+
+	}
+
+	@SolrDocument
+	private static class ClassWithEmptySolrDocumentAnnotation {
+
+	}
+
+	@SolrDocument(solrCoreName = "core1")
+	private static class ClassWithSolrDocumentAnnotation {
+
 	}
 
 }
