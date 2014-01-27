@@ -1,13 +1,28 @@
+Release Notes - Spring Data Solr - Version 1.1 RC1 (Codd)
+---------------------------------------------------------
+** New Feature
+    * [DATASOLR-132] - Add support for Solr functions
+
+** Fix
+    * [DATASOLR-104] - SolrTemplate uses wrong URL when there are multiple templates configured for different Solr cores
+    * [DATASOLR-128] - Assertations of Parameters to add PivotFields to FacetOptions aren't Being Executed Correctly
+    * [DATASOLR-129] - NullPointerException is thrown when using not managed entity for SolrCrudRepository
+    * [DATASOLR-130] - geodist() cannot be used in projection
+    * [DATASOLR-133] - PartialUpdate not working when try to save an empty Collection in a multivalue field
+
+** Improvement
+    * [DATASOLR-122] - Ability to return distance with the returned Solr documents
+
 Release Notes - Spring Data Solr - Version 1.1 M1 (Codd)
 --------------------------------------------------------
-** Bug
+** Fix
     * [DATASOLR-116] - MappingSolrConverter doesn't honor Solr wildcard rules on read
 
 ** Improvement
     * [DATASOLR-99] - Allow defining Solr field name via @Indexed
 
 ** New Feature
-    * [DATASOLR-113] - Add suport to Pivot fields
+    * [DATASOLR-113] - Add support for Pivot fields
 
 ** Task
     * [DATASOLR-123] - Ensure compatibility with Spring Framework 4.0.0.X

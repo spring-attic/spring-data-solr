@@ -9,12 +9,12 @@
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
-	<url>http://github.com/SpringSource/spring-data-solr</url>
+	<url>http://github.com/spring-projects/spring-data-solr</url>
 
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.3.0.M1</version>
+		<version>1.3.0.RC1</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -24,7 +24,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
 		<solr>4.6.1</solr>
-		<springdata.commons>1.7.0.M1</springdata.commons>
+		<springdata.commons>1.7.0.RC1</springdata.commons>
 	</properties>
 	
 	<developers>
@@ -256,9 +256,9 @@
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/SpringSource/spring-data-solr</url>
-		<connection>scm:git:git://github.com/SpringSource/spring-data-solr.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:SpringSource/spring-data-solr.git</developerConnection>
+		<url>https://github.com/spring-projects/spring-data-solr</url>
+		<connection>scm:git:git://github.com/spring-projects/spring-data-solr.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:spring-projects/spring-data-solr.git</developerConnection>
 	</scm>
 
 	<ciManagement>
@@ -272,5 +272,12 @@
 			<url>http://repo.springsource.org/libs-milestone-local</url>
 		</repository>
 	</repositories>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-plugins-release</id>
+			<url>http://repo.spring.io/plugins-release</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>
