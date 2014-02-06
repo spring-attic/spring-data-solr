@@ -15,9 +15,9 @@
  */
 package org.springframework.data.solr.server.support;
 
-import static org.hamcrest.text.IsEmptyString.*;
-import static org.hamcrest.core.IsEqual.*;
 import static org.hamcrest.core.IsCollectionContaining.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.text.IsEmptyString.*;
 
 import java.net.MalformedURLException;
 import java.util.Map;
@@ -122,7 +122,7 @@ public class SolrServerUtilTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testClonesCloudSolrServerForCoreCorrectly() throws MalformedURLException {
+	public void testClonesCloudSolrServerForCoreCorrectlyWhenCoreNameIsNotEmpty() throws MalformedURLException {
 		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(BASE_URL, ALTERNATE_BASE_URL);
 		CloudSolrServer cloudServer = new CloudSolrServer(ZOO_KEEPER_URL, lbSolrServer);
 
@@ -134,6 +134,20 @@ public class SolrServerUtilTests {
 		Assert.assertThat(aliveServers.keySet(), hasItems(CORE_URL, ALTERNATE_CORE_URL));
 
 		assertLBHttpSolrServerProperties(lbSolrServer, lbClone);
+		Assert.assertThat(clone.getDefaultCollection(), equalTo(CORE_NAME));
+	}
+
+	@Test
+	public void testClonesCloudSolrServerForCoreCorrectlyWhenNoLBHttpServerPresent() throws MalformedURLException {
+		CloudSolrServer cloudServer = new CloudSolrServer(ZOO_KEEPER_URL);
+
+		CloudSolrServer clone = SolrServerUtils.clone(cloudServer, CORE_NAME);
+		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
+
+		LBHttpSolrServer lbClone = clone.getLbServer();
+
+		assertLBHttpSolrServerProperties(cloudServer.getLbServer(), lbClone);
+		Assert.assertThat(clone.getDefaultCollection(), equalTo(CORE_NAME));
 	}
 
 	@Test
@@ -160,17 +174,17 @@ public class SolrServerUtilTests {
 	public void testCreateUrlForCoreThrowsIllegalArgumentExceptionWhenBaseUrlIsNull() {
 		Assert.assertEquals(BASE_URL, SolrServerUtils.appendCoreToBaseUrl(null, null));
 	}
-	
+
 	@Test
 	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenNoAnnotationPresent() {
 		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithoutSolrDocumentAnnotation.class), isEmptyString());
 	}
-	
+
 	@Test
 	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenAnnotationHasNoValue() {
 		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithEmptySolrDocumentAnnotation.class), isEmptyString());
 	}
-	
+
 	@Test
 	public void testResolveSolrCoreNameShouldReturnAnnotationValueWhenPresent() {
 		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
@@ -189,7 +203,7 @@ public class SolrServerUtilTests {
 		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrServer, "interval"),
 				ReflectionTestUtils.getField(clone, "interval"));
 	}
-	
+
 	private static class ClassWithoutSolrDocumentAnnotation {
 
 	}

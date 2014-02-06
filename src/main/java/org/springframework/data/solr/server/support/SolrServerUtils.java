@@ -49,15 +49,13 @@ public class SolrServerUtils {
 	private static final Logger logger = LoggerFactory.getLogger(SolrServerUtils.class);
 	private static final String SLASH = "/";
 
-	private SolrServerUtils() {
-	}
+	private SolrServerUtils() {}
 
 	/**
 	 * Resolve solr core/collection name for given type.
 	 * 
 	 * @param type
 	 * @return empty string if {@link SolrDocument} not present or {@link SolrDocument#solrCoreName()} is blank.
-	 * 
 	 * @since 1.1
 	 */
 	public static String resolveSolrCoreName(Class<?> type) {
@@ -197,8 +195,13 @@ public class SolrServerUtils {
 		Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
 				.getConstructorIfAvailable(solrServer.getClass(), String.class, LBHttpSolrServer.class);
 
-		return (SolrServer) BeanUtils.instantiateClass(constructor, zkHost,
+		CloudSolrServer clone = (CloudSolrServer) BeanUtils.instantiateClass(constructor, zkHost,
 				cloneLBHttpSolrServer(cloudServer.getLbServer(), core));
+
+		if (org.springframework.util.StringUtils.hasText(core)) {
+			clone.setDefaultCollection(core);
+		}
+		return clone;
 	}
 
 	private static LBHttpSolrServer cloneSolr3LBHttpServer(SolrServer solrServer, String core)
