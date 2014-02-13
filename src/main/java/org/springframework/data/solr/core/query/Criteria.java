@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
  * 
  * @author Christoph Strobl
  * @author Philipp Jardas
+ * @author Francisco Spaeth
  */
 public class Criteria {
 
@@ -53,12 +54,10 @@ public class Criteria {
 
 	private Set<CriteriaEntry> criteria = new LinkedHashSet<CriteriaEntry>();
 
-	public Criteria() {
-	}
+	public Criteria() {}
 
 	/**
 	 * @param function
-	 * 
 	 * @since 1.1
 	 */
 	public Criteria(Function function) {
@@ -117,7 +116,6 @@ public class Criteria {
 	 * 
 	 * @param function must not be null
 	 * @return
-	 * 
 	 * @since 1.1
 	 */
 	public static Criteria where(Function function) {
@@ -195,9 +193,17 @@ public class Criteria {
 	public Criteria or(Criteria criteria) {
 		Assert.notNull(criteria, "Cannot chain 'null' criteria.");
 
-		Criteria orConnectedCritiera = new OrCriteria(this.criteriaChain, criteria.getField());
-		orConnectedCritiera.criteria.addAll(criteria.criteria);
-		return orConnectedCritiera;
+		Criteria orConnectedCriteria = new OrCriteria(this.criteriaChain, criteria.getField());
+		orConnectedCriteria.criteria.addAll(criteria.criteria);
+
+		for (Criteria c : criteria.getCriteriaChain()) {
+			if (c == criteria) {
+				continue;
+			}
+			orConnectedCriteria.and(c);
+		}
+
+		return orConnectedCriteria;
 	}
 
 	/**
@@ -622,7 +628,6 @@ public class Criteria {
 	 * @param function must not be null
 	 * @return
 	 * @throws IllegalArgumentException if function is null
-	 * 
 	 * @since 1.1
 	 */
 	public Criteria function(Function function) {
@@ -752,7 +757,6 @@ public class Criteria {
 	 * Single entry to be used when defining search criteria
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	public static class CriteriaEntry {
 

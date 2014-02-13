@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,15 +46,14 @@ import org.springframework.data.solr.repository.ProductBean;
 /**
  * @author Christoph Strobl
  * @author John Dorman
+ * @author Francisco Spaeth
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryCreatorTests {
 
-	@Mock
-	private RepositoryMetadata metadataMock;
+	private @Mock RepositoryMetadata metadataMock;
 
-	@Mock
-	private SolrEntityInformationCreator entityInformationCreatorMock;
+	private @Mock SolrEntityInformationCreator entityInformationCreatorMock;
 
 	private MappingContext<?, SolrPersistentProperty> mappingContext;
 
@@ -368,6 +367,21 @@ public class SolrQueryCreatorTests {
 		Assert.assertEquals(Sort.Direction.DESC, query.getSort().getOrderFor("title").getDirection());
 	}
 
+	/**
+	 * @see DATASOLR-139
+	 */
+	@Test
+	public void testCombinationsOfOrAndShouldBeCreatedCorrectly() throws NoSuchMethodException, SecurityException {
+
+		Method method = SampleRepository.class.getMethod("findByNameOrDescriptionAndLastModifiedAfter", String.class,
+				String.class, Date.class);
+
+		Query query = createQueryForMethodWithArgs(method, new Object[] { "mail", "domain",
+				new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
+		Assert.assertEquals("name:mail OR description:domain AND last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]",
+				queryParser.getQueryString(query));
+	}
+
 	private Query createQueryForMethodWithArgs(Method method, Object[] args) {
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
@@ -448,6 +462,8 @@ public class SolrQueryCreatorTests {
 		ProductBean findByLocationNear(GeoLocation location, Distance distance);
 
 		ProductBean findByLocationNear(BoundingBox bbox);
+
+		ProductBean findByNameOrDescriptionAndLastModifiedAfter(String name, String description, Date date);
 
 	}
 
