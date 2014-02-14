@@ -368,7 +368,19 @@ public class SolrQueryCreatorTests {
 		Assert.assertEquals(Sort.Direction.DESC, query.getSort().getOrderFor("title").getDirection());
 	}
 
-	private Query createQueryForMethodWithArgs(Method method, Object[] args) {
+	  @Test
+	  public void testCombinationsOfOrAndShouldBeCreatedCorrectly() throws NoSuchMethodException, SecurityException {
+
+	    Method method = SampleRepository.class.getMethod("findByNameOrDescriptionAndLastModifiedAfter", String.class,
+	        String.class, Date.class);
+
+	    Query query = createQueryForMethodWithArgs(method, new Object[] { "mail", "domain",
+	        new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
+	    Assert.assertEquals("name:mail OR description:domain AND last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]",
+	        queryParser.getQueryString(query));
+	  }
+	  
+	  private Query createQueryForMethodWithArgs(Method method, Object[] args) {
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, args),
@@ -448,6 +460,8 @@ public class SolrQueryCreatorTests {
 		ProductBean findByLocationNear(GeoLocation location, Distance distance);
 
 		ProductBean findByLocationNear(BoundingBox bbox);
+		
+		ProductBean findByNameOrDescriptionAndLastModifiedAfter(String name, String description, Date date);
 
 	}
 
