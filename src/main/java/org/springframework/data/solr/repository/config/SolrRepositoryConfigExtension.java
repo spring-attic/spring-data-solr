@@ -64,8 +64,9 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		AnnotationAttributes attributes = config.getAttributes();
 		if (!attributes.getBoolean("multicoreSupport")) {
 			builder.addPropertyReference("solrOperations", attributes.getString("solrTemplateRef"));
+		} else {
+			builder.addPropertyReference("solrServer", attributes.getString("solrServerRef"));
 		}
-		builder.addPropertyReference("solrServer", attributes.getString("solrServerRef"));
 	}
 
 	@Override
@@ -86,7 +87,8 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		Element element = config.getElement();
 		if (!Boolean.valueOf(element.getAttribute("multicore-support"))) {
 			builder.addPropertyReference("solrOperations", element.getAttribute("solr-template-ref"));
+		} else {
+			builder.addPropertyReference("solrServer", element.getAttribute("solr-server-ref"));
 		}
-		builder.addPropertyReference("solrServer", element.getAttribute("solr-server-ref"));
 	}
 }
