@@ -7,4 +7,6 @@ target/
 *.sonar4clipseExternals
 .idea
 spring-data-solr.iml
+.DS_Store
+_site
 
