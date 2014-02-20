@@ -1,7 +1,7 @@
 Spring Data Solr
 ======================
 
-The primary goal of the [Spring Data](http://www.springsource.org/spring-data) project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
+The primary goal of the [Spring Data](http://projects.spring.io/spring-data) project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
 
 The Spring Data Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine 
 
@@ -12,11 +12,12 @@ Getting Help
 
 * [Reference Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/reference/html/)
 * [API Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/api/)
-* [Spring Data Project](http://www.springsource.org/spring-data)
+* [Spring Data Project](http://projects.spring.io/spring-data)
 * [Issues](https://jira.springsource.org/browse/DATASOLR)
 * [Code Analysis](https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr)
+* [Questions](http://stackoverflow.com/questions/tagged/spring-data-solr)
 
-If you are new to Spring as well as to Spring Data, look for information about [Spring projects](http://www.springsource.org/projects).
+If you are new to Spring as well as to Spring Data, look for information about [Spring projects](https://spring.io/projects).
 
 Quick Start
 -----------
@@ -72,7 +73,7 @@ public interface SolrProductRepository extends SolrCrudRepository<Product, Strin
   //Highlighting results
   //Query will be "q=name:(<name...>)&hl=true&hl.fl=*"
   @Highlight
-  HighlightPage<Product> findByNameIn(Collection<String> name, Page page);
+  HighlightPage<Product> findByNameIn(Collection<String> name, Pageable page);
   
   //Spatial Search
   //Query will be "q=location:[<bbox.start.latitude>,<bbox.start.longitude> TO <bbox.end.latitude>,<bbox.end.longitude>]"
@@ -83,22 +84,7 @@ public interface SolrProductRepository extends SolrCrudRepository<Product, Strin
   Page<Product> findByLocationWithin(GeoLocation location, Distance distance);
   
 }
-```
-
-```SolrRepositoryFactory``` will create the implementation for you.
-
-```java 
-public class SolrProductSearchRepositoryFactory {
-  
-  @Autwired
-  private SolrOperations solrOperations;
-  
-  public SolrProductRepository create() {
-    return new SolrRepositoryFactory(this.solrOperations).getRepository(SolrProductRepository.class);
-  }
-  
-}
-```    
+```   
    
 Furthermore you may provide a custom implementation for some operations.
 
@@ -139,10 +125,28 @@ public class SolrProductRepositoryImpl implements SolrProductRepositoryCustom {
 Go on and use it as shown below:
 
 ```java
+@Configuration
+@EnableSolrRepositories(basePackages = { "com.acme.sorl" }), multicoreSupport = true)
+public class SolrContext {
+  
+  private @Resource Environment env;
+
+  @Bean
+  public SolrServer solrServer() throws MalformedURLException, IllegalStateException {
+    return new HttpSolrServer(env.getRequiredProperty("solr.host"));
+  }
+
+}
+
 @Service
 public class ProductService {
   
   private SolrProductRepository repository;
+
+  @Autowired
+  public ProductService(SolrProductRepository repository) {
+    this.repository = repository;
+  }
   
   public void doSomething() {
     repository.deleteAll();
@@ -156,10 +160,6 @@ public class ProductService {
     List<Product> productList = repository.findByAuthorLike("Chr");
   }
   
-  @Autowired
-  public void setRepository(SolrProductRepository repository) {
-    this.repository = repository;
-  }
 }
 ```
 
@@ -175,12 +175,8 @@ You can set up repository scanning via xml configuration, which will happily cre
   xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-  <solr:repositories base-package="com.acme.repository" />
+  <solr:repositories base-package="com.acme.repository" multicoreSupport="true" />
   <solr:solr-server id="solrServer" url="http://localhost:8983/solr" />
-  
-  <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
-    <constructor-arg ref="solrServer" />
-  </bean>
   
 </beans>
 ```
@@ -194,7 +190,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.0.0.RELEASE</version>
+  <version>1.1.0.RELEASE</version>
 </dependency>  
 ```
 
@@ -204,7 +200,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.1.0.BUILD-SNAPSHOT</version>
+  <version>1.2.0.BUILD-SNAPSHOT</version>
 </dependency> 
 
 <repository>
@@ -216,3 +212,7 @@ Maven
 Contributing to Spring Data
 ---------------------------
 Please refer to [CONTRIBUTING](https://github.com/SpringSource/spring-data-solr/blob/master/CONTRIBUTING.md)
+
+Stay in touch
+-------------
+Follow the project team ([@stroblchristoph](https://twitter.com/stroblchristoph), [@SpringData](https://twitter.com/springdata)) on Twitter. Releases are announced via our news feed.

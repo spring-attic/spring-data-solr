@@ -31,21 +31,21 @@
 			<listitem>
 				<para>
 					Release repository -
-					<ulink url="http://repo.springsource.org/libs-release">http://repo.springsource.org/libs-release</ulink>
+					<ulink url="http://repo.springsource.org/libs-release">http://repo.spring.io/libs-release</ulink>
 				</para>
 			</listitem>
 
 			<listitem>
 				<para>
 					Milestone repository -
-					<ulink url="http://repo.springsource.org/libs-milestone">http://repo.springsource.org/libs-milestone
+					<ulink url="http://repo.springsource.org/libs-milestone">http://repo.spring.io/libs-milestone
 					</ulink>
 				</para>
 			</listitem>
 			<listitem>
 				<para>
 					Snapshot repository -
-					<ulink url="http://repo.springsource.org/libs-snapshot">http://repo.springsource.org/libs-snapshot</ulink>
+					<ulink url="http://repo.springsource.org/libs-snapshot">http://repo.spring.io/libs-snapshot</ulink>
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -55,7 +55,7 @@
 		<para>
 			Requires
 			<ulink url="http://lucene.apache.org/solr/">Apache Solr</ulink>
-			3.5 and above or optional dependency
+			3.6 and above or optional dependency
 			<programlisting language="xml">&lt;dependency&gt;
   &lt;groupId&gt;org.apache.solr&lt;/groupId&gt;
   &lt;artifactId&gt;solr-core&lt;/artifactId&gt;

@@ -241,7 +241,6 @@ HighlightPage&lt;Product&gt; findByName(String name, Pageable page);
 							<row>
 								<entry>Class</entry>
 								<entry>Solr Function</entry>
-								
 							</row>
 						</thead>
 						<tbody>

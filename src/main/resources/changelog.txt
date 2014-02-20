@@ -1,3 +1,10 @@
+Release Notes - Spring Data Solr - Version 1.1 GA (Codd)
+---------------------------------------------------------
+** Fix
+    * [DATASOLR-139] - Combination of OR | AND are not fully captured within SolrQueryCrator.
+    * [DATASOLR-140] - SolrServer should not be a mandatory bean reference in non multicore scenario.
+    * [DATASOLR-138] - CloudSolrServer not correctly created using MulticoreSolrServerFactory.
+
 Release Notes - Spring Data Solr - Version 1.1 RC1 (Codd)
 ---------------------------------------------------------
 ** New Feature
