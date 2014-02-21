@@ -168,6 +168,31 @@ List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</pr
             <programlisting language="java">Page&lt;Product&gt; findByNameOrDescription(@Boost(2) String name, String description);
 </programlisting>
         </example>
+	    <section id="solr.misc.boost">
+	        <title>Index Time Boosts</title>
+	        <para>
+	            Boosting documents score could be also done on index time by using <interfacename>@Boost</interfacename> annotations in 
+	            classes (for Solr documents) and/or fields (for Solr fields).
+	        </para>
+	        <example>
+	            <programlisting language="java">import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.data.solr.repository.Boost;
+
+@Boost(0.8f)
+public class MyEntity {
+
+    @Boost(1f)
+    @Field
+    private String id;
+    @Field
+    private String name;
+    
+    // setters and getters ...
+
+}
+	            </programlisting>
+	        </example>
+	    </section>
     </section>
     <section id="solr.misc.requesthandler">
         <title>Select Request Handler</title>

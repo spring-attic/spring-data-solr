@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -53,11 +54,13 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
  * @author Christoph Strobl
  * @author Joachim Uhrlass
+ * @author Francisco Spaeth
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrTemplateTests {
@@ -65,6 +68,7 @@ public class SolrTemplateTests {
 	private SolrTemplate solrTemplate;
 
 	private static final SimpleJavaObject SIMPLE_OBJECT = new SimpleJavaObject("simple-string-id", 123l);
+	private static final SimpleBoostedJavaObject SIMPLE_BOOSTED_OBJECT = new SimpleBoostedJavaObject("simple-string-id", 123l, "simple-string-boost");
 	private static final SolrInputDocument SIMPLE_DOCUMENT = new SolrInputDocument();
 
 	@Mock
@@ -340,4 +344,26 @@ public class SolrTemplateTests {
 		Mockito.verify(solrServerMock, Mockito.times(1)).query(captor.capture());
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
+
+	@Test
+	public void testSaveBoostedBean() throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
+		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
+				new UpdateResponse());
+		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
+		Assert.assertNotNull(updateResponse);
+
+		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(), Mockito.eq(-1));
+
+		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
+		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+		
+		Boost entityBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass(), Boost.class);
+		Assert.assertEquals(entityBoost.value(), captor.getValue().getDocumentBoost(), 0);
+		
+		Boost fieldBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"), Boost.class);
+		Assert.assertEquals(fieldBoost.value(), captor.getValue().getField("boostedField").getBoost(), 0);
+	
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.CollectionFactory;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.convert.EntityInstantiator;
 import org.springframework.data.convert.EntityInstantiators;
 import org.springframework.data.mapping.PropertyHandler;
@@ -44,6 +45,7 @@ import org.springframework.data.mapping.model.PropertyValueProvider;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.util.Assert;
@@ -246,9 +248,22 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 				}
 				target.put(persistentProperty.getFieldName(), field);
+				
+				Boost boostAnn = persistentProperty.findAnnotation(Boost.class);
+				if (boostAnn != null) {
+					field.setBoost(boostAnn.value());
+				}
+
 			}
 		});
 
+		if (target instanceof SolrInputDocument) {
+			Boost boostAnn = AnnotationUtils.getAnnotation(source.getClass(), Boost.class);
+			if (boostAnn != null) {
+				((SolrInputDocument)target).setDocumentBoost(boostAnn.value());
+			}
+		}
+		
 	}
 
 	private Object convertToSolrType(Class<?> type, Object value) {
