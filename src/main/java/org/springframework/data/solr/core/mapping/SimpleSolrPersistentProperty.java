@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.repository.Boost;
 import org.springframework.util.StringUtils;
 
 /**
@@ -32,6 +33,7 @@ import org.springframework.util.StringUtils;
  * {@link org.apache.solr.client.solrj.beans.Field} into account
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  * 
  */
 public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> implements
@@ -108,6 +110,19 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 	private Indexed getIndexAnnotation() {
 		return findAnnotation(Indexed.class);
+	}
+	
+	@Override
+	public boolean isBoosted() {
+		return field.isAnnotationPresent(Boost.class);
+	}
+	
+	@Override
+	public Float getBoost() {
+		if (isBoosted()) {
+			return field.getAnnotation(Boost.class).value();
+		}
+		return null;
 	}
 
 }

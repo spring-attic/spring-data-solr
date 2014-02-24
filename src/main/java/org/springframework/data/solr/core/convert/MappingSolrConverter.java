@@ -33,7 +33,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.CollectionFactory;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.convert.EntityInstantiator;
 import org.springframework.data.convert.EntityInstantiators;
 import org.springframework.data.mapping.PropertyHandler;
@@ -45,7 +44,6 @@ import org.springframework.data.mapping.model.PropertyValueProvider;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.util.Assert;
@@ -57,6 +55,7 @@ import org.springframework.util.CollectionUtils;
  * {@link SolrInputDocument}. <br/>
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class MappingSolrConverter extends SolrConverterBase implements SolrConverter, ApplicationContextAware,
 		InitializingBean {
@@ -249,19 +248,15 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				}
 				target.put(persistentProperty.getFieldName(), field);
 				
-				Boost boostAnn = persistentProperty.findAnnotation(Boost.class);
-				if (boostAnn != null) {
-					field.setBoost(boostAnn.value());
+				if (persistentProperty.isBoosted()) {
+					field.setBoost(persistentProperty.getBoost());
 				}
 
 			}
 		});
 
-		if (target instanceof SolrInputDocument) {
-			Boost boostAnn = AnnotationUtils.getAnnotation(source.getClass(), Boost.class);
-			if (boostAnn != null) {
-				((SolrInputDocument)target).setDocumentBoost(boostAnn.value());
-			}
+		if (entity.isBoosted()) {
+			((SolrInputDocument)target).setDocumentBoost(entity.getBoost());
 		}
 		
 	}
