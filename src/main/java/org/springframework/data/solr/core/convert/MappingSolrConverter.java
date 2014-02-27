@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.springframework.util.CollectionUtils;
  * {@link SolrInputDocument}. <br/>
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class MappingSolrConverter extends SolrConverterBase implements SolrConverter, ApplicationContextAware,
 		InitializingBean {
@@ -246,9 +247,18 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 				}
 				target.put(persistentProperty.getFieldName(), field);
+				
+				if (persistentProperty.isBoosted()) {
+					field.setBoost(persistentProperty.getBoost());
+				}
+
 			}
 		});
 
+		if (entity.isBoosted()) {
+			((SolrInputDocument)target).setDocumentBoost(entity.getBoost());
+		}
+		
 	}
 
 	private Object convertToSolrType(Class<?> type, Object value) {

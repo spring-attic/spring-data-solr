@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.springframework.data.mapping.PersistentProperty;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public interface SolrPersistentProperty extends PersistentProperty<SolrPersistentProperty> {
 
@@ -40,6 +41,16 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @return true if {@link org.apache.solr.client.solrj.beans.Field#value()} contains {@code *}
 	 */
 	boolean containsWildcard();
+	
+	/**
+	 * @return true if property is boosted
+	 */
+	boolean isBoosted();
+	
+	/**
+	 * @return property boost value if {@link #isBoosted()}, null otherwise
+	 */
+	Float getBoost();
 
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 

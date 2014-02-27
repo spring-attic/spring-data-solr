@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
+import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
@@ -33,17 +34,20 @@ import org.springframework.util.StringUtils;
  * 
  * @param <T>
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements
 		SolrPersistentEntity<T>, ApplicationContextAware {
 
 	private final StandardEvaluationContext context;
 	private String solrCoreName;
+	private Float boost;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 		super(typeInformation);
 		this.context = new StandardEvaluationContext();
 		this.solrCoreName = derivateSolrCoreNameFromClass(typeInformation.getType());
+		this.boost = derivateDocumentBoostFromClass(typeInformation.getType());
 	}
 
 	@Override
@@ -64,9 +68,26 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return derivativeSolrCoreName;
 	}
 
+	private Float derivateDocumentBoostFromClass(Class<?> clazz) {
+		if (clazz.isAnnotationPresent(Boost.class)) {
+			return clazz.getAnnotation(Boost.class).value();
+		}
+		return null;
+	}
+
 	@Override
 	public String getSolrCoreName() {
 		return this.solrCoreName;
+	}
+	
+	@Override
+	public boolean isBoosted() {
+		return boost != null;
+	}
+	
+	@Override
+	public Float getBoost() {
+		return boost;
 	}
 
 }
