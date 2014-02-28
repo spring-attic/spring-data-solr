@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsNull;
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,13 +33,12 @@ public class SimpleSolrPersistentEntityTests {
 
 	private static final String CORE_NAME = "core1";
 
-	@SuppressWarnings("rawtypes")
-	@Mock
-	TypeInformation typeInfo;
+	@SuppressWarnings("rawtypes") @Mock TypeInformation typeInfo;
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testPersistentEntityWithSolrDocumentAnnotation() {
+
 		Mockito.when(typeInfo.getType()).thenReturn(SearchableBeanWithSolrDocumentAnnotation.class);
 
 		SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation>(
@@ -48,7 +48,18 @@ public class SimpleSolrPersistentEntityTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
+	public void testPersistentEntityShouldReadSolrCoreNameFromParentClass() {
+
+		Mockito.when(typeInfo.getType()).thenReturn(InheritingClass.class);
+
+		SimpleSolrPersistentEntity<InheritingClass> pe = new SimpleSolrPersistentEntity<InheritingClass>(typeInfo);
+		Assert.assertEquals(CORE_NAME, pe.getSolrCoreName());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
 	public void testPersistentEntityWithoutSolrDocumentAnnotation() {
+
 		Mockito.when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
 
 		SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation>(
@@ -59,6 +70,7 @@ public class SimpleSolrPersistentEntityTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testPersistentEntityWithEmptySolrDocumentAnnotation() {
+
 		Mockito.when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
 
 		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation>(
@@ -66,15 +78,49 @@ public class SimpleSolrPersistentEntityTests {
 		Assert.assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getSolrCoreName());
 	}
 
-	@SolrDocument(solrCoreName = CORE_NAME)
-	static class SearchableBeanWithSolrDocumentAnnotation {
+	/**
+	 * @see DATASOLR-88
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testPersistentEntityShouldReadDocumentBoostFromSolrDocumentAnnotation() {
+
+		Mockito.when(typeInfo.getType()).thenReturn(DocumentWithBoost.class);
+
+		SimpleSolrPersistentEntity<DocumentWithBoost> pe = new SimpleSolrPersistentEntity<DocumentWithBoost>(typeInfo);
+		Assert.assertThat(pe.isBoosted(), Is.is(true));
+		Assert.assertThat(pe.getBoost(), Is.is(100f));
 	}
+
+	/**
+	 * @see DATASOLR-88
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testPersistentEntityShouldNotBeBoostenWhenSolrDocumentAnnotationHasDefaultBoostValue() {
+
+		Mockito.when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
+
+		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation>(
+				typeInfo);
+		Assert.assertThat(pe.isBoosted(), Is.is(false));
+		Assert.assertThat(pe.getBoost(), IsNull.nullValue());
+	}
+
+	@SolrDocument(solrCoreName = CORE_NAME)
+	static class SearchableBeanWithSolrDocumentAnnotation {}
 
 	@SolrDocument
-	static class SearchableBeanWithEmptySolrDocumentAnnotation {
-	}
+	static class SearchableBeanWithEmptySolrDocumentAnnotation {}
 
-	static class SearchableBeanWithoutSolrDocumentAnnotation {
-	}
+	static class SearchableBeanWithoutSolrDocumentAnnotation {}
+
+	@SolrDocument(solrCoreName = CORE_NAME)
+	static class ParentClassWithSolrDocumentAnnotation {}
+
+	static class InheritingClass extends ParentClassWithSolrDocumentAnnotation {}
+
+	@SolrDocument(boost = 100)
+	static class DocumentWithBoost {}
 
 }

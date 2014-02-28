@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.springframework.data.annotation.Persistent;
 
 /**
  * @author Christoph Strobl
- * 
  */
 @Persistent
 @Inherited
@@ -33,6 +32,19 @@ import org.springframework.data.annotation.Persistent;
 @Target({ ElementType.TYPE })
 public @interface SolrDocument {
 
+	/**
+	 * Defines the {@literal collectionname} the document is persisted in.
+	 * 
+	 * @return
+	 */
 	String solrCoreName() default "";
+
+	/**
+	 * Index time boost value for document.
+	 * 
+	 * @return
+	 * @since 1.2
+	 */
+	float boost() default Float.NaN;
 
 }

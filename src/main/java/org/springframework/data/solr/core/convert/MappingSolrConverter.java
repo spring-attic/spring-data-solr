@@ -67,7 +67,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 	private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 	private final EntityInstantiators instantiators = new EntityInstantiators();
 
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused")//
 	private ApplicationContext applicationContext;
 
 	public MappingSolrConverter(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
@@ -247,7 +247,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 				}
 				target.put(persistentProperty.getFieldName(), field);
-				
+
 				if (persistentProperty.isBoosted()) {
 					field.setBoost(persistentProperty.getBoost());
 				}
@@ -255,10 +255,10 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			}
 		});
 
-		if (entity.isBoosted()) {
-			((SolrInputDocument)target).setDocumentBoost(entity.getBoost());
+		if (entity.isBoosted() && target instanceof SolrInputDocument) {
+			((SolrInputDocument) target).setDocumentBoost(entity.getBoost());
 		}
-		
+
 	}
 
 	private Object convertToSolrType(Class<?> type, Object value) {
@@ -422,10 +422,10 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 		private boolean isWildcardFieldNameMatch(String fieldname, WildcardPosition type, String candidate) {
 			switch (type) {
-			case LEADING:
-				return StringUtils.endsWith(candidate, fieldname);
-			case TRAILING:
-				return StringUtils.startsWith(candidate, fieldname);
+				case LEADING:
+					return StringUtils.endsWith(candidate, fieldname);
+				case TRAILING:
+					return StringUtils.startsWith(candidate, fieldname);
 			}
 			return false;
 		}

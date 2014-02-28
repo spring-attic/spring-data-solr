@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ import org.springframework.data.util.TypeInformation;
  * @author Christoph Strobl
  */
 @RunWith(Parameterized.class)
-public class SimpleSolrPersitentPropertyTests {
+public class SimpleSolrPersitentPropertyFieldNameTests {
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")//
 	private TypeInformation typeInfoMock;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
@@ -45,7 +45,7 @@ public class SimpleSolrPersitentPropertyTests {
 	private final String propertyName;
 	private final String expectedFieldname;
 
-	public SimpleSolrPersitentPropertyTests(String propertyName, String expectedFieldname) {
+	public SimpleSolrPersitentPropertyFieldNameTests(String propertyName, String expectedFieldname) {
 		this.propertyName = propertyName;
 		this.expectedFieldname = expectedFieldname;
 	}
@@ -84,20 +84,20 @@ public class SimpleSolrPersitentPropertyTests {
 
 	static class BeanWithSolrFieldAnnotation {
 
-		@Field
+		@Field//
 		private String fieldWithSolrjFieldAnnotation;
 
-		@Field("solrj")
+		@Field("solrj")//
 		private String fieldWithSolrjFieldAnnotationAndValue;
 
-		@Indexed
+		@Indexed//
 		private String fieldWithIndexedAnnotation;
 
-		@Indexed("indexed")
+		@Indexed("indexed")//
 		private String fieldWithIndexedAnnotationAndValue;
 
-		@Field("solrj")
-		@Indexed("indexed")
+		@Field("solrj")//
+		@Indexed("indexed")//
 		private String fieldWithBothAnnotations;
 
 		public String getFieldWithSolrjFieldAnnotation() {

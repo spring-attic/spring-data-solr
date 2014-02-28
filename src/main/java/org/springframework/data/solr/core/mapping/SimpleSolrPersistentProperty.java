@@ -25,7 +25,6 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.repository.Boost;
 import org.springframework.util.StringUtils;
 
 /**
@@ -34,7 +33,6 @@ import org.springframework.util.StringUtils;
  * 
  * @author Christoph Strobl
  * @author Francisco Spaeth
- * 
  */
 public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> implements
 		SolrPersistentProperty {
@@ -79,8 +77,13 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	@Override
 	public boolean isReadonly() {
 		Indexed indexedAnnotation = getIndexAnnotation();
-		boolean readonly = indexedAnnotation != null ? indexedAnnotation.readonly() : false;
-		return readonly || getFieldAnnotation() == null;
+		if (indexedAnnotation != null && indexedAnnotation.readonly()) {
+			return true;
+		}
+		if (indexedAnnotation == null && getFieldAnnotation() == null) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -111,18 +114,23 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	private Indexed getIndexAnnotation() {
 		return findAnnotation(Indexed.class);
 	}
-	
+
 	@Override
 	public boolean isBoosted() {
-		return field.isAnnotationPresent(Boost.class);
+
+		Float boost = getBoost();
+		return boost != null && !Float.isNaN(boost);
 	}
-	
+
 	@Override
 	public Float getBoost() {
-		if (isBoosted()) {
-			return field.getAnnotation(Boost.class).value();
+
+		Float boost = Float.NaN;
+		Indexed indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation != null) {
+			boost = indexedAnnotation.boost();
 		}
-		return null;
+		return Float.isNaN(boost) ? null : boost;
 	}
 
 }

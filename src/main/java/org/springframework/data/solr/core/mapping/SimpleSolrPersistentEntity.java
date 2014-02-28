@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import java.lang.annotation.Annotation;
 import java.util.Locale;
 
 import org.springframework.beans.BeansException;
@@ -22,15 +23,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
 /**
- * Solr specific {@link PersistentEntity} implementation holding eg. name of solr core
+ * Solr specific {@link PersistentEntity} implementation holding eg. name of solr core.
  * 
  * @param <T>
  * @author Christoph Strobl
@@ -39,28 +40,33 @@ import org.springframework.util.StringUtils;
 public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements
 		SolrPersistentEntity<T>, ApplicationContextAware {
 
+	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
 	private String solrCoreName;
 	private Float boost;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
+
 		super(typeInformation);
 		this.context = new StandardEvaluationContext();
-		this.solrCoreName = derivateSolrCoreNameFromClass(typeInformation.getType());
-		this.boost = derivateDocumentBoostFromClass(typeInformation.getType());
+		this.typeInformation = typeInformation;
+		this.solrCoreName = derivateSolrCoreName();
+		this.boost = derivateDocumentBoost();
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+
 		context.addPropertyAccessor(new BeanFactoryAccessor());
 		context.setBeanResolver(new BeanFactoryResolver(applicationContext));
 		context.setRootObject(applicationContext);
 	}
 
-	private String derivateSolrCoreNameFromClass(Class<?> clazz) {
-		String derivativeSolrCoreName = clazz.getSimpleName().toLowerCase(Locale.ENGLISH);
-		if (clazz.isAnnotationPresent(SolrDocument.class)) {
-			SolrDocument solrDocument = clazz.getAnnotation(SolrDocument.class);
+	private String derivateSolrCoreName() {
+
+		String derivativeSolrCoreName = this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
+		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument != null) {
 			if (StringUtils.hasText(solrDocument.solrCoreName())) {
 				derivativeSolrCoreName = solrDocument.solrCoreName();
 			}
@@ -68,9 +74,11 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return derivativeSolrCoreName;
 	}
 
-	private Float derivateDocumentBoostFromClass(Class<?> clazz) {
-		if (clazz.isAnnotationPresent(Boost.class)) {
-			return clazz.getAnnotation(Boost.class).value();
+	private Float derivateDocumentBoost() {
+
+		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument != null && !Float.isNaN(solrDocument.boost())) {
+			return solrDocument.boost();
 		}
 		return null;
 	}
@@ -79,15 +87,19 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	public String getSolrCoreName() {
 		return this.solrCoreName;
 	}
-	
+
 	@Override
 	public boolean isBoosted() {
 		return boost != null;
 	}
-	
+
 	@Override
 	public Float getBoost() {
 		return boost;
+	}
+
+	protected <S extends Annotation> S findAnnotation(Class<S> annotationType) {
+		return AnnotationUtils.findAnnotation(this.typeInformation.getType(), annotationType);
 	}
 
 }

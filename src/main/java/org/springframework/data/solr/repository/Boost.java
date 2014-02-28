@@ -23,16 +23,17 @@ import java.lang.annotation.Target;
 
 /**
  * Increase document score by boosting search criteria hit
- *  
+ * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.TYPE, ElementType.FIELD })
+@Target({ ElementType.PARAMETER })
 @Documented
 public @interface Boost {
 
 	/**
-	 * @return Boost Term, Class (Document) or Field by value. Default is @{code Float.NaN}.
+	 * @return Boost Term, or Field by value. Default is {@code Float.NaN}.
 	 */
 	float value() default Float.NaN;
 

@@ -33,6 +33,7 @@ import org.apache.solr.common.SolrException.ErrorCode;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,13 +49,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
+import org.springframework.data.solr.core.mapping.Indexed;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
-import org.springframework.data.solr.repository.Boost;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
@@ -68,11 +70,11 @@ public class SolrTemplateTests {
 	private SolrTemplate solrTemplate;
 
 	private static final SimpleJavaObject SIMPLE_OBJECT = new SimpleJavaObject("simple-string-id", 123l);
-	private static final SimpleBoostedJavaObject SIMPLE_BOOSTED_OBJECT = new SimpleBoostedJavaObject("simple-string-id", 123l, "simple-string-boost");
+	private static final SimpleBoostedJavaObject SIMPLE_BOOSTED_OBJECT = new SimpleBoostedJavaObject("simple-string-id",
+			123l, "simple-string-boost");
 	private static final SolrInputDocument SIMPLE_DOCUMENT = new SolrInputDocument();
 
-	@Mock
-	private SolrServer solrServerMock;
+	private @Mock SolrServer solrServerMock;
 
 	@Before
 	public void setUp() {
@@ -321,8 +323,7 @@ public class SolrTemplateTests {
 		QueryParser parser = new QueryParser() {
 
 			@Override
-			public void registerConverter(Converter<?, ?> converter) {
-			}
+			public void registerConverter(Converter<?, ?> converter) {}
 
 			@Override
 			public String getQueryString(SolrDataQuery query) {
@@ -345,25 +346,43 @@ public class SolrTemplateTests {
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
 
+	/**
+	 * @see DATASOLR-88
+	 */
 	@Test
-	public void testSaveBoostedBean() throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
-		Mockito.when(solrServerMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
-		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
-		Assert.assertNotNull(updateResponse);
+	public void testSaveBoostedShouldUseDocumentBoost() throws IOException, SolrServerException, SecurityException,
+			NoSuchFieldException {
+
+		solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
 
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(), Mockito.eq(-1));
 
 		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
 		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
-		
-		Boost entityBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass(), Boost.class);
-		Assert.assertEquals(entityBoost.value(), captor.getValue().getDocumentBoost(), 0);
-		
-		Boost fieldBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"), Boost.class);
-		Assert.assertEquals(fieldBoost.value(), captor.getValue().getField("boostedField").getBoost(), 0);
-	
+
+		float entityBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass(), SolrDocument.class).boost();
+		Assert.assertThat(captor.getValue().getDocumentBoost(), Is.is(entityBoost));
+	}
+
+	/**
+	 * @see DATASOLR-88
+	 */
+	@Test
+	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation() throws IOException, SolrServerException,
+			SecurityException, NoSuchFieldException {
+
+		solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
+
+		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(), Mockito.eq(-1));
+
+		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
+		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+
+		float fieldBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"),
+				Indexed.class).boost();
+		Assert.assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
 }

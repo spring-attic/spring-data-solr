@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,25 @@
  */
 package org.springframework.data.solr.core;
 
-import org.apache.solr.client.solrj.beans.Field;
-import org.springframework.data.solr.repository.Boost;
+import org.springframework.data.solr.core.mapping.Indexed;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 /**
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  */
-@Boost(0.8f)
+@SolrDocument(boost = 0.8f)
 public class SimpleBoostedJavaObject extends SimpleJavaObject {
 
-	@Boost(0.7f)
-	@Field
-	private String boostedField;
+	private @Indexed(boost = 0.7f) String boostedField;
 
 	public SimpleBoostedJavaObject() {
 		super();
 	}
 
-	public SimpleBoostedJavaObject(String id, Long value, String boostedField) {
+	public SimpleBoostedJavaObject(String id, Long value, String stringValue) {
 		super(id, value);
-		this.boostedField = boostedField;
+		this.boostedField = stringValue;
 	}
 
 	public String getBoostedField() {

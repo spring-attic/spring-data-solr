@@ -25,7 +25,6 @@ import org.apache.solr.client.solrj.beans.Field;
 
 /**
  * @author Christoph Strobl
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -45,5 +44,13 @@ public @interface Indexed {
 	 * @return
 	 */
 	String value() default "";
+
+	/**
+	 * Boost Field by value. Default is {@code Float.NaN}.
+	 * 
+	 * @return
+	 * @since 1.2
+	 */
+	float boost() default Float.NaN;
 
 }

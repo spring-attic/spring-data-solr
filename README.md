@@ -36,7 +36,8 @@ The ```SolrCrudRepository``` extends ```PagingAndSortingRepository```
    } 
 ```
     
-The ```SimpleSolrRepository``` implementation uses ```MappingSolrConverter```. In order support native solrj mapping via ```DocumentObjectBinder``` fields have to be annotated with ```org.apache.solr.client.solrj.beans.Field``` or ```org.springframework.data.solr.core.mapping.Indexed```.
+The ```SimpleSolrRepository``` implementation uses ```MappingSolrConverter```. In order support native solrj mapping via ```DocumentObjectBinder``` fields have to be annotated with ```org.apache.solr.client.solrj.beans.Field```. ```org.springframework.data.solr.core.mapping.Indexed``` can be used as substitute for ```Field``` offering additional attributes to be used eg. for index time boosting.
+
 To enable native solrj mapping use ```SolrJConverter``` along with ```SolrTemplate```. 
 
 ```java

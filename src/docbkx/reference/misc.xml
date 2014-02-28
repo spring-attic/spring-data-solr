@@ -171,20 +171,21 @@ List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</pr
 	    <section id="solr.misc.boost">
 	        <title>Index Time Boosts</title>
 	        <para>
-	            Boosting documents score could be also done on index time by using <interfacename>@Boost</interfacename> annotations in 
-	            classes (for Solr documents) and/or fields (for Solr fields).
+	            Boosting documents score can be done on index time by using <interfacename>@SolrDocument</interfacename> annotation on 
+	            classes (for Solr documents) and/or <interfacename>@Indexed</interfacename> on fields (for Solr fields).
 	        </para>
 	        <example>
 	            <programlisting language="java">import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.solr.repository.Boost;
 
-@Boost(0.8f)
+@SolrDocument(boost = 0.8f)
 public class MyEntity {
 
-    @Boost(1f)
-    @Field
+    @Id
+    @Indexed
     private String id;
-    @Field
+    
+    @Indexed(boost = 1.0f)
     private String name;
     
     // setters and getters ...
