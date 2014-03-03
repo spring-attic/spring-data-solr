@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsNot;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -61,8 +62,7 @@ public class ITestSolrRepositoryOperations {
 	private static final ProductBean UNAVAILABLE_PRODUCT = createProductBean("3", 3, false);
 	private static final ProductBean NAMED_PRODUCT = createProductBean("4", 3, true, "product");
 
-	@Autowired
-	private ProductRepository repo;
+	@Autowired private ProductRepository repo;
 
 	@Before
 	public void setUp() {
@@ -754,6 +754,16 @@ public class ITestSolrRepositoryOperations {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @see DATASOLR-143
+	 */
+	@Test
+	public void testCountByWorksCorrectly() {
+
+		Assert.assertThat(repo.countProductBeanByName(NAMED_PRODUCT.getName()), Is.is(1L));
+		Assert.assertThat(repo.countByName(NAMED_PRODUCT.getName()), Is.is(1L));
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

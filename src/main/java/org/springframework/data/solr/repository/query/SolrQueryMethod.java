@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,11 @@ import org.springframework.util.StringUtils;
  */
 public class SolrQueryMethod extends QueryMethod {
 
-	private final SolrEntityInformation<?, ?> entityInformation;
 	private Method method;
 
 	public SolrQueryMethod(Method method, RepositoryMetadata metadata, SolrEntityInformationCreator solrInformationCreator) {
 		super(method, metadata);
 		this.method = method;
-		this.entityInformation = solrInformationCreator.getEntityInformation(metadata.getReturnedDomainClass(method));
 	}
 
 	/**
@@ -355,11 +353,6 @@ public class SolrQueryMethod extends QueryMethod {
 			return CollectionUtils.arrayToList(values);
 		}
 		return Collections.emptyList();
-	}
-
-	@Override
-	public SolrEntityInformation<?, ?> getEntityInformation() {
-		return entityInformation;
 	}
 
 	@Override

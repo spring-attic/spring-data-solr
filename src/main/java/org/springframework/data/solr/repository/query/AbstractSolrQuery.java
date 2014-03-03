@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.core.EntityMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.SolrOperations;
@@ -110,6 +111,10 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setAllowedQueryExeutionTime(query);
 		setDefTypeIfDefined(query);
 		setRequestHandlerIfDefined(query);
+
+		if (isCountQuery()) {
+			return new CountExecution().execute(query);
+		}
 
 		if (solrQueryMethod.isPageQuery()) {
 			if (solrQueryMethod.isFacetQuery() && solrQueryMethod.isHighlightQuery()) {
@@ -302,6 +307,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	protected abstract Query createQuery(SolrParameterAccessor parameterAccessor);
 
+	/**
+	 * @since 1.2
+	 */
+	public boolean isCountQuery() {
+		return false;
+	}
+
 	private interface QueryExecution {
 		Object execute(Query query);
 	}
@@ -314,7 +326,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	abstract class AbstractQueryExecution implements QueryExecution {
 
 		protected Page<?> executeFind(Query query) {
-			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForPage(query, metadata.getJavaType());
 		}
 
@@ -326,7 +338,6 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 * fetched
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	class CollectionExecution extends AbstractQueryExecution {
 		private final Pageable pageable;
@@ -386,7 +397,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		protected FacetPage<?> executeFind(Query query) {
 			Assert.isInstanceOf(FacetQuery.class, query);
 
-			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetPage((FacetQuery) query, metadata.getJavaType());
 		}
 
@@ -406,7 +417,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		protected HighlightPage<?> executeFind(Query query) {
 			Assert.isInstanceOf(HighlightQuery.class, query);
 
-			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
 		};
 
@@ -421,9 +432,21 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			SolrEntityInformation<?, ?> metadata = solrQueryMethod.getEntityInformation();
+			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForObject(query, metadata.getJavaType());
 		}
+	}
+
+	/**
+	 * @since 1.2
+	 */
+	class CountExecution implements QueryExecution {
+
+		@Override
+		public Object execute(Query query) {
+			return Long.valueOf(solrOperations.count(query));
+		}
+
 	}
 
 }
