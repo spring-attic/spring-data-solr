@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,16 +153,14 @@ public class DefaultQueryParserTests {
 	public void testAnd() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
 				.endsWith("2end");
-		Assert.assertEquals("field_2", criteria.getField().getName());
 		Assert.assertEquals("field_1:(start* *end) AND field_2:(2start* *2end)",
-				queryParser.createQueryStringFromCriteria(criteria));
+				queryParser.createQueryStringFromNode(criteria));
 	}
 
 	@Test
 	public void testOr() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
-		Assert
-				.assertEquals("field_1:start* OR field_2:(*end start2*)", queryParser.createQueryStringFromCriteria(criteria));
+		Assert.assertEquals("field_1:start* OR field_2:(*end start2*)", queryParser.createQueryStringFromNode(criteria));
 	}
 
 	@Test
@@ -217,7 +215,7 @@ public class DefaultQueryParserTests {
 	public void testBoostMultipleCriteriasValues() {
 		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
 		Assert.assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3",
-				queryParser.createQueryStringFromCriteria(criteria));
+				queryParser.createQueryStringFromNode(criteria));
 	}
 
 	@Test
@@ -374,7 +372,7 @@ public class DefaultQueryParserTests {
 		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
 		criteria = criteria.and("field_3").is("value_3");
 		Assert.assertEquals("field_1:value_1 AND field_2:value_2 AND field_3:value_3",
-				queryParser.createQueryStringFromCriteria(criteria));
+				queryParser.createQueryStringFromNode(criteria));
 	}
 
 	@Test
@@ -891,6 +889,81 @@ public class DefaultQueryParserTests {
 				solrQuery.getParams("f.field_2." + HighlightParams.FORMATTER)[0]);
 		Assert.assertEquals(fieldWithHighlightParameters.getFragsize().toString(),
 				solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0]);
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testNestedOrPartWithAnd() {
+
+		Criteria criteria = Criteria.where("field_1").is("foo")
+				.and(Criteria.where("field_2").is("bar").or("field_3").is("roo"))//
+				.or(Criteria.where("field_4").is("spring").and("field_5").is("data"));
+
+		Assert.assertEquals("field_1:foo AND (field_2:bar OR field_3:roo) OR (field_4:spring AND field_5:data)",
+				queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testNestedOrPartWithAndSomeOtherThings() {
+
+		Criteria criteria = Criteria.where("field_1").is("foo").is("bar")
+				.and(Criteria.where("field_2").is("bar").is("lala").or("field_3").is("roo"))
+				.or(Criteria.where("field_4").is("spring").and("field_5").is("data"));
+
+		Assert.assertEquals(
+				"field_1:(foo bar) AND (field_2:(bar lala) OR field_3:roo) OR (field_4:spring AND field_5:data)",
+				queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testMultipleAnd() {
+		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").is("bar").and("field_3").is("roo");
+
+		Assert.assertEquals("field_1:foo AND field_2:bar AND field_3:roo", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testMultipleOr() {
+		Criteria criteria = Criteria.where("field_1").is("foo").or("field_2").is("bar").or("field_3").is("roo");
+
+		Assert.assertEquals("field_1:foo OR field_2:bar OR field_3:roo", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testEmptyCriteriaShouldBeDefaultedToNotNUll() {
+		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").or("field_3");
+
+		Assert.assertEquals("field_1:foo AND field_2:[* TO *] OR field_3:[* TO *]",
+				queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testDeepNesting() {
+
+		Criteria criteria = Criteria.where("field_1").is("foo")
+				.and(Criteria.where("field_2").is("bar").and("field_3").is("roo")//
+						.and(Criteria.where("field_4").is("spring").and("field_5").is("data").or("field_6").is("solr")));
+
+		Assert.assertEquals(
+				"field_1:foo AND (field_2:bar AND field_3:roo AND (field_4:spring AND field_5:data OR field_6:solr))",
+				queryParser.createQueryStringFromNode(criteria));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {

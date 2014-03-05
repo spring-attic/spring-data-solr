@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.collection.IsIterableContainingInOrder;
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoLocation;
-import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
+import org.springframework.data.solr.core.query.Criteria.Predicate;
 
 /**
  * @author Christoph Strobl
@@ -56,7 +59,7 @@ public class CriteriaTests {
 	public void testIs() {
 		Criteria criteria = new Criteria("field_1").is("is");
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "is");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
 	}
 
 	@Test
@@ -64,8 +67,8 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").is("is").is("another is");
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "is");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, "another is");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, "another is");
 	}
 
 	@Test
@@ -73,8 +76,8 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").is(Arrays.asList("is", "another is"));
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "is");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, "another is");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, "another is");
 	}
 
 	@Test
@@ -82,7 +85,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").is((Object) null);
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
@@ -96,7 +99,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").isNull();
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 
 		Assert.assertTrue(criteria.isNegating());
@@ -111,7 +114,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").isNotNull();
 		Assert.assertEquals("field_1", criteria.getField().getName());
 
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 
 		Assert.assertFalse(criteria.isNegating());
@@ -141,7 +144,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").endsWith("end");
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.ENDS_WITH, "end");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.ENDS_WITH, "end");
 	}
 
 	@Test
@@ -149,9 +152,9 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").endsWith(Arrays.asList("use", "multiple", "values"));
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.ENDS_WITH, "use");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.ENDS_WITH, "multiple");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.ENDS_WITH, "values");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.ENDS_WITH, "use");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.ENDS_WITH, "multiple");
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.ENDS_WITH, "values");
 	}
 
 	@Test
@@ -159,7 +162,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").startsWith("start");
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.STARTS_WITH, "start");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "start");
 	}
 
 	@Test
@@ -167,9 +170,9 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").startsWith(Arrays.asList("use", "multiple", "values"));
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.STARTS_WITH, "use");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.STARTS_WITH, "multiple");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.STARTS_WITH, "values");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "use");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.STARTS_WITH, "multiple");
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.STARTS_WITH, "values");
 	}
 
 	@Test
@@ -177,7 +180,7 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").contains("contains");
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.CONTAINS, "contains");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.CONTAINS, "contains");
 	}
 
 	@Test
@@ -185,64 +188,96 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").contains(Arrays.asList("use", "multiple", "values"));
 
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.CONTAINS, "use");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.CONTAINS, "multiple");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.CONTAINS, "values");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.CONTAINS, "use");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.CONTAINS, "multiple");
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.CONTAINS, "values");
 	}
 
 	@Test
 	public void testExpression() {
 		Criteria criteria = new Criteria("field_1").expression("(have fun using +solr && expressions*)");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EXPRESSION,
-				"(have fun using +solr && expressions*)");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EXPRESSION, "(have fun using +solr && expressions*)");
 	}
 
 	@Test
 	public void testCriteriaChain() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").contains("contains").is("is");
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.STARTS_WITH, "start");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.ENDS_WITH, "end");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.CONTAINS, "contains");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 3, OperationKey.EQUALS, "is");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "start");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.ENDS_WITH, "end");
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.CONTAINS, "contains");
+		assertPredicate(criteria.getPredicates(), 3, OperationKey.EQUALS, "is");
 	}
 
+	/**
+	 * @see DATASOLR-105
+	 */
 	@Test
-	public void testAnd() {
+	public void testAndShouldProduceCrotch() {
+
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
 				.endsWith("2end");
-		Assert.assertEquals("field_2", criteria.getField().getName());
-		Assert.assertEquals(" AND ", criteria.getConjunctionOperator());
-		Assert.assertEquals(2, criteria.getCriteriaChain().size());
+		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
 	}
 
+	/**
+	 * @see DATASOLR-105
+	 */
 	@Test
-	public void testOr() {
+	public void testCirteriasJoindWihtAndShouldBeSiblingsOfCreatedCrotch() {
+
+		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
+		Criteria c2 = new Criteria("field_2").startsWith("2start");
+		Crotch crotch = c1.and(c2);
+
+		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testOrShouldProduceCrotch() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
-		Assert.assertEquals(" OR ", criteria.getConjunctionOperator());
-		Assert.assertEquals(2, criteria.getCriteriaChain().size());
+		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
 	}
 
+	/**
+	 * @see DATASOLR-105
+	 */
 	@Test
-	public void testOrWithCriteria() {
-		Criteria criteria = new Criteria("field_1").startsWith("start");
-		Criteria orCriteria = new Criteria("field_2").endsWith("end").startsWith("start2");
-		criteria = criteria.or(orCriteria);
-		Assert.assertEquals(" OR ", criteria.getConjunctionOperator());
-		Assert.assertEquals(2, criteria.getCriteriaChain().size());
+	public void testCirteriasJoindWithOrShouldBeSiblingsOfCreatedCrotch() {
+
+		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
+		Criteria c2 = new Criteria("field_2").startsWith("2start");
+		Crotch crotch = c1.or(c2);
+
+		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
+	}
+
+	/**
+	 * @see DATASOLR-105
+	 */
+	@Test
+	public void testCrotchShouldReturnFieldNameOfMostRecentSibling() {
+
+		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
+		Criteria c2 = new Criteria("field_2").startsWith("2start");
+		Crotch crotch = c1.or(c2);
+		Assert.assertThat(crotch.getField().getName(), Is.is("field_2"));
 	}
 
 	@Test
 	public void testIsNot() {
 		Criteria criteria = new Criteria("field_1").is("value_1").not();
 		Assert.assertTrue(criteria.isNegating());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "value_1");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
 	}
 
 	@Test
 	public void testFuzzy() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1");
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(Float.NaN, ((Object[]) entry.getValue())[1]);
 	}
@@ -250,7 +285,7 @@ public class CriteriaTests {
 	@Test
 	public void testFuzzyWithDistance() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(0.5F, ((Object[]) entry.getValue())[1]);
 	}
@@ -268,7 +303,7 @@ public class CriteriaTests {
 	@Test
 	public void testSloppy() {
 		Criteria criteria = new Criteria("field_1").sloppy("value0 value1", 2);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals("value0 value1", ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(2, ((Object[]) entry.getValue())[1]);
 	}
@@ -286,14 +321,14 @@ public class CriteriaTests {
 	@Test
 	public void testBoost() {
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "value_1");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
 		Assert.assertEquals(2f, criteria.getBoost(), 0);
 	}
 
 	@Test
 	public void testBetween() {
 		Criteria criteria = new Criteria("field_1").between(100, 200);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -304,7 +339,7 @@ public class CriteriaTests {
 	@Test
 	public void testBetweenWithoutUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(100, null);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -315,7 +350,7 @@ public class CriteriaTests {
 	@Test
 	public void testBetweenWithoutLowerBound() {
 		Criteria criteria = new Criteria("field_1").between(null, 200);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -326,7 +361,7 @@ public class CriteriaTests {
 	@Test
 	public void testBetweenExcludingLowerBound() {
 		Criteria criteria = new Criteria("field_1").between(100, 200, false, true);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -337,7 +372,7 @@ public class CriteriaTests {
 	@Test
 	public void testBetweenExcludingUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(100, 200, true, false);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -348,7 +383,7 @@ public class CriteriaTests {
 	@Test
 	public void testBetweenWithoutLowerAndUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(null, null);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -359,7 +394,7 @@ public class CriteriaTests {
 	@Test
 	public void testLessThan() {
 		Criteria criteria = new Criteria("field_1").lessThan(200);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -370,7 +405,7 @@ public class CriteriaTests {
 	@Test
 	public void testLessThanEqual() {
 		Criteria criteria = new Criteria("field_1").lessThanEqual(200);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
@@ -381,7 +416,7 @@ public class CriteriaTests {
 	@Test
 	public void testLessThanEqualNull() {
 		Criteria criteria = new Criteria("field_1").lessThanEqual(null);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -392,7 +427,7 @@ public class CriteriaTests {
 	@Test
 	public void testGreaterThan() {
 		Criteria criteria = new Criteria("field_1").greaterThan(100);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -403,7 +438,7 @@ public class CriteriaTests {
 	@Test
 	public void testGreaterThanEqual() {
 		Criteria criteria = new Criteria("field_1").greaterThanEqual(100);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -414,7 +449,7 @@ public class CriteriaTests {
 	@Test
 	public void testGreaterThanEqualNull() {
 		Criteria criteria = new Criteria("field_1").greaterThanEqual(null);
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
@@ -427,13 +462,13 @@ public class CriteriaTests {
 	public void testIn() {
 		Criteria criteria = new Criteria("field_1").in(1, 2, 3, 5, 8, 13, 21);
 		Assert.assertEquals("field_1", criteria.getField().getName());
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, 1);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, 2);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.EQUALS, 3);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 3, OperationKey.EQUALS, 5);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 4, OperationKey.EQUALS, 8);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 5, OperationKey.EQUALS, 13);
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 6, OperationKey.EQUALS, 21);
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, 1);
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, 2);
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.EQUALS, 3);
+		assertPredicate(criteria.getPredicates(), 3, OperationKey.EQUALS, 5);
+		assertPredicate(criteria.getPredicates(), 4, OperationKey.EQUALS, 8);
+		assertPredicate(criteria.getPredicates(), 5, OperationKey.EQUALS, 13);
+		assertPredicate(criteria.getPredicates(), 6, OperationKey.EQUALS, 21);
 	}
 
 	@Test
@@ -443,9 +478,9 @@ public class CriteriaTests {
 		enclosingList.add(Arrays.asList("solr"));
 		Criteria criteria = new Criteria("field_1").in(enclosingList);
 
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 0, OperationKey.EQUALS, "spring");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 1, OperationKey.EQUALS, "data");
-		assertCriteriaEntry(criteria.getCriteriaEntries(), 2, OperationKey.EQUALS, "solr");
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "spring");
+		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, "data");
+		assertPredicate(criteria.getPredicates(), 2, OperationKey.EQUALS, "solr");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -462,7 +497,7 @@ public class CriteriaTests {
 	public void testNear() {
 		GeoLocation location = new GeoLocation(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").near(location, new Distance(5));
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.NEAR.getKey(), entry.getKey());
 		Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
@@ -482,7 +517,7 @@ public class CriteriaTests {
 	public void testWithin() {
 		GeoLocation location = new GeoLocation(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").within(location, new Distance(5));
-		CriteriaEntry entry = getCriteriaEntryByPosition(criteria.getCriteriaEntries(), 0);
+		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.WITHIN.getKey(), entry.getKey());
 		Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
@@ -493,19 +528,18 @@ public class CriteriaTests {
 		new Criteria("field_1").within(null, new Distance(5));
 	}
 
-	private void assertCriteriaEntry(Set<CriteriaEntry> entries, int position, OperationKey expectedKey,
-			Object expectedValue) {
-		assertCriteriaEntry(entries, position, expectedKey.getKey(), expectedValue);
+	private void assertPredicate(Set<Predicate> entries, int position, OperationKey expectedKey, Object expectedValue) {
+		assertPredicate(entries, position, expectedKey.getKey(), expectedValue);
 	}
 
-	private void assertCriteriaEntry(Set<CriteriaEntry> entries, int position, String expectedKey, Object expectedValue) {
-		CriteriaEntry criteriaEntry = getCriteriaEntryByPosition(entries, position);
-		Assert.assertEquals(expectedValue, criteriaEntry.getValue());
-		Assert.assertEquals(expectedKey, criteriaEntry.getKey());
+	private void assertPredicate(Set<Predicate> entries, int position, String expectedKey, Object expectedValue) {
+		Predicate predicate = getPredicateByPosition(entries, position);
+		Assert.assertEquals(expectedValue, predicate.getValue());
+		Assert.assertEquals(expectedKey, predicate.getKey());
 	}
 
-	private CriteriaEntry getCriteriaEntryByPosition(Set<CriteriaEntry> entries, int position) {
-		return (CriteriaEntry) entries.toArray()[position];
+	private Predicate getPredicateByPosition(Set<Predicate> entries, int position) {
+		return (Predicate) entries.toArray()[position];
 	}
 
 	private static class TestFunction implements Function {

@@ -45,8 +45,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Integer timeAllowed;
 	private String defType;
 
-	public SimpleQuery() {
-	}
+	public SimpleQuery() {}
 
 	/**
 	 * @param criteria
@@ -57,7 +56,6 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	/**
 	 * @param queryString
-	 * 
 	 * @since 1.1
 	 */
 	public SimpleQuery(String queryString) {
@@ -79,7 +77,6 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	/**
 	 * @param queryString
 	 * @param pageable
-	 * 
 	 * @since 1.1
 	 */
 	public SimpleQuery(String queryString, Pageable pageable) {
