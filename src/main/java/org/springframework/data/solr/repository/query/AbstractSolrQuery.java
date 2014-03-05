@@ -30,6 +30,7 @@ import org.springframework.data.repository.core.EntityMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterBuilder;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
@@ -47,7 +48,9 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -112,8 +115,15 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setDefTypeIfDefined(query);
 		setRequestHandlerIfDefined(query);
 
+		if (isCountQuery() && isDeleteQuery()) {
+			throw new InvalidDataAccessApiUsageException("Cannot execute 'delete' and 'count' at the same time.");
+		}
+
 		if (isCountQuery()) {
 			return new CountExecution().execute(query);
+		}
+		if (isDeleteQuery()) {
+			return new DeleteExecution().execute(query);
 		}
 
 		if (solrQueryMethod.isPageQuery()) {
@@ -314,6 +324,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return false;
 	}
 
+	/**
+	 * @since 1.2
+	 */
+	public boolean isDeleteQuery() {
+		return solrQueryMethod.isDeleteQuery();
+	}
+
 	private interface QueryExecution {
 		Object execute(Query query);
 	}
@@ -447,6 +464,45 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			return Long.valueOf(solrOperations.count(query));
 		}
 
+	}
+
+	/**
+	 * @since 1.2
+	 */
+	class DeleteExecution implements QueryExecution {
+
+		@Override
+		public Object execute(Query query) {
+
+			if (TransactionSynchronizationManager.isSynchronizationActive()) {
+				SolrTransactionSynchronizationAdapterBuilder.forOperations(solrOperations).withDefaultBehaviour().register();
+			}
+
+			Object result = countOrGetDocumentsForDelete(query);
+
+			solrOperations.delete(query);
+			if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+				solrOperations.commit();
+			}
+
+			return result;
+		}
+
+		private Object countOrGetDocumentsForDelete(Query query) {
+
+			Object result = null;
+
+			if (solrQueryMethod.isCollectionQuery()) {
+				Query clone = SimpleQuery.fromQuery(query);
+				result = solrOperations.queryForPage(clone.setPageRequest(new PageRequest(0, Integer.MAX_VALUE)),
+						solrQueryMethod.getEntityInformation().getJavaType()).getContent();
+			}
+
+			if (ClassUtils.isAssignable(Number.class, solrQueryMethod.getReturnedObjectType())) {
+				result = solrOperations.count(query);
+			}
+			return result;
+		}
 	}
 
 }

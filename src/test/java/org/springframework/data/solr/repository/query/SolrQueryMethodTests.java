@@ -391,6 +391,26 @@ public class SolrQueryMethodTests {
 		Assert.assertEquals("{postfix}", method.getHighlightPostfix());
 	}
 
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testDeleteAttrbiteOfAnnotatedQueryIsDiscoveredCorrectlty() throws Exception {
+
+		SolrQueryMethod method = getQueryMethodByName("removeByAnnotatedQuery");
+		Assert.assertTrue(method.isDeleteQuery());
+	}
+
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testDeleteAttrbiteOfAnnotatedQueryIsFalseByDefault() throws Exception {
+
+		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
+		Assert.assertFalse(method.isDeleteQuery());
+	}
+
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
 		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
@@ -456,6 +476,9 @@ public class SolrQueryMethodTests {
 
 		@Query(requestHandler = "/instock")
 		List<ProductBean> findByText(String text);
+
+		@Query(value = "*:*", delete = true)
+		List<ProductBean> removeByAnnotatedQuery();
 
 		@Highlight
 		List<ProductBean> findByTextLike(String text);

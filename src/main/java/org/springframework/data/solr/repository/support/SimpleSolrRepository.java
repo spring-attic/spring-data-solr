@@ -31,13 +31,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterBuilder;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
@@ -291,31 +290,13 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	private void registerTransactionSynchronisationAdapter() {
-		TransactionSynchronizationManager.registerSynchronization(new SolrTransactionSynchronizationAdapter(
-				this.solrOperations));
+		TransactionSynchronizationManager.registerSynchronization(SolrTransactionSynchronizationAdapterBuilder
+				.forOperations(this.solrOperations).withDefaultBehaviour());
 	}
 
 	private void commitIfTransactionSynchronisationIsInactive() {
 		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
 			this.solrOperations.commit();
-		}
-	}
-
-	static class SolrTransactionSynchronizationAdapter extends TransactionSynchronizationAdapter {
-
-		private final SolrOperations solrOperations;
-
-		SolrTransactionSynchronizationAdapter(SolrOperations solrOperations) {
-			super();
-			this.solrOperations = solrOperations;
-		}
-
-		public void afterCompletion(int status) {
-			if (status == TransactionSynchronization.STATUS_COMMITTED) {
-				this.solrOperations.commit();
-			} else if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
-				this.solrOperations.rollback();
-			}
 		}
 	}
 

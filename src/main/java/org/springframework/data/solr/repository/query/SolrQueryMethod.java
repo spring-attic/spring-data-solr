@@ -206,6 +206,17 @@ public class SolrQueryMethod extends QueryMethod {
 		return false;
 	}
 
+	/**
+	 * @return value of {@link Query#delete()}
+	 * @since 1.2
+	 */
+	public boolean isDeleteQuery() {
+		if (hasQueryAnnotation()) {
+			return ((Boolean) AnnotationUtils.getValue(getQueryAnnotation(), "delete")).booleanValue();
+		}
+		return false;
+	}
+
 	private Annotation getHighlightAnnotation() {
 		return this.method.getAnnotation(Highlight.class);
 	}

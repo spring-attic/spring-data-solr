@@ -188,4 +188,13 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	Long countByName(String name);
 
+	void deleteByName(String name);
+
+	long deleteProductBeanByName(String name);
+
+	List<ProductBean> removeByName(String name);
+
+	@Query(value = "name:?0", delete = true)
+	void removeUsingAnnotatedQuery(String name);
+
 }

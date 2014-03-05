@@ -86,4 +86,12 @@ public @interface Query {
 	 */
 	int timeAllowed() default -1;
 
+	/**
+	 * If set to {@code true} matching documents will be removed from index.
+	 * 
+	 * @return
+	 * @since 1.2
+	 */
+	boolean delete() default false;
+
 }

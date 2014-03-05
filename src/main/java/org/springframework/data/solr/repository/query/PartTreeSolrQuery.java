@@ -57,4 +57,13 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 		return tree.isCountProjection();
 	}
 
+	/**
+	 * @see PartTree#isDelete()
+	 * @since 1.2
+	 */
+	@Override
+	public boolean isDeleteQuery() {
+		return tree.isDelete();
+	}
+
 }

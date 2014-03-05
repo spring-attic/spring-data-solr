@@ -20,8 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hamcrest.Matchers;
+import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -764,6 +766,54 @@ public class ITestSolrRepositoryOperations {
 
 		Assert.assertThat(repo.countProductBeanByName(NAMED_PRODUCT.getName()), Is.is(1L));
 		Assert.assertThat(repo.countByName(NAMED_PRODUCT.getName()), Is.is(1L));
+	}
+
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testDereivedDeleteQueryRemovesDocumentsCorrectly() {
+
+		long referenceCount = repo.count();
+		repo.deleteByName(NAMED_PRODUCT.getName());
+		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
+	}
+
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testDerivedDeleteByQueryRemovesDocumentAndReturnsNumberDeletedCorrectly() {
+
+		long referenceCount = repo.count();
+		long nrDeleted = repo.deleteProductBeanByName(NAMED_PRODUCT.getName());
+		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		Assert.assertThat(repo.count(), Is.is(referenceCount - nrDeleted));
+	}
+
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testDerivedDeleteByQueryRemovesDocumentAndReturnsListOfDeletedDocumentsCorrectly() {
+
+		List<ProductBean> result = repo.removeByName(NAMED_PRODUCT.getName());
+		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		Assert.assertThat(result, IsCollectionWithSize.hasSize(1));
+		Assert.assertThat(result.get(0).getId(), IsEqual.equalTo(NAMED_PRODUCT.getId()));
+	}
+
+	/**
+	 * @see DATASOLR-144
+	 */
+	@Test
+	public void testAnnotatedDeleteByQueryRemovesDocumensCorrectly() {
+
+		long referenceCount = repo.count();
+		repo.removeUsingAnnotatedQuery(NAMED_PRODUCT.getName());
+		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
