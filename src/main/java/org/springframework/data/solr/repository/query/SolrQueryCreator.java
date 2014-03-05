@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,21 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
 	@Override
 	protected Query or(Query base, Query query) {
-		return new SimpleQuery(base.getCriteria().or(query.getCriteria()));
+		Criteria part = query.getCriteria();
+		part.setPartIsOr(true);
+		if (part.hasSiblings()) {
+			boolean first = true;
+			for (Criteria nested : part.getSiblings()) {
+				if (first) {
+					nested.setPartIsOr(true);
+					first = false;
+				}
+				base.addCriteria(nested);
+			}
+		} else {
+			base.addCriteria(part);
+		}
+		return base;
 	}
 
 	@Override
@@ -87,53 +101,53 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		}
 
 		switch (type) {
-		case TRUE:
-			return criteria.is(true);
-		case FALSE:
-			return criteria.is(false);
-		case SIMPLE_PROPERTY:
-			return criteria.is(appendBoostAndGetParameterValue(criteria, parameters));
-		case NEGATING_SIMPLE_PROPERTY:
-			return criteria.is(appendBoostAndGetParameterValue(criteria, parameters)).not();
-		case IS_NULL:
-			return criteria.isNull();
-		case IS_NOT_NULL:
-			return criteria.isNotNull();
-		case REGEX:
-			return criteria.expression(appendBoostAndGetParameterValue(criteria, parameters).toString());
-		case LIKE:
-		case STARTING_WITH:
-			return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
-		case NOT_LIKE:
-			return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
-		case ENDING_WITH:
-			return criteria.endsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
-		case CONTAINING:
-			return criteria.contains(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
-		case AFTER:
-		case GREATER_THAN:
-			return criteria.greaterThan(appendBoostAndGetParameterValue(criteria, parameters));
-		case GREATER_THAN_EQUAL:
-			return criteria.greaterThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
-		case BEFORE:
-		case LESS_THAN:
-			return criteria.lessThan(appendBoostAndGetParameterValue(criteria, parameters));
-		case LESS_THAN_EQUAL:
-			return criteria.lessThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
-		case BETWEEN:
-			return criteria.between(appendBoostAndGetParameterValue(criteria, parameters),
-					appendBoostAndGetParameterValue(criteria, parameters));
-		case IN:
-			return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters)));
-		case NOT_IN:
-			return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
-		case NEAR:
-			return createNearCriteria(parameters, criteria);
-		case WITHIN:
-			return criteria.within((GeoLocation) getBindableValue((BindableSolrParameter) parameters.next()),
-					(Distance) getBindableValue((BindableSolrParameter) parameters.next()));
-		default:
-			throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
+			case TRUE:
+				return criteria.is(true);
+			case FALSE:
+				return criteria.is(false);
+			case SIMPLE_PROPERTY:
+				return criteria.is(appendBoostAndGetParameterValue(criteria, parameters));
+			case NEGATING_SIMPLE_PROPERTY:
+				return criteria.is(appendBoostAndGetParameterValue(criteria, parameters)).not();
+			case IS_NULL:
+				return criteria.isNull();
+			case IS_NOT_NULL:
+				return criteria.isNotNull();
+			case REGEX:
+				return criteria.expression(appendBoostAndGetParameterValue(criteria, parameters).toString());
+			case LIKE:
+			case STARTING_WITH:
+				return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
+			case NOT_LIKE:
+				return criteria.startsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
+			case ENDING_WITH:
+				return criteria.endsWith(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
+			case CONTAINING:
+				return criteria.contains(asStringArray(appendBoostAndGetParameterValue(criteria, parameters)));
+			case AFTER:
+			case GREATER_THAN:
+				return criteria.greaterThan(appendBoostAndGetParameterValue(criteria, parameters));
+			case GREATER_THAN_EQUAL:
+				return criteria.greaterThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
+			case BEFORE:
+			case LESS_THAN:
+				return criteria.lessThan(appendBoostAndGetParameterValue(criteria, parameters));
+			case LESS_THAN_EQUAL:
+				return criteria.lessThanEqual(appendBoostAndGetParameterValue(criteria, parameters));
+			case BETWEEN:
+				return criteria.between(appendBoostAndGetParameterValue(criteria, parameters),
+						appendBoostAndGetParameterValue(criteria, parameters));
+			case IN:
+				return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters)));
+			case NOT_IN:
+				return criteria.in(asArray(appendBoostAndGetParameterValue(criteria, parameters))).not();
+			case NEAR:
+				return createNearCriteria(parameters, criteria);
+			case WITHIN:
+				return criteria.within((GeoLocation) getBindableValue((BindableSolrParameter) parameters.next()),
+						(Distance) getBindableValue((BindableSolrParameter) parameters.next()));
+			default:
+				throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
 		}
 	}
 

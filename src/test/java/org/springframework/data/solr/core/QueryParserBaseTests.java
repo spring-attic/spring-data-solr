@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.data.solr.core.QueryParserBase.BaseCriteriaEntryProcessor;
-import org.springframework.data.solr.core.QueryParserBase.CriteriaEntryProcessor;
+import org.springframework.data.solr.core.QueryParserBase.BasePredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.DefaultProcessor;
+import org.springframework.data.solr.core.QueryParserBase.PredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.WildcardProcessor;
 import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoLocation;
-import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
+import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.Function;
 import org.springframework.data.solr.core.query.SimpleCalculatedField;
@@ -47,8 +47,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class QueryParserBaseTests {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+	@Rule public ExpectedException thrown = ExpectedException.none();
 
 	private static final String SOME_VALUE = "some value";
 	private static final String INVALID_OPERATION_KEY = "invalid";
@@ -99,9 +98,9 @@ public class QueryParserBaseTests {
 	@Test
 	public void testWildcardProcessorCanProcess() {
 		WildcardProcessor processor = this.parser.new WildcardProcessor();
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry(OperationKey.STARTS_WITH, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry(OperationKey.ENDS_WITH, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry(OperationKey.CONTAINS, SOME_VALUE)));
+		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.STARTS_WITH, SOME_VALUE)));
+		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.ENDS_WITH, SOME_VALUE)));
+		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.CONTAINS, SOME_VALUE)));
 		assertProcessorCannotProcessInvalidOrNullOperationKey(processor);
 	}
 
@@ -109,8 +108,8 @@ public class QueryParserBaseTests {
 	@Test
 	public void testDefaultProcessorCanProcess() {
 		DefaultProcessor processor = this.parser.new DefaultProcessor();
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry((String) null, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry(INVALID_OPERATION_KEY, null)));
+		Assert.assertTrue(processor.canProcess(new Predicate((String) null, SOME_VALUE)));
+		Assert.assertTrue(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null)));
 	}
 
 	@Test
@@ -121,22 +120,22 @@ public class QueryParserBaseTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testBaseCritieraEntryProcessor() {
-		BaseCriteriaEntryProcessor processor = this.parser.new BaseCriteriaEntryProcessor() {
+		BasePredicateProcessor processor = this.parser.new BasePredicateProcessor() {
 
 			@Override
-			public boolean canProcess(CriteriaEntry criteriaEntry) {
+			public boolean canProcess(Predicate predicate) {
 				return true;
 			}
 
 			@Override
-			protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
+			protected Object doProcess(Predicate predicate, Field field) {
 				return "X";
 			}
 		};
 
 		Assert.assertNull(processor.process(null, null));
-		Assert.assertNull(processor.process(new CriteriaEntry("some key", null), null));
-		Assert.assertEquals("X", processor.process(new CriteriaEntry("some key", SOME_VALUE), null));
+		Assert.assertNull(processor.process(new Predicate("some key", null), null));
+		Assert.assertEquals("X", processor.process(new Predicate("some key", SOME_VALUE), null));
 	}
 
 	@Test
@@ -222,14 +221,14 @@ public class QueryParserBaseTests {
 		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:foo()"));
 	}
 
-	private void assertProcessorCanProcess(CriteriaEntryProcessor processor, OperationKey key) {
-		Assert.assertTrue(processor.canProcess(new CriteriaEntry(key, SOME_VALUE)));
+	private void assertProcessorCanProcess(PredicateProcessor processor, OperationKey key) {
+		Assert.assertTrue(processor.canProcess(new Predicate(key, SOME_VALUE)));
 		assertProcessorCannotProcessInvalidOrNullOperationKey(processor);
 	}
 
-	private void assertProcessorCannotProcessInvalidOrNullOperationKey(CriteriaEntryProcessor processor) {
-		Assert.assertFalse(processor.canProcess(new CriteriaEntry(INVALID_OPERATION_KEY, null)));
-		Assert.assertFalse(processor.canProcess(new CriteriaEntry((String) null, null)));
+	private void assertProcessorCannotProcessInvalidOrNullOperationKey(PredicateProcessor processor) {
+		Assert.assertFalse(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null)));
+		Assert.assertFalse(processor.canProcess(new Predicate((String) null, null)));
 	}
 
 	private static class Foo implements Function {

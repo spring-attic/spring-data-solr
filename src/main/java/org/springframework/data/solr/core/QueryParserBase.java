@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.data.solr.core;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,10 +38,11 @@ import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.geo.Point;
 import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.Function;
-import org.springframework.data.solr.core.query.Criteria.CriteriaEntry;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
+import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.Node;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryStringHolder;
@@ -64,8 +64,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	protected static final String BOOST = "^";
 
 	protected final GenericConversionService conversionService = new GenericConversionService();
-	private final List<CriteriaEntryProcessor> critieraEntryProcessors = new ArrayList<CriteriaEntryProcessor>();
-	private final CriteriaEntryProcessor defaultProcessor = new DefaultProcessor();
+	private final List<PredicateProcessor> critieraEntryProcessors = new ArrayList<PredicateProcessor>();
+	private final PredicateProcessor defaultProcessor = new DefaultProcessor();
 
 	{
 		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
@@ -107,7 +107,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			return null;
 		}
 
-		String queryString = createQueryStringFromCriteria(query.getCriteria());
+		String queryString = createQueryStringFromNode(query.getCriteria());
 		queryString = prependJoin(queryString, query);
 		return queryString;
 	}
@@ -118,12 +118,41 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	}
 
 	/**
-	 * add another {@link CriteriaEntryProcessor}
+	 * add another {@link PredicateProcessor}
 	 * 
 	 * @param processor
 	 */
-	public void addCriteriaEntryProcessor(CriteriaEntryProcessor processor) {
+	public void addPredicateProcessor(PredicateProcessor processor) {
 		this.critieraEntryProcessors.add(processor);
+	}
+
+	public String createQueryStringFromNode(Node node) {
+		return createQueryStringFromNode(node, 0);
+	}
+
+	public String createQueryStringFromNode(Node node, int position) {
+
+		StringBuilder query = new StringBuilder();
+		if (position > 0) {
+			query.append(node.isOr() ? " OR " : " AND ");
+		}
+		if (node.hasSiblings()) {
+			if (!node.isRoot()) {
+				query.append('(');
+			}
+
+			int i = 0;
+			for (Node nested : node.getSiblings()) {
+				query.append(createQueryStringFromNode(nested, i++));
+			}
+
+			if (!node.isRoot()) {
+				query.append(')');
+			}
+		} else {
+			query.append(createQueryFragmentForCriteria((Criteria) node));
+		}
+		return query.toString();
 	}
 
 	/**
@@ -134,21 +163,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @return
 	 */
 	protected String createQueryStringFromCriteria(Criteria criteria) {
-		StringBuilder query = new StringBuilder("");
-
-		ListIterator<Criteria> chainIterator = criteria.getCriteriaChain().listIterator();
-		while (chainIterator.hasNext()) {
-			Criteria chainedCriteria = chainIterator.next();
-
-			query.append(createQueryFragmentForCriteria(chainedCriteria));
-
-			if (chainIterator.hasNext()) {
-				query.append(chainIterator.next().getConjunctionOperator());
-				chainIterator.previous();
-			}
-		}
-
-		return query.toString();
+		return createQueryStringFromNode(criteria);
 	}
 
 	/**
@@ -157,9 +172,10 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @param criteria
 	 * @return
 	 */
-	protected String createQueryFragmentForCriteria(Criteria criteria) {
+	protected String createQueryFragmentForCriteria(Criteria part) {
+		Criteria criteria = (Criteria) part;
 		StringBuilder queryFragment = new StringBuilder();
-		boolean singeEntryCriteria = (criteria.getCriteriaEntries().size() == 1);
+		boolean singeEntryCriteria = (criteria.getPredicates().size() == 1);
 		if (criteria instanceof QueryStringHolder) {
 			return ((QueryStringHolder) criteria).getQueryString();
 		}
@@ -168,10 +184,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (criteria.isNegating()) {
 			fieldName = NOT + fieldName;
 		}
-		if (!StringUtils.isEmpty(fieldName) && !containsFunctionCriteria(criteria.getCriteriaEntries())) {
+		if (!StringUtils.isEmpty(fieldName) && !containsFunctionCriteria(criteria.getPredicates())) {
 			queryFragment.append(fieldName);
 			queryFragment.append(DELIMINATOR);
 		}
+
+		// no criteria given is defaulted to not null
+		if (criteria.getPredicates().isEmpty()) {
+			queryFragment.append("[* TO *]");
+			return queryFragment.toString();
+		}
+
 		if (!singeEntryCriteria) {
 			queryFragment.append("(");
 		}
@@ -206,7 +229,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * 
 	 * @param calculatedField
 	 * @return
-	 * 
 	 * @since 1.1
 	 */
 	protected String createCalculatedFieldFragment(CalculatedField calculatedField) {
@@ -219,7 +241,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * 
 	 * @param function
 	 * @return
-	 * 
 	 * @since 1.1
 	 */
 	protected String createFunctionFragment(Function function) {
@@ -232,7 +253,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 				if (arg instanceof Function) {
 					solrReadableArguments.add(createFunctionFragment((Function) arg));
 				} else if (arg instanceof Criteria) {
-					solrReadableArguments.add(createQueryStringFromCriteria((Criteria) arg));
+					solrReadableArguments.add(createQueryStringFromNode((Criteria) arg));
 				} else if (arg instanceof Field) {
 					solrReadableArguments.add(((Field) arg).getName());
 				} else if (arg instanceof Query) {
@@ -347,8 +368,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 	}
 
-	private boolean containsFunctionCriteria(Set<CriteriaEntry> chainedCriterias) {
-		for (CriteriaEntry entry : chainedCriterias) {
+	private boolean containsFunctionCriteria(Set<Predicate> chainedCriterias) {
+		for (Predicate entry : chainedCriterias) {
 			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
 				return true;
 			} else if (StringUtils.equals(OperationKey.NEAR.getKey(), entry.getKey())) {
@@ -367,27 +388,26 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	public abstract SolrQuery doConstructSolrQuery(QUERYTPYE query);
 
 	/**
-	 * CriteriaEntryProcessor creates a solr reable query string representation for a given {@link CriteriaEntry}
+	 * {@link PredicateProcessor} creates a solr reable query string representation for a given {@link Predicate}
 	 * 
 	 * @author Christoph Strobl
 	 */
-	public interface CriteriaEntryProcessor {
+	public interface PredicateProcessor {
 
 		/**
-		 * 
-		 * @param criteriaEntry
-		 * @return true if criteriaEntry can be processed by this parser
+		 * @param predicate
+		 * @return true if predicate can be processed by this parser
 		 */
-		boolean canProcess(CriteriaEntry criteriaEntry);
+		boolean canProcess(Predicate predicate);
 
 		/**
-		 * Create query string representation of given {@link CriteriaEntry}
+		 * Create query string representation of given {@link Predicate}
 		 * 
-		 * @param criteriaEntry
+		 * @param predicate
 		 * @param field
 		 * @return
 		 */
-		Object process(CriteriaEntry criteriaEntry, Field field);
+		Object process(Predicate predicate, Field field);
 
 	}
 
@@ -397,24 +417,24 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	class CriteriaQueryStringValueProvider implements Iterator<String> {
 
 		private final Criteria criteria;
-		private Iterator<CriteriaEntry> delegate;
+		private Iterator<Predicate> delegate;
 
 		CriteriaQueryStringValueProvider(Criteria criteria) {
 			Assert.notNull(criteria, "Unable to provide values for 'null' criteria");
 
 			this.criteria = criteria;
-			this.delegate = criteria.getCriteriaEntries().iterator();
+			this.delegate = criteria.getPredicates().iterator();
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T getCriteriaEntryValue(CriteriaEntry entry) {
-			CriteriaEntryProcessor processor = findMatchingProcessor(entry);
-			return (T) processor.process(entry, criteria.getField());
+		private <T> T getPredicateValue(Predicate predicate) {
+			PredicateProcessor processor = findMatchingProcessor(predicate);
+			return (T) processor.process(predicate, criteria.getField());
 		}
 
-		private CriteriaEntryProcessor findMatchingProcessor(CriteriaEntry criteriaEntry) {
-			for (CriteriaEntryProcessor processor : critieraEntryProcessors) {
-				if (processor.canProcess(criteriaEntry)) {
+		private PredicateProcessor findMatchingProcessor(Predicate predicate) {
+			for (PredicateProcessor processor : critieraEntryProcessors) {
+				if (processor.canProcess(predicate)) {
 					return processor;
 				}
 			}
@@ -429,7 +449,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Override
 		public String next() {
-			Object o = getCriteriaEntryValue(this.delegate.next());
+			Object o = getPredicateValue(this.delegate.next());
 			String s = o != null ? o.toString() : null;
 			return s;
 		}
@@ -442,13 +462,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	}
 
 	/**
-	 * Base implementation of {@link CriteriaEntryProcessor} handling null values and delegating calls to
-	 * {@link BaseCriteriaEntryProcessor#doProcess(CriteriaEntry, Field)}
+	 * Base implementation of {@link PredicateProcessor} handling null values and delegating calls to
+	 * {@link BasePredicateProcessor#doProcess(Predicate, Field)}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	abstract class BaseCriteriaEntryProcessor implements CriteriaEntryProcessor {
+	abstract class BasePredicateProcessor implements PredicateProcessor {
 
 		protected static final String DOUBLEQUOTE = "\"";
 
@@ -458,11 +477,11 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
 
 		@Override
-		public Object process(CriteriaEntry criteriaEntry, Field field) {
-			if (criteriaEntry == null || criteriaEntry.getValue() == null) {
+		public Object process(Predicate predicate, Field field) {
+			if (predicate == null || predicate.getValue() == null) {
 				return null;
 			}
-			return doProcess(criteriaEntry, field);
+			return doProcess(predicate, field);
 		}
 
 		protected Object filterCriteriaValue(Object criteriaValue) {
@@ -487,26 +506,25 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			return criteriaValue;
 		}
 
-		protected abstract Object doProcess(CriteriaEntry criteriaEntry, Field field);
+		protected abstract Object doProcess(Predicate predicate, Field field);
 
 	}
 
 	/**
-	 * Default implementation of {@link CriteriaEntryProcessor} escaping values accordingly
+	 * Default implementation of {@link PredicateProcessor} escaping values accordingly
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class DefaultProcessor extends BaseCriteriaEntryProcessor {
+	class DefaultProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
+		public boolean canProcess(Predicate predicate) {
 			return true;
 		}
 
 		@Override
-		public Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			return filterCriteriaValue(criteriaEntry.getValue());
+		public Object doProcess(Predicate predicate, Field field) {
+			return filterCriteriaValue(predicate.getValue());
 		}
 
 	}
@@ -515,18 +533,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#EXPRESSION}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class ExpressionProcessor extends BaseCriteriaEntryProcessor {
+	class ExpressionProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.EXPRESSION.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.EXPRESSION.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		public Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			return criteriaEntry.getValue().toString();
+		public Object doProcess(Predicate predicate, Field field) {
+			return predicate.getValue().toString();
 		}
 
 	}
@@ -535,20 +552,19 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#BETWEEN}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class BetweenProcessor extends BaseCriteriaEntryProcessor {
+	class BetweenProcessor extends BasePredicateProcessor {
 
 		private static final String RANGE_OPERATOR = " TO ";
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.BETWEEN.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.BETWEEN.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		public Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			Object[] args = (Object[]) criteriaEntry.getValue();
+		public Object doProcess(Predicate predicate, Field field) {
+			Object[] args = (Object[]) predicate.getValue();
 			String rangeFragment = ((Boolean) args[2]).booleanValue() ? "[" : "{";
 			rangeFragment += createRangeFragment(args[0], args[1]);
 			rangeFragment += ((Boolean) args[3]).booleanValue() ? "]" : "}";
@@ -569,19 +585,18 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#NEAR}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	class NearProcessor extends BetweenProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.NEAR.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.NEAR.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		public Object doProcess(CriteriaEntry criteriaEntry, Field field) {
+		public Object doProcess(Predicate predicate, Field field) {
 			String nearFragment;
-			Object[] args = (Object[]) criteriaEntry.getValue();
+			Object[] args = (Object[]) predicate.getValue();
 			if (args[0] instanceof BoundingBox) {
 				BoundingBox box = (BoundingBox) args[0];
 				nearFragment = field.getName() + ":[";
@@ -609,18 +624,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#WITHIN}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	class WithinProcessor extends NearProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.WITHIN.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.WITHIN.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		public Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			Object[] args = (Object[]) criteriaEntry.getValue();
+		public Object doProcess(Predicate predicate, Field field) {
+			Object[] args = (Object[]) predicate.getValue();
 			return createSpatialFunctionFragment(field.getName(), (GeoLocation) args[0], (Distance) args[1], "geofilt");
 		}
 
@@ -630,18 +644,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#FUZZY}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class FuzzyProcessor extends BaseCriteriaEntryProcessor {
+	class FuzzyProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.FUZZY.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.FUZZY.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			Object[] args = (Object[]) criteriaEntry.getValue();
+		protected Object doProcess(Predicate predicate, Field field) {
+			Object[] args = (Object[]) predicate.getValue();
 			Float distance = (Float) args[1];
 			return filterCriteriaValue(args[0]) + "~" + (distance.isNaN() ? "" : distance);
 		}
@@ -652,18 +665,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Handles {@link Criteria}s with {@link OperationKey#SLOPPY}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class SloppyProcessor extends BaseCriteriaEntryProcessor {
+	class SloppyProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.SLOPPY.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.SLOPPY.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			Object[] args = (Object[]) criteriaEntry.getValue();
+		protected Object doProcess(Predicate predicate, Field field) {
+			Object[] args = (Object[]) predicate.getValue();
 			Integer distance = (Integer) args[1];
 			return filterCriteriaValue(args[0]) + "~" + distance;
 		}
@@ -675,25 +687,24 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * {@link OperationKey#ENDS_WITH}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
-	class WildcardProcessor extends BaseCriteriaEntryProcessor {
+	class WildcardProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.CONTAINS.getKey().equals(criteriaEntry.getKey())
-					|| OperationKey.STARTS_WITH.getKey().equals(criteriaEntry.getKey())
-					|| OperationKey.ENDS_WITH.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.CONTAINS.getKey().equals(predicate.getKey())
+					|| OperationKey.STARTS_WITH.getKey().equals(predicate.getKey())
+					|| OperationKey.ENDS_WITH.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			Object filteredValue = filterCriteriaValue(criteriaEntry.getValue());
-			if (OperationKey.CONTAINS.getKey().equals(criteriaEntry.getKey())) {
+		protected Object doProcess(Predicate predicate, Field field) {
+			Object filteredValue = filterCriteriaValue(predicate.getValue());
+			if (OperationKey.CONTAINS.getKey().equals(predicate.getKey())) {
 				return Criteria.WILDCARD + filteredValue + Criteria.WILDCARD;
-			} else if (OperationKey.STARTS_WITH.getKey().equals(criteriaEntry.getKey())) {
+			} else if (OperationKey.STARTS_WITH.getKey().equals(predicate.getKey())) {
 				return filteredValue + Criteria.WILDCARD;
-			} else if (OperationKey.ENDS_WITH.getKey().equals(criteriaEntry.getKey())) {
+			} else if (OperationKey.ENDS_WITH.getKey().equals(predicate.getKey())) {
 				return Criteria.WILDCARD + filteredValue;
 			}
 			return filteredValue;
@@ -705,16 +716,16 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * 
 	 * @since 1.1
 	 */
-	class FunctionProcessor extends BaseCriteriaEntryProcessor {
+	class FunctionProcessor extends BasePredicateProcessor {
 
 		@Override
-		public boolean canProcess(CriteriaEntry criteriaEntry) {
-			return OperationKey.FUNCTION.getKey().equals(criteriaEntry.getKey());
+		public boolean canProcess(Predicate predicate) {
+			return OperationKey.FUNCTION.getKey().equals(predicate.getKey());
 		}
 
 		@Override
-		protected Object doProcess(CriteriaEntry criteriaEntry, Field field) {
-			return createFunctionFragment((Function) criteriaEntry.getValue());
+		protected Object doProcess(Predicate predicate, Field field) {
+			return createFunctionFragment((Function) predicate.getValue());
 		}
 
 	}

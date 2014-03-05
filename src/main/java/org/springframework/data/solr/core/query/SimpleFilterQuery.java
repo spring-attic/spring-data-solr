@@ -22,8 +22,7 @@ package org.springframework.data.solr.core.query;
  */
 public class SimpleFilterQuery extends AbstractQuery implements FilterQuery {
 
-	public SimpleFilterQuery() {
-	}
+	public SimpleFilterQuery() {}
 
 	public SimpleFilterQuery(Criteria criteria) {
 		super(criteria);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,15 +27,14 @@ public class SimpleStringCriteriaTests {
 
 	@Test
 	public void testStringCriteria() {
-		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
-		Assert.assertEquals(1, criteria.getCriteriaChain().size(), 0);
+		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
+		Assert.assertThat(criteria.getQueryString(), Is.is("field_1:value_1 AND field_2:value_2"));
 	}
 
 	@Test
-	public void testStringCriteriaWithMoreFragments() {
+	public void testStringCriteriaWithMoreFragmentsCreatesCrotch() {
 		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
 		criteria = criteria.and("field_3").is("value_3");
-		Assert.assertEquals(2, criteria.getCriteriaChain().size(), 0);
-		Assert.assertEquals(" AND ", criteria.getConjunctionOperator());
+		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
 	}
 }
