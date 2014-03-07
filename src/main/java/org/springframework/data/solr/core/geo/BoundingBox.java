@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.geo;
 
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
 
 /**
@@ -23,28 +25,16 @@ import org.springframework.util.Assert;
  * 
  * @author John Dorman
  * @author Christoph Strobl
+ * @deprecated Will be removed in 1.3. Use {@link Box} instead.
  */
-public class BoundingBox {
+public class BoundingBox extends Box {
 
-	private GeoLocation geoLocationStart;
-	private GeoLocation geoLocationEnd;
-
-	private BoundingBox() {
-		// hide default constructor
+	public BoundingBox(double[] first, double[] second) {
+		super(first, second);
 	}
 
-	/**
-	 * Create new BoundingBox for given locations
-	 * 
-	 * @param geoLocationStart must not be null
-	 * @param geoLocationEnd must not be null
-	 */
-	public BoundingBox(GeoLocation geoLocationStart, GeoLocation geoLocationEnd) {
-		Assert.notNull(geoLocationStart);
-		Assert.notNull(geoLocationEnd);
-
-		this.geoLocationStart = geoLocationStart;
-		this.geoLocationEnd = geoLocationEnd;
+	public BoundingBox(Point first, Point second) {
+		super(first, second);
 	}
 
 	/**
@@ -53,49 +43,39 @@ public class BoundingBox {
 	 * @param start
 	 * @return
 	 */
-	public static Builder startingAt(GeoLocation start) {
+	public static Builder startingAt(Point start) {
 		return new Builder(start);
 	}
 
 	public GeoLocation getGeoLocationStart() {
-		return geoLocationStart;
-	}
-
-	public void setGeoLocationStart(GeoLocation geoLocationStart) {
-		this.geoLocationStart = geoLocationStart;
+		return new GeoLocation(getFirst().getX(), getFirst().getY());
 	}
 
 	public GeoLocation getGeoLocationEnd() {
-		return geoLocationEnd;
-	}
-
-	public void setGeoLocationEnd(GeoLocation geoLocationEnd) {
-		this.geoLocationEnd = geoLocationEnd;
+		return new GeoLocation(getSecond().getX(), getSecond().getY());
 	}
 
 	public static class Builder {
 
-		private BoundingBox bbox;
+		private Point start;
 
 		/**
 		 * @param start must not be null
 		 */
-		public Builder(GeoLocation start) {
+		public Builder(Point start) {
 			Assert.notNull(start);
 
-			bbox = new BoundingBox();
-			bbox.geoLocationStart = start;
+			this.start = start;
 		}
 
 		/**
 		 * @param end must not be null
 		 * @return
 		 */
-		public BoundingBox endingAt(GeoLocation end) {
+		public BoundingBox endingAt(Point end) {
 			Assert.notNull(end);
 
-			bbox.geoLocationEnd = end;
-			return bbox;
+			return new BoundingBox(start, end);
 		}
 
 	}

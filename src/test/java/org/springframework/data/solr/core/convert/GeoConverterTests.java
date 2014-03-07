@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.solr.core.convert.GeoConverterTests.DistanceConverterTests;
 import org.springframework.data.solr.core.convert.GeoConverterTests.GeoLocationConverterTests;
 import org.springframework.data.solr.core.convert.GeoConverterTests.PointConverterTests;
-import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoConverters;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -44,6 +45,15 @@ public class GeoConverterTests {
 		}
 
 		@Test
+		public void testConvertPointToString() {
+			Assert.assertEquals("48.303056,14.290556", GeoConverters.GeoLocationToStringConverter.INSTANCE
+					.convert(new org.springframework.data.geo.Point(48.303056, 14.290556)));
+		}
+
+		/**
+		 * @see DATASOLR-142
+		 */
+		@Test
 		public void testConvertGeoLocationToString() {
 			Assert.assertEquals("48.303056,14.290556",
 					GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(new GeoLocation(48.303056, 14.290556)));
@@ -51,8 +61,8 @@ public class GeoConverterTests {
 
 		@Test
 		public void testConvertGeoLocationToStringWithNegativeValue() {
-			Assert.assertEquals("45.17614,-93.87341",
-					GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(new GeoLocation(45.17614, -93.87341)));
+			Assert.assertEquals("45.17614,-93.87341", GeoConverters.GeoLocationToStringConverter.INSTANCE
+					.convert(new org.springframework.data.geo.Point(45.17614, -93.87341)));
 		}
 
 		@Test
@@ -93,7 +103,16 @@ public class GeoConverterTests {
 		@Test
 		public void testConvertMilesDistanceToString() {
 			Assert.assertEquals("1.609344",
-					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Unit.MILES)));
+					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.MILES)));
+		}
+
+		/**
+		 * @see DATASOLR-142
+		 */
+		@Test
+		public void testConvertMilesDistanceUnitToString() {
+			Assert.assertEquals("1.609344", GeoConverters.DistanceToStringConverter.INSTANCE
+					.convert(new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES)));
 		}
 
 		@Test
@@ -106,7 +125,7 @@ public class GeoConverterTests {
 
 		@Test
 		public void testConvertPointToStringWithNull() {
-			Assert.assertNull(GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(null));
+			Assert.assertNull(GeoConverters.PointToStringConverter.INSTANCE.convert(null));
 		}
 
 		@Test

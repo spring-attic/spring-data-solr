@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 
 /**
  * @author Christoph Strobl
@@ -212,19 +212,19 @@ public class Crotch extends Criteria {
 	}
 
 	@Override
-	public Crotch within(GeoLocation location, Distance distance) {
+	public Crotch within(Point location, Distance distance) {
 		mostRecentSibling.within(location, distance);
 		return this;
 	}
 
 	@Override
-	public Crotch near(BoundingBox box) {
+	public Crotch near(Box box) {
 		mostRecentSibling.near(box);
 		return this;
 	}
 
 	@Override
-	public Crotch near(GeoLocation location, Distance distance) {
+	public Crotch near(Point location, Distance distance) {
 		mostRecentSibling.near(location, distance);
 		return this;
 	}

@@ -28,8 +28,8 @@ import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
 
@@ -495,7 +495,7 @@ public class CriteriaTests {
 
 	@Test
 	public void testNear() {
-		GeoLocation location = new GeoLocation(48.303056, 14.290556);
+		Point location = new Point(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").near(location, new Distance(5));
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.NEAR.getKey(), entry.getKey());
@@ -510,12 +510,12 @@ public class CriteriaTests {
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testNearWithNegativeDistance() {
-		new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(-1));
+		new Criteria("field_1").near(new Point(48.303056, 14.290556), new Distance(-1));
 	}
 
 	@Test
 	public void testWithin() {
-		GeoLocation location = new GeoLocation(48.303056, 14.290556);
+		Point location = new Point(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").within(location, new Distance(5));
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
 		Assert.assertEquals(OperationKey.WITHIN.getKey(), entry.getKey());

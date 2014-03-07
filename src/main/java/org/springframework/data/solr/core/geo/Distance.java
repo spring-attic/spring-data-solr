@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.springframework.data.solr.core.geo;
 
+import org.springframework.data.geo.Metric;
+import org.springframework.data.geo.Metrics;
+
 /**
  * Distance implementation to be used for spatial queries taking solr's usage of metric system into account.
  * 
  * @author Christoph Strobl
+ * @deprecated Will be removed in 1.3. Use {@link org.springframework.data.geo.Distance} instead.
  */
-public class Distance {
+public class Distance extends org.springframework.data.geo.Distance {
 
 	public static enum Unit {
 		KILOMETERS(1.0), MILES(1.609344);
@@ -36,35 +40,16 @@ public class Distance {
 		}
 	}
 
-	private final double value;
-	private final Unit unit;
-
-	/**
-	 * Create new Distance with {@link Distance.Unit.KILOMETERS} as default unit
-	 * 
-	 * @param value
-	 */
 	public Distance(double value) {
-		this(value, Unit.KILOMETERS);
+		super(value);
 	}
 
-	/**
-	 * Create new Distance
-	 * 
-	 * @param value
-	 * @param unit
-	 */
+	public Distance(double value, Metric metric) {
+		super(value, metric);
+	}
+
 	public Distance(double value, Unit unit) {
-		this.value = value;
-		this.unit = unit;
-	}
-
-	public double getValue() {
-		return value;
-	}
-
-	public double getNormalizedValue() {
-		return unit != null ? (unit.getMultiplier() * value) : (value * Unit.KILOMETERS.getMultiplier());
+		super(value, unit != null ? (Unit.MILES.equals(unit) ? Metrics.MILES : Metrics.KILOMETERS) : Metrics.KILOMETERS);
 	}
 
 }

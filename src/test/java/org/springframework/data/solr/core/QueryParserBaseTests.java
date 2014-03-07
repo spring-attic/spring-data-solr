@@ -27,13 +27,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.QueryParserBase.BasePredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.DefaultProcessor;
 import org.springframework.data.solr.core.QueryParserBase.PredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.WildcardProcessor;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.Distance.Unit;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.Field;
@@ -184,14 +184,14 @@ public class QueryParserBaseTests {
 
 	@Test
 	public void testCreateFunctionFragmentConvertsGeoLocationProperty() {
-		Foo function = new Foo(Arrays.asList(new GeoLocation(37.767624D, -122.48526D)));
+		Foo function = new Foo(Arrays.asList(new Point(37.767624D, -122.48526D)));
 
 		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(37.767624,-122.48526)"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsDistanceProperty() {
-		Foo function = new Foo(Arrays.asList(new Distance(5, Unit.KILOMETERS)));
+		Foo function = new Foo(Arrays.asList(new Distance(5, Metrics.KILOMETERS)));
 
 		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(5.0)"));
 	}

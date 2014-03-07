@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.solr.core.query;
 
 import java.util.Arrays;
 
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
 
 /**
@@ -30,7 +30,7 @@ public class GeoHashFunction extends AbstractFunction {
 
 	private static final String OPERATION = "geohash";
 
-	private GeoHashFunction(GeoLocation location) {
+	private GeoHashFunction(Point location) {
 		super(Arrays.asList(location));
 	}
 
@@ -38,7 +38,7 @@ public class GeoHashFunction extends AbstractFunction {
 	 * @param location must not be null
 	 * @return
 	 */
-	public static GeoHashFunction geohash(GeoLocation location) {
+	public static GeoHashFunction geohash(Point location) {
 		Assert.notNull(location, "Location for geohash function must not be 'null'");
 
 		return new GeoHashFunction(location);
@@ -50,7 +50,7 @@ public class GeoHashFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static GeoHashFunction geohash(double latitude, double longitude) {
-		return geohash(new GeoLocation(latitude, longitude));
+		return geohash(new Point(latitude, longitude));
 	}
 
 	@Override

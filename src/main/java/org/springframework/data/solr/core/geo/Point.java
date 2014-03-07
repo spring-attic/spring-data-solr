@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,17 @@ package org.springframework.data.solr.core.geo;
  * @author Christoph Strobl
  * @since 1.1
  */
-public class Point {
+public class Point extends org.springframework.data.geo.Point {
 
-	private final Double x;
-	private final Double y;
 	private Double z;
 
 	public Point(double x, double y) {
-		this.x = Double.valueOf(x);
-		this.y = Double.valueOf(y);
+		super(x, y);
 	}
 
 	public Point(double x, double y, double z) {
-		this(x, y);
+		super(x, y);
 		this.z = Double.valueOf(z);
-	}
-
-	public Double getX() {
-		return x;
-	}
-
-	public Double getY() {
-		return y;
 	}
 
 	public Double getZ() {

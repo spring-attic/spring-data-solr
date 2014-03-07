@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.geo.GeoLocation;
@@ -70,6 +71,21 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		Assert.assertEquals(bean.location.getLatitude(), loaded.location.getLatitude(), 0.0F);
 		Assert.assertEquals(bean.location.getLongitude(), loaded.location.getLongitude(), 0.0F);
+	}
+
+	/**
+	 * @see DATASOLR-142
+	 */
+	@Test
+	public void convertsPointCorrectly() {
+		BeanWithPoint bean = new BeanWithPoint();
+		bean.id = DEFAULT_BEAN_ID;
+		bean.location = new Point(48.30975D, 14.28435D);
+
+		BeanWithPoint loaded = saveAndLoad(bean);
+
+		Assert.assertEquals(bean.location.getX(), loaded.location.getX(), 0.0F);
+		Assert.assertEquals(bean.location.getY(), loaded.location.getY(), 0.0F);
 	}
 
 	@Test
@@ -145,63 +161,67 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	private static class BeanWithGeoLocation {
 
-		@SuppressWarnings("unused")
-		@Id
-		@Field
-		private String id;
+		@Id//
+		@Field private String id;
 
-		@Field("store")
+		@Field("store")//
 		private GeoLocation location;
+
+	}
+
+	private static class BeanWithPoint {
+
+		@Id//
+		@Field private String id;
+
+		@Field("store")//
+		private Point location;
 
 	}
 
 	private static class BeanWithJodaDateTime {
 
-		@SuppressWarnings("unused")
-		@Id
-		@Field
+		@Id//
+		@Field//
 		private String id;
 
-		@Field("manufacturedate_dt")
+		@Field("manufacturedate_dt")//
 		private DateTime manufactured;
 
 	}
 
 	private static class BeanWithJodaLocalDateTime {
 
-		@SuppressWarnings("unused")
-		@Id
-		@Field
+		@Id//
+		@Field//
 		private String id;
 
-		@Field("manufacturedate_dt")
+		@Field("manufacturedate_dt")//
 		private LocalDateTime manufactured;
 
 	}
 
 	private static class BeanWithList {
 
-		@SuppressWarnings("unused")
-		@Id
-		@Field
+		@Id//
+		@Field//
 		private String id;
 
-		@Field("cat")
+		@Field("cat")//
 		private List<String> categories;
 
 	}
 
 	private static class BeanBaseClass {
 
-		@Id
-		@Field
+		@Id @Field//
 		protected String id;
 
 	}
 
 	private static class BeanWithBaseClass extends BeanBaseClass {
 
-		@Field("name")
+		@Field("name")//
 		private String name;
 
 	}
@@ -212,11 +232,10 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	private static class BeanWithEnum {
 
-		@Id
-		@Field
+		@Id @Field//
 		private String id;
 
-		@Field("enumProperty_s")
+		@Field("enumProperty_s")//
 		private LiteralNumberEnum enumProperty;
 
 	}

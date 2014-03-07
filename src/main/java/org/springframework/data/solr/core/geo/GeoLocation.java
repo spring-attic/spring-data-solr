@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +19,20 @@ package org.springframework.data.solr.core.geo;
  * Implementation of geographical location identified by latitude and longitude.
  * 
  * @author Christoph Strobl
+ * @deprecated Will be removed in 1.3. Use {@link org.springframework.data.geo.Point} instead.
  */
-public class GeoLocation {
-
-	private final double longitude;
-	private final double latitude;
+public class GeoLocation extends org.springframework.data.geo.Point {
 
 	public GeoLocation(double latitude, double longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
+		super(latitude, longitude);
 	}
 
 	public double getLongitude() {
-		return longitude;
+		return getY();
 	}
 
 	public double getLatitude() {
-		return latitude;
+		return getX();
 	}
 
 }

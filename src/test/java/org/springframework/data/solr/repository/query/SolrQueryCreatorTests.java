@@ -29,15 +29,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.DefaultQueryParser;
 import org.springframework.data.solr.core.QueryParser;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.Distance.Unit;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Query;
@@ -315,46 +315,46 @@ public class SolrQueryCreatorTests {
 
 	@Test
 	public void testCreateQueryWithNear() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new GeoLocation(48.303056, 14.290556),
-				new Distance(5) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new Point(48.303056, 14.290556), new Distance(5) });
 		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithNearWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new GeoLocation(48.303056, 14.290556),
-				new Distance(1, Unit.MILES) });
+		Query query = createQueryForMethodWithArgs(method, new Object[] { new Point(48.303056, 14.290556),
+				new Distance(1, Metrics.MILES) });
 		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithWithin() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationWithin", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new GeoLocation(48.303056, 14.290556),
-				new Distance(5) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new Point(48.303056, 14.290556), new Distance(5) });
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithWithinWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationWithin", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationWithin", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new GeoLocation(48.303056, 14.290556),
-				new Distance(1, Unit.MILES) });
+		Query query = createQueryForMethodWithArgs(method, new Object[] { new Point(48.303056, 14.290556),
+				new Distance(1, Metrics.MILES) });
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testCreateQueryWithNearUsingBoundingBox() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationNear", BoundingBox.class);
+		Method method = SampleRepository.class.getMethod("findByLocationNear", Box.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new BoundingBox(new GeoLocation(48.303056,
-				14.290556), new GeoLocation(48.306377, 14.283128)) });
+		Query query = createQueryForMethodWithArgs(method, new Object[] { new Box(new Point(48.303056, 14.290556),
+				new Point(48.306377, 14.283128)) });
 		Assert.assertEquals("store:[48.303056,14.290556 TO 48.306377,14.283128]", queryParser.getQueryString(query));
 	}
 
@@ -457,11 +457,11 @@ public class SolrQueryCreatorTests {
 
 		ProductBean findByPopularityOrderByTitleDesc(Integer popularity);
 
-		ProductBean findByLocationWithin(GeoLocation location, Distance distance);
+		ProductBean findByLocationWithin(Point location, Distance distance);
 
-		ProductBean findByLocationNear(GeoLocation location, Distance distance);
+		ProductBean findByLocationNear(Point location, Distance distance);
 
-		ProductBean findByLocationNear(BoundingBox bbox);
+		ProductBean findByLocationNear(Box bbox);
 
 		ProductBean findByNameOrDescriptionAndLastModifiedAfter(String name, String description, Date date);
 

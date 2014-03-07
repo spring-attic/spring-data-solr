@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.Distance.Unit;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.xml.sax.SAXException;
 
 /**
@@ -138,8 +138,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		solrTemplate.commit();
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
-				new SimpleQuery(new Criteria("store").near(new GeoLocation(45.15, -93.85), new Distance(5))),
-				ExampleSolrBean.class);
+				new SimpleQuery(new Criteria("store").near(new Point(45.15, -93.85), new Distance(5))), ExampleSolrBean.class);
 
 		Assert.assertEquals(1, result.getContent().size());
 	}
@@ -155,10 +154,9 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		solrTemplate.saveBeans(Arrays.asList(searchableBeanInBuffalow, searchableBeanInNYC));
 		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate
-				.queryForPage(
-						new SimpleQuery(new Criteria("store").near(new GeoLocation(45.15, -93.85), new Distance(3.106856,
-								Unit.MILES))), ExampleSolrBean.class);
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
+				new SimpleQuery(new Criteria("store").near(new Point(45.15, -93.85), new Distance(3.106856, Metrics.MILES))),
+				ExampleSolrBean.class);
 
 		Assert.assertEquals(1, result.getContent().size());
 	}

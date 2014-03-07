@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  */
 package org.springframework.data.solr.core.query;
 
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Point;
 
 /**
  * Implementation of {@link CalculatedField} for {@code geodist}
  * 
  * @author Christoph Strobl
- * 
  * @since 1.1
  */
 public class DistanceField extends SimpleCalculatedField {
 
-	public DistanceField(String geoFieldName, GeoLocation location) {
+	public DistanceField(String geoFieldName, Point location) {
 		this(null, geoFieldName, location);
 	}
 
-	public DistanceField(String alias, String geoFieldName, GeoLocation location) {
+	public DistanceField(String alias, String geoFieldName, Point location) {
 		super(alias, GeoDistanceFunction.distanceFrom(geoFieldName).to(location));
 	}
 

@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
@@ -209,7 +210,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(toInsert.getName(), recalled.getName());
 		Assert.assertEquals(toInsert.getPopularity(), recalled.getPopularity());
 	}
-	
+
 	@Test
 	public void testPartialUpdateSetEmptyCollectionToMultivaluedFieldRemovesValuesFromDocument() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
@@ -228,7 +229,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		ExampleSolrBean recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
 		Assert.assertEquals(toInsert.getId(), recalled.getId());
-		
+
 		Assert.assertEquals(0, recalled.getCategory().size());
 
 		Assert.assertEquals(toInsert.getName(), recalled.getName());
@@ -737,6 +738,28 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testFunctionQueryInFieldProjection() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setStore("45.17614,-93.87341");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
+		bean2.setStore("40.7143,-74.006");
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.commit();
+
+		Query q = new SimpleQuery("*:*");
+		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
+		for (ExampleSolrBean bean : result) {
+			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
+		}
+
+	}
+
+	/**
+	 * @see DATASOLR-142
+	 */
+	@Test
+	public void testDistaneFunctionWithGeoLocationQueryInFieldProjection() {
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		bean1.setStore("45.17614,-93.87341");
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);

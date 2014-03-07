@@ -36,8 +36,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
@@ -283,7 +284,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
-		List<ProductBean> found = repo.findByLocationWithin(new GeoLocation(45.15, -93.85), new Distance(5));
+		List<ProductBean> found = repo.findByLocationWithin(new Point(45.15, -93.85), new Distance(5));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}
@@ -298,7 +299,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
-		List<ProductBean> found = repo.findByLocationNear(new GeoLocation(45.15, -93.85), new Distance(5));
+		List<ProductBean> found = repo.findByLocationNear(new Point(45.15, -93.85), new Distance(5));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}
@@ -313,8 +314,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
-		List<ProductBean> found = repo.findByLocationNear(new BoundingBox(new GeoLocation(45, -94),
-				new GeoLocation(46, -93)));
+		List<ProductBean> found = repo.findByLocationNear(new Box(new GeoLocation(45, -94), new GeoLocation(46, -93)));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}

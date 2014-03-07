@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.solr.core.query;
 
 import java.util.Arrays;
 
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
 
 /**
@@ -30,7 +30,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 
 	private static final String OPERATION = "geodist";
 
-	private GeoDistanceFunction(String fieldName, GeoLocation location) {
+	private GeoDistanceFunction(String fieldName, Point location) {
 		super(Arrays.asList(fieldName, location));
 	}
 
@@ -78,7 +78,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 		 * @param geoLocation must not be null
 		 * @return
 		 */
-		public GeoDistanceFunction to(GeoLocation geoLocation) {
+		public GeoDistanceFunction to(Point geoLocation) {
 			Assert.notNull(geoLocation, "Location for geodist function must not be 'null'");
 
 			return new GeoDistanceFunction(this.fieldname, geoLocation);
@@ -90,7 +90,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 		 * @return
 		 */
 		public GeoDistanceFunction to(double latitude, double longitude) {
-			return to(new GeoLocation(latitude, longitude));
+			return to(new Point(latitude, longitude));
 		}
 
 	}

@@ -28,13 +28,12 @@ import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.geo.Point;
 import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
@@ -74,7 +73,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
+		if (!conversionService.canConvert(org.springframework.data.geo.Point.class, String.class)) {
 			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
 		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
@@ -597,19 +596,20 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public Object doProcess(Predicate predicate, Field field) {
 			String nearFragment;
 			Object[] args = (Object[]) predicate.getValue();
-			if (args[0] instanceof BoundingBox) {
-				BoundingBox box = (BoundingBox) args[0];
+			if (args[0] instanceof Box) {
+				Box box = (Box) args[0];
 				nearFragment = field.getName() + ":[";
-				nearFragment += createRangeFragment(box.getGeoLocationStart(), box.getGeoLocationEnd());
+				nearFragment += createRangeFragment(box.getFirst(), box.getSecond());
 				nearFragment += "]";
 			} else {
-				nearFragment = createSpatialFunctionFragment(field.getName(), (GeoLocation) args[0], (Distance) args[1], "bbox");
+				nearFragment = createSpatialFunctionFragment(field.getName(), (org.springframework.data.geo.Point) args[0],
+						(Distance) args[1], "bbox");
 			}
 			return nearFragment;
 		}
 
-		protected String createSpatialFunctionFragment(String fieldName, GeoLocation location, Distance distance,
-				String function) {
+		protected String createSpatialFunctionFragment(String fieldName, org.springframework.data.geo.Point location,
+				Distance distance, String function) {
 			String spatialFragment = "{!" + function + " " + SpatialParams.POINT + "=";
 			spatialFragment += filterCriteriaValue(location);
 			spatialFragment += " " + SpatialParams.FIELD + "=" + fieldName;
@@ -635,7 +635,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public Object doProcess(Predicate predicate, Field field) {
 			Object[] args = (Object[]) predicate.getValue();
-			return createSpatialFunctionFragment(field.getName(), (GeoLocation) args[0], (Distance) args[1], "geofilt");
+			return createSpatialFunctionFragment(field.getName(), (org.springframework.data.geo.Point) args[0],
+					(Distance) args[1], "geofilt");
 		}
 
 	}

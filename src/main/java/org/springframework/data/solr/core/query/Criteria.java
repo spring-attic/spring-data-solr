@@ -23,9 +23,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Circle;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.util.Assert;
 
 /**
@@ -477,11 +478,11 @@ public class Criteria extends Node {
 	/**
 	 * Creates new {@link Predicate} for {@code !geodist}
 	 * 
-	 * @param location GeoLocation in degrees
+	 * @param location {@link Point} in degrees
 	 * @param distance
 	 * @return
 	 */
-	public Criteria within(GeoLocation location, Distance distance) {
+	public Criteria within(Point location, Distance distance) {
 		Assert.notNull(location);
 		assertPositiveDistanceValue(distance);
 		predicates.add(new Predicate(OperationKey.WITHIN, new Object[] { location,
@@ -490,12 +491,25 @@ public class Criteria extends Node {
 	}
 
 	/**
+	 * Creates new {@link Predicate} for {@code !geodist}.
+	 * 
+	 * @param circle
+	 * @return
+	 * @since 1.2
+	 */
+	public Criteria within(Circle circle) {
+
+		Assert.notNull(circle, "Circle for 'within' must not be 'null'.");
+		return within(circle.getCenter(), circle.getRadius());
+	}
+
+	/**
 	 * Creates new {@link Predicate} for {@code !bbox} with exact coordinates
 	 * 
 	 * @param box
 	 * @return
 	 */
-	public Criteria near(BoundingBox box) {
+	public Criteria near(Box box) {
 		predicates.add(new Predicate(OperationKey.NEAR, new Object[] { box }));
 		return this;
 	}
@@ -510,13 +524,27 @@ public class Criteria extends Node {
 	 * @throws IllegalArgumentException if location is null
 	 * @throws InvalidDataAccessApiUsageException if distance is negative
 	 */
-	public Criteria near(GeoLocation location, Distance distance) {
+	public Criteria near(Point location, Distance distance) {
 		Assert.notNull(location, "Location must not be 'null' for near criteria.");
 		assertPositiveDistanceValue(distance);
 
 		predicates.add(new Predicate(OperationKey.NEAR, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
 		return this;
+	}
+
+	/**
+	 * Creates new {@link Predicate} for {@code !circle} for a specified distance. The difference between this and
+	 * {@link #within(Circle)} is this is approximate while {@code within} is exact.
+	 * 
+	 * @param circle
+	 * @return
+	 * @since 1.2
+	 */
+	public Criteria near(Circle circle) {
+
+		Assert.notNull(circle, "Circle for 'near' must not be 'null'.");
+		return near(circle.getCenter(), circle.getRadius());
 	}
 
 	/**

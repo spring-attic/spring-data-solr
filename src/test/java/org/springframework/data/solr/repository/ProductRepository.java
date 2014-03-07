@@ -22,9 +22,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 
@@ -94,11 +94,11 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByNameStartsWithOrTitleStartsWith(@Boost(2) String name, String title);
 
-	List<ProductBean> findByLocationWithin(GeoLocation location, Distance distance);
+	List<ProductBean> findByLocationWithin(Point location, Distance distance);
 
-	List<ProductBean> findByLocationNear(GeoLocation location, Distance distance);
+	List<ProductBean> findByLocationNear(Point location, Distance distance);
 
-	List<ProductBean> findByLocationNear(BoundingBox bbox);
+	List<ProductBean> findByLocationNear(Box bbox);
 
 	List<ProductBean> findByAvailableTrueOrderByPopularityDesc();
 

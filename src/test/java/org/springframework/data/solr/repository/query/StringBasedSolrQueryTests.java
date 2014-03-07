@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.solr.core.DefaultQueryParser;
 import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.SolrOperations;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.server.SolrServerFactory;
@@ -44,17 +45,13 @@ import org.springframework.data.solr.server.SolrServerFactory;
 @RunWith(MockitoJUnitRunner.class)
 public class StringBasedSolrQueryTests {
 
-	@Mock
-	private SolrOperations solrOperationsMock;
+	private @Mock SolrOperations solrOperationsMock;
 
-	@Mock
-	private RepositoryMetadata metadataMock;
+	private @Mock RepositoryMetadata metadataMock;
 
-	@Mock
-	private SolrEntityInformationCreator entityInformationCreatorMock;
+	private @Mock SolrEntityInformationCreator entityInformationCreatorMock;
 
-	@Mock
-	SolrServerFactory solrServerFactoryMock;
+	private @Mock SolrServerFactory solrServerFactoryMock;
 
 	private QueryParser queryParser;
 
@@ -117,26 +114,26 @@ public class StringBasedSolrQueryTests {
 
 	@Test
 	public void testWithGeoLocationProperty() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 
 		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
 
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
-				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(5) }));
+				queryMethod, new Object[] { new Point(48.303056, 14.290556), new Distance(5) }));
 
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}", queryParser.getQueryString(query));
 	}
 
 	@Test
 	public void testWithGeoLocationPropertyWhereDistanceIsInMiles() throws NoSuchMethodException, SecurityException {
-		Method method = SampleRepository.class.getMethod("findByLocationNear", GeoLocation.class, Distance.class);
+		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 
 		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
 
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(new SolrParametersParameterAccessor(
-				queryMethod, new Object[] { new GeoLocation(48.303056, 14.290556), new Distance(1, Distance.Unit.MILES) }));
+				queryMethod, new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) }));
 
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
@@ -211,7 +208,7 @@ public class StringBasedSolrQueryTests {
 		ProductBean findByPopularityAndPrice(Integer popularity, Float price);
 
 		@Query("{!geofilt pt=?0 sfield=store d=?1}")
-		ProductBean findByLocationNear(GeoLocation location, Distance distace);
+		ProductBean findByLocationNear(Point location, Distance distace);
 
 		@Query(value = "name:?0*", fields = "popularity")
 		ProductBean findByNameProjectionOnPopularity(String name);

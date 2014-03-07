@@ -18,9 +18,9 @@ package org.springframework.data.solr.core.query;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 
 /**
  * @author Christoph Strobl
@@ -175,11 +175,11 @@ public abstract class Node {
 
 	public abstract Node in(Iterable<?> values);
 
-	public abstract Node within(GeoLocation location, Distance distance);
+	public abstract Node within(Point location, Distance distance);
 
-	public abstract Node near(BoundingBox box);
+	public abstract Node near(Box box);
 
-	public abstract Node near(GeoLocation location, Distance distance);
+	public abstract Node near(Point location, Distance distance);
 
 	public abstract Node function(Function function);
 

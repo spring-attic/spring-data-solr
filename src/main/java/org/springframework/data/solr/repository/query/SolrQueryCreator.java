@@ -20,15 +20,15 @@ import java.util.Iterator;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Box;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.context.PersistentPropertyPath;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
 import org.springframework.data.repository.query.parser.PartTree;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
@@ -144,7 +144,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 			case NEAR:
 				return createNearCriteria(parameters, criteria);
 			case WITHIN:
-				return criteria.within((GeoLocation) getBindableValue((BindableSolrParameter) parameters.next()),
+				return criteria.within((Point) getBindableValue((BindableSolrParameter) parameters.next()),
 						(Distance) getBindableValue((BindableSolrParameter) parameters.next()));
 			default:
 				throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
@@ -177,10 +177,10 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
 	private Criteria createNearCriteria(Iterator<?> parameters, Criteria criteria) {
 		Object value = getBindableValue((BindableSolrParameter) parameters.next());
-		if (value instanceof BoundingBox) {
-			return criteria.near((BoundingBox) value);
+		if (value instanceof Box) {
+			return criteria.near((Box) value);
 		} else {
-			return criteria.near((GeoLocation) value, (Distance) getBindableValue((BindableSolrParameter) parameters.next()));
+			return criteria.near((Point) value, (Distance) getBindableValue((BindableSolrParameter) parameters.next()));
 		}
 	}
 
