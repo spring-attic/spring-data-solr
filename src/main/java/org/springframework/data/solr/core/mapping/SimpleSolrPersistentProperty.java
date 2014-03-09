@@ -61,7 +61,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		if (StringUtils.hasText(fieldName) && !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(fieldName)) {
 			return fieldName;
 		}
-		return field.getName();
+		return this.name;
 	}
 
 	private String readAnnotatedFieldName() {

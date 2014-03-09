@@ -198,7 +198,8 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			@SuppressWarnings({ "unchecked" })
 			@Override
 			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
-				Object value = wrapper.getProperty(persistentProperty, persistentProperty.getType(), false);
+
+				Object value = wrapper.getProperty(persistentProperty, persistentProperty.getType());
 				if (value == null || persistentProperty.isReadonly()) {
 					return;
 				}

@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core.mapping;
 
-import java.lang.annotation.Annotation;
 import java.util.Locale;
 
 import org.springframework.beans.BeansException;
@@ -23,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.util.TypeInformation;
@@ -96,10 +94,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	@Override
 	public Float getBoost() {
 		return boost;
-	}
-
-	protected <S extends Annotation> S findAnnotation(Class<S> annotationType) {
-		return AnnotationUtils.findAnnotation(this.typeInformation.getType(), annotationType);
 	}
 
 }

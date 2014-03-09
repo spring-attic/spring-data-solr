@@ -43,13 +43,11 @@ import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 /**
  * Test compatibility with {@link org.apache.solr.client.solrj.beans.DocumentObjectBinder} by running tests against both
  * {@link MappingSolrConverter} and {@link SolrJConverter} <br/>
- * 
  * Borrowed and modified from: <a href=
  * "https://svn.apache.org/repos/asf/lucene/dev/trunk/solr/solrj/src/test/org/apache/solr/client/solrj/beans/TestDocumentObjectBinder.java"
  * >org/apache/solr/client/solrj/beans/TestDocumentObjectBinder.java</a> <br />
  * 
  * @author Christoph Strobl
- * 
  */
 @RunWith(Parameterized.class)
 public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
@@ -187,31 +185,29 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 	}
 
 	public static class Item {
-		@Field
-		String id;
+		@Field String id;
 
-		@Field("cat")
+		@Field("cat")//
 		String[] categories;
 
-		@Field
+		@Field//
 		List<String> features;
 
-		@Field
+		@Field//
 		Date timestamp;
 
-		@Field("highway_mileage")
+		@Field("highway_mileage")//
 		int mwyMileage;
 
 		boolean inStock;
 
-		@Field("supplier_*")
+		@Field("supplier_*")//
 		Map<String, List<String>> supplier;
 
-		@Field("sup_simple_*")
+		@Field("sup_simple_*")//
 		Map<String, String> supplier_simple;
 
-		@Indexed(readonly = true)
-		@Field("supplier_*")
+		@Indexed(readonly = true)//
 		private String[] allSuppliers;
 
 		@Field("supplier_*")
@@ -235,10 +231,10 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 	}
 
 	public static class NotGettableItem {
-		@Field
+		@Field//
 		String id;
 
-		@SuppressWarnings("unused")
+		@SuppressWarnings("unused")//
 		private boolean inStock;
 
 		private String aaa;
