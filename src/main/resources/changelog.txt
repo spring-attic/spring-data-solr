@@ -1,3 +1,9 @@
+Release Notes - Spring Data Solr - Version 1.1.1 GA (Codd)
+---------------------------------------------------------
+
+** No issues filed for 1.1.1 GA (Codd)
+
+
 Release Notes - Spring Data Solr - Version 1.1 GA (Codd)
 ---------------------------------------------------------
 ** Fix

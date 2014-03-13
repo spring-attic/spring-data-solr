@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.3.1.BUILD-SNAPSHOT</version>
+		<version>1.3.1.RELEASE</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -24,7 +24,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
 		<solr>4.6.1</solr>
-		<springdata.commons>1.7.1.BUILD-SNAPSHOT</springdata.commons>
+		<springdata.commons>1.7.1.RELEASE</springdata.commons>
 	</properties>
 	
 	<developers>
@@ -268,8 +268,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>http://repo.spring.io/libs-snapshot/</url>
+			<id>spring-libs-release</id>
+			<url>http://repo.spring.io/libs-release/</url>
 		</repository>
 	</repositories>
 	
