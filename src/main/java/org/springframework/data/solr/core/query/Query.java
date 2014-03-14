@@ -95,6 +95,14 @@ public interface Query extends SolrDataQuery {
 	<T extends Query> T setTimeAllowed(Integer timeAllowed);
 
 	/**
+	 * Sets the fields to query in a DisMax or eDisMax query
+	 *
+	 * @param queryFields the fields to match against
+	 * @return the updated query
+	 */
+	<T extends Query> T setQueryFields(List<String> queryFields);
+
+	/**
 	 * Get filter queries if defined
 	 * 
 	 * @return
@@ -121,6 +129,13 @@ public interface Query extends SolrDataQuery {
 	 * @return
 	 */
 	List<Field> getProjectionOnFields();
+
+	/**
+	 * Get query fields if defined
+	 *
+	 * @return a list of query fields if defined; and empty list otherwise
+	 */
+	List<String> getQueryFields();
 
 	/**
 	 * Add {@link Sort} to query

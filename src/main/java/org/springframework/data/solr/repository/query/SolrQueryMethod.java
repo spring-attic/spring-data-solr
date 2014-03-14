@@ -324,6 +324,20 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	/**
+	 * Returns the query fields specified in {@link Query#queryFields()} if set;
+	 * an empty list otherwise.
+	 *
+	 * @return a list of query fields specified in {@link Query#queryFields()} if set;
+	 * an empty list otherwise.
+	 */
+	public List<String> getQueryFields() {
+		if (hasQueryAnnotation()) {
+			return getAnnotationValuesAsStringList(getQueryAnnotation(), "queryFields");
+		}
+		return Collections.emptyList();
+	}
+
+	/**
 	 * @return null if {@link Query#requestHandler()} not set
 	 */
 	public String getRequestHandler() {

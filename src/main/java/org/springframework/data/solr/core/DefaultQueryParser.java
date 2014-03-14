@@ -95,6 +95,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
 		appendTimeAllowed(solrQuery, query.getTimeAllowed());
 		appendDefType(solrQuery, query.getDefType());
+		appendQueryFields(solrQuery, query.getQueryFields());
 		appendRequestHandler(solrQuery, query.getRequestHandler());
 	}
 
