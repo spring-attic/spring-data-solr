@@ -125,7 +125,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 		EntityInstantiator instantiator = instantiators.getInstantiatorFor(entity);
 		S instance = instantiator.createInstance(entity, parameterValueProvider);
 
-		final BeanWrapper<SolrPersistentEntity<S>, S> wrapper = BeanWrapper.create(instance, getConversionService());
+		final BeanWrapper<S> wrapper = BeanWrapper.create(instance, getConversionService());
 		final S result = wrapper.getBean();
 
 		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
@@ -190,8 +190,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 	@SuppressWarnings("rawtypes")
 	protected void write(Object source, final Map target, SolrPersistentEntity<?> entity) {
-		final BeanWrapper<SolrPersistentEntity<Object>, Object> wrapper = BeanWrapper
-				.create(source, getConversionService());
+		final BeanWrapper wrapper = BeanWrapper.create(source, getConversionService());
 
 		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
 
