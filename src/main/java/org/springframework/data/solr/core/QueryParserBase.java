@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -353,6 +354,16 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (StringUtils.isNotBlank(defType)) {
 			solrQuery.set("defType", defType);
 		}
+	}
+
+	/**
+	 * Appends the DisMax / eDisMax query fields to the given Solr query.
+	 *
+	 * @param solrQuery
+	 * @param queryFields
+	 */
+	protected void appendQueryFields(SolrQuery solrQuery, List<String> queryFields) {
+		solrQuery.set(DisMaxParams.QF, StringUtils.trimToNull(StringUtils.join(queryFields, ' ')));
 	}
 
 	/**

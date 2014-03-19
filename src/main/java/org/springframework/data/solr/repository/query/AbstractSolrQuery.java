@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.query;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,6 +111,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setDefaultQueryOperatorIfDefined(query);
 		setAllowedQueryExeutionTime(query);
 		setDefTypeIfDefined(query);
+		setQueryFields(query);
 		setRequestHandlerIfDefined(query);
 
 		if (isCountQuery()) {
@@ -161,6 +163,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		String defType = solrQueryMethod.getDefType();
 		if (StringUtils.hasText(defType)) {
 			query.setDefType(defType);
+		}
+	}
+
+	private void setQueryFields(Query query) {
+		List<String> queryFields = solrQueryMethod.getQueryFields();
+		if (!queryFields.isEmpty()) {
+			query.setQueryFields(queryFields);
 		}
 	}
 

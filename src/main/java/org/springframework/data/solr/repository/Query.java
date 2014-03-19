@@ -73,6 +73,13 @@ public @interface Query {
 	String defType() default "";
 
 	/**
+	 * Specifies the query fields for a "dismax" or "edismax" query {@code qf}
+	 *
+	 * @see #defType()
+	 */
+	String[] queryFields() default {};
+
+	/**
 	 * Specifies the request handler {@code qt}
 	 * 
 	 * @return

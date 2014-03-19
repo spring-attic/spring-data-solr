@@ -67,6 +67,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  * @author Francisco Spaeth
+ * @author Scott Rossillo
  */
 public class DefaultQueryParserTests {
 
@@ -875,6 +876,20 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		Assert.assertNull(solrQuery.get("defType"));
+	}
+
+	@Test
+	public void testWithQueryFields() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("value_1")).setQueryFields(Arrays.asList("foo", "bar"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNotNull(solrQuery.get("qf"));
+		Assert.assertEquals("foo bar", solrQuery.get("qf"));
+	}
+	@Test
+	public void testWithUndefinedQueryFields() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("value_1"));
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertNull(solrQuery.get("qf"));
 	}
 
 	@Test

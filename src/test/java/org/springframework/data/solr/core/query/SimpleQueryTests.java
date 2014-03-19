@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.core.query;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +71,23 @@ public class SimpleQueryTests {
 		Query query = new SimpleQuery().addProjectionOnField(new SimpleField("field_1")).addProjectionOnField(
 				new SimpleField("field_2"));
 		Assert.assertEquals(2, ((List) query.getProjectionOnFields()).size());
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testSetQueryFields() {
+		Query query = new SimpleQuery().setQueryFields(Arrays.asList("foo", "bar"));
+		Assert.assertEquals(2, ((List) query.getQueryFields()).size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetQueryFieldsNull() {
+		new SimpleQuery().setQueryFields(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetQueryFieldsEmptyList() {
+		new SimpleQuery().setQueryFields(new ArrayList<String>(0));
 	}
 
 	@Test

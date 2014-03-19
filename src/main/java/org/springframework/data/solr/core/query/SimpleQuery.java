@@ -44,6 +44,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Operator defaultOperator;
 	private Integer timeAllowed;
 	private String defType;
+	private List<String> queryFields = Collections.emptyList();
 
 	public SimpleQuery() {}
 
@@ -280,4 +281,17 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.defType = defType;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setQueryFields(List<String> queryFields) {
+		Assert.notNull(queryFields, "Query fields cannot be null");
+		Assert.notEmpty(queryFields, "Query fields cannot be empty");
+		this.queryFields = new ArrayList<String>(queryFields);
+		return (T) this;
+	}
+
+	@Override
+	public List<String> getQueryFields() {
+		return Collections.unmodifiableList(queryFields);
+	}
 }
