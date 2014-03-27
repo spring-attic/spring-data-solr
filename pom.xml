@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.4.0.BUILD-SNAPSHOT</version>
+		<version>1.4.0.M1</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -24,7 +24,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
 		<solr>4.7.0</solr>
-		<springdata.commons>1.8.0.BUILD-SNAPSHOT</springdata.commons>
+		<springdata.commons>1.8.0.M1</springdata.commons>
 	</properties>
 	
 	<developers>
@@ -62,14 +62,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
 			<version>${spring}</version>
-		</dependency>
-
-		<!-- For JavaConfig -->
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>2.2.2</version>
-			<scope>test</scope>
 		</dependency>
 
 		<!-- SPRING DATA -->
@@ -252,7 +244,7 @@
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>https://jira.springsource.org/browse/DATASOLR</url>
+		<url>https://jira.spring.io/browse/DATASOLR</url>
 	</issueManagement>
 
 	<scm>
@@ -263,13 +255,13 @@
 
 	<ciManagement>
 		<system>Bamboo</system>
-		<url>http://build.springsource.org/browse/DATASOLR</url>
+		<url>http://build.spring.io/browse/DATASOLR</url>
 	</ciManagement>
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>http://repo.spring.io/libs-snapshot/</url>
+			<id>spring-libs-milestone</id>
+			<url>http://repo.spring.io/libs-milestone/</url>
 		</repository>
 	</repositories>
 	
