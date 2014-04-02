@@ -168,7 +168,7 @@ List&lt;Product&gt; findAllFilterAvailableTrueAndPopularityLessThanEqual3();</pr
             <programlisting language="java">Page&lt;Product&gt; findByNameOrDescription(@Boost(2) String name, String description);
 </programlisting>
         </example>
-	    <section id="solr.misc.boost">
+	    <section id="solr.misc.boost.index-time">
 	        <title>Index Time Boosts</title>
 	        <para>
 	            Boosting documents score can be done on index time by using <interfacename>@SolrDocument</interfacename> annotation on 
