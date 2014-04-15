@@ -5,7 +5,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-solr</artifactId>
-	<version>1.1.2.BUILD-SNAPSHOT</version>
+	<version>1.1.2.DATASOLR-156-SNAPSHOT</version>
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.3.1.RELEASE</version>
+		<version>1.3.2.RELEASE</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -24,7 +24,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.2.2</httpcomponents>
 		<solr>4.6.1</solr>
-		<springdata.commons>1.7.1.RELEASE</springdata.commons>
+		<springdata.commons>1.7.2.RELEASE</springdata.commons>
 	</properties>
 	
 	<developers>

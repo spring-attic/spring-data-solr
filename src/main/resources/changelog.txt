@@ -1,3 +1,25 @@
+Release Notes - Spring Data Solr - Version 1.1.2 GA (Codd)
+---------------------------------------------------------
+
+** No issues filed for 1.1.2 GA (Codd)
+
+
+Release Notes - Spring Data Solr - Version 1.2 M1 (Dijkstra)
+---------------------------------------------------------
+** Fix
+    * [DATASOLR-105] - Allow nesting of chained Criteria.
+
+** New Feature
+    * [DATASOLR-88] - Support for index time boost on managed entites. (kudos @franciscospaeth)
+    * [DATASOLR-143] - Add support for 'countBy' queries.
+    * [DATASOLR-144] - Add support for derived 'deleteBy...' queries.
+    
+** Task
+    * [DATASOLR-142] - Support geo structures from spring-data-commons.
+    * [DATASOLR-147] - Upgrade to Solr 4.7
+    * [DATASOLR-152] - Adapt changes on property information from sd-commons.
+    * [DATASOLR-154] - Remove obsolete generics from BeanWrapper.
+
 Release Notes - Spring Data Solr - Version 1.1.1 GA (Codd)
 ---------------------------------------------------------
 
