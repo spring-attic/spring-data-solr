@@ -39,7 +39,7 @@ import org.springframework.util.ObjectUtils;
  * @author Francisco Spaeth
  * 
  */
-public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T> {
+public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -47,13 +47,15 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<PageKey, List<FacetPivotFieldEntry>>();
 	private Page<FacetQueryEntry> facetQueryResult;
 	private List<HighlightEntry<T>> highlighted;
+	private Float maxScore;
 
 	public SolrResultPage(List<T> content) {
 		super(content);
 	}
 
-	public SolrResultPage(List<T> content, Pageable pageable, long total) {
+	public SolrResultPage(List<T> content, Pageable pageable, long total, Float maxScore) {
 		super(content, pageable, total);
+		this.maxScore = maxScore;
 	}
 
 	@Override
@@ -167,5 +169,10 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		}
 		return Collections.emptyList();
 	}
-
+	
+	@Override
+	public Float getMaxScore() {
+		return maxScore;
+	}
+	
 }

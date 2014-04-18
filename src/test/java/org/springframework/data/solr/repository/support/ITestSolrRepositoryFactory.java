@@ -29,6 +29,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
@@ -96,6 +97,18 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 	}
 
 	@Test
+	public void testScoredAnnotatedQuery() {
+		ProductBean initial = createProductBean("1");
+
+		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+		repository.save(initial);
+
+		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", new PageRequest(0, 5));
+		Assert.assertEquals(1, result.getContent().size());
+		Assert.assertEquals(Float.valueOf(1), result.getMaxScore());
+	}
+
+	@Test
 	public void testPartTreeQuery() {
 		ProductBean availableProduct = createProductBean("1");
 		ProductBean unavailableProduct = createProductBean("2");
@@ -160,6 +173,9 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		@Query("id:?0")
 		ProductBean findSingleElement(String id);
+		
+		@Query(value = "name:?0*", fields = {"*","score"})
+		ScoredPage<ProductBean> findByAnnotatedQuery1(String prefix, Pageable page);
 
 	}
 
