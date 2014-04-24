@@ -356,19 +356,24 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					: WildcardPosition.TRAILING;
 
 			if (property.isMap()) {
+
 				TypeInformation<?> mapTypeInformation = property.getTypeInformation().getMapValueType();
 				Class<?> rawMapType = mapTypeInformation.getType();
+				Class<?> genericTargetType = (mapTypeInformation.getTypeArguments() != null && !mapTypeInformation
+						.getTypeArguments().isEmpty()) ? mapTypeInformation.getTypeArguments().get(0).getType() : Object.class;
 
 				Map<String, Object> values = LinkedHashMap.class.isAssignableFrom(property.getActualType()) ? new LinkedHashMap<String, Object>()
 						: new HashMap<String, Object>();
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 					if (isWildcardFieldNameMatch(fieldName, wildcardPosition, potentialMatch.getKey())) {
 						Object value = potentialMatch.getValue();
+
 						if (value instanceof Iterable) {
 							if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, value.getClass())) {
 								List<Object> nestedValues = new ArrayList<Object>();
+
 								for (Object o : (Iterable<?>) value) {
-									nestedValues.add(getValue(property, o, parent));
+									nestedValues.add(readValue(property, o, parent, genericTargetType));
 								}
 								values.put(potentialMatch.getKey(), (rawMapType.isArray() ? nestedValues.toArray() : nestedValues));
 							} else {
@@ -377,8 +382,9 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 							}
 						} else {
 							if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, List.class)) {
+
 								ArrayList<Object> singletonArrayList = new ArrayList<Object>(1);
-								singletonArrayList.add(getValue(property, potentialMatch.getValue(), parent));
+								singletonArrayList.add(readValue(property, potentialMatch.getValue(), parent, genericTargetType));
 								values.put(potentialMatch.getKey(), (rawMapType.isArray() ? singletonArrayList.toArray()
 										: singletonArrayList));
 							} else {
@@ -389,16 +395,19 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				}
 				return values.isEmpty() ? null : values;
 			} else if (property.isCollectionLike()) {
+
+				Class<?> genericTargetType = property.getComponentType() != null ? property.getComponentType() : Object.class;
+
 				List<Object> values = new ArrayList<Object>();
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 					if (isWildcardFieldNameMatch(fieldName, wildcardPosition, potentialMatch.getKey())) {
 						Object value = potentialMatch.getValue();
 						if (value instanceof Iterable) {
 							for (Object o : (Iterable<?>) value) {
-								values.add(getValue(property, o, parent));
+								values.add(readValue(property, o, parent, genericTargetType));
 							}
 						} else {
-							Object o = getValue(property, potentialMatch.getValue(), parent);
+							Object o = readValue(property, potentialMatch.getValue(), parent, genericTargetType);
 							if (o instanceof Collection) {
 								values.addAll((Collection) o);
 							} else {
@@ -420,6 +429,20 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			return null;
 		}
 
+		private Object readValue(SolrPersistentProperty property, Object o, Object parent, Class<?> target) {
+
+			Object value = getValue(property, o, parent);
+			if (value == null || target == null || target.equals(Object.class)) {
+				return value;
+			}
+
+			if (canConvert(value.getClass(), target)) {
+				return convert(value, target);
+			}
+
+			return value;
+		}
+
 		private boolean isWildcardFieldNameMatch(String fieldname, WildcardPosition type, String candidate) {
 			switch (type) {
 				case LEADING:
@@ -430,7 +453,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			return false;
 		}
 
-		@SuppressWarnings("unchecked")
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
 			Assert.notNull(type);
 
