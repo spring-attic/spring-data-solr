@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.data.solr.core;
+
+import java.net.ConnectException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
@@ -32,7 +34,6 @@ import org.springframework.util.ClassUtils;
  * {@link org.springframework.dao.DataAccessException} hierarchy.
  * 
  * @author Christoph Strobl
- * 
  */
 public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 
@@ -51,22 +52,24 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 				} else {
 					ErrorCode errorCode = SolrException.ErrorCode.getErrorCode(solrException.code());
 					switch (errorCode) {
-					case NOT_FOUND:
-					case SERVICE_UNAVAILABLE:
-					case SERVER_ERROR:
-						return new DataAccessResourceFailureException(solrException.getMessage(), solrException);
-					case FORBIDDEN:
-					case UNAUTHORIZED:
-						return new PermissionDeniedDataAccessException(solrException.getMessage(), solrException);
-					case BAD_REQUEST:
-						return new InvalidDataAccessApiUsageException(solrException.getMessage(), solrException);
-					case UNKNOWN:
-						return new UncategorizedSolrException(solrException.getMessage(), solrException);
-					default:
-						break;
+						case NOT_FOUND:
+						case SERVICE_UNAVAILABLE:
+						case SERVER_ERROR:
+							return new DataAccessResourceFailureException(solrException.getMessage(), solrException);
+						case FORBIDDEN:
+						case UNAUTHORIZED:
+							return new PermissionDeniedDataAccessException(solrException.getMessage(), solrException);
+						case BAD_REQUEST:
+							return new InvalidDataAccessApiUsageException(solrException.getMessage(), solrException);
+						case UNKNOWN:
+							return new UncategorizedSolrException(solrException.getMessage(), solrException);
+						default:
+							break;
 					}
 				}
-
+			} else if (solrServerException.getCause() instanceof ConnectException) {
+				return new DataAccessResourceFailureException(solrServerException.getCause().getMessage(),
+						solrServerException.getCause());
 			}
 		}
 		return null;

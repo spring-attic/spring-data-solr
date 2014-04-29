@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.springframework.data.solr.UncategorizedSolrException;
 
 /**
  * @author Christoph Strobl
- * 
  */
 public class SolrExceptionTranslatorTests {
 
@@ -91,6 +90,18 @@ public class SolrExceptionTranslatorTests {
 
 		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(solrServerException)),
 				IsInstanceOf.instanceOf(InvalidDataAccessApiUsageException.class));
+	}
+
+	/**
+	 * @see DATASOLR-158
+	 */
+	@Test
+	public void shouldConvertConnectExceptionCorrectly() {
+
+		SolrServerException ex = new SolrServerException("message", new java.net.ConnectException(
+				"Cannot connect to server"));
+		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(ex)),
+				IsInstanceOf.instanceOf(DataAccessResourceFailureException.class));
 	}
 
 	private RuntimeException createWrappedSolrServerExceptionFor(ErrorCode errorCode, String message) {
