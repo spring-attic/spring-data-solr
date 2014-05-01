@@ -18,6 +18,7 @@ package org.springframework.data.solr.repository.query;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.solr.common.params.HighlightParams;
 import org.junit.Assert;
@@ -39,11 +40,16 @@ import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrCallback;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightQuery;
+import org.springframework.data.solr.core.query.PivotField;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.ProductBean;
@@ -158,6 +164,28 @@ public class SolrQueryTests {
 		Assert.assertEquals("{post}", capturedOptions.getHighlightParameterValue(HighlightParams.TAG_POST));
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testQueryWithPivotFields() {
+		ArgumentCaptor<FacetQuery> captor = ArgumentCaptor.forClass(FacetQuery.class);
+
+		createQueryForMethod("findTitleVsName", Pageable.class).execute(new Object[] { new PageRequest(0, 10) });
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForFacetPage(captor.capture(),
+				(Class<ProductBean>) Matchers.any());
+
+		FacetOptions capturedOptions = captor.getValue().getFacetOptions();
+		
+		List<PivotField> pivots = capturedOptions.getFacetOnPivots();
+		Assert.assertNotNull(capturedOptions);
+		Assert.assertEquals(1, pivots.size());
+		
+		List<Field> pivotFields = pivots.get(0).getFields();
+		Assert.assertEquals(2, pivotFields.size());
+		Assert.assertEquals("title", pivotFields.get(0).getName());
+		Assert.assertEquals("name", pivotFields.get(1).getName());
+	}
+
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
@@ -193,6 +221,9 @@ public class SolrQueryTests {
 
 		@Highlight(formatter = "postingshighlighter", prefix = "{pre}", postfix = "{post}")
 		Page<ProductBean> findAndApplyHighlightingWithNonDefaultFormatter(Pageable page);
+		
+		@Facet(pivotFields={"title,name"})
+		FacetPage<ProductBean> findTitleVsName(Pageable page);
 
 	}
 
