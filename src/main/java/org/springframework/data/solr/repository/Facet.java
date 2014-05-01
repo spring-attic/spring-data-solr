@@ -80,8 +80,18 @@ public @interface Facet {
 	 * fields to pivot on
 	 * 
 	 * @return
+	 * @deprecated use {@link #pivots()} instead
 	 */
 	String[] pivotFields() default {};
+
+	/**
+	 * {@code facet.pivot}
+	 * 
+	 * fields to pivot on
+	 * 
+	 * @return
+	 */
+	Pivot[] pivots() default {};
 
 	/**
 	 * {@code facet.pivot.mincount}

@@ -29,6 +29,7 @@ import org.springframework.data.repository.core.support.DefaultRepositoryMetadat
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
+import org.springframework.data.solr.repository.Pivot;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.support.SolrEntityInformationCreatorImpl;
@@ -166,6 +167,32 @@ public class SolrQueryMethodTests {
 	@Test
 	public void testWithMultipleFieldPivot() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3");
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasPivotFields());
+		Assert.assertFalse(method.hasFacetQueries());
+		Assert.assertEquals(2, method.getPivotFields().size());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
+	}
+
+	@Test
+	public void testWithMultipleFieldPivotUsingPivotAnnotation() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation");
+		Assert.assertFalse(method.hasAnnotatedQuery());
+		Assert.assertFalse(method.hasProjectionFields());
+		Assert.assertFalse(method.hasFacetFields());
+		Assert.assertTrue(method.hasPivotFields());
+		Assert.assertFalse(method.hasFacetQueries());
+		Assert.assertEquals(4, method.getPivotFields().size());
+		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
+		Assert.assertFalse(method.hasFilterQuery());
+	}
+
+	@Test
+	public void testWithMultipleFieldPivotUsingOnlyPivotAnnotation() throws Exception {
+		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation");
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasFacetFields());
@@ -521,6 +548,12 @@ public class SolrQueryMethodTests {
 
 		@Facet(pivotFields = { "field1,field2", "field2,field3" }, minCount = 3, limit = 25)
 		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount();
+
+		@Facet(pivotFields = { "field1,field2", "field2,field3" }, pivots = { @Pivot("field4,field5"), @Pivot("field5,field6") })
+		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation();
+
+		@Facet(pivots = { @Pivot("field1,field2"), @Pivot("field2,field3") })
+		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation();
 
 	}
 
