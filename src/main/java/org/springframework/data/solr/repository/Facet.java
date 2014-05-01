@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
- * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -32,36 +31,28 @@ import java.lang.annotation.Target;
 public @interface Facet {
 
 	/**
-	 * {@code facet.field}
-	 * 
-	 * fields to facet on
+	 * {@code facet.field} fields to facet on
 	 * 
 	 * @return
 	 */
 	String[] fields() default {};
 
 	/**
-	 * {@code facet.query}
-	 * 
-	 * queries to facet on
+	 * {@code facet.query} queries to facet on
 	 * 
 	 * @return
 	 */
 	String[] queries() default {};
 
 	/**
-	 * {@code facet.mincount}
-	 * 
-	 * minimum number of hits for result to be included in response
+	 * {@code facet.mincount} minimum number of hits for result to be included in response
 	 * 
 	 * @return
 	 */
 	int minCount() default 1;
 
 	/**
-	 * {@code facet.limit}
-	 * 
-	 * limit number results returned
+	 * {@code facet.limit} limit number results returned
 	 * 
 	 * @return
 	 */
@@ -75,18 +66,23 @@ public @interface Facet {
 	String prefix() default "";
 
 	/**
-	 * {@code facet.pivot}
-	 * 
-	 * fields to pivot on
+	 * {@code facet.pivot} fields to pivot on
 	 * 
 	 * @return
+	 * @deprecated use {@link #pivots()} instead. Will be removed in 1.3
 	 */
 	String[] pivotFields() default {};
 
 	/**
-	 * {@code facet.pivot.mincount}
+	 * {@code facet.pivot} fields to pivot on
 	 * 
-	 * minimum number of hits for result to be included in pivot response
+	 * @return
+	 * @since 1.2
+	 */
+	Pivot[] pivots() default {};
+
+	/**
+	 * {@code facet.pivot.mincount} minimum number of hits for result to be included in pivot response
 	 * 
 	 * @return
 	 */

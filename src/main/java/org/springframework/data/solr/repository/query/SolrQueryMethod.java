@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository.query;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
+import org.springframework.data.solr.repository.Pivot;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -157,8 +159,20 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotationValuesAsStringList(getFacetAnnotation(), "queries");
 	}
 
-	public List<String> getPivotFields() {
-		return getAnnotationValuesAsStringList(getFacetAnnotation(), "pivotFields");
+	public List<String[]> getPivotFields() {
+		List<String> stringPivotFields = getAnnotationValuesAsStringList(getFacetAnnotation(), "pivotFields");
+		List<Pivot> pivotFields = getAnnotationValuesList(getFacetAnnotation(), "pivots", Pivot.class);
+		ArrayList<String[]> result = new ArrayList<String[]>();
+
+		for (String str : stringPivotFields) {
+			result.add(StringUtils.split(str, ","));
+		}
+
+		for (Pivot pivot : pivotFields) {
+			result.add(pivot.value());
+		}
+
+		return result;
 	}
 
 	/**
@@ -364,6 +378,12 @@ public class SolrQueryMethod extends QueryMethod {
 			return CollectionUtils.arrayToList(values);
 		}
 		return Collections.emptyList();
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> List<T> getAnnotationValuesList(Facet annotation, String attribute, Class<T> clazz) {
+		T[] values = (T[]) AnnotationUtils.getValue(annotation, attribute);
+		return CollectionUtils.arrayToList(values);
 	}
 
 	@Override
