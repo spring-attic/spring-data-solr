@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.2.0.RC1 (2014-05-02)
+-----------------------------------------
+* DATASOLR-158 - SolrExceptionTranslator should convert nested ConnectException to DataAccessResourceFailureException.
+* DATASOLR-157 - Release 1.2 RC1.
+* DATASOLR-118 - Read loads wrong type for multivalued DateTime fields (generic heap pollution).
+
+
 Release Notes - Spring Data Solr - Version 1.1.2 GA (Codd)
 ---------------------------------------------------------
 ** No issues filed for 1.1.2 GA (Codd)
