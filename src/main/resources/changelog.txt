@@ -1,6 +1,10 @@
 Spring Data Solr Changelog
 ==========================
 
+Release Notes - Spring Data Solr - Version 1.1.2 GA (Codd)
+---------------------------------------------------------
+** No issues filed for 1.1.2 GA (Codd)
+
 Release Notes - Spring Data Solr - Version 1.2 M1 (Dijkstra)
 ---------------------------------------------------------
 ** Fix
@@ -10,7 +14,7 @@ Release Notes - Spring Data Solr - Version 1.2 M1 (Dijkstra)
     * [DATASOLR-88] - Support for index time boost on managed entites. (kudos @franciscospaeth)
     * [DATASOLR-143] - Add support for 'countBy' queries.
     * [DATASOLR-144] - Add support for derived 'deleteBy...' queries.
-    
+
 ** Task
     * [DATASOLR-142] - Support geo structures from spring-data-commons.
     * [DATASOLR-147] - Upgrade to Solr 4.7
