@@ -1,6 +1,10 @@
 Spring Data Solr Changelog
 ==========================
 
+Release Notes - Spring Data Solr - Version 1.1.2 GA (Codd)
+---------------------------------------------------------
+** No issues filed for 1.1.2 GA (Codd)
+
 Release Notes - Spring Data Solr - Version 1.2 M1 (Dijkstra)
 ---------------------------------------------------------
 ** Fix
