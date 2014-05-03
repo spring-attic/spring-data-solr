@@ -258,7 +258,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 		if (queryMethod.hasPivotFields()) {
 			for (String pivot : queryMethod.getPivotFields()) {
-				options.addFacetOnPivot(pivot);
+				options.addFacetOnPivot(StringUtils.split(pivot, ","));
 			}
 		}
 		options.setFacetLimit(queryMethod.getFacetLimit());
