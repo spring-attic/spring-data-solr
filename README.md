@@ -7,6 +7,10 @@ The Spring Data Solr project provides integration with the [Apache Solr](http://
 
 Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data Solr handles inheritance as well as usage of custom Types such as  ```GeoLocation``` or ```DateTime```.
 
+Requirements
+------------
+Due to usage of Lucene/Solr `4.8` the baseline is now Java 7.
+
 Getting Help
 ------------
 
