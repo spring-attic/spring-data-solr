@@ -10,8 +10,8 @@ Providing its own extensible ```MappingSolrConverter``` as alternative to ```Doc
 Getting Help
 ------------
 
-* [Reference Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/reference/html/)
-* [API Documentation](http://docs.spring.io/spring-data/data-solr/docs/current-SNAPSHOT/api/)
+* [Reference Documentation](http://docs.spring.io/spring-data/data-solr/docs/current/reference/html/)
+* [API Documentation](http://docs.spring.io/spring-data/data-solr/docs/current/api/)
 * [Spring Data Project](http://projects.spring.io/spring-data)
 * [Issues](https://jira.springsource.org/browse/DATASOLR)
 * [Code Analysis](https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr)
@@ -173,7 +173,7 @@ You can set up repository scanning via xml configuration, which will happily cre
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:solr="http://www.springframework.org/schema/data/solr"
-  xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
+  xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
   <solr:repositories base-package="com.acme.repository" multicoreSupport="true" />
@@ -191,7 +191,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.1.0.RELEASE</version>
+  <version>1.2.0.RELEASE</version>
 </dependency>  
 ```
 
@@ -201,18 +201,18 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.2.0.BUILD-SNAPSHOT</version>
+  <version>1.3.0.BUILD-SNAPSHOT</version>
 </dependency> 
 
 <repository>
   <id>spring-maven-snapshot</id>
-  <url>http://repo.springsource.org/libs-snapshot</url>
+  <url>http://repo.spring.io/libs-snapshot</url>
 </repository>  
 ```
 
 Contributing to Spring Data
 ---------------------------
-Please refer to [CONTRIBUTING](https://github.com/SpringSource/spring-data-solr/blob/master/CONTRIBUTING.md)
+Please refer to [CONTRIBUTING](https://github.com/spring-projects/spring-data-solr/blob/master/CONTRIBUTING.md)
 
 Stay in touch
 -------------
