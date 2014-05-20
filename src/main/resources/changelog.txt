@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.2.0.RELEASE (2014-05-20)
+---------------------------------------------
+* DATASOLR-165 - Release 1.2 GA.
+* DATASOLR-159 - IllegalArgumentException when using @Facet(pivotFields={"title,name"}).
+* DATASOLR-155 - Improve pivot facet annotation syntax.
+* DATASOLR-95 - Add support for getting the maximum score of search results.
+
+
 Changes in version 1.2.0.RC1 (2014-05-02)
 -----------------------------------------
 * DATASOLR-158 - SolrExceptionTranslator should convert nested ConnectException to DataAccessResourceFailureException.
