@@ -1071,6 +1071,16 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromNode(criteria));
 	}
 
+	/**
+	 * @see DATASOLR-168
+	 */
+	@Test
+	public void testNotCritieraCarriedOnPorperlyForNullAndNotNull() {
+
+		Criteria criteria = new Criteria("param1").isNotNull().and("param2").isNull();
+		Assert.assertEquals("param1:[* TO *] AND -param2:[* TO *]", queryParser.createQueryStringFromNode(criteria));
+	}
+
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getParams(FacetParams.FACET_PIVOT));
 	}
