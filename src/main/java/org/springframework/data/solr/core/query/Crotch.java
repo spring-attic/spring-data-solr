@@ -93,7 +93,7 @@ public class Crotch extends Criteria {
 
 	@Override
 	public Crotch isNull() {
-		mostRecentSibling.isNotNull();
+		mostRecentSibling.isNull();
 		return this;
 	}
 
