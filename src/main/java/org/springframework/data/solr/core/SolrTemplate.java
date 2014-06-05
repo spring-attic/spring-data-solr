@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -40,11 +42,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
@@ -56,9 +61,14 @@ import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.query.result.TermsResultPage;
+import org.springframework.data.solr.core.schema.SolrJsonResponse;
+import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
+import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
+import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of {@link SolrOperations}
@@ -72,6 +82,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
 	private final QueryParsers queryParsers = new QueryParsers();
+	private MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
 	private ApplicationContext applicationContext;
 	private String solrCore;
@@ -87,6 +98,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private SolrServerFactory solrServerFactory;
 
 	private SolrConverter solrConverter;
+
+	private Set<Feature> schemaCreationFeatures;
 
 	public SolrTemplate(SolrServer solrServer) {
 		this(solrServer, null);
@@ -106,7 +119,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
 
 		this.solrServerFactory = solrServerFactory;
-		this.solrConverter = solrConverter == null ? getDefaultSolrConverter() : solrConverter;
 	}
 
 	@Override
@@ -386,6 +398,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return document;
 	}
 
+	/**
+	 * @param collectionName
+	 * @return
+	 * @since 1.3
+	 */
+	public String getSchemaName(String collectionName) {
+		return execute(new SolrCallback<String>() {
+
+			@Override
+			public String doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+				SolrJsonResponse response = SolrSchemaRequest.name().process(solrServer);
+				if (response != null) {
+					return response.getNode("name").asText();
+				}
+				return null;
+			}
+		});
+	}
+
 	private Collection<SolrInputDocument> convertBeansToSolrInputDocuments(Iterable<?> beans) {
 		if (beans == null) {
 			return Collections.emptyList();
@@ -421,7 +452,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	private final SolrConverter getDefaultSolrConverter() {
-		MappingSolrConverter converter = new MappingSolrConverter(new SimpleSolrMappingContext());
+		MappingSolrConverter converter = new MappingSolrConverter(this.mappingContext);
 		converter.afterPropertiesSet(); // have to call this one to initialize default converters
 		return converter;
 	}
@@ -463,6 +494,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void afterPropertiesSet() {
+
+		if (this.mappingContext == null) {
+			this.mappingContext = new SimpleSolrMappingContext(
+					new SolrPersistentEntitySchemaCreator(this.solrServerFactory).enable(this.schemaCreationFeatures));
+		}
+
 		if (this.solrConverter == null) {
 			this.solrConverter = getDefaultSolrConverter();
 		}
@@ -477,6 +514,34 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 						"solrExceptionTranslator", EXCEPTION_TRANSLATOR);
 			}
 		}
+	}
+
+	/**
+	 * @since 1.3
+	 * @param mappingContext
+	 */
+	public void setMappingContext(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+		this.mappingContext = mappingContext;
+	}
+
+	/**
+	 * @since 1.3
+	 * @param schemaCreationFeatures
+	 */
+	public void setSchemaCreationFeatures(Collection<Feature> schemaCreationFeatures) {
+		this.schemaCreationFeatures = new HashSet<Feature>(schemaCreationFeatures);
+	}
+
+	/**
+	 * @since 1.3
+	 * @return
+	 */
+	public Set<Feature> getSchemaCreationFeatures() {
+
+		if (CollectionUtils.isEmpty(this.schemaCreationFeatures)) {
+			return Collections.emptySet();
+		}
+		return Collections.unmodifiableSet(this.schemaCreationFeatures);
 	}
 
 }

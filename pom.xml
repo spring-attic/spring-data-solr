@@ -157,14 +157,6 @@
 					<artifactId>slf4j-api</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>org.restlet.jee</groupId>
-					<artifactId>org.restlet</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.restlet.jee</groupId>
-					<artifactId>org.restlet.ext.servlet</artifactId>
-				</exclusion>
-				<exclusion>
 					<artifactId>jdk.tools</artifactId>
 					<groupId>jdk.tools</groupId>
 				</exclusion>
@@ -205,6 +197,12 @@
 			<artifactId>servlet-api</artifactId>
 			<version>3.0-alpha-1</version>
 			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson}</version>
 		</dependency>
 	</dependencies>
 

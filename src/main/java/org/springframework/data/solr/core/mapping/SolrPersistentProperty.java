@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import java.util.Collection;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mapping.PersistentProperty;
 
@@ -41,16 +43,64 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @return true if {@link org.apache.solr.client.solrj.beans.Field#value()} contains {@code *}
 	 */
 	boolean containsWildcard();
-	
+
 	/**
 	 * @return true if property is boosted
 	 */
 	boolean isBoosted();
-	
+
 	/**
 	 * @return property boost value if {@link #isBoosted()}, null otherwise
 	 */
 	Float getBoost();
+
+	/**
+	 * @return true if property shall be indexed in solr.
+	 * @since 1.3
+	 */
+	boolean isSearchable();
+
+	/**
+	 * @return true if property shall be stored and returned in result documents.
+	 * @since 1.3
+	 */
+	boolean isStored();
+
+	/**
+	 * @see #isCollectionLike()
+	 * @return true if property is collection like
+	 * @since 1.3
+	 */
+	boolean isMultiValued();
+
+	/**
+	 * @return mapped solr type name
+	 * @since 1.3
+	 */
+	String getSolrTypeName();
+
+	/**
+	 * @since 1.3
+	 */
+	Object getDefaultValue();
+
+	/**
+	 * @return list of fields the current fields value shall be copied to
+	 * @since 1.3
+	 */
+	Collection<String> getCopyFields();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isUnique();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isRequired();
 
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 
@@ -60,4 +110,5 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 			return source.getFieldName();
 		}
 	}
+
 }

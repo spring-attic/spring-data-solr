@@ -36,7 +36,9 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 	@Before
 	public void setUp() {
 		repository = new ExampleSolrBeanRepository();
-		repository.setSolrOperations(new SolrTemplate(solrServer, null));
+		SolrTemplate template = new SolrTemplate(solrServer, null);
+		template.afterPropertiesSet();
+		repository.setSolrOperations(template);
 	}
 
 	@Test

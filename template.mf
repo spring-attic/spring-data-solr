@@ -9,6 +9,7 @@ Export-Template:
 Import-Template:
  javax.enterprise.*;version="${cdi:[=.=.=,+1.0.0)}";resolution:=optional,
  javax.xml.*;version="0.0.0",
+ javax.activation.*;version="0.0.0",
  org.aopalliance.*;version="[1.0.0,2.0.0)",
  org.apache.commons.collections.*;version="${commons.collections:[=.=.=,+1.0.0)}",
  org.apache.commons.lang3.*;version="${commons.lang:[=.=.=,+1.0.0)}",
@@ -19,5 +20,5 @@ Import-Template:
  org.springframework.*;version="${spring:[=.=.=.=,+1.0.0)}",
  org.springframework.data.*;version="${springdata.commons:[=.=.=.=,+1.0.0)}",
  org.w3c.*;version="0.0.0",
- org.xml.sax.*;version="0.0.0"
- 
+ org.xml.sax.*;version="0.0.0",
+ com.fasterxml.jackson.*;version="${jackson}"

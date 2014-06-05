@@ -53,6 +53,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
 		solrTemplate = new SolrTemplate(solrServer, null);
+		solrTemplate.afterPropertiesSet();
 	}
 
 	@After

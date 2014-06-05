@@ -34,7 +34,6 @@ import org.springframework.data.solr.core.query.Update;
  * Trivial implementation of {@link SolrConverter} delegating conversion to {@link DocumentObjectBinder}
  * 
  * @author Christoph Strobl
- * 
  */
 public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 

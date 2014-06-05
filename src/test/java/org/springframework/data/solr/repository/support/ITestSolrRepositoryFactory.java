@@ -46,6 +46,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 	@Before
 	public void setUp() {
 		SolrTemplate template = new SolrTemplate(new HttpSolrServerFactory(solrServer));
+		template.afterPropertiesSet();
 		factory = new SolrRepositoryFactory(template);
 	}
 
