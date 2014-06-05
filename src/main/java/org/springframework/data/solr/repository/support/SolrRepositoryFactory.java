@@ -64,10 +64,20 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	public SolrRepositoryFactory(SolrServer solrServer) {
 		Assert.notNull(solrServer);
-		this.solrOperations = new SolrTemplate(solrServer);
+
+		this.solrOperations = createTemplate(solrServer);
+
 		factory = new MulticoreSolrServerFactory(solrServer);
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(this.solrOperations.getConverter()
 				.getMappingContext());
+
+	}
+
+	private SolrTemplate createTemplate(SolrServer solrServer) {
+
+		SolrTemplate template = new SolrTemplate(solrServer);
+		template.afterPropertiesSet();
+		return template;
 	}
 
 	@Override

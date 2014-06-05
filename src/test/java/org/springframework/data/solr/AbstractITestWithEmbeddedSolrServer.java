@@ -44,7 +44,7 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 			InterruptedException {
 		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
 		CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome, new File(solrHome + "/solr.xml"));
-		solrServer = new EmbeddedSolrServer(coreContainer, null);
+		solrServer = new EmbeddedSolrServer(coreContainer, "collection1");
 	}
 
 	public static void cleanDataInSolr() throws SolrServerException, IOException {

@@ -41,21 +41,15 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
 @RunWith(MockitoJUnitRunner.class)
 public class SolrRepositoryFactoryTests {
 
-	@Mock
-	private SolrOperations solrOperationsMock;
+	@Mock private SolrOperations solrOperationsMock;
 
-	@Mock
-	private SolrConverter solrConverterMock;
+	@Mock private SolrConverter solrConverterMock;
 
-	@Mock
-	@SuppressWarnings("rawtypes")
-	private MappingContext mappingContextMock;
+	@Mock @SuppressWarnings("rawtypes") private MappingContext mappingContextMock;
 
-	@Mock
-	private SolrPersistentEntity<ProductBean> solrEntityMock;
+	@Mock private SolrPersistentEntity<ProductBean> solrEntityMock;
 
-	@Mock
-	private SolrPersistentProperty solrPersistentPropertyMock;
+	@Mock private SolrPersistentProperty solrPersistentPropertyMock;
 
 	@Before
 	@SuppressWarnings("unchecked")
@@ -86,8 +80,10 @@ public class SolrRepositoryFactoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetRepositoryOfUnmanageableType() {
-		new SolrRepositoryFactory(new SolrTemplate(new HttpSolrServer("http://solrserver:8983/solr"), null))
-				.getRepository(UnmanagedEntityRepository.class);
+
+		SolrTemplate template = new SolrTemplate(new HttpSolrServer("http://solrserver:8983/solr"), null);
+		template.afterPropertiesSet();
+		new SolrRepositoryFactory(template).getRepository(UnmanagedEntityRepository.class);
 	}
 
 	@SuppressWarnings("unchecked")

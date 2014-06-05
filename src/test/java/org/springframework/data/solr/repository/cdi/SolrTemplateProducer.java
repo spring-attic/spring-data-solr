@@ -38,9 +38,13 @@ class SolrTemplateProducer {
 
 	@Produces
 	public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
+
 		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(ResourceUtils.getURL(
 				"classpath:org/springframework/data/solr").getPath());
-		return new SolrTemplate(factory);
+
+		SolrTemplate template = new SolrTemplate(factory);
+		template.afterPropertiesSet();
+		return template;
 	}
 
 	@PreDestroy

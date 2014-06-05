@@ -20,16 +20,26 @@ import java.lang.reflect.Field;
 
 import org.springframework.data.mapping.context.AbstractMappingContext;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.util.TypeInformation;
 
 /**
  * Solr specific implementation of {@link org.springframework.data.mapping.context.MappingContext}
  * 
  * @author Christoph Strobl
- * 
  */
 public class SimpleSolrMappingContext extends
 		AbstractMappingContext<SimpleSolrPersistentEntity<?>, SolrPersistentProperty> {
+
+	public SimpleSolrMappingContext() {
+		this(null);
+	}
+
+	public SimpleSolrMappingContext(SolrPersistentEntitySchemaCreator schemaCreator) {
+		if (schemaCreator != null) {
+			setApplicationEventPublisher(new SolrMappingEventPublisher(schemaCreator));
+		}
+	}
 
 	@Override
 	protected <T> SimpleSolrPersistentEntity<?> createPersistentEntity(TypeInformation<T> typeInformation) {

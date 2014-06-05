@@ -79,6 +79,7 @@ public class SolrTemplateTests {
 	@Before
 	public void setUp() {
 		solrTemplate = new SolrTemplate(solrServerMock, "core1");
+		solrTemplate.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

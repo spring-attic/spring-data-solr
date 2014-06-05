@@ -85,6 +85,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
 		solrTemplate = new SolrTemplate(solrServer, null);
+		solrTemplate.afterPropertiesSet();
 	}
 
 	@After

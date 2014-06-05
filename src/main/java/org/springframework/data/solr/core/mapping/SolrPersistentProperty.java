@@ -41,16 +41,40 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @return true if {@link org.apache.solr.client.solrj.beans.Field#value()} contains {@code *}
 	 */
 	boolean containsWildcard();
-	
+
 	/**
 	 * @return true if property is boosted
 	 */
 	boolean isBoosted();
-	
+
 	/**
 	 * @return property boost value if {@link #isBoosted()}, null otherwise
 	 */
 	Float getBoost();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isIndexed();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isStored();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isMultiValued();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	String getSolrTypeName();
 
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 

@@ -15,13 +15,13 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.solr.repository.ProductBean;
+import org.springframework.data.solr.repository.SolrCrudRepository;
 
 /**
  * @author Christoph Strobl
  */
-public interface CdiProductRepository extends CrudRepository<ProductBean, String> {
+public interface CdiProductRepository extends SolrCrudRepository<ProductBean, String> {
 
 	ProductBean findOne(String id);
 

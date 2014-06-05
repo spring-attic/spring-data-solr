@@ -133,4 +133,32 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return Float.isNaN(boost) ? null : boost;
 	}
 
+	@Override
+	public boolean isIndexed() {
+		Indexed indexedAnnotation = getIndexAnnotation();
+		return indexedAnnotation != null && indexedAnnotation.indexed();
+	}
+
+	@Override
+	public boolean isStored() {
+		Indexed indexedAnnotation = getIndexAnnotation();
+		return indexedAnnotation != null && indexedAnnotation.stored();
+	}
+
+	@Override
+	public boolean isMultiValued() {
+		return isCollectionLike();
+	}
+
+	@Override
+	public String getSolrTypeName() {
+		Indexed indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation != null) {
+			if (StringUtils.hasText(indexedAnnotation.type())) {
+				return indexedAnnotation.type();
+			}
+		}
+		return getActualType().getSimpleName();
+	}
+
 }

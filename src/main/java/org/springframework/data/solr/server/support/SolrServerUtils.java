@@ -94,7 +94,7 @@ public class SolrServerUtils {
 		} else if (shortName.equals("CloudSolrServer")) {
 			clone = cloneCloudSolrServer(solrServer, core);
 		} else if (shortName.equals("EmbeddedSolrServer")) {
-			clone = cloneEmbeddedSolrServer(solrServer);
+			clone = cloneEmbeddedSolrServer(solrServer, core);
 		}
 
 		if (clone == null) {
@@ -134,12 +134,12 @@ public class SolrServerUtils {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static SolrServer cloneEmbeddedSolrServer(SolrServer solrServer) {
+	private static SolrServer cloneEmbeddedSolrServer(SolrServer solrServer, String core) {
 		String solrHome = ((EmbeddedSolrServer) solrServer).getCoreContainer().getSolrHome();
 		try {
 			Constructor constructor = ClassUtils.getConstructorIfAvailable(solrServer.getClass(), CoreContainer.class,
 					String.class);
-			return (SolrServer) BeanUtils.instantiateClass(constructor, new CoreContainer(solrHome), null);
+			return (SolrServer) BeanUtils.instantiateClass(constructor, new CoreContainer(solrHome), core);
 		} catch (Exception e) {
 			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
 					+ ".", e);
