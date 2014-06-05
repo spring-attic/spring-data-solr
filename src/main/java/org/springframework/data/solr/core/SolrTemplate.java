@@ -59,8 +59,10 @@ import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.query.result.TermsResultPage;
+import org.springframework.data.solr.core.schema.SolrJsonResponse;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
+import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
@@ -391,6 +393,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrInputDocument document = new SolrInputDocument();
 		getConverter().write(bean, document);
 		return document;
+	}
+
+	/**
+	 * @param collectionName
+	 * @return
+	 * @since 1.3
+	 */
+	public String getSchemaName(String collectionName) {
+		return execute(new SolrCallback<String>() {
+
+			@Override
+			public String doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+				SolrJsonResponse response = SolrSchemaRequest.name().process(solrServer);
+				if (response != null) {
+					return response.getNode("name").asText();
+				}
+				return null;
+			}
+		});
 	}
 
 	private Collection<SolrInputDocument> convertBeansToSolrInputDocuments(Iterable<?> beans) {

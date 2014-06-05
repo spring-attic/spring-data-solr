@@ -45,6 +45,10 @@ public class SolrSchemaRequest extends SolrJsonRequest {
 		return new SolrSchemaRequestBuilder().create();
 	}
 
+	public static SolrSchemaRequest name() {
+		return new SolrSchemaRequestBuilder().forName().build();
+	}
+
 	// -- static
 	public static class SolrSchemaRequestBuilder {
 
@@ -57,6 +61,12 @@ public class SolrSchemaRequest extends SolrJsonRequest {
 
 			method = METHOD.GET;
 			command = "";
+			return this;
+		}
+
+		public SolrSchemaRequestBuilder forName() {
+			schema();
+			command = "name";
 			return this;
 		}
 

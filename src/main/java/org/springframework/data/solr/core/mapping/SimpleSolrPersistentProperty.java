@@ -158,7 +158,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 				return indexedAnnotation.type();
 			}
 		}
-		return getActualType().getSimpleName();
+		return getActualType().getSimpleName().toLowerCase();
 	}
 
 }

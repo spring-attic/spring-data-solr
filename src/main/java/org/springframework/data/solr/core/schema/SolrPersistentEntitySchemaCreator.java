@@ -103,6 +103,7 @@ public class SolrPersistentEntitySchemaCreator implements
 				fieldDef.setMultiValued(persistentProperty.isMultiValued());
 				fieldDef.setIndexed(persistentProperty.isIndexed());
 				fieldDef.setStored(persistentProperty.isStored());
+				fieldDef.setType(persistentProperty.getSolrTypeName());
 
 				schema.addFieldDefinition(fieldDef);
 			}
