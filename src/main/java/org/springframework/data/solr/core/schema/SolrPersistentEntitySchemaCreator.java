@@ -21,11 +21,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.ApplicationListener;
-import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContextEvent;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
-import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.CollectionUtils;
 
@@ -42,19 +40,49 @@ public class SolrPersistentEntitySchemaCreator implements
 
 	private SolrServerFactory factory;
 	private SolrSchemaWriter schemaWriter;
+	private SolrSchemaResolver schemaResolver;
 	private ConcurrentHashMap<Class<?>, Class<?>> processed;
 
 	private Set<Feature> features = new HashSet<Feature>();
+
+	public SolrPersistentEntitySchemaCreator(SolrServerFactory solrServerFactory) {
+		this(solrServerFactory, null);
+	}
 
 	public SolrPersistentEntitySchemaCreator(SolrServerFactory factory, SolrSchemaWriter schemaWriter) {
 		super();
 		this.factory = factory;
 		this.schemaWriter = schemaWriter != null ? schemaWriter : new SolrSchemaWriter(this.factory);
+		this.schemaResolver = new SolrSchemaResolver();
 		this.processed = new ConcurrentHashMap<Class<?>, Class<?>>();
 	}
 
-	public SolrPersistentEntitySchemaCreator(SolrServerFactory solrServerFactory) {
-		this(solrServerFactory, null);
+	private void process(SolrPersistentEntity<?> entity) {
+
+		SchemaDefinition schema = schemaResolver.resolveSchemaForEntity(entity);
+
+		beforeSchemaWrite(entity, schema);
+		schemaWriter.writeSchema(schema);
+		afterSchemaWrite(entity, schema);
+	}
+
+	protected void beforeSchemaWrite(SolrPersistentEntity<?> entity, SchemaDefinition schema) {
+		// before hook
+	}
+
+	protected void afterSchemaWrite(SolrPersistentEntity<?> entity, SchemaDefinition schema) {
+		processed.put(entity.getType(), entity.getType());
+	}
+
+	@Override
+	public void onApplicationEvent(MappingContextEvent<SolrPersistentEntity<?>, SolrPersistentProperty> event) {
+
+		if (features.contains(Feature.CREATE_MISSING_FIELDS)) {
+			SolrPersistentEntity<?> entity = event.getPersistentEntity();
+			if (!processed.contains(entity.getType())) {
+				process(entity);
+			}
+		}
 	}
 
 	public SolrPersistentEntitySchemaCreator enable(Feature feature) {
@@ -77,39 +105,4 @@ public class SolrPersistentEntitySchemaCreator implements
 		features.remove(feature);
 		return this;
 	}
-
-	@Override
-	public void onApplicationEvent(MappingContextEvent<SolrPersistentEntity<?>, SolrPersistentProperty> event) {
-
-		if (features.contains(Feature.CREATE_MISSING_FIELDS)) {
-			SolrPersistentEntity<?> entity = event.getPersistentEntity();
-			if (!processed.contains(entity.getType())) {
-				SchemaDefinition schema = resolveSchemaForEntity(entity);
-				schemaWriter.writeSchema(schema);
-				processed.put(entity.getType(), entity.getType());
-			}
-		}
-	}
-
-	private SchemaDefinition resolveSchemaForEntity(SolrPersistentEntity<?> entity) {
-
-		final SchemaDefinition schema = new SchemaDefinition(entity.getSolrCoreName());
-		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
-
-			@Override
-			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
-
-				FieldDefinition fieldDef = new FieldDefinition(persistentProperty.getFieldName());
-				fieldDef.setMultiValued(persistentProperty.isMultiValued());
-				fieldDef.setIndexed(persistentProperty.isIndexed());
-				fieldDef.setStored(persistentProperty.isStored());
-				fieldDef.setType(persistentProperty.getSolrTypeName());
-
-				schema.addFieldDefinition(fieldDef);
-			}
-		});
-
-		return schema;
-	}
-
 }

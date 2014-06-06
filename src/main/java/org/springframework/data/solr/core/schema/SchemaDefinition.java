@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.schema;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.util.ObjectUtils;
@@ -79,8 +80,16 @@ public class SchemaDefinition {
 		this.collectionName = collectionName;
 	}
 
+	/**
+	 * @author Christoph Strobl
+	 * @since 1.3
+	 */
 	public static interface SchemaField {}
 
+	/**
+	 * @author Christoph Strobl
+	 * @since 1.3
+	 */
 	public static class FieldDefinition implements SchemaField {
 
 		private String name;
@@ -92,6 +101,7 @@ public class SchemaDefinition {
 		private List<Filter> filters;
 		private List<Tokenizer> tokenizers;
 		private boolean multiValued;
+		private boolean required;
 
 		public FieldDefinition() {}
 
@@ -139,8 +149,8 @@ public class SchemaDefinition {
 			return copyFields;
 		}
 
-		public void setCopyFields(List<String> copyFields) {
-			this.copyFields = copyFields;
+		public void setCopyFields(Collection<String> copyFields) {
+			this.copyFields = new ArrayList<String>(copyFields);
 		}
 
 		public List<Filter> getFilters() {
@@ -171,14 +181,30 @@ public class SchemaDefinition {
 			this.multiValued = multiValued;
 		}
 
+		public boolean isRequired() {
+			return required;
+		}
+
+		public void setRequired(boolean required) {
+			this.required = required;
+		}
+
 	}
 
+	/**
+	 * @author Christoph Strobl
+	 * @since 1.3
+	 */
 	public static class CopyFieldDefinition implements SchemaField {
 
 		String source;
 		List<String> destination;
 	}
 
+	/**
+	 * @author Christoph Strobl
+	 * @since 1.3
+	 */
 	public static class Filter {
 
 		String clazz;
@@ -187,6 +213,10 @@ public class SchemaDefinition {
 		String replacement;
 	}
 
+	/**
+	 * @author Christoph Strobl
+	 * @since 1.3
+	 */
 	public static class Tokenizer {
 
 		String clazz;
@@ -203,6 +233,26 @@ public class SchemaDefinition {
 
 	public void addFieldDefinition(FieldDefinition fieldDef) {
 		this.fields.add(fieldDef);
+	}
+
+	public static class FieldDefinitionBuilder {
+
+		private FieldDefinition fieldDef;
+
+		public FieldDefinitionBuilder() {
+			this.fieldDef = new FieldDefinition();
+		}
+
+		public FieldDefinition idFieldDefinition(String fieldname, String type) {
+
+			fieldDef.setName(fieldname);
+			fieldDef.setType(type);
+			fieldDef.setIndexed(true);
+			fieldDef.setStored(true);
+			fieldDef.setMultiValued(false);
+
+			return fieldDef;
+		}
 	}
 
 }

@@ -80,7 +80,7 @@ public class ITestSolrSchemaCreation {
 
 		@Indexed String indexedStringWithoutType;
 
-		@Indexed(name = "namedField", type = "string", indexed = false) String justAStoredField;
+		@Indexed(name = "namedField", type = "string", searchable = false) String justAStoredField;
 
 		@Indexed List<String> listField;
 

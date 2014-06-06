@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import java.util.Collection;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mapping.PersistentProperty;
 
@@ -56,7 +58,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @return
 	 * @since 1.3
 	 */
-	boolean isIndexed();
+	boolean isSearchable();
 
 	/**
 	 * @return
@@ -76,6 +78,18 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 */
 	String getSolrTypeName();
 
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	Object getDefaultValue();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	Collection<String> getCopyFields();
+
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 
 		INSTANCE;
@@ -84,4 +98,17 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 			return source.getFieldName();
 		}
 	}
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isUnique();
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	boolean isRequired();
+
 }

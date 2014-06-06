@@ -48,7 +48,7 @@ public @interface Indexed {
 	 * @return
 	 * @since 1.3
 	 */
-	boolean indexed() default true;
+	boolean searchable() default true;
 
 	/**
 	 * @return
@@ -67,12 +67,6 @@ public @interface Indexed {
 	 * @since 1.3
 	 */
 	String defaultValue() default "";
-
-	/**
-	 * @return
-	 * @since 1.3
-	 */
-	boolean unique() default false;
 
 	/**
 	 * @return
