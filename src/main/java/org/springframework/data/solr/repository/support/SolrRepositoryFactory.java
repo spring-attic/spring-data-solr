@@ -19,6 +19,7 @@ import static org.springframework.data.querydsl.QueryDslUtils.*;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -32,6 +33,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.repository.SolrRepository;
 import org.springframework.data.solr.repository.query.PartTreeSolrQuery;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
@@ -54,9 +56,15 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	private final SolrEntityInformationCreator entityInformationCreator;
 	private SolrServerFactory factory;
 	private SolrTemplateHolder templateHolder = new SolrTemplateHolder();
+	private boolean schemaCreationSupport;
 
 	public SolrRepositoryFactory(SolrOperations solrOperations) {
 		Assert.notNull(solrOperations);
+
+		if (solrOperations instanceof SolrTemplate) {
+			addSchemaCreationFeaturesIfEnabled((SolrTemplate) solrOperations);
+		}
+
 		this.solrOperations = solrOperations;
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(solrOperations.getConverter()
 				.getMappingContext());
@@ -76,6 +84,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	private SolrTemplate createTemplate(SolrServer solrServer) {
 
 		SolrTemplate template = new SolrTemplate(solrServer);
+		addSchemaCreationFeaturesIfEnabled(template);
 		template.afterPropertiesSet();
 		return template;
 	}
@@ -88,10 +97,12 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Object getTargetRepository(RepositoryMetadata metadata) {
+
 		SolrOperations operations = this.solrOperations;
 		if (factory != null) {
 			SolrTemplate template = new SolrTemplate(factory);
 			template.setSolrCore(SolrServerUtils.resolveSolrCoreName(metadata.getDomainType()));
+			addSchemaCreationFeaturesIfEnabled(template);
 			template.afterPropertiesSet();
 			operations = template;
 		}
@@ -102,6 +113,12 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 		this.templateHolder.add(metadata.getDomainType(), operations);
 		return repository;
+	}
+
+	private void addSchemaCreationFeaturesIfEnabled(SolrTemplate template) {
+		if (isSchemaCreationSupport()) {
+			template.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
+		}
 	}
 
 	@Override
@@ -119,6 +136,14 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	@Override
 	protected QueryLookupStrategy getQueryLookupStrategy(Key key) {
 		return new SolrQueryLookupStrategy();
+	}
+
+	public boolean isSchemaCreationSupport() {
+		return schemaCreationSupport;
+	}
+
+	public void setSchemaCreationSupport(boolean schemaCreationSupport) {
+		this.schemaCreationSupport = schemaCreationSupport;
 	}
 
 	private class SolrQueryLookupStrategy implements QueryLookupStrategy {

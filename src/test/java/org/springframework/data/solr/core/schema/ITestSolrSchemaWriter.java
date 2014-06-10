@@ -24,15 +24,21 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.MulticoreSolrServerFactory;
+import org.springframework.data.solr.test.util.ExternalServerWithManagedSchemaRule;
+import org.springframework.util.Assert;
 
 /**
  * @author Christoph Strobl
  */
 public class ITestSolrSchemaWriter {
+
+	public @Rule ExternalServerWithManagedSchemaRule requiresExternalServer = ExternalServerWithManagedSchemaRule
+			.onLocalhost();
 
 	private SolrServer solrServer;
 	private SolrServerFactory factory;
@@ -53,7 +59,7 @@ public class ITestSolrSchemaWriter {
 	}
 
 	@Test
-	@Ignore("does not work")
+	@Ignore("creating new schema on the fly does not work")
 	public void createSchema() {
 		SchemaDefinition def = new SchemaDefinition("foobar");
 		schemaWriter.writeSchema(def);
@@ -62,6 +68,7 @@ public class ITestSolrSchemaWriter {
 	@Test
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
+		Assert.notNull(def);
 	}
 
 	@Test

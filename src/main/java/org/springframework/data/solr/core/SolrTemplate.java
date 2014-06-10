@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -66,6 +68,7 @@ import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of {@link SolrOperations}
@@ -96,7 +99,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	private SolrConverter solrConverter;
 
-	private List<Feature> schemaCreationFeatures;
+	private Set<Feature> schemaCreationFeatures;
 
 	public SolrTemplate(SolrServer solrServer) {
 		this(solrServer, null);
@@ -517,8 +520,16 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.mappingContext = mappingContext;
 	}
 
-	public void setSchemaCreationFeatures(List<Feature> schemaCreationFeatures) {
-		this.schemaCreationFeatures = schemaCreationFeatures;
+	public void setSchemaCreationFeatures(Collection<Feature> schemaCreationFeatures) {
+		this.schemaCreationFeatures = new HashSet<Feature>(schemaCreationFeatures);
+	}
+
+	public Set<Feature> getSchemaCreationFeatures() {
+
+		if (CollectionUtils.isEmpty(this.schemaCreationFeatures)) {
+			return Collections.emptySet();
+		}
+		return Collections.unmodifiableSet(this.schemaCreationFeatures);
 	}
 
 }

@@ -20,6 +20,7 @@
 					<xsd:attribute name="solr-template-ref" type="solrTemplateRef" default="solrTemplate" />
 					<xsd:attribute name="solr-server-ref" type="solrServerRef" default="solrServer" />
 					<xsd:attribute name="multicore-support" type="xsd:boolean" default="false" />
+					<xsd:attribute name="schema-creation-support" type="xsd:boolean" default="false" />
 				</xsd:extension>
 			</xsd:complexContent>
 		</xsd:complexType>

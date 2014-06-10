@@ -25,6 +25,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.data.repository.config.XmlRepositoryConfigurationSource;
 import org.springframework.data.solr.core.SolrExceptionTranslator;
 import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -67,6 +68,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		} else {
 			builder.addPropertyReference("solrServer", attributes.getString("solrServerRef"));
 		}
+		builder.addPropertyValue("schemaCreationSupport", attributes.getBoolean("schemaCreationSupport"));
 	}
 
 	@Override
@@ -89,6 +91,9 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 			builder.addPropertyReference("solrOperations", element.getAttribute("solr-template-ref"));
 		} else {
 			builder.addPropertyReference("solrServer", element.getAttribute("solr-server-ref"));
+		}
+		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
+			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));
 		}
 	}
 }

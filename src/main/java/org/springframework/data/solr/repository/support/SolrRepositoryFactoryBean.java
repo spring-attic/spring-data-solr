@@ -36,6 +36,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	private SolrServer solrServer;
 	private SolrOperations operations;
+	private boolean schemaCreationSupport;
 
 	/**
 	 * Configures the {@link SolrOperations} to be used to create Solr repositories.
@@ -48,6 +49,10 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	public void setSolrServer(SolrServer solrServer) {
 		this.solrServer = solrServer;
+	}
+
+	public void setSchemaCreationSupport(boolean schemaCreationSupport) {
+		this.schemaCreationSupport = schemaCreationSupport;
 	}
 
 	/**
@@ -69,9 +74,10 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	@Override
 	protected RepositoryFactorySupport doCreateRepositoryFactory() {
-		if (operations != null) {
-			return new SolrRepositoryFactory(this.operations);
-		}
-		return new SolrRepositoryFactory(this.solrServer);
+
+		SolrRepositoryFactory factory = operations != null ? new SolrRepositoryFactory(this.operations)
+				: new SolrRepositoryFactory(this.solrServer);
+		factory.setSchemaCreationSupport(schemaCreationSupport);
+		return factory;
 	}
 }

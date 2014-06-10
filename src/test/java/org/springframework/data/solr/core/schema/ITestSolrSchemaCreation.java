@@ -20,19 +20,22 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.AssumptionViolatedException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
-import org.springframework.util.StringUtils;
+import org.springframework.data.solr.test.util.ExternalServerWithManagedSchemaRule;
 
 /**
  * @author Christoph Strobl
  */
 public class ITestSolrSchemaCreation {
+
+	public @Rule ExternalServerWithManagedSchemaRule requiresExternalServer = ExternalServerWithManagedSchemaRule
+			.onLocalhost();
 
 	private SolrTemplate template;
 
@@ -42,28 +45,8 @@ public class ITestSolrSchemaCreation {
 		template.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
 		template.afterPropertiesSet();
 
-		assertServerPresent(template);
-
 		template.delete(new SimpleQuery("*:*"));
 		template.commit();
-	}
-
-	// TODO: move this to @Rule
-	private void assertServerPresent(SolrTemplate template) {
-
-		String errMsg = "";
-		try {
-			String schemaName = template.getSchemaName("collection1");
-			if (!schemaName.equalsIgnoreCase("example-schemaless")) {
-				errMsg = "Expected to run in schemaless mode";
-			}
-		} catch (Exception e) {
-			errMsg = "Solr Server not running - " + e.getMessage();
-		}
-
-		if (StringUtils.hasText(errMsg)) {
-			throw new AssumptionViolatedException(errMsg);
-		}
 	}
 
 	@Test

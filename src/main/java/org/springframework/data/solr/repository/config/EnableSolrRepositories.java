@@ -129,4 +129,9 @@ public @interface EnableSolrRepositories {
 	 * @since 1.1
 	 */
 	boolean multicoreSupport() default false;
+
+	/**
+	 * @return since 1.3
+	 */
+	boolean schemaCreationSupport() default false;
 }
