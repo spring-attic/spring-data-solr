@@ -182,6 +182,60 @@ You can set up repository scanning via xml configuration, which will happily cre
 </beans>
 ```
 
+### Automatic Schema Population
+Automatic schema population will inspect your domain types whenever the applications context is refreshed and populate new fields to your index based on the properties configuration.
+This requires solr to run in [Schemaless Mode](https://cwiki.apache.org/confluence/display/solr/Schemaless+Mode).
+
+Use `@Indexed` to provide additional details like specific solr types to use.
+
+```java
+@Configuration
+@EnableSolrRepositories(schemaCreationSupport = true, multicoreSupport = true)
+class Config {
+
+  @Bean
+  public SolrServer solrServer() {
+    return new HttpSolrServer("http://localhost:8983/solr");
+  }
+}
+
+@Document(coreName="collection1")
+class Product {
+  
+  @Id String id;
+  @Indexed(solrType="text_general") String author;
+  @Indexed("cat") List<String> category;
+
+}
+```
+
+```javascript
+// curl ../solr/collection1/schema/fields -X POST -H 'Content-type:application/json'
+[
+  {
+    "name":"id",
+    "type":"string",
+    "stored":true,
+    "indexed":true,
+    "multiValued":false
+  }
+  {
+    "name":"author",
+    "type":"text_general",
+    "stored":true,
+    "indexed":true,
+    "multiValued":false
+  }
+  {
+    "name":"cat",
+    "type":"string",
+    "stored":true,
+    "indexed":true,
+    "multiValued":true
+  }
+]
+```
+
 Maven
 -----
 

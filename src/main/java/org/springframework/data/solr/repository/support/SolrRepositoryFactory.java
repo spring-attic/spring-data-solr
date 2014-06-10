@@ -138,10 +138,18 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 		return new SolrQueryLookupStrategy();
 	}
 
+	/**
+	 * @return
+	 * @since 1.3
+	 */
 	public boolean isSchemaCreationSupport() {
 		return schemaCreationSupport;
 	}
 
+	/**
+	 * @param schemaCreationSupport
+	 * @since 1.3
+	 */
 	public void setSchemaCreationSupport(boolean schemaCreationSupport) {
 		this.schemaCreationSupport = schemaCreationSupport;
 	}

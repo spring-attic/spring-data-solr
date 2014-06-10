@@ -81,6 +81,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return fieldName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isReadonly()
+	 */
 	@Override
 	public boolean isReadonly() {
 
@@ -98,6 +102,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return false;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.mapping.model.AnnotationBasedPersistentProperty#isIdProperty()
+	 */
 	@Override
 	public boolean isIdProperty() {
 		if (super.isIdProperty()) {
@@ -107,11 +115,19 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return SUPPORTED_ID_PROPERTY_NAMES.contains(getFieldName());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.mapping.model.AbstractPersistentProperty#createAssociation()
+	 */
 	@Override
 	protected Association<SolrPersistentProperty> createAssociation() {
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#containsWildcard()
+	 */
 	@Override
 	public boolean containsWildcard() {
 		String fieldName = getFieldName();
@@ -127,6 +143,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return findAnnotation(Indexed.class);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isBoosted()
+	 */
 	@Override
 	public boolean isBoosted() {
 
@@ -134,6 +154,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return boost != null && !Float.isNaN(boost);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getBoost()
+	 */
 	@Override
 	public Float getBoost() {
 
@@ -145,6 +169,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return Float.isNaN(boost) ? null : boost;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isSearchable()
+	 */
 	@Override
 	public boolean isSearchable() {
 
@@ -156,6 +184,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return indexedAnnotation != null && indexedAnnotation.searchable();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isStored()
+	 */
 	@Override
 	public boolean isStored() {
 
@@ -167,11 +199,19 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return indexedAnnotation != null && indexedAnnotation.stored();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isMultiValued()
+	 */
 	@Override
 	public boolean isMultiValued() {
 		return isCollectionLike();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getSolrTypeName()
+	 */
 	@Override
 	public String getSolrTypeName() {
 		Indexed indexedAnnotation = getIndexAnnotation();
@@ -183,6 +223,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return getActualType().getSimpleName().toLowerCase();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getDefaultValue()
+	 */
 	@Override
 	public Object getDefaultValue() {
 
@@ -195,6 +239,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getCopyFields()
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<String> getCopyFields() {
@@ -207,11 +255,19 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return Collections.emptyList();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isUnique()
+	 */
 	@Override
 	public boolean isUnique() {
 		return isIdProperty();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isRequired()
+	 */
 	@Override
 	public boolean isRequired() {
 

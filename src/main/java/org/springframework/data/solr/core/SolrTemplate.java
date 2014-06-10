@@ -516,14 +516,26 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	}
 
+	/**
+	 * @since 1.3
+	 * @param mappingContext
+	 */
 	public void setMappingContext(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
 		this.mappingContext = mappingContext;
 	}
 
+	/**
+	 * @since 1.3
+	 * @param schemaCreationFeatures
+	 */
 	public void setSchemaCreationFeatures(Collection<Feature> schemaCreationFeatures) {
 		this.schemaCreationFeatures = new HashSet<Feature>(schemaCreationFeatures);
 	}
 
+	/**
+	 * @since 1.3
+	 * @return
+	 */
 	public Set<Feature> getSchemaCreationFeatures() {
 
 		if (CollectionUtils.isEmpty(this.schemaCreationFeatures)) {

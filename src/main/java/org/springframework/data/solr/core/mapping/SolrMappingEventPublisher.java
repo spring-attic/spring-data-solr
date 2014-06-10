@@ -20,6 +20,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mapping.context.MappingContextEvent;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 
+/**
+ * @author Christoph Strobl
+ * @since 1.3
+ */
 public class SolrMappingEventPublisher implements ApplicationEventPublisher {
 
 	SolrPersistentEntitySchemaCreator schmeaCreator;
@@ -28,6 +32,10 @@ public class SolrMappingEventPublisher implements ApplicationEventPublisher {
 		this.schmeaCreator = schemaCreator;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationEventPublisher#publishEvent(org.springframework.context.ApplicationEvent)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void publishEvent(ApplicationEvent event) {

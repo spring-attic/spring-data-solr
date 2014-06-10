@@ -49,6 +49,9 @@ public class ITestSolrSchemaCreation {
 		template.commit();
 	}
 
+	/**
+	 * @see DATASOLR-72
+	 */
 	@Test
 	public void beanShouldBeSavedCorrectly() {
 

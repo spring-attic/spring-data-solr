@@ -55,49 +55,40 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	Float getBoost();
 
 	/**
-	 * @return
+	 * @return true if property shall be indexed in solr.
 	 * @since 1.3
 	 */
 	boolean isSearchable();
 
 	/**
-	 * @return
+	 * @return true if property shall be stored and returned in result documents.
 	 * @since 1.3
 	 */
 	boolean isStored();
 
 	/**
-	 * @return
+	 * @see #isCollectionLike()
+	 * @return true if property is collection like
 	 * @since 1.3
 	 */
 	boolean isMultiValued();
 
 	/**
-	 * @return
+	 * @return mapped solr type name
 	 * @since 1.3
 	 */
 	String getSolrTypeName();
 
 	/**
-	 * @return
 	 * @since 1.3
 	 */
 	Object getDefaultValue();
 
 	/**
-	 * @return
+	 * @return list of fields the current fields value shall be copied to
 	 * @since 1.3
 	 */
 	Collection<String> getCopyFields();
-
-	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
-
-		INSTANCE;
-
-		public String convert(SolrPersistentProperty source) {
-			return source.getFieldName();
-		}
-	}
 
 	/**
 	 * @return
@@ -110,5 +101,14 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @since 1.3
 	 */
 	boolean isRequired();
+
+	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
+
+		INSTANCE;
+
+		public String convert(SolrPersistentProperty source) {
+			return source.getFieldName();
+		}
+	}
 
 }

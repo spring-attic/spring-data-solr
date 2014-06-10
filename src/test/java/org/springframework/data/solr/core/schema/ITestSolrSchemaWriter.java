@@ -51,6 +51,9 @@ public class ITestSolrSchemaWriter {
 		schemaWriter = new SolrSchemaWriter(factory);
 	}
 
+	/**
+	 * @see DATASOLR-72
+	 */
 	@Test
 	public void getSchemaVersionShouldReturnVersionNumberCorrectly() {
 
@@ -58,6 +61,9 @@ public class ITestSolrSchemaWriter {
 		assertThat(version, equalTo(1.5D));
 	}
 
+	/**
+	 * @see DATASOLR-72
+	 */
 	@Test
 	@Ignore("creating new schema on the fly does not work")
 	public void createSchema() {
@@ -65,12 +71,18 @@ public class ITestSolrSchemaWriter {
 		schemaWriter.writeSchema(def);
 	}
 
+	/**
+	 * @see DATASOLR-72
+	 */
 	@Test
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
 		Assert.notNull(def);
 	}
 
+	/**
+	 * @see DATASOLR-72
+	 */
 	@Test
 	public void writeSchemaDefintion() {
 

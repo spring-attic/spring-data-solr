@@ -36,6 +36,9 @@ import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Christoph Strobl
  */
@@ -187,14 +190,18 @@ public class SolrSchmeaResolverUnitTests {
 	}
 
 	/**
+	 * @throws JsonProcessingException
 	 * @see DATASOLR-72
 	 */
 	@Test
-	public void collectionPropertyTypeShouldBeResolvedCorrectly() {
+	public void collectionPropertyTypeShouldBeResolvedCorrectly() throws JsonProcessingException {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("collectionProperty",
 				Foo.class));
 		assertThat(fieldDef, hasProperty("type", equalTo("string")));
+
+		ObjectMapper mapper = new ObjectMapper();
+		System.out.println(mapper.writeValueAsString(fieldDef));
 	}
 
 	SolrPersistentEntity<?> createEntity(Class<?> type) {

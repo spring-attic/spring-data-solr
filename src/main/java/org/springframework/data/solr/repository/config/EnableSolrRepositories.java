@@ -131,7 +131,9 @@ public @interface EnableSolrRepositories {
 	boolean multicoreSupport() default false;
 
 	/**
-	 * @return since 1.3
+	 * Configure schema creation support using the solr schema api.
+	 * 
+	 * @since 1.3
 	 */
 	boolean schemaCreationSupport() default false;
 }
