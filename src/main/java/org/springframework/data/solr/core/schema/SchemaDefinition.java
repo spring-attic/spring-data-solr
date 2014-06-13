@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -74,6 +75,33 @@ public class SchemaDefinition {
 
 	public void setUniqueKey(String uniqueKey) {
 		this.uniqueKey = uniqueKey;
+	}
+
+	public boolean containsField(String name) {
+		return getFieldDefinition(name) != null;
+	}
+
+	public FieldDefinition getFieldDefinition(String name) {
+
+		if (CollectionUtils.isEmpty(this.fields)) {
+			return null;
+		}
+
+		for (FieldDefinition fd : this.fields) {
+			if (ObjectUtils.nullSafeEquals(fd.getName(), name)) {
+				return fd;
+			}
+		}
+
+		return null;
+	}
+
+	public void addFieldDefinition(FieldDefinition fieldDef) {
+
+		if (this.fields == null) {
+			this.fields = new ArrayList<FieldDefinition>();
+		}
+		this.fields.add(fieldDef);
 	}
 
 	public void setCollectionName(String collectionName) {
@@ -220,19 +248,6 @@ public class SchemaDefinition {
 	public static class Tokenizer {
 
 		String clazz;
-	}
-
-	public boolean containsField(String name) {
-		for (FieldDefinition fd : this.fields) {
-			if (ObjectUtils.nullSafeEquals(fd.getName(), name)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void addFieldDefinition(FieldDefinition fieldDef) {
-		this.fields.add(fieldDef);
 	}
 
 	public static class FieldDefinitionBuilder {

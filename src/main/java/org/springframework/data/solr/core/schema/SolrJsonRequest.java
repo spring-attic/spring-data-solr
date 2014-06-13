@@ -16,6 +16,8 @@
 package org.springframework.data.solr.core.schema;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.ContentStream;
 import org.springframework.util.StopWatch;
+import org.springframework.util.StreamUtils;
 
 /**
  * @author Christoph Strobl
@@ -86,6 +89,37 @@ public class SolrJsonRequest extends SolrRequest {
 		}
 
 		contentStream.add(getContentParser().parse(content));
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getMethod().toString());
+		sb.append(" ");
+		sb.append(getPath());
+		sb.append("\r\n");
+		sb.append(quietlyReadContentStreams());
+
+		return sb.toString();
+	}
+
+	private String quietlyReadContentStreams() {
+		StringBuilder sb = new StringBuilder();
+		if (contentStream != null) {
+			for (ContentStream stream : this.contentStream) {
+				InputStream ioStream = null;
+				try {
+					ioStream = stream.getStream();
+					sb.append(StreamUtils.copyToString(ioStream, Charset.forName("UTF-8")));
+				} catch (IOException e) {} finally {
+					if (ioStream != null) {
+						try {
+							ioStream.close();
+						} catch (IOException e) {}
+					}
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 }

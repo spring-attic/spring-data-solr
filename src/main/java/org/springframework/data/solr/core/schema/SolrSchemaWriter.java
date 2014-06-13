@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -95,11 +96,14 @@ public class SolrSchemaWriter {
 
 		try {
 			SolrJsonResponse response = SolrSchemaRequest.schema().process(factory.getSolrServer(collectionName));
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.enable(MapperFeature.AUTO_DETECT_CREATORS);
-			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-			mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-			return mapper.readValue(response.getNode("schema").toString(), SchemaDefinition.class);
+			if (response != null && response.getNode("schema") != null) {
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.enable(MapperFeature.AUTO_DETECT_CREATORS);
+				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+				mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+				return mapper.readValue(response.getNode("schema").toString(), SchemaDefinition.class);
+			}
+			return null;
 		} catch (SolrServerException e) {
 			throw EXCEPTION_TRANSLATOR.translateExceptionIfPossible(new RuntimeException(e));
 		} catch (IOException e) {
@@ -112,7 +116,8 @@ public class SolrSchemaWriter {
 	Double retrieveSchemaVersion(String collectionName) {
 		try {
 			SolrJsonResponse response = SolrSchemaRequest.version().process(factory.getSolrServer(collectionName));
-			return response.getNode("version").asDouble();
+			JsonNode node = response.getNode("version");
+			return node != null ? node.asDouble() : Double.NaN;
 		} catch (SolrServerException e) {
 			EXCEPTION_TRANSLATOR.translateExceptionIfPossible(new RuntimeException(e));
 		} catch (IOException e) {
