@@ -91,6 +91,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		if (query == null) {
 			return null;
 		}
+
 		return query.addSort(sort);
 	}
 

@@ -197,4 +197,6 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Query(value = "name:?0", delete = true)
 	void removeUsingAnnotatedQuery(String name);
 
+	List<ProductBean> findTop2ByNameStartingWith(String name);
+
 }

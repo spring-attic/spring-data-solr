@@ -331,6 +331,14 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return solrQueryMethod.isDeleteQuery();
 	}
 
+	/**
+	 * @since 1.3
+	 * @return
+	 */
+	public boolean isLimiting() {
+		return false;
+	}
+
 	private interface QueryExecution {
 		Object execute(Query query);
 	}
@@ -365,7 +373,10 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
+
+			if (query.getPageRequest() == null) {
+				query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
+			}
 			return executeFind(query).getContent();
 		}
 

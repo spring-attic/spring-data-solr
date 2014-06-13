@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.SolrOperations;
@@ -45,7 +46,9 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
 		Query query = new SolrQueryCreator(tree, parameterAccessor, mappingContext).createQuery();
 		appendProjection(query);
-
+		if (tree.isLimiting()) {
+			query.setPageRequest(new PageRequest(0, tree.getMaxResults()));
+		}
 		return query;
 	}
 
@@ -64,6 +67,16 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 	@Override
 	public boolean isDeleteQuery() {
 		return tree.isDelete();
+	}
+
+	/**
+	 * @see PartTree#isLimiting()
+	 * @return
+	 * @since 1.3
+	 */
+	@Override
+	public boolean isLimiting() {
+		return tree.isLimiting();
 	}
 
 }

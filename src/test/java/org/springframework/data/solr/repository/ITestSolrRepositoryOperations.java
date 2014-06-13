@@ -816,6 +816,16 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultAppliesLimitationCorrectly() {
+
+		List<ProductBean> result = repo.findTop2ByNameStartingWith("na");
+		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
+	}
+
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
 		return createProductBean(id, popularity, available, "");
 	}
