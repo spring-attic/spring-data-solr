@@ -23,6 +23,7 @@ import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
 import org.joda.time.DateTime;
@@ -814,6 +815,70 @@ public class ITestSolrRepositoryOperations {
 		repo.removeUsingAnnotatedQuery(NAMED_PRODUCT.getName());
 		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
 		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
+	}
+
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultAppliesLimitationCorrectly() {
+
+		List<ProductBean> result = repo.findTop2ByNameStartingWith("na");
+		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
+	}
+
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultAppliesLimitationForPageableCorrectly() {
+
+		List<ProductBean> beans = new ArrayList<ProductBean>(10);
+		for (int i = 0; i < 10; i++) {
+			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
+		}
+
+		repo.save(beans);
+
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(0, 2));
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(2));
+		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(0), beans.get(1)));
+	}
+
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultAppliesLimitationForPageableCorrectlyForPage1() {
+
+		List<ProductBean> beans = new ArrayList<ProductBean>(10);
+		for (int i = 0; i < 10; i++) {
+			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
+		}
+
+		repo.save(beans);
+
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 2));
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(2)));
+	}
+
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultReturnsEmptyListIfOusideOfRange() {
+
+		List<ProductBean> beans = new ArrayList<ProductBean>(10);
+		for (int i = 0; i < 10; i++) {
+			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
+		}
+
+		repo.save(beans);
+
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 5));
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(0));
+		Assert.assertThat(result.hasNext(), IsEqual.equalTo(false));
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {
