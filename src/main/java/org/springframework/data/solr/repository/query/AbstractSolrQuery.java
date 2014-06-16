@@ -23,6 +23,7 @@ import org.apache.solr.common.params.HighlightParams;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
@@ -67,6 +68,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	private final SolrOperations solrOperations;
 	private final SolrQueryMethod solrQueryMethod;
+
+	public final int UNLIMITED = 1;
 
 	private final GenericConversionService conversionService = new GenericConversionService();
 
@@ -331,6 +334,45 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return solrQueryMethod.isDeleteQuery();
 	}
 
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	public boolean isLimiting() {
+		return false;
+	}
+
+	/**
+	 * @return
+	 * @since 1.3
+	 */
+	public int getLimit() {
+		return UNLIMITED;
+	}
+
+	protected Pageable getLimitingPageable(final Pageable source, final int limit) {
+
+		if (source == null) {
+			return new PageRequest(0, limit);
+		}
+
+		return new PageRequest(source.getPageNumber(), source.getPageSize(), source.getSort()) {
+
+			private static final long serialVersionUID = 8100166028148948968L;
+
+			@Override
+			public int getOffset() {
+				return source.getOffset();
+			}
+
+			@Override
+			public int getPageSize() {
+				return limit;
+			}
+
+		};
+	}
+
 	private interface QueryExecution {
 		Object execute(Query query);
 	}
@@ -346,7 +388,6 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForPage(query, metadata.getJavaType());
 		}
-
 	}
 
 	/**
@@ -357,15 +398,35 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 * @author Christoph Strobl
 	 */
 	class CollectionExecution extends AbstractQueryExecution {
+
 		private final Pageable pageable;
 
 		public CollectionExecution(Pageable pageable) {
 			this.pageable = pageable;
 		}
 
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
 		public Object execute(Query query) {
-			query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
+
+			if (!isLimiting()) {
+
+				query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
+				return executeFind(query).getContent();
+			}
+
+			if (pageable == null && isLimiting()) {
+				return executeFind(query.setPageRequest(new PageRequest(0, getLimit()))).getContent();
+			}
+
+			if (getLimit() > 0) {
+				if (pageable.getOffset() > getLimit()) {
+					return new PageImpl(java.util.Collections.emptyList(), pageable, getLimit());
+				}
+				if (pageable.getOffset() + pageable.getPageSize() > getLimit()) {
+					query.setPageRequest(getLimitingPageable(pageable, getLimit() - pageable.getOffset()));
+				}
+			}
 			return executeFind(query).getContent();
 		}
 
@@ -390,7 +451,27 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			query.setPageRequest(getPageable());
+
+			Pageable pageToUse = getPageable();
+
+			if (isLimiting()) {
+
+				int limit = getLimit();
+				if (pageToUse == null) {
+					pageToUse = new PageRequest(0, limit);
+				}
+
+				if (limit > 0) {
+					if (pageToUse.getOffset() > limit) {
+						return new PageImpl(java.util.Collections.emptyList(), pageToUse, limit);
+					}
+					if (pageToUse.getOffset() + pageToUse.getPageSize() > limit) {
+						pageToUse = getLimitingPageable(pageToUse, limit - pageToUse.getOffset());
+					}
+				}
+			}
+
+			query.setPageRequest(pageToUse);
 			return executeFind(query);
 		}
 

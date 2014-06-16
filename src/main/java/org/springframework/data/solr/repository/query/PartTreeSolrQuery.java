@@ -45,7 +45,6 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 	protected Query createQuery(SolrParameterAccessor parameterAccessor) {
 		Query query = new SolrQueryCreator(tree, parameterAccessor, mappingContext).createQuery();
 		appendProjection(query);
-
 		return query;
 	}
 
@@ -64,6 +63,23 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 	@Override
 	public boolean isDeleteQuery() {
 		return tree.isDelete();
+	}
+
+	/**
+	 * @see PartTree#isLimiting()
+	 * @since 1.3
+	 */
+	@Override
+	public boolean isLimiting() {
+		return tree.isLimiting();
+	}
+
+	@Override
+	public int getLimit() {
+		if (isLimiting()) {
+			return this.tree.getMaxResults();
+		}
+		return super.getLimit();
 	}
 
 }
