@@ -199,4 +199,6 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findTop2ByNameStartingWith(String name);
 
+	Page<ProductBean> findTop2ByNameStartsWith(String name, Pageable page);
+
 }

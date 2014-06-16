@@ -23,6 +23,7 @@ import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.Is;
+import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
 import org.joda.time.DateTime;
@@ -458,13 +459,13 @@ public class ITestSolrRepositoryOperations {
 		Pageable pageable = new PageRequest(0, 2);
 		Page<ProductBean> page1 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(pageable.getPageSize(), page1.getNumberOfElements());
-		Assert.assertTrue(page1.hasNextPage());
+		Assert.assertTrue(page1.hasNext());
 		Assert.assertEquals(3, page1.getTotalElements());
 
 		pageable = new PageRequest(1, 2);
 		Page<ProductBean> page2 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(1, page2.getNumberOfElements());
-		Assert.assertFalse(page2.hasNextPage());
+		Assert.assertFalse(page2.hasNext());
 		Assert.assertEquals(3, page2.getTotalElements());
 	}
 
@@ -824,6 +825,24 @@ public class ITestSolrRepositoryOperations {
 
 		List<ProductBean> result = repo.findTop2ByNameStartingWith("na");
 		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
+	}
+
+	/**
+	 * @see DATASOLR-170
+	 */
+	@Test
+	public void findTopNResultAppliesLimitationForPageableCorrectly() {
+
+		List<ProductBean> beans = new ArrayList<ProductBean>(10);
+		for (int i = 0; i < 10; i++) {
+			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
+		}
+
+		repo.save(beans);
+
+		Page<ProductBean> result = repo.findTop2ByNameStartsWith("to", new PageRequest(1, 5));
+		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(2));
+		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(5), beans.get(6)));
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

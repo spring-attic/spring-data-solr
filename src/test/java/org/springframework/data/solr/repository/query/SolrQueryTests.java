@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 
 import org.apache.solr.common.params.HighlightParams;
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,8 @@ import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrCallback;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.convert.SolrConverter;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightQuery;
@@ -52,29 +55,31 @@ import org.springframework.data.solr.repository.support.MappingSolrEntityInforma
 
 /**
  * @author Christoph Strobl
- * 
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryTests {
 
-	@Mock
-	private RepositoryMetadata metadataMock;
+	@Mock private RepositoryMetadata metadataMock;
 
-	@Mock
-	private SolrOperations solrOperationsMock;
+	@Mock private SolrOperations solrOperationsMock;
 
-	@Mock
-	private SolrPersistentEntity<ProductBean> persitentEntityMock;
+	@Mock private SolrPersistentEntity<ProductBean> persitentEntityMock;
 
 	private SolrEntityInformationCreator entityInformationCreator;
+
+	private @Mock SolrConverter solrConverterMock;
+	private SimpleSolrMappingContext mappingContext;
 
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
+		mappingContext = new SimpleSolrMappingContext();
 		entityInformationCreator = new SolrEntityInformationCreatorImpl();
 		Mockito.when(persitentEntityMock.getType()).thenReturn(ProductBean.class);
 		Mockito.when(solrOperationsMock.execute(Matchers.any(SolrCallback.class))).thenReturn(
 				new PageImpl<ProductBean>(Collections.<ProductBean> emptyList()));
+		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
+		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContext);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -158,6 +163,31 @@ public class SolrQueryTests {
 		Assert.assertEquals("{post}", capturedOptions.getHighlightParameterValue(HighlightParams.TAG_POST));
 	}
 
+	/**
+	 * @see DATASOLR-170
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void shouldApplyLimitCorrectlyToPage() throws NoSuchMethodException, SecurityException {
+
+		Mockito.when(metadataMock.getDomainType()).thenReturn((Class) ProductBean.class);
+		Mockito.when(metadataMock.getReturnedDomainClass(Matchers.any(Method.class))).thenReturn((Class) ProductBean.class);
+
+		Method method = Repo1.class.getMethod("findTop5ByName", String.class, Pageable.class);
+		SolrQueryMethod sqm = createSolrQueryMethodFrom(method);
+
+		PartTreeSolrQuery ptsq = new PartTreeSolrQuery(sqm, this.solrOperationsMock);
+
+		ptsq.execute(new Object[] { "foo", new PageRequest(1, 10) });
+
+		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(), (Class<?>) Matchers.any());
+
+		Assert.assertThat(captor.getValue().getPageRequest().getPageNumber(), IsEqual.equalTo(1));
+		Assert.assertThat(captor.getValue().getPageRequest().getPageSize(), IsEqual.equalTo(5));
+	}
+
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
@@ -185,7 +215,8 @@ public class SolrQueryTests {
 		@Highlight
 		Page<ProductBean> findAndApplyHighlighting(Pageable page);
 
-		@Highlight(fields = { "name", "description" }, fragsize = 10, snipplets = 20, prefix = "<b>", postfix = "</b>", query = "name:with", formatter = "simple")
+		@Highlight(fields = { "name", "description" }, fragsize = 10, snipplets = 20, prefix = "<b>", postfix = "</b>",
+				query = "name:with", formatter = "simple")
 		Page<ProductBean> findAndApplyHighlightingAllParameters(Pageable page);
 
 		@Highlight(query = "name:*?0*")
@@ -193,6 +224,8 @@ public class SolrQueryTests {
 
 		@Highlight(formatter = "postingshighlighter", prefix = "{pre}", postfix = "{post}")
 		Page<ProductBean> findAndApplyHighlightingWithNonDefaultFormatter(Pageable page);
+
+		Page<ProductBean> findTop5ByName(String name, Pageable page);
 
 	}
 

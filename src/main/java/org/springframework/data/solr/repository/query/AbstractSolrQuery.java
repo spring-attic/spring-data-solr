@@ -401,7 +401,28 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			query.setPageRequest(getPageable());
+
+			if (isLimiting()) {
+				final int limitedPageSize = query.getPageRequest().getPageSize();
+				query.setPageRequest(new PageRequest(getPageable().getPageNumber(), getPageable().getPageSize(), getPageable()
+						.getSort()) {
+
+					private static final long serialVersionUID = 8100166028148948968L;
+
+					@Override
+					public int getOffset() {
+						return getPageable().getOffset();
+					}
+
+					@Override
+					public int getPageSize() {
+						return limitedPageSize;
+					}
+
+				});
+			} else {
+				query.setPageRequest(getPageable());
+			}
 			return executeFind(query);
 		}
 
