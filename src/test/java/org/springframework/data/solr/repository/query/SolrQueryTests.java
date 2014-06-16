@@ -35,13 +35,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrCallback;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.core.mapping.SimpleSolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
@@ -67,19 +71,19 @@ public class SolrQueryTests {
 
 	private SolrEntityInformationCreator entityInformationCreator;
 
-	private @Mock SolrConverter solrConverterMock;
-	private SimpleSolrMappingContext mappingContext;
+	private SolrConverter solrConverter;
+	private MappingContext<SimpleSolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
 		mappingContext = new SimpleSolrMappingContext();
+		solrConverter = new MappingSolrConverter(mappingContext);
 		entityInformationCreator = new SolrEntityInformationCreatorImpl();
 		Mockito.when(persitentEntityMock.getType()).thenReturn(ProductBean.class);
 		Mockito.when(solrOperationsMock.execute(Matchers.any(SolrCallback.class))).thenReturn(
 				new PageImpl<ProductBean>(Collections.<ProductBean> emptyList()));
-		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
-		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContext);
+		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverter);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
