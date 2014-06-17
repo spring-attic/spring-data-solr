@@ -438,7 +438,18 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			while (it.hasNext()) {
 				items.add(readValue(it.next(), componentType, parent));
 			}
-			return items;
+
+			return type.getType().isArray() ? convertItemsToArrayOfType(type, items) : items;
+		}
+
+		private Object convertItemsToArrayOfType(TypeInformation<?> type, Collection<Object> items) {
+
+			Object[] newArray = (Object[]) java.lang.reflect.Array.newInstance(type.getActualType().getType(), items.size());
+			Object[] itemsArray = items.toArray();
+			for (int i = 0; i < itemsArray.length; i++) {
+				newArray[i] = itemsArray[i];
+			}
+			return newArray;
 		}
 
 	}

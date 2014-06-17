@@ -744,6 +744,20 @@ public class MappingSolrConverterTests {
 		Assert.assertThat(target.stringWithPrefix, IsEqual.equalTo("value_1"));
 	}
 
+	/**
+	 * @see DATASOLR-171
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void shouldUseConstructorCorrectlyWhenMultivaluedConvertedToArray() {
+
+		SolrDocument document = new SolrDocument();
+		document.addField("array", Arrays.asList("v-1", "v-2"));
+
+		BeanWithArrayConstructor target = converter.read(BeanWithArrayConstructor.class, document);
+		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -752,31 +766,25 @@ public class MappingSolrConverterTests {
 
 	public static class BeanWithCustomTypes {
 
-		@Field
-		GeoLocation location;
+		@Field GeoLocation location;
 
-		@Field
-		List<GeoLocation> locations;
+		@Field List<GeoLocation> locations;
 
 	}
 
 	public static class BeanWithSimpleTypes {
 
-		@Field
-		int simpleIntProperty;
+		@Field int simpleIntProperty;
 
-		@Field
-		boolean simpleBoolProperty;
+		@Field boolean simpleBoolProperty;
 
-		@Field
-		float simpleFloatProperty;
+		@Field float simpleFloatProperty;
 
 	}
 
 	public static class BeanWithNamedFields {
 
-		@Field("namedProperty")
-		String name;
+		@Field("namedProperty") String name;
 
 	}
 
@@ -800,38 +808,29 @@ public class MappingSolrConverterTests {
 
 	public static class BeanWithDefaultTypes {
 
-		@Field
-		String stringProperty;
+		@Field String stringProperty;
 
-		@Field
-		Integer intProperty;
+		@Field Integer intProperty;
 
-		@Field
-		List<String> listOfString;
+		@Field List<String> listOfString;
 
-		@Field
-		String[] arrayOfString;
+		@Field String[] arrayOfString;
 
-		@Field
-		Date dateProperty;
+		@Field Date dateProperty;
 
 	}
 
 	public static class BeanWithCatchAllField {
 
-		@Indexed(readonly = true)
-		@Field("stringProperty_*")
-		String[] allStringProperties;
+		@Indexed(readonly = true) @Field("stringProperty_*") String[] allStringProperties;
 
 	}
 
 	public static class BeanWithConstructor {
 
-		@Field
-		String stringProperty;
+		@Field String stringProperty;
 
-		@Field
-		Integer intProperty;
+		@Field Integer intProperty;
 
 		public BeanWithConstructor(String stringProperty, Integer intProperty) {
 			super();
@@ -843,91 +842,78 @@ public class MappingSolrConverterTests {
 
 	public class BeanWithWildcards {
 
-		@Field("field_with_trailing_wildcard_*")
-		String filedWithTrailingWildcard;
+		@Field("field_with_trailing_wildcard_*") String filedWithTrailingWildcard;
 
-		@Field("*_field_with_leading_wildcard")
-		String fieldWithLeadingWildcard;
+		@Field("*_field_with_leading_wildcard") String fieldWithLeadingWildcard;
 
-		@Field("listFieldWithTrailingWildcard_*")
-		List<String> listFieldWithTrailingWildcard;
+		@Field("listFieldWithTrailingWildcard_*") List<String> listFieldWithTrailingWildcard;
 
-		@Field("arrayFieldWithTrailingWildcard_*")
-		String[] arrayFieldWithTrailingWildcard;
+		@Field("arrayFieldWithTrailingWildcard_*") String[] arrayFieldWithTrailingWildcard;
 
-		@Field("*_listFieldWithLeadingWildcard")
-		List<String> listFieldWithLeadingWildcard;
+		@Field("*_listFieldWithLeadingWildcard") List<String> listFieldWithLeadingWildcard;
 
-		@Field("*_arrayFieldWithTrailingWildcard")
-		String[] arrayFieldWithLeadingWildcard;
+		@Field("*_arrayFieldWithTrailingWildcard") String[] arrayFieldWithLeadingWildcard;
 
-		@Field("*_flatMapWithLeadingWildcard")
-		Map<String, String> flatMapWithLeadingWildcard;
+		@Field("*_flatMapWithLeadingWildcard") Map<String, String> flatMapWithLeadingWildcard;
 
-		@Field("flatMapWithTrailingWildcard_*")
-		Map<String, String> flatMapWithTrailingWildcard;
+		@Field("flatMapWithTrailingWildcard_*") Map<String, String> flatMapWithTrailingWildcard;
 
-		@Field("*_multivaluedFieldMapWithLeadingWildcard")
-		Map<String, String[]> multivaluedFieldMapWithLeadingWildcardArray;
+		@Field("*_multivaluedFieldMapWithLeadingWildcard") Map<String, String[]> multivaluedFieldMapWithLeadingWildcardArray;
 
-		@Field("*_multivaluedFieldMapWithLeadingWildcard")
-		Map<String, List<String>> multivaluedFieldMapWithLeadingWildcardList;
+		@Field("*_multivaluedFieldMapWithLeadingWildcard") Map<String, List<String>> multivaluedFieldMapWithLeadingWildcardList;
 
-		@Field("multivaluedFieldMapWithTrailingWildcard_*")
-		Map<String, String[]> multivaluedFieldMapWithTrailingWildcardArray;
+		@Field("multivaluedFieldMapWithTrailingWildcard_*") Map<String, String[]> multivaluedFieldMapWithTrailingWildcardArray;
 
-		@Field("multivaluedFieldMapWithTrailingWildcard_*")
-		Map<String, List<String>> multivaluedFieldMapWithTrailingWildcardList;
+		@Field("multivaluedFieldMapWithTrailingWildcard_*") Map<String, List<String>> multivaluedFieldMapWithTrailingWildcardList;
 
 	}
 
 	public static class BeanWithFieldsExcludedFromIndexing {
 
-		@Indexed(readonly = true)
-		@Field
-		String transientField;
+		@Indexed(readonly = true) @Field String transientField;
 
 	}
 
 	public static class BeanBase {
 
-		@Field
-		String stringProperty;
+		@Field String stringProperty;
 
 	}
 
 	public static class BeanWithInteritance extends BeanBase {
 
-		@Field
-		Integer intProperty;
+		@Field Integer intProperty;
 
 	}
 
 	public static class BeanWithDifferentMaps {
 
-		@Field("map_*")
-		Map<String, String> mapProperty;
+		@Field("map_*") Map<String, String> mapProperty;
 
-		@Field("hashMap_*")
-		HashMap<String, String> hashMapProperty;
+		@Field("hashMap_*") HashMap<String, String> hashMapProperty;
 
-		@Field("linkedHashMap_*")
-		LinkedHashMap<String, String> linkedHashMapProperty;
+		@Field("linkedHashMap_*") LinkedHashMap<String, String> linkedHashMapProperty;
 	}
 
 	public static class BeanWithOverlappingWildcards {
 
-		@Field("*_key_s")
-		Map<String, String> keys;
+		@Field("*_key_s") Map<String, String> keys;
 
-		@Field("*_s")
-		Map<String, String> strings;
+		@Field("*_s") Map<String, String> strings;
 
-		@Field("acme_s_com")
-		String justAString;
+		@Field("acme_s_com") String justAString;
 
-		@Field("_s*")
-		String stringWithPrefix;
+		@Field("_s*") String stringWithPrefix;
+
+	}
+
+	public static class BeanWithArrayConstructor {
+
+		@Field("array") String[] fields;
+
+		public BeanWithArrayConstructor(String[] fields) {
+			this.fields = fields;
+		}
 
 	}
 
