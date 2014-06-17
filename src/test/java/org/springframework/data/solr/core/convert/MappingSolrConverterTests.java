@@ -759,6 +759,20 @@ public class MappingSolrConverterTests {
 				IsInstanceOf.instanceOf(DateTime.class));
 	}
 
+	/**
+	 * @see DATASOLR-171
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void shouldUseConstructorCorrectlyWhenMultivaluedConvertedToArray() {
+
+		SolrDocument document = new SolrDocument();
+		document.addField("array", Arrays.asList("v-1", "v-2"));
+
+		BeanWithArrayConstructor target = converter.read(BeanWithArrayConstructor.class, document);
+		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -910,6 +924,16 @@ public class MappingSolrConverterTests {
 		@Field("acme_s_com") String justAString;
 
 		@Field("_s*") String stringWithPrefix;
+
+	}
+
+	public static class BeanWithArrayConstructor {
+
+		@Field("array") String[] fields;
+
+		public BeanWithArrayConstructor(String[] fields) {
+			this.fields = fields;
+		}
 
 	}
 
