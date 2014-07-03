@@ -55,6 +55,8 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.data.solr.core.query.result.Cursor;
+import org.springframework.data.solr.core.query.result.DelegatingCursor;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
@@ -415,6 +417,29 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 				return null;
 			}
 		});
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForCursor(org.springframework.data.solr.core.query.Query, java.lang.Class)
+	 */
+	public <T> Cursor<T> queryForCursor(Query query, final Class<T> clazz) {
+
+		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
+
+			@Override
+			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
+					SolrQuery nativeQuery) {
+
+				QueryResponse response = executeSolrQuery(nativeQuery);
+				if (response == null) {
+					return new PartialResult<T>("", Collections.<T> emptyList());
+				}
+
+				return new PartialResult<T>(response.getNextCursorMark(), convertQueryResponseToBeans(response, clazz));
+			}
+
+		}.open();
 	}
 
 	private Collection<SolrInputDocument> convertBeansToSolrInputDocuments(Iterable<?> beans) {

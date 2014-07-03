@@ -28,6 +28,7 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
@@ -199,6 +200,17 @@ public interface SolrOperations {
 	 * @return
 	 */
 	TermsPage queryForTermsPage(TermsQuery query);
+
+	/**
+	 * Executes the given {@link Query} and returns an open {@link Cursor} allowing to iterate of results, dynamically
+	 * fetching additional ones if required.
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @return
+	 * @since 1.3
+	 */
+	<T> Cursor<T> queryForCursor(Query query, Class<T> clazz);
 
 	/**
 	 * Send commit command {@link SolrServer#commit()}

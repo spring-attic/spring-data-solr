@@ -24,6 +24,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.junit.After;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
@@ -59,6 +61,7 @@ import org.springframework.data.solr.core.query.SimpleUpdateField;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
+import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
@@ -776,6 +779,28 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
 		}
 
+	}
+
+	/**
+	 * @see DATASOLR-162
+	 */
+	@Test
+	public void testDelegatingCursorLoadsAllElements() throws IOException {
+
+		solrTemplate.saveBeans(createBeansWithId(100));
+		solrTemplate.commit();
+
+		Cursor<ExampleSolrBean> cursor = solrTemplate.queryForCursor(
+				new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
+
+		int i = 0;
+		while (cursor.hasNext()) {
+			cursor.next();
+			i++;
+		}
+		cursor.close();
+
+		Assert.assertThat(i, Is.is(100));
 	}
 
 }
