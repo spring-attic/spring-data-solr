@@ -1760,7 +1760,7 @@
       plain text so that they are easy to read in *any* browser.
       If you expect a MIME type of "application/json" just remove this override.
      -->
-    <str name="content-type">text/plain; charset=UTF-8</str>
+   <!--  <str name="content-type">text/plain; charset=UTF-8</str> -->
   </queryResponseWriter>
   
   <!--

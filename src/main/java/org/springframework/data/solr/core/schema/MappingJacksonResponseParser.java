@@ -80,7 +80,7 @@ public class MappingJacksonResponseParser extends ResponseParser {
 
 	private static MimeType defaultMimeType() {
 		try {
-			return new MimeType("text", "plain");
+			return new MimeType("application", "json");
 		} catch (MimeTypeParseException o_O) {
 			throw new IllegalArgumentException(o_O);
 		}
