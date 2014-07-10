@@ -1,6 +1,18 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.3.0.M1 (2014-07-10)
+----------------------------------------
+* DATASOLR-179 - Remove links to forum.spring.io.
+* DATASOLR-178 - Use application/json as default mimetype for MappingJacksonResponseParser.
+* DATASOLR-177 - Release 1.3 M1.
+* DATASOLR-171 - Populating Beans using constructor fails when multivalued field is defined as String[].
+* DATASOLR-170 - Add support for limiting the query result in the query derivation mechanism.
+* DATASOLR-168 - Nesting criterias seems not to work.
+* DATASOLR-162 - Allow pagination with cursorMark.
+* DATASOLR-72 - Dynamically create missing fields for SolrPersistentProperties.
+
+
 Changes in version 1.2.1.RELEASE (2014-06-30)
 ---------------------------------------------
 * DATASOLR-175 - Release 1.2.1.
