@@ -40,9 +40,6 @@ import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
-import org.springframework.data.solr.core.geo.BoundingBox;
-import org.springframework.data.solr.core.geo.Distance.Unit;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
@@ -322,60 +319,6 @@ public class DefaultQueryParserTests {
 	/**
 	 * @see DATASOLR-142
 	 */
-	@Test
-	public void testNearWithGeoLocation() {
-		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556), new Distance(5));
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=5.0}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testNearWithGeoLocationAnfDistanceUnitKilometers() {
-		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556),
-				new org.springframework.data.solr.core.geo.Distance(5, Unit.KILOMETERS));
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=5.0}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testNearWithGeoLocationAnfDistanceUnitMiles() {
-		Criteria criteria = new Criteria("field_1").near(new GeoLocation(48.303056, 14.290556),
-				new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES));
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testNearWithPointAnfDistanceUnitMiles() {
-		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556),
-				new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES));
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testNearWithCircleWorksCorrectly() {
-		Criteria criteria = new Criteria("field_1").near(new Circle(new Point(48.303056, 14.290556),
-				new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES)));
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testCircleForNearMustNotBeNull() {
 		new Criteria("field_1").near((Circle) null);
@@ -404,31 +347,9 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testNearWithBoundingBox() {
-		Criteria criteria = new Criteria("field_1").near(new BoundingBox(new GeoLocation(48.303056, 14.290556),
-				new GeoLocation(48.303056, 14.290556)));
-		Assert.assertEquals("field_1:[48.303056,14.290556 TO 48.303056,14.290556]",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
 	@Test
 	public void testWithinWithDistanceUnitMiles() {
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES));
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
-				queryParser.createQueryStringFromCriteria(criteria));
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testWithinWithGeoLocationDistanceUnitMiles() {
-		Criteria criteria = new Criteria("field_1").within(new GeoLocation(48.303056, 14.290556),
-				new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES));
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
 				queryParser.createQueryStringFromCriteria(criteria));
 	}

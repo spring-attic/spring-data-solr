@@ -33,7 +33,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
@@ -60,18 +59,6 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	public void tearDown() {
 		solrTemplate.delete(ALL_DOCUMENTS_QUERY);
 		solrTemplate.commit();
-	}
-
-	@Test
-	public void convertsGeoLocationCorrectly() {
-		BeanWithGeoLocation bean = new BeanWithGeoLocation();
-		bean.id = DEFAULT_BEAN_ID;
-		bean.location = new GeoLocation(48.30975D, 14.28435D);
-
-		BeanWithGeoLocation loaded = saveAndLoad(bean);
-
-		Assert.assertEquals(bean.location.getLatitude(), loaded.location.getLatitude(), 0.0F);
-		Assert.assertEquals(bean.location.getLongitude(), loaded.location.getLongitude(), 0.0F);
 	}
 
 	/**
@@ -158,16 +145,6 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.commit();
 
 		return (T) solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, o.getClass());
-	}
-
-	private static class BeanWithGeoLocation {
-
-		@Id//
-		@Field private String id;
-
-		@Field("store")//
-		private GeoLocation location;
-
 	}
 
 	private static class BeanWithPoint {

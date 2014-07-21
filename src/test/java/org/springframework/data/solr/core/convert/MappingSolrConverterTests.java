@@ -39,7 +39,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.solr.core.geo.GeoLocation;
+import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -84,7 +84,7 @@ public class MappingSolrConverterTests {
 	@Test
 	public void testWriteWithCustomType() {
 		BeanWithCustomTypes bean = new BeanWithCustomTypes();
-		bean.location = new GeoLocation(48.362893D, 14.534437D);
+		bean.location = new Point(48.362893D, 14.534437D);
 
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
@@ -95,7 +95,7 @@ public class MappingSolrConverterTests {
 	@Test
 	public void testWriteWithCustomTypeList() {
 		BeanWithCustomTypes bean = new BeanWithCustomTypes();
-		bean.locations = Arrays.asList(new GeoLocation(48.362893D, 14.534437D), new GeoLocation(48.208602D, 16.372996D));
+		bean.locations = Arrays.asList(new Point(48.362893D, 14.534437D), new Point(48.208602D, 16.372996D));
 
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
@@ -391,13 +391,13 @@ public class MappingSolrConverterTests {
 
 		BeanWithCustomTypes target = converter.read(BeanWithCustomTypes.class, document);
 
-		Assert.assertEquals(48.362893D, target.location.getLatitude(), 0.0f);
-		Assert.assertEquals(14.534437D, target.location.getLongitude(), 0.0f);
+		Assert.assertEquals(48.362893D, target.location.getX(), 0.0f);
+		Assert.assertEquals(14.534437D, target.location.getY(), 0.0f);
 
-		Assert.assertEquals(48.362893D, target.locations.get(0).getLatitude(), 0.0f);
-		Assert.assertEquals(14.534437D, target.locations.get(0).getLongitude(), 0.0f);
-		Assert.assertEquals(13.923404D, target.locations.get(1).getLatitude(), 0.0f);
-		Assert.assertEquals(142.177731D, target.locations.get(1).getLongitude(), 0.0f);
+		Assert.assertEquals(48.362893D, target.locations.get(0).getX(), 0.0f);
+		Assert.assertEquals(14.534437D, target.locations.get(0).getY(), 0.0f);
+		Assert.assertEquals(13.923404D, target.locations.get(1).getX(), 0.0f);
+		Assert.assertEquals(142.177731D, target.locations.get(1).getY(), 0.0f);
 	}
 
 	@Test
@@ -781,9 +781,9 @@ public class MappingSolrConverterTests {
 
 	public static class BeanWithCustomTypes {
 
-		@Field GeoLocation location;
+		@Field Point location;
 
-		@Field List<GeoLocation> locations;
+		@Field List<Point> locations;
 
 	}
 

@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Point;
 import org.springframework.data.repository.core.EntityMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.VersionUtil;
@@ -35,7 +36,6 @@ import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterB
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightOptions;
@@ -81,8 +81,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(GeoLocation.class, String.class)) {
-			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
+		if (!conversionService.canConvert(Point.class, String.class)) {
+			conversionService.addConverter(GeoConverters.Point3DToStringConverter.INSTANCE);
 		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);

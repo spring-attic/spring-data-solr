@@ -33,7 +33,6 @@ import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.Point;
 import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
@@ -72,14 +71,11 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (!conversionService.canConvert(Number.class, String.class)) {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(org.springframework.data.geo.Point.class, String.class)) {
-			conversionService.addConverter(GeoConverters.GeoLocationToStringConverter.INSTANCE);
-		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
 		}
-		if (!conversionService.canConvert(Point.class, String.class)) {
-			conversionService.addConverter(GeoConverters.PointToStringConverter.INSTANCE);
+		if (!conversionService.canConvert(org.springframework.data.geo.Point.class, String.class)) {
+			conversionService.addConverter(GeoConverters.Point3DToStringConverter.INSTANCE);
 		}
 		if (VersionUtil.isJodaTimeAvailable()) {
 			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {

@@ -75,13 +75,13 @@ public class GeoDistanceFunction extends AbstractFunction {
 		}
 
 		/**
-		 * @param geoLocation must not be null
+		 * @param location must not be null
 		 * @return
 		 */
-		public GeoDistanceFunction to(Point geoLocation) {
-			Assert.notNull(geoLocation, "Location for geodist function must not be 'null'");
+		public GeoDistanceFunction to(Point location) {
+			Assert.notNull(location, "Location for geodist function must not be 'null'");
 
-			return new GeoDistanceFunction(this.fieldname, geoLocation);
+			return new GeoDistanceFunction(this.fieldname, location);
 		}
 
 		/**

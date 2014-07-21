@@ -23,70 +23,16 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.solr.core.convert.GeoConverterTests.DistanceConverterTests;
-import org.springframework.data.solr.core.convert.GeoConverterTests.GeoLocationConverterTests;
 import org.springframework.data.solr.core.convert.GeoConverterTests.PointConverterTests;
-import org.springframework.data.solr.core.geo.Distance.Unit;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.geo.Point;
 
 /**
  * @author Christoph Strobl
  */
 @RunWith(Suite.class)
-@SuiteClasses({ GeoLocationConverterTests.class, DistanceConverterTests.class, PointConverterTests.class })
+@SuiteClasses({ DistanceConverterTests.class, PointConverterTests.class })
 public class GeoConverterTests {
-
-	public static class GeoLocationConverterTests {
-
-		@Test
-		public void testConvertGeoLocationToStringWithNull() {
-			Assert.assertNull(GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(null));
-		}
-
-		@Test
-		public void testConvertPointToString() {
-			Assert.assertEquals("48.303056,14.290556", GeoConverters.GeoLocationToStringConverter.INSTANCE
-					.convert(new org.springframework.data.geo.Point(48.303056, 14.290556)));
-		}
-
-		/**
-		 * @see DATASOLR-142
-		 */
-		@Test
-		public void testConvertGeoLocationToString() {
-			Assert.assertEquals("48.303056,14.290556",
-					GeoConverters.GeoLocationToStringConverter.INSTANCE.convert(new GeoLocation(48.303056, 14.290556)));
-		}
-
-		@Test
-		public void testConvertGeoLocationToStringWithNegativeValue() {
-			Assert.assertEquals("45.17614,-93.87341", GeoConverters.GeoLocationToStringConverter.INSTANCE
-					.convert(new org.springframework.data.geo.Point(45.17614, -93.87341)));
-		}
-
-		@Test
-		public void testConvertStringToGeoLocationWithNull() {
-			Assert.assertNull(GeoConverters.StringToGeoLocationConverter.INSTANCE.convert(null));
-		}
-
-		@Test
-		public void testConvertStringToGeoLocation() {
-			GeoLocation geoLocation = GeoConverters.StringToGeoLocationConverter.INSTANCE.convert("48.303056,14.290556");
-
-			Assert.assertEquals(geoLocation.getLatitude(), 48.303056D, 0F);
-			Assert.assertEquals(geoLocation.getLongitude(), 14.290556D, 0F);
-		}
-
-		@Test
-		public void testConvertStringToGeoLocationWithNegativeValue() {
-			GeoLocation geoLocation = GeoConverters.StringToGeoLocationConverter.INSTANCE.convert("45.17614,-93.87341");
-
-			Assert.assertEquals(geoLocation.getLatitude(), 45.17614D, 0F);
-			Assert.assertEquals(geoLocation.getLongitude(), -93.87341D, 0F);
-		}
-
-	}
 
 	public static class DistanceConverterTests {
 
@@ -106,15 +52,6 @@ public class GeoConverterTests {
 					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.MILES)));
 		}
 
-		/**
-		 * @see DATASOLR-142
-		 */
-		@Test
-		public void testConvertMilesDistanceUnitToString() {
-			Assert.assertEquals("1.609344", GeoConverters.DistanceToStringConverter.INSTANCE
-					.convert(new org.springframework.data.solr.core.geo.Distance(1, Unit.MILES)));
-		}
-
 		@Test
 		public void testConvertDistanceWithNullUnitToString() {
 			Assert.assertEquals("1.0", GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, null)));
@@ -125,31 +62,31 @@ public class GeoConverterTests {
 
 		@Test
 		public void testConvertPointToStringWithNull() {
-			Assert.assertNull(GeoConverters.PointToStringConverter.INSTANCE.convert(null));
+			Assert.assertNull(GeoConverters.Point3DToStringConverter.INSTANCE.convert(null));
 		}
 
 		@Test
 		public void testConvertPointXYToString() {
 			Assert.assertEquals("48.303056,14.290556",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556)));
 		}
 
 		@Test
 		public void testConvertPointXYToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341)));
 		}
 
 		@Test
 		public void testConvertPointXYZToString() {
 			Assert.assertEquals("48.303056,14.290556,12.78",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556, 12.78)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556, 12.78)));
 		}
 
 		@Test
 		public void testConvertPointXYZToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341,-12.78",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
 		}
 
 	}

@@ -43,7 +43,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
@@ -309,7 +308,7 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
-	public void testFindByNearWithBoundingBox() {
+	public void testFindByNearWithBox() {
 		ProductBean locatedInBuffalow = createProductBean("100", 5, true);
 		locatedInBuffalow.setLocation("45.17614,-93.87341");
 
@@ -318,7 +317,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.save(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
-		List<ProductBean> found = repo.findByLocationNear(new Box(new GeoLocation(45, -94), new GeoLocation(46, -93)));
+		List<ProductBean> found = repo.findByLocationNear(new Box(new Point(45, -94), new Point(46, -93)));
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(locatedInBuffalow.getId(), found.get(0).getId());
 	}

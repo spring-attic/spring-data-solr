@@ -350,7 +350,7 @@ public class SolrQueryCreatorTests {
 	}
 
 	@Test
-	public void testCreateQueryWithNearUsingBoundingBox() throws NoSuchMethodException, SecurityException {
+	public void testCreateQueryWithNearUsingBox() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", Box.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { new Box(new Point(48.303056, 14.290556),

@@ -110,13 +110,13 @@ public class FunctionQueryFragmentTests {
 				{ ExistsFunction.exists(new Foo()), "exists(foo())" },
 				{ ExistsFunction.exists(new SimpleField("field_1")), "exists(field_1)" },
 				{ GeoDistanceFunction.distanceFrom("field_1").to(new org.springframework.data.geo.Point(12, 13)),
-						"geodist(field_1,12.0,13.0)" },
+						"geodist(field_1,12,13)" },
 				{
 						GeoDistanceFunction.distanceFrom(new SimpleField("field_1")).to(
-								new org.springframework.data.geo.Point(12, 13)), "geodist(field_1,12.0,13.0)" },
-				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "geodist(field_1,12.0,13.0)" },
-				{ GeoHashFunction.geohash(new org.springframework.data.geo.Point(1, 2)), "geohash(1.0,2.0)" },
-				{ GeoHashFunction.geohash(1, 2), "geohash(1.0,2.0)" },
+								new org.springframework.data.geo.Point(12, 13)), "geodist(field_1,12,13)" },
+				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "geodist(field_1,12,13)" },
+				{ GeoHashFunction.geohash(new org.springframework.data.geo.Point(1, 2)), "geohash(1,2)" },
+				{ GeoHashFunction.geohash(1, 2), "geohash(1,2)" },
 				{ IfFunction.when(new Foo()).then("field_1").otherwise(3), "if(foo(),field_1,3)" },
 				{ IfFunction.when(new Foo()).then(new SimpleField("field_1")).otherwise(3), "if(foo(),field_1,3)" },
 				{ IfFunction.when("field_1").then(new Foo()).otherwise(new Bar()), "if(field_1,foo(),bar())" },

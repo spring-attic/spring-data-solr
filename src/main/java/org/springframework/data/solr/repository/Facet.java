@@ -69,14 +69,6 @@ public @interface Facet {
 	 * {@code facet.pivot} fields to pivot on
 	 * 
 	 * @return
-	 * @deprecated use {@link #pivots()} instead. Will be removed in 1.3
-	 */
-	String[] pivotFields() default {};
-
-	/**
-	 * {@code facet.pivot} fields to pivot on
-	 * 
-	 * @return
 	 * @since 1.2
 	 */
 	Pivot[] pivots() default {};

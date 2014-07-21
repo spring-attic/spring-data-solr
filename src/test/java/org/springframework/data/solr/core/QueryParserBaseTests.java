@@ -183,7 +183,7 @@ public class QueryParserBaseTests {
 	}
 
 	@Test
-	public void testCreateFunctionFragmentConvertsGeoLocationProperty() {
+	public void testCreateFunctionFragmentConvertsPointProperty() {
 		Foo function = new Foo(Arrays.asList(new Point(37.767624D, -122.48526D)));
 
 		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(37.767624,-122.48526)"));

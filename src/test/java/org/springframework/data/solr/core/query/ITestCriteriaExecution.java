@@ -128,7 +128,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 	}
 
 	@Test
-	public void testGeoLocation() {
+	public void testPoint() {
 		ExampleSolrBean searchableBeanInBuffalow = createExampleBeanWithId("1");
 		searchableBeanInBuffalow.setStore("45.17614,-93.87341");
 
@@ -145,7 +145,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 	}
 
 	@Test
-	public void testGeoLocationWithDistanceInMiles() {
+	public void testPointWithDistanceInMiles() {
 		ExampleSolrBean searchableBeanInBuffalow = createExampleBeanWithId("1");
 		searchableBeanInBuffalow.setStore("45.17614,-93.87341");
 

@@ -38,7 +38,6 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
-import org.springframework.data.solr.core.geo.GeoLocation;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.DistanceField;
 import org.springframework.data.solr.core.query.FacetOptions;
@@ -752,28 +751,6 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Query q = new SimpleQuery("*:*");
 		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		for (ExampleSolrBean bean : result) {
-			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
-		}
-
-	}
-
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
-	public void testDistaneFunctionWithGeoLocationQueryInFieldProjection() {
-		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
-		bean1.setStore("45.17614,-93.87341");
-		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
-		bean2.setStore("40.7143,-74.006");
-
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
-		solrTemplate.commit();
-
-		Query q = new SimpleQuery("*:*");
-		q.addProjectionOnField(new DistanceField("distance", "store", new GeoLocation(45.15, -93.85)));
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
 		for (ExampleSolrBean bean : result) {
 			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());

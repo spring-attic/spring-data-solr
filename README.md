@@ -5,7 +5,7 @@ The primary goal of the [Spring Data](http://projects.spring.io/spring-data) pro
 
 The Spring Data Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine 
 
-Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data Solr handles inheritance as well as usage of custom Types such as  ```GeoLocation``` or ```DateTime```.
+Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data Solr handles inheritance as well as usage of custom Types such as  ```Point``` or ```DateTime```.
 
 Getting Help
 ------------
@@ -78,11 +78,11 @@ public interface SolrProductRepository extends SolrCrudRepository<Product, Strin
   
   //Spatial Search
   //Query will be "q=location:[<bbox.start.latitude>,<bbox.start.longitude> TO <bbox.end.latitude>,<bbox.end.longitude>]"
-  Page<Product> findByLocationNear(BoundingBox bbox);
+  Page<Product> findByLocationNear(Box bbox);
   
   //Spatial Search
   //Query will be "q={!geofilt pt=<location.latitude>,<location.longitude> sfield=location d=<distance.value>}"
-  Page<Product> findByLocationWithin(GeoLocation location, Distance distance);
+  Page<Product> findByLocationWithin(Point location, Distance distance);
   
 }
 ```   

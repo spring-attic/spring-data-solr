@@ -113,7 +113,7 @@ public class StringBasedSolrQueryTests {
 	}
 
 	@Test
-	public void testWithGeoLocationProperty() throws NoSuchMethodException, SecurityException {
+	public void testWithPointProperty() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 
@@ -126,7 +126,7 @@ public class StringBasedSolrQueryTests {
 	}
 
 	@Test
-	public void testWithGeoLocationPropertyWhereDistanceIsInMiles() throws NoSuchMethodException, SecurityException {
+	public void testWithPointPropertyWhereDistanceIsInMiles() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
 
