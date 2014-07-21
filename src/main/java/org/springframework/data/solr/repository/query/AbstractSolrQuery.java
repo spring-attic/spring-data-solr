@@ -47,6 +47,7 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SolrPageRequest;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -353,7 +354,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	protected Pageable getLimitingPageable(final Pageable source, final int limit) {
 
 		if (source == null) {
-			return new PageRequest(0, limit);
+			return new SolrPageRequest(0, limit);
 		}
 
 		return new PageRequest(source.getPageNumber(), source.getPageSize(), source.getSort()) {
@@ -411,12 +412,12 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			if (!isLimiting()) {
 
-				query.setPageRequest(pageable != null ? pageable : new PageRequest(0, Math.max(1, (int) count(query))));
+				query.setPageRequest(pageable != null ? pageable : new SolrPageRequest(0, (int) count(query)));
 				return executeFind(query).getContent();
 			}
 
 			if (pageable == null && isLimiting()) {
-				return executeFind(query.setPageRequest(new PageRequest(0, getLimit()))).getContent();
+				return executeFind(query.setPageRequest(new SolrPageRequest(0, getLimit()))).getContent();
 			}
 
 			if (getLimit() > 0) {
@@ -458,7 +459,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 				int limit = getLimit();
 				if (pageToUse == null) {
-					pageToUse = new PageRequest(0, limit);
+					pageToUse = new SolrPageRequest(0, limit);
 				}
 
 				if (limit > 0) {
@@ -575,7 +576,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			if (solrQueryMethod.isCollectionQuery()) {
 				Query clone = SimpleQuery.fromQuery(query);
-				result = solrOperations.queryForPage(clone.setPageRequest(new PageRequest(0, Integer.MAX_VALUE)),
+				result = solrOperations.queryForPage(clone.setPageRequest(new SolrPageRequest(0, Integer.MAX_VALUE)),
 						solrQueryMethod.getEntityInformation().getJavaType()).getContent();
 			}
 

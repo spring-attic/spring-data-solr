@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.apache.solr.common.SolrInputDocument;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrOperations;
@@ -35,6 +34,7 @@ import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterB
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.SolrPageRequest;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -103,7 +103,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		if (itemCount == 0) {
 			return new PageImpl<T>(Collections.<T> emptyList());
 		}
-		return this.findAll(new PageRequest(0, Math.max(1, itemCount)));
+		return this.findAll(new SolrPageRequest(0, itemCount));
 	}
 
 	@Override
@@ -121,13 +121,13 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		}
 		return getSolrOperations().queryForPage(
 				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(
-						new PageRequest(0, Math.max(1, itemCount))).addSort(sort), getEntityClass());
+						new SolrPageRequest(0, itemCount)).addSort(sort), getEntityClass());
 	}
 
 	@Override
 	public Iterable<T> findAll(Iterable<ID> ids) {
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
-		query.setPageRequest(new PageRequest(0, Math.max(1, (int) count(query))));
+		query.setPageRequest(new SolrPageRequest(0, (int) count(query)));
 
 		return getSolrOperations().queryForPage(query, getEntityClass());
 	}

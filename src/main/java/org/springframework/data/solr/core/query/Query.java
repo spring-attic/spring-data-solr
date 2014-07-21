@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,24 @@ public interface Query extends SolrDataQuery {
 	<T extends Query> T setPageRequest(Pageable pageable);
 
 	/**
+	 * Set the number of rows to skip.
+	 * 
+	 * @param offset
+	 * @return
+	 * @since 1.3
+	 */
+	<T extends Query> T setOffset(Integer offset);
+
+	/**
+	 * Set the number of rows to fetch.
+	 * 
+	 * @param rows
+	 * @return
+	 * @since 1.3
+	 */
+	<T extends Query> T setRows(Integer rows);
+
+	/**
 	 * add the given field to those used for grouping result Corresponds to '' in solr
 	 * 
 	 * @param field
@@ -102,11 +120,28 @@ public interface Query extends SolrDataQuery {
 	List<FilterQuery> getFilterQueries();
 
 	/**
-	 * Get page settings if defined
+	 * Get page settings if defined.
 	 * 
 	 * @return
+	 * @deprecated since 1.3. Will be removed in 1.4. Please use {@link #getOffset()} and {@link #getRows()} instead.
 	 */
+	@Deprecated
 	Pageable getPageRequest();
+
+	/**
+	 * Get number of rows to skip.
+	 * 
+	 * @since 1.3
+	 */
+	Integer getOffset();
+
+	/**
+	 * Get number of rows to fetch.
+	 * 
+	 * @return
+	 * @since 1.3
+	 */
+	Integer getRows();
 
 	/**
 	 * Get group by fields if defined

@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.solr.common.params.FacetParams;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -54,8 +53,7 @@ public class FacetOptions {
 	private FacetSort facetSort = DEFAULT_FACET_SORT;
 	private Pageable pageable;
 
-	public FacetOptions() {
-	}
+	public FacetOptions() {}
 
 	/**
 	 * Creates new instance faceting on fields with given name
@@ -142,7 +140,6 @@ public class FacetOptions {
 	}
 
 	/**
-	 * 
 	 * @param fieldName
 	 * @return
 	 */
@@ -279,7 +276,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public Pageable getPageable() {
-		return this.pageable != null ? this.pageable : new PageRequest(0, facetLimit);
+		return this.pageable != null ? this.pageable : new SolrPageRequest(0, facetLimit);
 	}
 
 	/**

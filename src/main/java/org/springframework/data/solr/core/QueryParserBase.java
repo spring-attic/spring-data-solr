@@ -27,7 +27,6 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.solr.VersionUtil;
@@ -288,14 +287,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * Append pagination information {@code start, rows} to {@link SolrQuery}
 	 * 
 	 * @param query
-	 * @param pageable
+	 * @param offset
+	 * @param rows
 	 */
-	protected void appendPagination(SolrQuery query, Pageable pageable) {
-		if (pageable == null) {
-			return;
+	protected void appendPagination(SolrQuery query, Integer offset, Integer rows) {
+
+		if (offset != null && offset.intValue() >= 0) {
+			query.setStart(offset);
 		}
-		query.setStart(pageable.getOffset());
-		query.setRows(pageable.getPageSize());
+		if (rows != null && rows.intValue() >= 0) {
+			query.setRows(rows);
+		}
 	}
 
 	/**
