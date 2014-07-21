@@ -459,13 +459,13 @@ public class ITestSolrRepositoryOperations {
 		Pageable pageable = new PageRequest(0, 2);
 		Page<ProductBean> page1 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(pageable.getPageSize(), page1.getNumberOfElements());
-		Assert.assertTrue(page1.hasNextPage());
+		Assert.assertTrue(page1.hasNext());
 		Assert.assertEquals(3, page1.getTotalElements());
 
 		pageable = new PageRequest(1, 2);
 		Page<ProductBean> page2 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(1, page2.getNumberOfElements());
-		Assert.assertFalse(page2.hasNextPage());
+		Assert.assertFalse(page2.hasNext());
 		Assert.assertEquals(3, page2.getTotalElements());
 	}
 
