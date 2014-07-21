@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.collection.IsIterableContainingInOrder;
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
@@ -73,24 +75,25 @@ public class SimpleQueryTests {
 	@Test
 	public void testSetPageRequest() {
 		SimpleQuery query = new SimpleQuery();
-		Assert.assertEquals(SimpleQuery.DEFAULT_PAGE, query.getPageRequest());
+		Assert.assertNull(query.getPageRequest());
+		Assert.assertNull(query.getOffset());
+		Assert.assertNull(query.getRows());
 
 		Pageable alteredPage = new PageRequest(0, 20);
 
 		query.setPageRequest(alteredPage);
-		Assert.assertEquals(alteredPage, query.getPageRequest());
+		Assert.assertThat(query.getPageRequest(), IsEqual.equalTo(alteredPage));
 		Assert.assertNull(query.getSort());
 	}
 
 	@Test
 	public void testSetPageRequestWithSort() {
 		SimpleQuery query = new SimpleQuery();
-		Assert.assertEquals(SimpleQuery.DEFAULT_PAGE, query.getPageRequest());
 
 		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2");
 
 		query.setPageRequest(alteredPage);
-		Assert.assertEquals(alteredPage, query.getPageRequest());
+		Assert.assertThat(query.getPageRequest(), IsEqual.equalTo(alteredPage));
 		Assert.assertNotNull(query.getSort());
 
 		int i = 0;
@@ -173,7 +176,6 @@ public class SimpleQueryTests {
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertNotSame(source, destination);
 		Assert.assertEquals("field_1", destination.getCriteria().getField().getName());
-		// Assert.assertEquals("value_1", destination.getCriteria()..next().getValue());
 	}
 
 	@Test
@@ -299,4 +301,13 @@ public class SimpleQueryTests {
 		Assert.assertEquals(new Integer(100), query.getTimeAllowed());
 	}
 
+	@Test
+	public void shouldOverridePagableArgsByUsingExplicitSetters() {
+		SimpleQuery query = new SimpleQuery("*:*").setPageRequest(new PageRequest(1, 10));
+		query.setOffset(2);
+		query.setRows(20);
+
+		Assert.assertThat(query.getOffset(), Is.is(2));
+		Assert.assertThat(query.getRows(), Is.is(20));
+	}
 }

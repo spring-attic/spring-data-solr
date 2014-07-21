@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
@@ -34,13 +33,15 @@ import org.springframework.util.Assert;
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
-	public static final Pageable DEFAULT_PAGE = new PageRequest(0, DEFAULT_PAGE_SIZE);
-
 	private List<Field> projectionOnFields = new ArrayList<Field>(0);
 	private List<Field> groupByFields = new ArrayList<Field>(0);
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
-	private Pageable pageable = DEFAULT_PAGE;
+
+	private Integer offset = null;
+	private Integer rows = null;
+
 	private Sort sort;
+
 	private Operator defaultOperator;
 	private Integer timeAllowed;
 	private String defType;
@@ -68,8 +69,10 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 */
 	public SimpleQuery(Criteria criteria, Pageable pageable) {
 		super(criteria);
-		this.pageable = pageable;
+
 		if (pageable != null) {
+			this.offset = pageable.getOffset();
+			this.rows = pageable.getPageSize();
 			this.addSort(pageable.getSort());
 		}
 	}
@@ -169,8 +172,23 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public final <T extends Query> T setPageRequest(Pageable pageable) {
 		Assert.notNull(pageable);
 
-		this.pageable = pageable;
+		this.offset = pageable.getOffset();
+		this.rows = pageable.getPageSize();
 		return this.addSort(pageable.getSort());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setOffset(Integer offset) {
+		this.offset = offset;
+		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setRows(Integer rows) {
+		this.rows = rows;
+		return (T) this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -216,7 +234,25 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@Override
 	public Pageable getPageRequest() {
-		return this.pageable;
+
+		if (this.rows == null && this.offset == null) {
+			return null;
+		}
+
+		int rows = this.rows != null ? this.rows : DEFAULT_PAGE_SIZE;
+		int offset = this.offset != null ? this.offset : 0;
+
+		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, this.sort);
+	}
+
+	@Override
+	public Integer getOffset() {
+		return this.offset;
+	}
+
+	@Override
+	public Integer getRows() {
+		return this.rows;
 	}
 
 	@Override

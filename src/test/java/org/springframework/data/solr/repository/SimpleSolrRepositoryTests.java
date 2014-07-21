@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ public class SimpleSolrRepositoryTests {
 
 	private SimpleSolrRepository<ExampleSolrBean, String> repository;
 
-	@Mock
-	private SolrOperations solrOperationsMock;
+	@Mock private SolrOperations solrOperationsMock;
 
 	@Before
 	public void setUp() {
@@ -80,7 +79,7 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
 				Mockito.eq(ExampleSolrBean.class));
 
-		Assert.assertEquals(Query.DEFAULT_PAGE_SIZE, captor.getAllValues().get(0).getPageRequest().getPageSize());
+		Assert.assertNull(captor.getAllValues().get(0).getPageRequest());
 		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
 	}
 
@@ -97,17 +96,15 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
 				Mockito.eq(BeanWithLongIdType.class));
 
-		Assert.assertEquals(Query.DEFAULT_PAGE_SIZE, captor.getAllValues().get(0).getPageRequest().getPageSize());
+		Assert.assertNull(captor.getAllValues().get(0).getPageRequest());
 		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
 	}
 
 	static class BeanWithLongIdType {
 
-		@Id
-		private Long id;
+		@Id private Long id;
 
-		@Field
-		private String name;
+		@Field private String name;
 
 		public Long getId() {
 			return id;

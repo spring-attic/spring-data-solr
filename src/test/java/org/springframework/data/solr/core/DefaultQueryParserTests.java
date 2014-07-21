@@ -59,6 +59,7 @@ import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SolrPageRequest;
 
 /**
  * @author Christoph Strobl
@@ -1079,6 +1080,26 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("param1").isNotNull().and("param2").isNull();
 		Assert.assertEquals("param1:[* TO *] AND -param2:[* TO *]", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-112
+	 */
+	@Test
+	public void pageableUsingZeroShouldBeParsedCorrectlyWhenSetUsingPageable() {
+
+		SimpleQuery query = new SimpleQuery("*:*").setPageRequest(new SolrPageRequest(0, 0));
+		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
+	}
+
+	/**
+	 * @see DATASOLR-112
+	 */
+	@Test
+	public void pageableUsingZeroShouldBeParsedCorrectlyWhenSetUsingExplititMethods() {
+
+		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
+		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
