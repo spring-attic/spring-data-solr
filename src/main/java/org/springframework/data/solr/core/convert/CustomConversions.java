@@ -32,8 +32,7 @@ import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.VersionUtil;
-import org.springframework.data.solr.core.geo.GeoConverters.GeoLocationToStringConverter;
-import org.springframework.data.solr.core.geo.GeoConverters.StringToGeoLocationConverter;
+import org.springframework.data.solr.core.geo.GeoConverters.PointToStringConverter;
 import org.springframework.data.solr.core.geo.GeoConverters.StringToPointConverter;
 import org.springframework.data.solr.core.mapping.SolrSimpleTypes;
 import org.springframework.util.Assert;
@@ -76,9 +75,8 @@ public class CustomConversions {
 
 		this.simpleTypeHolder = new SimpleTypeHolder(customSimpleTypes, SolrSimpleTypes.HOLDER);
 
-		this.converters.add(StringToGeoLocationConverter.INSTANCE);
-		this.converters.add(GeoLocationToStringConverter.INSTANCE);
 		this.converters.add(StringToPointConverter.INSTANCE);
+		this.converters.add(PointToStringConverter.INSTANCE);
 		this.converters.add(new SolrjConverters.UpdateToSolrInputDocumentConverter());
 
 		// Register Joda-Time converters only if Joda-Time was found in the classpath.

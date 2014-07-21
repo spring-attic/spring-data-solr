@@ -188,7 +188,7 @@ public class SolrQueryMethodTests {
 		Assert.assertFalse(method.hasFacetFields());
 		Assert.assertTrue(method.hasPivotFields());
 		Assert.assertFalse(method.hasFacetQueries());
-		Assert.assertEquals(4, method.getPivotFields().size());
+		Assert.assertEquals(2, method.getPivotFields().size());
 		Assert.assertFalse(method.hasAnnotatedNamedQueryName());
 		Assert.assertFalse(method.hasFilterQuery());
 	}
@@ -546,17 +546,16 @@ public class SolrQueryMethodTests {
 		@Highlight(postfix = "{postfix}")
 		List<ProductBean> findByTextHighlightPostfix(String text);
 
-		@Facet(pivotFields = "field1,field2")
+		@Facet(pivots = { @Pivot({ "field1", "field2" }) })
 		List<ProductBean> findByNamePivotOnField1VsField2();
 
-		@Facet(pivotFields = { "field1,field2", "field2,field3" })
+		@Facet(pivots = { @Pivot({ "field1", "field2" }), @Pivot({ "field2", "field3" }) })
 		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3();
 
-		@Facet(pivotFields = { "field1,field2", "field2,field3" }, minCount = 3, limit = 25)
+		@Facet(pivots = { @Pivot({ "field1", "field2" }), @Pivot({ "field2", "field3" }) }, minCount = 3, limit = 25)
 		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount();
 
-		@Facet(pivotFields = { "field1,field2", "field2,field3" }, pivots = { @Pivot({ "field4", "field5" }),
-				@Pivot({ "field5", "field6" }) })
+		@Facet(pivots = { @Pivot({ "field4", "field5" }), @Pivot({ "field5", "field6" }) })
 		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation();
 
 		@Facet(pivots = { @Pivot({ "field1", "field2" }), @Pivot({ "field2", "field3" }) })

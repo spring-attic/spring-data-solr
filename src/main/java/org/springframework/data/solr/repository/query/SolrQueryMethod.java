@@ -160,13 +160,8 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	public List<String[]> getPivotFields() {
-		List<String> stringPivotFields = getAnnotationValuesAsStringList(getFacetAnnotation(), "pivotFields");
 		List<Pivot> pivotFields = getAnnotationValuesList(getFacetAnnotation(), "pivots", Pivot.class);
 		ArrayList<String[]> result = new ArrayList<String[]>();
-
-		for (String str : stringPivotFields) {
-			result.add(StringUtils.split(str, ","));
-		}
 
 		for (Pivot pivot : pivotFields) {
 			result.add(pivot.value());

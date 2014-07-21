@@ -54,26 +54,6 @@ public final class GeoConverters {
 	}
 
 	/**
-	 * Converts comma separated string to {@link GeoLocation}
-	 * 
-	 * @deprecated Will be removed in 1.3. Use {@link StringToPointConverter} instead.
-	 */
-	@ReadingConverter
-	public enum StringToGeoLocationConverter implements Converter<String, GeoLocation> {
-		INSTANCE;
-
-		@Override
-		public GeoLocation convert(String source) {
-			if (source == null) {
-				return null;
-			}
-
-			String[] coordinates = source.split(",");
-			return new GeoLocation(Double.parseDouble(coordinates[0]), Double.parseDouble(coordinates[1]));
-		}
-	}
-
-	/**
 	 * Converts comma separated string to {@link org.springframework.data.geo.Point}.
 	 * 
 	 * @since 1.2
@@ -120,19 +100,21 @@ public final class GeoConverters {
 	 * 
 	 * @since 1.1
 	 */
-	public enum PointToStringConverter implements Converter<Point, String> {
+	public enum PointToStringConverter implements Converter<org.springframework.data.geo.Point, String> {
 		INSTANCE;
 
 		@Override
-		public String convert(Point source) {
+		public String convert(org.springframework.data.geo.Point source) {
 			if (source == null) {
 				return null;
 			}
 			String formattedString = StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getX()), "0")
-					+ ","
-					+ StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0")
-					+ (source.getZ() != null ? ("," + StringUtils.stripEnd(
-							String.format(java.util.Locale.ENGLISH, "%f", source.getZ()), "0")) : "");
+					+ "," + StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0");
+
+			if (source instanceof Point) {
+				formattedString += (((Point) source).getZ() != null ? ("," + StringUtils.stripEnd(
+						String.format(java.util.Locale.ENGLISH, "%f", ((Point) source).getZ()), "0")) : "");
+			}
 
 			if (formattedString.endsWith(".")) {
 				return formattedString.replace(".", "");
