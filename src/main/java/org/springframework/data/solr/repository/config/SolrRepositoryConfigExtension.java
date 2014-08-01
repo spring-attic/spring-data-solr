@@ -15,6 +15,11 @@
  */
 package org.springframework.data.solr.repository.config;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -24,6 +29,9 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
 import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.data.repository.config.XmlRepositoryConfigurationSource;
 import org.springframework.data.solr.core.SolrExceptionTranslator;
+import org.springframework.data.solr.core.mapping.SolrDocument;
+import org.springframework.data.solr.repository.SolrCrudRepository;
+import org.springframework.data.solr.repository.SolrRepository;
 import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -95,5 +103,23 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
 			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport#getIdentifyingAnnotations()
+	 */
+	@Override
+	protected Collection<Class<? extends Annotation>> getIdentifyingAnnotations() {
+		return Collections.<Class<? extends Annotation>> singleton(SolrDocument.class);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport#getIdentifyingTypes()
+	 */
+	@Override
+	protected Collection<Class<?>> getIdentifyingTypes() {
+		return Arrays.<Class<?>> asList(SolrRepository.class, SolrCrudRepository.class);
 	}
 }
