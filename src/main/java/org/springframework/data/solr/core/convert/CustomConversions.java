@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.convert.converter.Converter;
@@ -52,7 +53,7 @@ public class CustomConversions {
 	private final Set<ConvertiblePair> writingPairs;
 	private SimpleTypeHolder simpleTypeHolder;
 
-	private WeakHashMap<ConvertiblePair, Class<?>> cache = new WeakHashMap<ConvertiblePair, Class<?>>();
+	private ConcurrentMap<ConvertiblePair, Class<?>> cache = new ConcurrentHashMap<ConvertiblePair, Class<?>>(36, 0.9f, 1);
 
 	/**
 	 * Create new instance
@@ -153,20 +154,21 @@ public class CustomConversions {
 				: Any.class);
 
 		if (cache.containsKey(expectedTypePair)) {
-			return cache.get(expectedTypePair);
+			Class<?> cachedTargetType = cache.get(expectedTypePair);
+			return cachedTargetType != Any.class ? cachedTargetType : null;
 		}
 
 		for (ConvertiblePair typePair : pairs) {
 			if (typePair.getSourceType().isAssignableFrom(sourceType)) {
 				Class<?> targetType = typePair.getTargetType();
 				if (expectedTargetType == null || targetType.isAssignableFrom(expectedTargetType)) {
-					cache.put(expectedTypePair, targetType);
+					cache.putIfAbsent(expectedTypePair, targetType);
 					return targetType;
 				}
 			}
 		}
 
-		cache.put(expectedTypePair, null);
+		cache.putIfAbsent(expectedTypePair, Any.class);
 		return null;
 	}
 
