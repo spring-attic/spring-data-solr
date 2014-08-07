@@ -1,0 +1,286 @@
+[[solr.misc]]
+= Miscellaneous Solr Operation Support
+
+This chapter covers additional support for Solr operations (such as faceting) that cannot be directly accessed via the repository interface. It is recommended to add those operations as custom implementation as described in <<repositories.custom-implementations>> .
+
+[[solr.misc.partialUpdates]]
+== Partial Updates
+
+PartialUpdates can be done using `PartialUpdate` which implements `Update` . NOTE: Partial updates require Solr 4.x. With Solr 4.0.0 it is not possible to update mulitvalue fields.
+
+NOTE: With Solr 4.1.0 you have to take care on parameter order when setting null values. Order parameters with nulls last.
+
+====
+[source,java]
+----
+PartialUpdate update = new PartialUpdate("id", "123");
+update.add("name", "updated-name");
+solrTemplate.saveBean(update);
+----
+====
+
+[[solr.misc.projection]]
+== Projection
+
+Projections can be applied via `@Query` using the fields value.
+
+====
+[source,java]
+----
+@Query(fields = { "name", "id" })
+List<ProductBean> findByNameStartingWith(String name);
+----
+====
+
+[[solr.misc.faceting]]
+== Faceting
+
+Faceting cannot be directly applied using the `SolrRepository` but the `SolrTemplate` holds support for this feature.
+
+====
+[source,java]
+----
+FacetQuery query = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+  .setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5));
+FacetPage<Product> page = solrTemplate.queryForFacetPage(query, Product.class);
+----
+====
+
+Facets on fields and/or queries can also be defined using `@Facet` . Please mind that the result will be a `FacetPage` . NOTE: Using `@Facet` allows you to define place holders which will use your input parameter as value.
+
+====
+[source,java]
+----
+@Query(value = "*:*")
+@Facet(fields = { "name" }, limit = 5)
+FacetPage<Product> findAllFacetOnName(Pageable page);
+----
+====
+
+====
+[source,java]
+----
+@Query(value = "popularity:?0")
+@Facet(fields = { "name" }, limit = 5, prefix="?1")
+FacetPage<Product> findByPopularityFacetOnName(int popularity, String prefix, Pageable page);
+----
+====
+
+Solr allows definition of facet parameters on a per field basis. In order to add special facet options to defined fields use `FieldWithFacetParameters`.
+
+====
+[source,java]
+----
+// produces: f.name.facet.prefix=spring
+FacetOptions options = new FacetOptions();
+options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring"));			
+----
+====
+
+[[solr.misc.terms]]
+== Terms
+
+Terms Vector cannot directly be used within `SolrRepository` but can be applied via `SolrTemplate`. Please mind, that the result will be a `TermsPage`.
+
+====
+[source,java]
+----
+TermsQuery query = SimpleTermsQuery.queryBuilder().fields("name").build();
+TermsPage page = solrTemplate.queryForTermsPage(query);		
+----
+====
+
+[[solr.misc.filter]]
+== Filter Query
+
+Filter Queries improve query speed and do not influence document score. It is recommended to implement geospatial search as filter query. NOTE: Please note that in solr, unless otherwise specified, all units of distance are kilometers and points are in degrees of latitude,longitude.
+
+====
+[source,java]
+----
+Query query = new SimpleQuery(new Criteria("category").is("supercalifragilisticexpialidocious"));
+FilterQuery fq = new SimpleFilterQuery(new Criteria("store")
+  .near(new GeoLocation(48.305478, 14.286699), new Distance(5)));
+query.addFilterQuery(fq);
+----
+====
+
+Simple filter queries can also be defined using `@Query` . NOTE: Using `@Query` allows you to define place holders which will use your input parameter as value.
+
+====
+[source,java]
+----
+@Query(value = "*:*", filters = { "inStock:true", "popularity:[* TO 3]" })
+List<Product> findAllFilterAvailableTrueAndPopularityLessThanEqual3();
+----
+====
+
+[[solr.misc.timeAllowed]]
+== Time allowed for a search
+
+It it possible to set the time allowed for a search to finish. This value only applies to the search and not to requests in general. Time is in milliseconds. Values less than or equal to zero implies no time restriction. Partial results may be returned, if there are any.
+
+====
+[source,java]
+----
+Query query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+// Allowing maximum of 100ms for this search
+query.setTimeAllowed(100);
+----
+====
+
+[[solr.misc.boost]]
+== Boost document Score
+
+Boost document score in case of matching criteria to influence result order. This can be done by either setting boost on `Criteria` or using `@Boost` for derived queries.
+
+====
+[source,java]
+----
+Page<Product> findByNameOrDescription(@Boost(2) String name, String description);
+----
+====
+
+[[solr.misc.boost.index-time]]
+=== Index Time Boosts
+
+Boosting documents score can be done on index time by using `@SolrDocument` annotation on classes (for Solr documents) and/or `@Indexed` on fields (for Solr fields).
+
+====
+[source,java]
+----
+import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.data.solr.repository.Boost;
+
+@SolrDocument(boost = 0.8f)
+public class MyEntity {
+
+    @Id
+    @Indexed
+    private String id;
+    
+    @Indexed(boost = 1.0f)
+    private String name;
+    
+    // setters and getters ...
+
+}	            
+----
+====
+
+[[solr.misc.requesthandler]]
+== Select Request Handler
+
+Select the request handler via `qt` Parameter directly in `Query` or add `@Query` to your method signature.
+
+====
+[source,java]
+----
+@Query(requestHandler = "/instock")
+Page<Product> findByNameOrDescription(String name, String description);
+----
+====
+
+[[solr.misc.join]]
+== Using Join
+
+Join attributes within one solr core by defining `Join` attribute of `Query`. NOTE: Join is not available prior to solr 4.x.
+
+====
+[source,java]
+----
+SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+query.setJoin(Join.from("manu_id_s").to("id"));
+----
+====
+
+[[solr.misc.highlighting]]
+== Highlighting
+
+To highlight matches in search result add `HighlightOptions` to the `SimpleHighlightQuery`. Providing `HighlightOptions` without any further attributes will highlight apply highlighting on all fields within a `SolrDocument`.  NOTE: Field specific highlight parameters can be set by adding `FieldWithHighlightParameters` to `HighlightOptions`.
+
+====
+[source,java]
+----
+SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
+query.setHighlightOptions(new HighlightOptions());
+HighlightPage<Product> page = solrTemplate.queryForHighlightPage(query, Product.class);
+----
+====
+
+Not all parameters are available via setters/getters but can be added directly.
+
+====
+[source,java]
+----
+SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
+query.setHighlightOptions(new HighlightOptions().addHighlightParameter("hl.bs.country", "at"));
+----
+====
+
+In order to apply Highlighting to derived queries use `@Highlight`. If no `fields` are defined highlighting will be aplied on all fields.
+
+====
+[source,java]
+----
+@Highlight(prefix = "<b>", postfix = "</b>")
+HighlightPage<Product> findByName(String name, Pageable page);
+----
+====
+
+[[solr.misc.functions]]
+== Using Functions
+
+Solr supports several functional expressions within queries. Followig functions are supported out of the box. Custom functions can be added by implementing `Function` 
+
+[cols="1,2", options="header"]
+.Functions
+|===
+| Class
+| Solr Function| `CurrencyFunction`
+| `currency(field_name,[CODE])`
+
+| `DefaultValueFunction`
+| `def(field\|function,defaultValue)`
+
+| `DistanceFunction`
+| `dist(power, pointA, pointB)`
+
+| `DivideFunction`
+| `div(x,y)`
+
+| `ExistsFunction`
+| `exists(field\|function)`
+
+| `GeoDistanceFunction`
+| `geodist(sfield, latitude, longitude)`
+
+| `GeoHashFunction`
+| `geohash(latitude, longitude)`
+
+| `IfFunction`
+| `if(value\|field\|function,trueValue,falseValue)`
+
+| `MaxFunction`
+| `max(field\|function,value)`
+
+| `NotFunction`
+| `not(field\|function)`
+
+| `ProductFunction`
+| `product(x,y,...)`
+
+| `QueryFunction`
+| `query(x)`
+
+| `TermFrequencyFunction`
+| `termfreq(field,term)`
+|===
+
+====
+[source,java]
+----
+SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+query.addFilterQuery(new FilterQuery(Criteria.where(QueryFunction.query("name:sol*"))));
+----
+====
