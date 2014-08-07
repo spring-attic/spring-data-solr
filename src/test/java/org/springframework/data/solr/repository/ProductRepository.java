@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
@@ -200,5 +201,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	List<ProductBean> findTop2ByNameStartingWith(String name);
 
 	Page<ProductBean> findTop3ByNameStartsWith(String string, Pageable page);
+
+	Slice<ProductBean> findProductBeanByName(String name, Pageable page);
 
 }

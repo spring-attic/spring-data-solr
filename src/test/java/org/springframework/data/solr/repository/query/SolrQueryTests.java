@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrCallback;
@@ -237,6 +238,19 @@ public class SolrQueryTests {
 				(Class<?>) Matchers.any());
 	}
 
+	/**
+	 * @see DATASOLR-186
+	 */
+	@Test
+	public void sliceShouldTriggerPagedExecution() {
+
+		createQueryForMethod("findByName", String.class, Pageable.class).execute(
+				new Object[] { "sliceme", new PageRequest(0, 10) });
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(Matchers.any(Query.class),
+				Matchers.<Class<ProductBean>> any());
+	}
+
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
@@ -275,6 +289,8 @@ public class SolrQueryTests {
 		Page<ProductBean> findAndApplyHighlightingWithNonDefaultFormatter(Pageable page);
 
 		Page<ProductBean> findTop5ByName(String name, Pageable page);
+
+		Slice<ProductBean> findByName(String name, Pageable page);
 
 	}
 

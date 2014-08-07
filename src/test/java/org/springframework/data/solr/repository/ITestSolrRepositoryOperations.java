@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.geo.Box;
@@ -833,11 +834,7 @@ public class ITestSolrRepositoryOperations {
 	@Test
 	public void findTopNResultAppliesLimitationForPageableCorrectly() {
 
-		List<ProductBean> beans = new ArrayList<ProductBean>(10);
-		for (int i = 0; i < 10; i++) {
-			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
-		}
-
+		List<ProductBean> beans = createProductBeans(10, "top");
 		repo.save(beans);
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(0, 2));
@@ -851,11 +848,7 @@ public class ITestSolrRepositoryOperations {
 	@Test
 	public void findTopNResultAppliesLimitationForPageableCorrectlyForPage1() {
 
-		List<ProductBean> beans = new ArrayList<ProductBean>(10);
-		for (int i = 0; i < 10; i++) {
-			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
-		}
-
+		List<ProductBean> beans = createProductBeans(10, "top");
 		repo.save(beans);
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 2));
@@ -869,16 +862,57 @@ public class ITestSolrRepositoryOperations {
 	@Test
 	public void findTopNResultReturnsEmptyListIfOusideOfRange() {
 
-		List<ProductBean> beans = new ArrayList<ProductBean>(10);
-		for (int i = 0; i < 10; i++) {
-			beans.add(createProductBean("top-" + i, 0, true, "top-" + i));
-		}
-
-		repo.save(beans);
+		repo.save(createProductBeans(10, "top"));
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 5));
 		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(0));
 		Assert.assertThat(result.hasNext(), IsEqual.equalTo(false));
+	}
+
+	/**
+	 * @see DATASOLR-186
+	 */
+	@Test
+	public void sliceShouldReturnCorrectly() {
+
+		repo.save(createProductBeans(10, "slice"));
+
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 2));
+		Assert.assertThat(slice.getNumberOfElements(), Is.is(2));
+	}
+
+	/**
+	 * @see DATASOLR-186
+	 */
+	@Test
+	public void sliceShouldReturnAllElementsWhenPageableIsBigEnoughCorrectly() {
+
+		repo.save(createProductBeans(10, "slice"));
+
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 20));
+		Assert.assertThat(slice.getNumberOfElements(), Is.is(10));
+	}
+
+	/**
+	 * @see DATASOLR-186
+	 */
+	@Test
+	public void sliceShouldBeEmptyWhenPageableOutOfRange() {
+
+		repo.save(createProductBeans(10, "slice"));
+
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(1, 20));
+		Assert.assertThat(slice.hasContent(), Is.is(false));
+	}
+
+	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {
+
+		List<ProductBean> beans = new ArrayList<ProductBean>(nrToCreate);
+		for (int i = 0; i < nrToCreate; i++) {
+			String id = StringUtils.hasText(prefix) ? (prefix + "-" + i) : Integer.toString(i);
+			beans.add(createProductBean(id, 0, true, id));
+		}
+		return beans;
 	}
 
 	private static ProductBean createProductBean(String id, int popularity, boolean available) {

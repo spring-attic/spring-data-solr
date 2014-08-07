@@ -130,7 +130,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			return new DeleteExecution().execute(query);
 		}
 
-		if (solrQueryMethod.isPageQuery()) {
+		if (solrQueryMethod.isPageQuery() || solrQueryMethod.isSliceQuery()) {
 			if (solrQueryMethod.isFacetQuery() && solrQueryMethod.isHighlightQuery()) {
 				throw new InvalidDataAccessApiUsageException("Facet and Highlight cannot be combined.");
 			}
