@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 import org.apache.webbeans.cditest.CdiTestContainer;
 import org.apache.webbeans.cditest.CdiTestContainerLoader;
 import org.junit.AfterClass;
@@ -26,11 +29,13 @@ import org.springframework.data.solr.repository.ProductBean;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class ITestCdiRepository {
 
 	private static CdiTestContainer cdiContainer;
 	private CdiProductRepository repository;
+	private SamplePersonRepository samplePersonRepository;
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -49,6 +54,7 @@ public class ITestCdiRepository {
 	public void setUp() {
 		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
 		repository = client.getRepository();
+		samplePersonRepository = client.getSamplePersonRepository();
 	}
 
 	@Test
@@ -77,6 +83,15 @@ public class ITestCdiRepository {
 		Assert.assertEquals(0, repository.count());
 		retrieved = repository.findOne(bean.getId());
 		Assert.assertNull(retrieved);
+	}
+
+	/**
+	 * @see DATASOLR-187
+	 */
+	@Test
+	public void returnOneFromCustomImpl() {
+
+		assertThat(samplePersonRepository.returnOne(), is(1));
 	}
 
 }

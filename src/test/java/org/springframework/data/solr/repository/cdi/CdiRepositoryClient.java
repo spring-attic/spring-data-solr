@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ import javax.inject.Inject;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 class CdiRepositoryClient {
 
 	private CdiProductRepository repository;
+
+	private SamplePersonRepository samplePersonRepository;
 
 	public CdiProductRepository getRepository() {
 		return repository;
@@ -33,4 +36,12 @@ class CdiRepositoryClient {
 		this.repository = repository;
 	}
 
+	public SamplePersonRepository getSamplePersonRepository() {
+		return samplePersonRepository;
+	}
+
+	@Inject
+	public void setSamplePersonRepository(SamplePersonRepository samplePersonRepository) {
+		this.samplePersonRepository = samplePersonRepository;
+	}
 }
