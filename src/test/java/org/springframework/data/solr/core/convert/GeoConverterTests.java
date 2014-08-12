@@ -62,31 +62,31 @@ public class GeoConverterTests {
 
 		@Test
 		public void testConvertPointToStringWithNull() {
-			Assert.assertNull(GeoConverters.PointToStringConverter.INSTANCE.convert(null));
+			Assert.assertNull(GeoConverters.Point3DToStringConverter.INSTANCE.convert(null));
 		}
 
 		@Test
 		public void testConvertPointXYToString() {
 			Assert.assertEquals("48.303056,14.290556",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556)));
 		}
 
 		@Test
 		public void testConvertPointXYToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341)));
 		}
 
 		@Test
 		public void testConvertPointXYZToString() {
 			Assert.assertEquals("48.303056,14.290556,12.78",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556, 12.78)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(48.303056, 14.290556, 12.78)));
 		}
 
 		@Test
 		public void testConvertPointXYZToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341,-12.78",
-					GeoConverters.PointToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
+					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
 		}
 
 	}

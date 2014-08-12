@@ -82,7 +82,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			conversionService.addConverter(NumberConverters.NumberConverter.INSTANCE);
 		}
 		if (!conversionService.canConvert(Point.class, String.class)) {
-			conversionService.addConverter(GeoConverters.PointToStringConverter.INSTANCE);
+			conversionService.addConverter(GeoConverters.Point3DToStringConverter.INSTANCE);
 		}
 		if (!conversionService.canConvert(Distance.class, String.class)) {
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);

@@ -75,7 +75,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			conversionService.addConverter(GeoConverters.DistanceToStringConverter.INSTANCE);
 		}
 		if (!conversionService.canConvert(org.springframework.data.geo.Point.class, String.class)) {
-			conversionService.addConverter(GeoConverters.PointToStringConverter.INSTANCE);
+			conversionService.addConverter(GeoConverters.Point3DToStringConverter.INSTANCE);
 		}
 		if (VersionUtil.isJodaTimeAvailable()) {
 			if (!conversionService.canConvert(org.joda.time.ReadableInstant.class, String.class)) {

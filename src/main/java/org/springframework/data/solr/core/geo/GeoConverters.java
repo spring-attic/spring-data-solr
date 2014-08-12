@@ -28,11 +28,9 @@ public final class GeoConverters {
 
 	/**
 	 * Converts a {@link Point} to a solrReadable request parameter.
-	 * 
-	 * @deprecated Will be removed in 1.3.
 	 */
 	@WritingConverter
-	public enum GeoLocationToStringConverter implements Converter<org.springframework.data.geo.Point, String> {
+	public enum Point2DToStringConverter implements Converter<org.springframework.data.geo.Point, String> {
 		INSTANCE;
 
 		@Override
@@ -41,7 +39,7 @@ public final class GeoConverters {
 				return null;
 			}
 			if (source instanceof Point) {
-				return PointToStringConverter.INSTANCE.convert((Point) source);
+				return Point3DToStringConverter.INSTANCE.convert((Point) source);
 			}
 			String formattedString = StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getX()), "0")
 					+ "," + StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0");
@@ -100,7 +98,7 @@ public final class GeoConverters {
 	 * 
 	 * @since 1.1
 	 */
-	public enum PointToStringConverter implements Converter<org.springframework.data.geo.Point, String> {
+	public enum Point3DToStringConverter implements Converter<org.springframework.data.geo.Point, String> {
 		INSTANCE;
 
 		@Override
