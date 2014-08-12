@@ -27,7 +27,7 @@ import org.springframework.data.geo.Metrics;
 public final class GeoConverters {
 
 	/**
-	 * Converts a {@link GeoLocation} to a solrReadable request parameter.
+	 * Converts a {@link Point} to a solrReadable request parameter.
 	 * 
 	 * @deprecated Will be removed in 1.3.
 	 */

@@ -322,17 +322,17 @@ A list of supported keywords for Solr is shown below.
 | `q=-name:(?0... )`
 
 | `Within`
-| `findByStoreWithin(GeoLocation, Distance)`
+| `findByStoreWithin(Point, Distance)`
 | `q={!geofilt pt=?0.latitude,?0.longitude sfield=store
 										d=?1}`
 
 | `Near`
-| `findByStoreNear(GeoLocation, Distance)`
+| `findByStoreNear(Point, Distance)`
 | `q={!bbox pt=?0.latitude,?0.longitude sfield=store
 										d=?1}`
 
 | `Near`
-| `findByStoreNear(BoundingBox)`
+| `findByStoreNear(Box)`
 | `q=store[?0.start.latitude,?0.start.longitude TO
 										?0.end.latitude,?0.end.longitude]`
 

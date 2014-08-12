@@ -453,7 +453,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			return false;
 		}
 
-		@SuppressWarnings("unchecked")
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
 			Assert.notNull(type);
 

@@ -308,7 +308,7 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
-	public void testFindByNearWithBoundingBox() {
+	public void testFindByNearWithBox() {
 		ProductBean locatedInBuffalow = createProductBean("100", 5, true);
 		locatedInBuffalow.setLocation("45.17614,-93.87341");
 
