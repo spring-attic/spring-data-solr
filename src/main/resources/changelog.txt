@@ -1,6 +1,19 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.3.0.RC1 (2014-08-13)
+-----------------------------------------
+* DATASOLR-190 - Release 1.3 RC1.
+* DATASOLR-188 - Convert to Asciidoctor for reference documentation.
+* DATASOLR-187 - Add support for custom implementations in CDI repositories.
+* DATASOLR-186 - Add support for sliced execution.
+* DATASOLR-185 - Faulty synchronisation of cache used in CustomConversions.java causes entire application to hang.
+* DATASOLR-184 - Improve multistore behaviour.
+* DATASOLR-182 - Check for usage for deprecations from spring-data-commons.
+* DATASOLR-181 - Remove deprecations from previous versions.
+* DATASOLR-112 - Allow zero as size of documents returned.
+
+
 Changes in version 1.2.2.RELEASE (2014-07-28)
 ---------------------------------------------
 * DATASOLR-183 - Release 1.2.2.
