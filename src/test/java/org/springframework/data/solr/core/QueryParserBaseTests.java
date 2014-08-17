@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.hamcrest.core.Is;
@@ -27,17 +28,21 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.QueryParserBase.BasePredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.DefaultProcessor;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsGroupQuery;
 import org.springframework.data.solr.core.QueryParserBase.PredicateProcessor;
 import org.springframework.data.solr.core.QueryParserBase.WildcardProcessor;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.GroupQuery;
+import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleCalculatedField;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.util.CollectionUtils;
@@ -219,6 +224,42 @@ public class QueryParserBaseTests {
 	public void testCreateFunctionFieldFragmentPrependsAliasCorrectly() {
 		SimpleCalculatedField ff = new SimpleCalculatedField("alias", new Foo(null));
 		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:foo()"));
+	}
+	
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testNamedObjectsGroupQuery() {
+		List<Function> functionList = Arrays.asList(Mockito.mock(Function.class),Mockito.mock(Function.class));
+		List<Query> queriesList = Arrays.asList(Mockito.mock(Query.class),Mockito.mock(Query.class));
+
+		GroupQuery groupQueryMock = Mockito.mock(GroupQuery.class);
+
+		Mockito.when(groupQueryMock.getGroupByFunctions()).thenReturn(functionList);
+		Mockito.when(groupQueryMock.getGroupByQueries()).thenReturn(queriesList);
+		
+		NamedObjectsGroupQuery decorator = new NamedObjectsGroupQuery(groupQueryMock);
+		decorator.setName(functionList.get(0), "nameFunc0");
+		decorator.setName(functionList.get(1), "nameFunc1");
+		decorator.setName(queriesList.get(0), "nameQuery0");
+		decorator.setName(queriesList.get(1), "nameQuery1");
+		Map<Object, String> objectNames = decorator.getNamesAssociation();
+		
+		Assert.assertEquals("nameFunc0", objectNames.get(functionList.get(0)));
+		Assert.assertEquals("nameFunc1", objectNames.get(functionList.get(1)));
+		Assert.assertEquals("nameQuery0", objectNames.get(queriesList.get(0)));
+		Assert.assertEquals("nameQuery1", objectNames.get(queriesList.get(1)));
+	}
+
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void testNamedObjectsGroupQueryForAnInexistentGroupObject() {
+		GroupQuery groupQueryMock = Mockito.mock(GroupQuery.class);
+		NamedObjectsGroupQuery decorator = new NamedObjectsGroupQuery(groupQueryMock);
+		decorator.setName(Mockito.mock(Query.class), "some name");
 	}
 
 	private void assertProcessorCanProcess(PredicateProcessor processor, OperationKey key) {

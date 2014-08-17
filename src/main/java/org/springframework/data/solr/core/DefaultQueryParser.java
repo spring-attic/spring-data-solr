@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,8 @@ import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParam
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
+import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.GroupQuery;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
@@ -83,6 +86,9 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (query instanceof HighlightQuery) {
 			processHighlightOptions(solrQuery, (HighlightQuery) query);
 		}
+		if (query instanceof GroupQuery) {
+			processGroupOptions(solrQuery, (GroupQuery) query);
+		}
 		return solrQuery;
 	}
 
@@ -104,6 +110,57 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			appendFacetingQueries(solrQuery, (FacetQuery) query);
 			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
 		}
+	}
+
+	private void setObjectNameOnGroupQuery(GroupQuery query, Object object, String name) {
+		if (query instanceof NamedObjectsGroupQuery) {
+			((NamedObjectsGroupQuery) query).setName(object, name);
+		}
+	}
+
+	private void processGroupOptions(SolrQuery solrQuery, GroupQuery query) {
+		solrQuery.set(GroupParams.GROUP, true);
+		solrQuery.set(GroupParams.GROUP_MAIN, false);
+		solrQuery.set(GroupParams.GROUP_FORMAT, "grouped");
+
+		if (!CollectionUtils.isEmpty(query.getGroupByFunctions())) {
+			for (Function f : query.getGroupByFunctions()) {
+				String functionFragment = createFunctionFragment(f);
+				setObjectNameOnGroupQuery(query, f, functionFragment);
+				solrQuery.add(GroupParams.GROUP_FUNC, functionFragment);
+			}
+		}
+		
+		if (!CollectionUtils.isEmpty(query.getGroupByQueries())) {
+			for (Query q : query.getGroupByQueries()) {
+				String queryFragment = getQueryString(q);
+				setObjectNameOnGroupQuery(query, q, queryFragment);
+				solrQuery.add(GroupParams.GROUP_QUERY, queryFragment);
+			}
+		}
+
+		if (!(query.getGroupSort() == null)) {
+			Iterator<Order> iterator = query.getGroupSort().iterator();
+			while (iterator.hasNext()) {
+				Order o = iterator.next();
+				solrQuery.add(GroupParams.GROUP_SORT, o.getProperty().trim() + " " + (o.isAscending() ? ORDER.asc : ORDER.desc));
+			}
+		}
+		
+		if (query.getCachePercent() > 0) {
+			solrQuery.add(GroupParams.GROUP_CACHE_PERCENTAGE, String.valueOf(query.getCachePercent()));
+		}
+		
+		if (query.getGroupRows() != null && query.getGroupRows() >= 0) {
+			solrQuery.set(GroupParams.GROUP_LIMIT, query.getGroupRows());
+		}
+		if (query.getGroupOffset() != null && query.getGroupOffset() >= 0) {
+			solrQuery.set(GroupParams.GROUP_OFFSET, query.getGroupOffset());
+		}
+		solrQuery.set(GroupParams.GROUP_TOTAL_COUNT, query.isGroupTotalCount());
+		solrQuery.set(GroupParams.GROUP_FACET, query.isGroupFacets());
+		solrQuery.set(GroupParams.GROUP_TRUNCATE, query.isTruncateFacets());
+		
 	}
 
 	/**

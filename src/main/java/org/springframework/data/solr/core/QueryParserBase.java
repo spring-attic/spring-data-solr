@@ -16,8 +16,10 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,12 +35,14 @@ import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
+import org.springframework.data.solr.core.query.AbstractGroupQueryDecorator;
 import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.GroupQuery;
 import org.springframework.data.solr.core.query.Node;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
@@ -727,6 +731,34 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			return createFunctionFragment((Function) predicate.getValue());
 		}
 
+	}
+
+	static class NamedObjectsGroupQuery extends AbstractGroupQueryDecorator {
+
+		private Map<Object, String> namesAssociation = new HashMap<Object, String>();
+
+		public NamedObjectsGroupQuery(GroupQuery groupQuery) {
+			super(groupQuery);
+			Assert.notNull(groupQuery, "group query shall not be null");
+			
+			for (Query query : groupQuery.getGroupByQueries()) {
+				namesAssociation.put(query, null);
+			}
+			
+			for (Function function : groupQuery.getGroupByFunctions()) {
+				namesAssociation.put(function, null);
+			}
+		}
+		
+		public void setName(Object object, String name) {
+			Assert.state(namesAssociation.containsKey(object), "not able to define name to " + object);
+			namesAssociation.put(object, name);
+		}
+		
+		public Map<Object, String> getNamesAssociation() {
+			return namesAssociation;
+		}
+		
 	}
 
 }

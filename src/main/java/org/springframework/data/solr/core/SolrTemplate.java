@@ -45,12 +45,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.VersionUtil;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsGroupQuery;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.GroupQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
@@ -58,6 +60,8 @@ import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.DelegatingCursor;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.SolrGroupResultPage;
+import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
@@ -303,6 +307,26 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrDocumentList results = response.getResults();
 		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(),
 				results.getMaxScore());
+		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
+		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
+
+		return page;
+	}
+
+	@Override
+	public <T> SolrGroupResultPage<T> queryForGroupPage(GroupQuery query, Class<T> clazz) {
+		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(clazz, "Target class must not be 'null'.");
+
+		NamedObjectsGroupQuery namedObjectsGroupQuery = new NamedObjectsGroupQuery(query);
+		
+		QueryResponse response = query(namedObjectsGroupQuery);
+
+		List<GroupResult<T>> content = ResultHelper.convertGroupQueryResponseToGroupResultList(namedObjectsGroupQuery, 
+				response, this, clazz);
+
+		SolrGroupResultPage<T> page = new SolrGroupResultPage<T>(content, namedObjectsGroupQuery.getNamesAssociation());
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
 		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
