@@ -1,21 +1,24 @@
-[preface]
 = Preface
 
 The Spring Data Solr project applies core Spring concepts to the development of solutions using the Apache Solr Search Engine. We provide a "template" as a high-level abstraction for storing and querying documents. You will notice similarities to the mongodb support in the Spring Framework.
 
 [[project]]
+[preface]
 == Project Metadata
 
-* Version Control - `git://github.com/spring-projects/spring-data-solr.git`
+* Version Control - https://github.com/spring-projects/spring-data-solr
 * Bugtacker - https://jira.spring.io/browse/DATASOLR
-* Release repository - http://repo.springsource.org/libs-release
-* Milestone repository - http://repo.springsource.org/libs-milestone
-* Snapshot repository - http://repo.springsource.org/libs-snapshot
+* Release repository - https://repo.springsource.org/libs-release
+* Milestone repository - https://repo.springsource.org/libs-milestone
+* Snapshot repository - https://repo.springsource.org/libs-snapshot
 
 [[requirements]]
+[preface]
 == Requirements
 
-Requires http://lucene.apache.org/solr/[Apache Solr] 3.6 and above or optional dependency [source,xml]
+Requires http://lucene.apache.org/solr/[Apache Solr] 3.6 and above or optional dependency
+
+[source,xml]
 ----
 <dependency>
   <groupId>org.apache.solr</groupId>
