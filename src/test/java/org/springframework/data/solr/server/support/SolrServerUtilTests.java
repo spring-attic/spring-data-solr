@@ -22,9 +22,18 @@ import static org.hamcrest.text.IsEmptyString.*;
 import java.net.MalformedURLException;
 import java.util.Map;
 
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.mapping.SolrDocument;
@@ -188,6 +197,77 @@ public class SolrServerUtilTests {
 	@Test
 	public void testResolveSolrCoreNameShouldReturnAnnotationValueWhenPresent() {
 		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
+	}
+
+	/**
+	 * @see DATASOLR-189
+	 */
+	@Test
+	public void cloningLBHttpSolrServerShouldCopyHttpParamsCorrectly() throws MalformedURLException {
+
+		HttpParams params = new BasicHttpParams();
+		params.setParameter("foo", "bar");
+		DefaultHttpClient client = new DefaultHttpClient(params);
+
+		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(client, BASE_URL, ALTERNATE_BASE_URL);
+
+		LBHttpSolrServer cloned = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
+		Assert.assertThat(cloned.getHttpClient().getParams(), IsEqual.equalTo(params));
+
+	}
+
+	/**
+	 * @see DATASOLR-189
+	 */
+	@Test
+	public void cloningLBHttpSolrServerShouldCopyCredentialsProviderCorrectly() {
+
+		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("foo", "bar"));
+
+		DefaultHttpClient client = new DefaultHttpClient();
+		client.setCredentialsProvider(credentialsProvider);
+
+		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(client, BASE_URL, ALTERNATE_BASE_URL);
+
+		LBHttpSolrServer cloned = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
+		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
+				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
+	}
+
+	/**
+	 * @see DATASOLR-189
+	 */
+	@Test
+	public void cloningHttpSolrServerShouldCopyHttpParamsCorrectly() {
+
+		HttpParams params = new BasicHttpParams();
+		params.setParameter("foo", "bar");
+		DefaultHttpClient client = new DefaultHttpClient(params);
+
+		HttpSolrServer solrServer = new HttpSolrServer(BASE_URL, client);
+		HttpSolrServer cloned = SolrServerUtils.clone(solrServer);
+
+		Assert.assertThat(cloned.getHttpClient().getParams(), IsEqual.equalTo(params));
+	}
+
+	/**
+	 * @see DATASOLR-189
+	 */
+	@Test
+	public void cloningHttpSolrServerShouldCopyCredentialsProviderCorrectly() {
+
+		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("foo", "bar"));
+
+		DefaultHttpClient client = new DefaultHttpClient();
+		client.setCredentialsProvider(credentialsProvider);
+
+		HttpSolrServer solrServer = new HttpSolrServer(BASE_URL, client);
+		HttpSolrServer cloned = SolrServerUtils.clone(solrServer);
+
+		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
+				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
 	}
 
 	private void assertHttpSolrServerProperties(HttpSolrServer httpSolrServer, HttpSolrServer clone) {
