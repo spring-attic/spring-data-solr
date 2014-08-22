@@ -18,12 +18,16 @@ package org.springframework.data.solr.server.support;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpParams;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
@@ -150,15 +154,34 @@ public class SolrServerUtils {
 		if (solrServer == null) {
 			return null;
 		}
+
 		Method baseUrlGetterMethod = ClassUtils.getMethodIfAvailable(solrServer.getClass(), "getBaseURL");
 		if (baseUrlGetterMethod == null) {
 			return null;
 		}
+
 		String baseUrl = (String) ReflectionUtils.invokeMethod(baseUrlGetterMethod, solrServer);
 		String url = appendCoreToBaseUrl(baseUrl, core);
-		Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
-				.getConstructorIfAvailable(solrServer.getClass(), String.class);
-		return (SolrServer) BeanUtils.instantiateClass(constructor, url);
+
+		try {
+
+			HttpClient clientToUse = readAndCloneHttpClient(solrServer);
+
+			if (clientToUse != null) {
+				Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
+						.getConstructorIfAvailable(solrServer.getClass(), String.class, HttpClient.class);
+				if (constructor != null) {
+					return (SolrServer) BeanUtils.instantiateClass(constructor, url, clientToUse);
+				}
+			}
+
+			Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
+					.getConstructorIfAvailable(solrServer.getClass(), String.class);
+			return (SolrServer) BeanUtils.instantiateClass(constructor, url);
+		} catch (Exception e) {
+			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
+					+ ". ", e);
+		}
 	}
 
 	private static LBHttpSolrServer cloneLBHttpSolrServer(SolrServer solrServer, String core) {
@@ -173,7 +196,7 @@ public class SolrServerUtils {
 			} else if (VersionUtil.isSolr4XAvailable()) {
 				clone = cloneSolr4LBHttpServer(solrServer, core);
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
 					+ ". ", e);
 		}
@@ -216,7 +239,8 @@ public class SolrServerUtils {
 	}
 
 	private static LBHttpSolrServer cloneSolr4LBHttpServer(SolrServer solrServer, String core)
-			throws MalformedURLException {
+			throws MalformedURLException, InstantiationException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
 		Map<String, ?> map = readField(solrServer, "aliveServers");
 
 		String[] servers = new String[map.size()];
@@ -225,7 +249,41 @@ public class SolrServerUtils {
 			servers[i] = appendCoreToBaseUrl(key, core);
 			i++;
 		}
+
+		Boolean isInternalCient = readField(solrServer, "clientIsInternal");
+
+		if (isInternalCient != null && !isInternalCient) {
+			HttpClient clientToUse = readAndCloneHttpClient(solrServer);
+			return new LBHttpSolrServer(clientToUse, servers);
+		}
 		return new LBHttpSolrServer(servers);
+	}
+
+	private static HttpClient readAndCloneHttpClient(SolrServer solrServer) throws InstantiationException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+		HttpClient sourceClient = readField(solrServer, "httpClient");
+		return cloneHttpClient(sourceClient);
+	}
+
+	private static HttpClient cloneHttpClient(HttpClient sourceClient) throws InstantiationException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+		if (sourceClient == null) {
+			return null;
+		}
+
+		Class<?> clientType = ClassUtils.getUserClass(sourceClient);
+		Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(clientType, HttpParams.class);
+		if (constructor != null) {
+
+			HttpClient targetClient = (HttpClient) constructor.newInstance(sourceClient.getParams());
+			BeanUtils.copyProperties(sourceClient, targetClient);
+			return targetClient;
+		} else {
+			return new DefaultHttpClient(sourceClient.getParams());
+		}
+
 	}
 
 	@SuppressWarnings("unchecked")
