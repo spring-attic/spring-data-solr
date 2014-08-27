@@ -69,10 +69,8 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 					SolrOperations.class.getName(), qualifiers));
 		}
 
-		Bean<?> customImplementationBean = getCustomImplementationBean(repositoryType, beanManager, qualifiers);
-
 		return new SolrRepositoryBean<T>(solrOperationBeans, qualifiers, repositoryType, beanManager,
-				customImplementationBean);
+				getCustomImplementationDetector());
 	}
 
 }
