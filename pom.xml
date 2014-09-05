@@ -5,7 +5,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-solr</artifactId>
-	<version>1.3.0.RELEASE</version>
+	<version>1.3.1.BUILD-SNAPSHOT</version>
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
@@ -26,7 +26,7 @@
 		<solr>4.7.2</solr>
 		<springdata.commons>1.9.0.RELEASE</springdata.commons>
 	</properties>
-	
+
 	<developers>
 		<developer>
 			<id>christophstrobl</id>
@@ -198,7 +198,7 @@
 			<version>3.0-alpha-1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -208,7 +208,7 @@
 
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
@@ -228,7 +228,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -266,7 +266,7 @@
 			<url>http://repo.spring.io/libs-release</url>
 		</repository>
 	</repositories>
-	
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>spring-plugins-release</id>
