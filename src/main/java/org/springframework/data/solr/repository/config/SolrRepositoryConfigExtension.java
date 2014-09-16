@@ -20,8 +20,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.data.repository.config.AnnotationRepositoryConfigurationSource;
 import org.springframework.data.repository.config.RepositoryConfigurationExtension;
@@ -29,6 +31,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
 import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.data.repository.config.XmlRepositoryConfigurationSource;
 import org.springframework.data.solr.core.SolrExceptionTranslator;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.SolrRepository;
@@ -44,6 +47,19 @@ import org.w3c.dom.Element;
  * @author Christoph Strobl
  */
 public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
+
+	enum BeanDefinition {
+		SOLR_MAPPTING_CONTEXT("solrMappingContext"), SOLR_OPERATIONS("solrOperations"), SOLR_SERVER("solrServer");
+		String beanName;
+
+		private BeanDefinition(String beanName) {
+			this.beanName = beanName;
+		}
+
+		public String getBeanName() {
+			return beanName;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -72,16 +88,21 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 
 		AnnotationAttributes attributes = config.getAttributes();
 		if (!attributes.getBoolean("multicoreSupport")) {
-			builder.addPropertyReference("solrOperations", attributes.getString("solrTemplateRef"));
+			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
+					attributes.getString("solrTemplateRef"));
 		} else {
-			builder.addPropertyReference("solrServer", attributes.getString("solrServerRef"));
+			builder.addPropertyReference(BeanDefinition.SOLR_SERVER.getBeanName(), attributes.getString("solrServerRef"));
 		}
 		builder.addPropertyValue("schemaCreationSupport", attributes.getBoolean("schemaCreationSupport"));
+		builder.addPropertyReference(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), "solrMappingContext");
 	}
 
 	@Override
 	public void registerBeansForRoot(BeanDefinitionRegistry registry, RepositoryConfigurationSource configurationSource) {
+
 		super.registerBeansForRoot(registry, configurationSource);
+
+		registerSolrMappingContextIfNotPresent(registry, configurationSource);
 
 		BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class);
 		registry.registerBeanDefinition("solrExceptionTranslator", definition.getBeanDefinition());
@@ -96,13 +117,15 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 
 		Element element = config.getElement();
 		if (!Boolean.valueOf(element.getAttribute("multicore-support"))) {
-			builder.addPropertyReference("solrOperations", element.getAttribute("solr-template-ref"));
+			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
+					element.getAttribute("solr-template-ref"));
 		} else {
-			builder.addPropertyReference("solrServer", element.getAttribute("solr-server-ref"));
+			builder.addPropertyReference(BeanDefinition.SOLR_SERVER.getBeanName(), element.getAttribute("solr-server-ref"));
 		}
 		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
 			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));
 		}
+		builder.addPropertyReference(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), "solrMappingContext");
 	}
 
 	/*
@@ -121,5 +144,18 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	@Override
 	protected Collection<Class<?>> getIdentifyingTypes() {
 		return Arrays.<Class<?>> asList(SolrRepository.class, SolrCrudRepository.class);
+	}
+
+	private void registerSolrMappingContextIfNotPresent(BeanDefinitionRegistry registry,
+			RepositoryConfigurationSource configurationSource) {
+
+		if (!registry.containsBeanDefinition(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName())) {
+
+			RootBeanDefinition definition = new RootBeanDefinition(SimpleSolrMappingContext.class);
+			definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
+			definition.setSource(configurationSource.getSource());
+
+			registry.registerBeanDefinition(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), definition);
+		}
 	}
 }

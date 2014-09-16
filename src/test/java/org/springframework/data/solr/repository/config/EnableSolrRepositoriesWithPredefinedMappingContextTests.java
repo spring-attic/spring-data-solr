@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,18 +28,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
- * Integration test for {@link EnableSolrRepositories}.
- * 
- * @author Oliver Gierke
  * @author Christoph Strobl
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class ITestEnableSolrRepositories extends AbstractITestWithEmbeddedSolrServer {
+public class EnableSolrRepositoriesWithPredefinedMappingContextTests extends AbstractITestWithEmbeddedSolrServer {
+
+	private static final SimpleSolrMappingContext SOLR_MAPPING_CONTEXT = new SimpleSolrMappingContext();
 
 	@Configuration
 	@EnableSolrRepositories
@@ -55,22 +55,19 @@ public class ITestEnableSolrRepositories extends AbstractITestWithEmbeddedSolrSe
 			return solrServer;
 		}
 
+		@Bean
+		public SimpleSolrMappingContext solrMappingContext() {
+			return SOLR_MAPPING_CONTEXT;
+		}
 	}
-
-	@Autowired PersonRepository repository;
 
 	@Autowired ApplicationContext context;
-
-	@Test
-	public void bootstrapsRepository() {
-		assertThat(repository, is(notNullValue()));
-	}
 
 	/**
 	 * @see DATASOLR-163
 	 */
 	@Test
-	public void shouldRegisterMappingContextWhenNotPresent() {
-		assertThat(context.containsBean("solrMappingContext"), is(true));
+	public void shouldUseExistingMappingContextWhenPresent() {
+		assertThat((SimpleSolrMappingContext) context.getBean("solrMappingContext"), is(SOLR_MAPPING_CONTEXT));
 	}
 }

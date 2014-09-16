@@ -23,6 +23,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.core.support.TransactionalRepositoryFactoryBeanSupport;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.util.Assert;
 
 /**
@@ -37,6 +38,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	private SolrServer solrServer;
 	private SolrOperations operations;
 	private boolean schemaCreationSupport;
+	private SimpleSolrMappingContext solrMappingContext;
 
 	/**
 	 * Configures the {@link SolrOperations} to be used to create Solr repositories.
@@ -56,6 +58,23 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	}
 
 	/**
+	 * @param solrMappingContext
+	 * @since 1.4
+	 */
+	public void setSolrMappingContext(SimpleSolrMappingContext solrMappingContext) {
+		this.solrMappingContext = solrMappingContext;
+		super.setMappingContext(solrMappingContext);
+	}
+
+	/**
+	 * @return
+	 * @since 1.4
+	 */
+	public SimpleSolrMappingContext getSolrMappingContext() {
+		return solrMappingContext;
+	}
+
+	/**
 	 * @return SolrOperations to be used for eg. custom implementation
 	 */
 	protected SolrOperations getSolrOperations() {
@@ -68,6 +87,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	 */
 	@Override
 	public void afterPropertiesSet() {
+
 		super.afterPropertiesSet();
 		Assert.isTrue((operations != null || solrServer != null), "SolrOperations or SolrServer must be configured!");
 	}

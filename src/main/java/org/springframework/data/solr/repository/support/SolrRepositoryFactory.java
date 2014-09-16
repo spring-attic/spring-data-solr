@@ -101,6 +101,9 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 		SolrOperations operations = this.solrOperations;
 		if (factory != null) {
 			SolrTemplate template = new SolrTemplate(factory);
+			if (this.solrOperations.getConverter() != null) {
+				template.setMappingContext(this.solrOperations.getConverter().getMappingContext());
+			}
 			template.setSolrCore(SolrServerUtils.resolveSolrCoreName(metadata.getDomainType()));
 			addSchemaCreationFeaturesIfEnabled(template);
 			template.afterPropertiesSet();
