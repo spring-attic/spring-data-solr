@@ -30,12 +30,16 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.apache.solr.core.CoreContainer;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsSame;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -268,6 +272,19 @@ public class SolrServerUtilTests {
 
 		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
+	}
+
+	/**
+	 * @see DATASOLR-203
+	 */
+	@Test
+	public void cloningEmbeddedSolrServerShouldReuseCoreContainer() {
+
+		CoreContainer coreContainer = Mockito.mock(CoreContainer.class);
+		EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, null);
+
+		EmbeddedSolrServer clone = SolrServerUtils.clone(solrServer, "core1");
+		Assert.assertThat(clone.getCoreContainer(), IsSame.sameInstance(coreContainer));
 	}
 
 	private void assertHttpSolrServerProperties(HttpSolrServer httpSolrServer, HttpSolrServer clone) {
