@@ -139,11 +139,12 @@ public class SolrServerUtils {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static SolrServer cloneEmbeddedSolrServer(SolrServer solrServer, String core) {
-		String solrHome = ((EmbeddedSolrServer) solrServer).getCoreContainer().getSolrHome();
+
+		CoreContainer coreContainer = ((EmbeddedSolrServer) solrServer).getCoreContainer();
 		try {
 			Constructor constructor = ClassUtils.getConstructorIfAvailable(solrServer.getClass(), CoreContainer.class,
 					String.class);
-			return (SolrServer) BeanUtils.instantiateClass(constructor, new CoreContainer(solrHome), core);
+			return (SolrServer) BeanUtils.instantiateClass(constructor, coreContainer, core);
 		} catch (Exception e) {
 			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
 					+ ".", e);
