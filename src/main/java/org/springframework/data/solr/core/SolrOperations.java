@@ -30,6 +30,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
@@ -211,6 +212,16 @@ public interface SolrOperations {
 	 * @since 1.3
 	 */
 	<T> Cursor<T> queryForCursor(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against solr and return result as {@link GroupPage}
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @return
+	 * @since 1.4
+	 */
+	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
 
 	/**
 	 * Send commit command {@link SolrServer#commit()}

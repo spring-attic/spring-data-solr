@@ -16,8 +16,11 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,12 +36,17 @@ import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
+import org.springframework.data.solr.core.query.AbstractFacetQueryDecorator;
+import org.springframework.data.solr.core.query.AbstractHighlightQueryDecorator;
+import org.springframework.data.solr.core.query.AbstractQueryDecorator;
 import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
+import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Node;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
@@ -52,6 +60,7 @@ import org.springframework.util.CollectionUtils;
  * {@link org.apache.solr.client.solrj.SolrQuery}.
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
@@ -725,6 +734,95 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		protected Object doProcess(Predicate predicate, Field field) {
 			return createFunctionFragment((Function) predicate.getValue());
+		}
+
+	}
+
+	private static final void setObjectName(Map<String, Object> namesAssociation, Object object, String name) {
+		namesAssociation.put(name, object);
+	}
+
+	/**
+	 * @author Francisco Spaeth
+	 * @since 1.4
+	 */
+	interface NamedObjects {
+
+		void setName(Object object, String name);
+
+		Map<String, Object> getNamesAssociation();
+
+	}
+
+	/**
+	 * @author Francisco Spaeth
+	 * @since 1.4
+	 */
+	static class NamedObjectsQuery extends AbstractQueryDecorator implements NamedObjects {
+
+		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+
+		public NamedObjectsQuery(Query query) {
+			super(query);
+			Assert.notNull(query, "group query shall not be null");
+		}
+
+		@Override
+		public void setName(Object object, String name) {
+			setObjectName(namesAssociation, object, name);
+		}
+
+		@Override
+		public Map<String, Object> getNamesAssociation() {
+			return Collections.unmodifiableMap(namesAssociation);
+		}
+
+	}
+
+	/**
+	 * @author Francisco Spaeth
+	 * @since 1.4
+	 */
+	static class NamedObjectsFacetQuery extends AbstractFacetQueryDecorator implements NamedObjects {
+
+		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+
+		public NamedObjectsFacetQuery(FacetQuery query) {
+			super(query);
+		}
+
+		@Override
+		public void setName(Object object, String name) {
+			setObjectName(namesAssociation, object, name);
+		}
+
+		@Override
+		public Map<String, Object> getNamesAssociation() {
+			return Collections.unmodifiableMap(namesAssociation);
+		}
+
+	}
+
+	/**
+	 * @author Francisco Spaeth
+	 * @since 1.4
+	 */
+	static class NamedObjectsHighlightQuery extends AbstractHighlightQueryDecorator implements NamedObjects {
+
+		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+
+		public NamedObjectsHighlightQuery(HighlightQuery query) {
+			super(query);
+		}
+
+		@Override
+		public void setName(Object object, String name) {
+			setObjectName(namesAssociation, object, name);
+		}
+
+		@Override
+		public Map<String, Object> getNamesAssociation() {
+			return Collections.unmodifiableMap(namesAssociation);
 		}
 
 	}

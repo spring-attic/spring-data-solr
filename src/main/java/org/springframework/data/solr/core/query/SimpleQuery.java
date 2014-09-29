@@ -34,7 +34,6 @@ import org.springframework.util.Assert;
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	private List<Field> projectionOnFields = new ArrayList<Field>(0);
-	private List<Field> groupByFields = new ArrayList<Field>(0);
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
 
 	private Integer offset = null;
@@ -45,6 +44,8 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Operator defaultOperator;
 	private Integer timeAllowed;
 	private String defType;
+	
+	private GroupOptions groupOptions;
 
 	public SimpleQuery() {}
 
@@ -193,20 +194,29 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	@Override
+	@Deprecated
 	public final <T extends Query> T addGroupByField(Field field) {
 		Assert.notNull(field, "Field for grouping must not be null.");
 		Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty.");
 
-		this.groupByFields.add(field);
+		if (this.groupOptions == null) {
+			this.groupOptions = new GroupOptions();
+		}
+		
+		this.groupOptions.addGroupByField(field).setGroupMain(true);
 		return (T) this;
 	}
 
 	/**
-	 * add grouping on fieldname
+	 * add grouping on field name
 	 * 
 	 * @param fieldname must not be null
 	 * @return
+	 * 
+	 * @deprecated in favor of {@link GroupOptions}
+	 * @see GroupOptions
 	 */
+	@Deprecated
 	public final <T extends Query> T addGroupByField(String fieldname) {
 		return addGroupByField(new SimpleField(fieldname));
 	}
@@ -256,8 +266,12 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	}
 
 	@Override
+	@Deprecated
 	public List<Field> getGroupByFields() {
-		return Collections.unmodifiableList(this.groupByFields);
+		if (this.groupOptions == null) {
+			return Collections.emptyList();
+		}
+		return Collections.unmodifiableList(this.groupOptions.getGroupByFields());
 	}
 
 	@Override
@@ -282,6 +296,18 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@Override
 	public Integer getTimeAllowed() {
 		return this.timeAllowed;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setGroupOptions(GroupOptions groupOptions) {
+		this.groupOptions = groupOptions;
+		return (T) this;
+	}
+	
+	@Override
+	public GroupOptions getGroupOptions() {
+		return groupOptions;
 	}
 
 	@Override

@@ -214,4 +214,18 @@ public interface Query extends SolrDataQuery {
 	 * Sets the request handler.
 	 */
 	void setRequestHandler(String requestHandler);
+
+	/**
+	 * Sets {@link GroupOptions} for this {@link Query}.
+	 * 
+	 * @param groupOptions
+	 * @return
+	 */
+	<T extends Query> T setGroupOptions(GroupOptions groupOptions);
+
+	/**
+	 * @return group options
+	 */
+	GroupOptions getGroupOptions();
+
 }

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -42,9 +43,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.VersionUtil;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetQuery;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsHighlightQuery;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsQuery;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
@@ -58,6 +63,7 @@ import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.DelegatingCursor;
 import org.springframework.data.solr.core.query.result.FacetPage;
+import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
@@ -281,15 +287,35 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return null;
 	}
 
+	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz) {
+		Pageable pageRequest = query.getPageRequest();
+
+		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
+		QueryResponse response = query(namedObjectsQuery);
+
+		SolrResultPage<T> page = createSolrResultPage(clazz, response, pageRequest);
+
+		Map<String, Object> objectNames = namedObjectsQuery.getNamesAssociation();
+
+		page.setGroupResults(ResultHelper.convertGroupQueryResponseToGroupResultMap(namedObjectsQuery, objectNames,
+				response, this, clazz));
+		return page;
+	}
+
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		QueryResponse response = query(query);
-		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		SolrDocumentList results = response.getResults();
-		return new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(), results.getMaxScore());
+		return doQueryForPage(query, clazz);
+	}
+
+	@Override
+	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz) {
+		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(clazz, "Target class must not be 'null'.");
+
+		return doQueryForPage(query, clazz);
 	}
 
 	@Override
@@ -297,15 +323,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		QueryResponse response = query(query);
+		Pageable pageRequest = query.getPageRequest();
 
-		List<T> beans = convertQueryResponseToBeans(response, clazz);
-		SolrDocumentList results = response.getResults();
-		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(),
-				results.getMaxScore());
+		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
+		QueryResponse response = query(namedObjectsQuery);
+
+		SolrResultPage<T> page = createSolrResultPage(clazz, response, pageRequest);
+
+		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
+
 		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
 		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
 		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
+		page.setGroupResults(ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectsName, response, this,
+				clazz));
 
 		return page;
 	}
@@ -315,14 +346,29 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		QueryResponse response = query(query);
+		Pageable pageRequest = query.getPageRequest();
 
+		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
+		QueryResponse response = query(namedObjectsQuery);
+
+		SolrResultPage<T> page = createSolrResultPage(clazz, response, pageRequest);
+
+		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
+
+		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
+		page.setGroupResults(ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectsName, response, this,
+				clazz));
+
+		return page;
+	}
+
+	private <T> SolrResultPage<T> createSolrResultPage(Class<T> clazz, QueryResponse response, Pageable pageRequest) {
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
 		SolrDocumentList results = response.getResults();
-		SolrResultPage<T> page = new SolrResultPage<T>(beans, query.getPageRequest(), results.getNumFound(),
-				results.getMaxScore());
-		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
+		long numFound = results == null ? 0 : results.getNumFound();
+		Float maxScore = results == null ? null : results.getMaxScore();
 
+		SolrResultPage<T> page = new SolrResultPage<T>(beans, pageRequest, numFound, maxScore);
 		return page;
 	}
 

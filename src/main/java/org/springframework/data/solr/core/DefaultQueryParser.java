@@ -25,7 +25,6 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.VersionUtil;
@@ -36,6 +35,8 @@ import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParam
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
+import org.springframework.data.solr.core.query.Function;
+import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
@@ -89,13 +90,14 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	private void processQueryOptions(SolrQuery solrQuery, Query query) {
 		appendPagination(solrQuery, query.getOffset(), query.getRows());
 		appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
-		appendGroupByFields(solrQuery, query.getGroupByFields());
 		appendFilterQuery(solrQuery, query.getFilterQueries());
 		appendSort(solrQuery, query.getSort());
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
 		appendTimeAllowed(solrQuery, query.getTimeAllowed());
 		appendDefType(solrQuery, query.getDefType());
 		appendRequestHandler(solrQuery, query.getRequestHandler());
+
+		processGroupOptions(solrQuery, query);
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -104,6 +106,75 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			appendFacetingQueries(solrQuery, (FacetQuery) query);
 			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
 		}
+	}
+
+	private void setObjectNameOnGroupQuery(Query query, Object object, String name) {
+
+		if (query instanceof NamedObjectsQuery) {
+			((NamedObjectsQuery) query).setName(object, name);
+		}
+	}
+
+	private void processGroupOptions(SolrQuery solrQuery, Query query) {
+
+		GroupOptions groupOptions = query.getGroupOptions();
+
+		if (groupOptions == null
+				|| (CollectionUtils.isEmpty(groupOptions.getGroupByFields())
+						&& CollectionUtils.isEmpty(groupOptions.getGroupByFunctions()) && CollectionUtils.isEmpty(groupOptions
+						.getGroupByQueries()))) {
+			return;
+		}
+
+		solrQuery.set(GroupParams.GROUP, true);
+		solrQuery.set(GroupParams.GROUP_MAIN, groupOptions.isGroupMain());
+		solrQuery.set(GroupParams.GROUP_FORMAT, "grouped");
+
+		if (!CollectionUtils.isEmpty(groupOptions.getGroupByFields())) {
+			for (Field field : groupOptions.getGroupByFields()) {
+				solrQuery.add(GroupParams.GROUP_FIELD, field.getName());
+			}
+		}
+
+		if (!CollectionUtils.isEmpty(groupOptions.getGroupByFunctions())) {
+			for (Function function : groupOptions.getGroupByFunctions()) {
+				String functionFragment = createFunctionFragment(function);
+				setObjectNameOnGroupQuery(query, function, functionFragment);
+				solrQuery.add(GroupParams.GROUP_FUNC, functionFragment);
+			}
+		}
+
+		if (!CollectionUtils.isEmpty(groupOptions.getGroupByQueries())) {
+			for (Query groupQuery : groupOptions.getGroupByQueries()) {
+				String queryFragment = getQueryString(groupQuery);
+				setObjectNameOnGroupQuery(query, groupQuery, queryFragment);
+				solrQuery.add(GroupParams.GROUP_QUERY, queryFragment);
+			}
+		}
+
+		if (groupOptions.getSort() != null) {
+
+			for (Order order : groupOptions.getSort()) {
+				solrQuery.add(GroupParams.GROUP_SORT, order.getProperty().trim() + " "
+						+ (order.isAscending() ? ORDER.asc : ORDER.desc));
+			}
+		}
+
+		if (groupOptions.getCachePercent() > 0) {
+			solrQuery.add(GroupParams.GROUP_CACHE_PERCENTAGE, String.valueOf(groupOptions.getCachePercent()));
+		}
+
+		if (groupOptions.getGroupRows() != null && groupOptions.getGroupRows() >= 0) {
+			solrQuery.set(GroupParams.GROUP_LIMIT, groupOptions.getGroupRows());
+		}
+
+		if (groupOptions.getGroupOffset() != null && groupOptions.getGroupOffset() >= 0) {
+			solrQuery.set(GroupParams.GROUP_OFFSET, groupOptions.getGroupOffset());
+		}
+
+		solrQuery.set(GroupParams.GROUP_TOTAL_COUNT, groupOptions.isGroupTotalCount());
+		solrQuery.set(GroupParams.GROUP_FACET, groupOptions.isGroupFacets());
+		solrQuery.set(GroupParams.GROUP_TRUNCATE, groupOptions.isTruncateFacets());
 	}
 
 	/**
@@ -228,32 +299,6 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		FacetOptions facetOptions = query.getFacetOptions();
 		String[] pivotFields = convertFieldListToStringArray(facetOptions.getFacetOnPivots());
 		solrQuery.addFacetPivotField(pivotFields);
-	}
-
-	/**
-	 * Append grouping parameters to {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param fields
-	 */
-	protected void appendGroupByFields(SolrQuery solrQuery, List<Field> fields) {
-		if (CollectionUtils.isEmpty(fields)) {
-			return;
-		}
-
-		if (fields.size() > 1) {
-			// there is a bug in solj which prevents multiple grouping
-			// although available via HTTP call
-			throw new InvalidDataAccessApiUsageException(
-					"Cannot group on more than one field with current SolrJ API. Group on single field insead");
-		}
-
-		solrQuery.set(GroupParams.GROUP, true);
-		solrQuery.setParam(GroupParams.GROUP_MAIN, true);
-
-		for (Field field : fields) {
-			solrQuery.add(GroupParams.GROUP_FIELD, field.getName());
-		}
 	}
 
 	/**

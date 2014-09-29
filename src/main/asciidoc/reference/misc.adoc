@@ -90,6 +90,33 @@ TermsPage page = solrTemplate.queryForTermsPage(query);
 ----
 ====
 
+[[solr.misc.group]]
+== Result Grouping / Field Collapsing
+
+Result grouping cannot directly be used within `SolrRepository` but can be applied via `SolrTemplate`. Please mind, that the result will be a `GroupPage`.
+
+====
+[source,java]
+----
+Field field = new SimpleField("popularity");
+Function func = ExistsFunction.exists("description");
+Query query = new SimpleQuery("inStock:true");
+
+SimpleQuery groupQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
+GroupOptions groupOptions = new GroupOptions()
+	.addGroupByField(field)
+	.addGroupByFunction(func)
+	.addGroupByQuery(query);
+groupQuery.setGroupOptions(groupOptions);
+
+GroupPage<Product> page = solrTemplate.queryForGroupPage(query, Product.class);
+
+GroupResult<Product> fieldGroup = page.getGroupResult(field);
+GroupResult<Product> funcGroup = page.getGroupResult(func);
+GroupResult<Product> queryGroup = page.getGroupResult(query);
+----
+====
+
 [[solr.misc.filter]]
 == Filter Query
 

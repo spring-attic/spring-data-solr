@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,20 @@ package org.springframework.data.solr.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
+import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
@@ -37,11 +42,14 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.PivotField;
+import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.SimpleQuery;
@@ -50,6 +58,8 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.GroupEntry;
+import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
@@ -403,6 +413,133 @@ public class ResultHelperTests {
 
 		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
 				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+	}
+	
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConvertGroupQueryResponseToGroupResultList() {
+		GroupResponse groupResponse = Mockito.mock(GroupResponse.class);
+		Query query = Mockito.mock(Query.class);
+		SolrTemplate solrTemplate = Mockito.mock(SolrTemplate.class);
+		GroupCommand groupCommand1 = Mockito.mock(GroupCommand.class);
+		Group group1_1 = Mockito.mock(Group.class);
+		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
+		List<Object> documents1_1 = Arrays.asList(new Object());
+		
+		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
+		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
+		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
+		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
+		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
+		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(documents1_1);
+		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
+		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
+		Mockito.when(groupCommand1.getNGroups()).thenReturn(2);
+
+		GroupOptions groupOptions = new GroupOptions();
+		groupOptions.setGroupLimit(1);
+
+		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
+		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
+
+		Object group1Key = new Object();
+		Map<String, Object> objectNames = new HashMap<String, Object>();
+		objectNames.put("group1_name", group1Key);
+		
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, 
+				objectNames, response, solrTemplate, Object.class);
+		Assert.assertNotNull(result);
+		Assert.assertEquals(2, result.size());
+		
+		GroupResult<Object> groupResult = result.get("group1_name");
+		Assert.assertEquals(groupResult, result.get(group1Key));
+		Assert.assertEquals("group1_name", groupResult.getName());
+		Assert.assertEquals(1, groupResult.getMatches());
+		Assert.assertEquals(Integer.valueOf(2), groupResult.getGroupsCount());
+
+		Page<GroupEntry<Object>> groupEntries = groupResult.getGroupEntries();
+		Assert.assertEquals(2, groupEntries.getTotalElements());
+		Assert.assertEquals(2, groupEntries.getTotalPages());
+		Assert.assertEquals(true, groupEntries.hasNext());
+		
+		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
+		Assert.assertNotNull(groupEntriesContent);
+		Assert.assertEquals(1, groupEntriesContent.size());
+		
+		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
+		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
+
+		Page<Object> group1result = groupEntriesContentElement.getResult();
+		Assert.assertEquals(3, group1result.getTotalElements());
+		Assert.assertEquals(3, group1result.getTotalPages());
+		Assert.assertEquals(true, group1result.hasNext());
+	}
+
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConvertGroupQueryResponseToGroupResultListWhenNoCountOfGroups() {
+		GroupResponse groupResponse = Mockito.mock(GroupResponse.class);
+		Query query = Mockito.mock(Query.class);
+		SolrTemplate solrTemplate = Mockito.mock(SolrTemplate.class);
+		GroupCommand groupCommand1 = Mockito.mock(GroupCommand.class);
+		Group group1_1 = Mockito.mock(Group.class);
+		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
+		List<Object> documents1_1 = Arrays.asList(new Object());
+		
+		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
+		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
+		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
+		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
+		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
+		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(documents1_1);
+		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
+		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
+		Mockito.when(groupCommand1.getNGroups()).thenReturn(null);
+		
+		GroupOptions groupOptions = new GroupOptions();
+		groupOptions.setGroupLimit(1);
+
+		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
+		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
+
+		Object group1Key = new Object();
+		Map<String, Object> objectNames = new HashMap<String, Object>();
+		objectNames.put("group1_name", group1Key);
+
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, 
+				objectNames, response, solrTemplate, Object.class);
+		
+		Assert.assertNotNull(result);
+		Assert.assertEquals(2, result.size());
+
+		GroupResult<Object> groupResult = result.get("group1_name");
+		Assert.assertEquals(result.get(group1Key), groupResult);
+		Assert.assertEquals("group1_name", groupResult.getName());
+		Assert.assertEquals(1, groupResult.getMatches());
+		Assert.assertEquals(null, groupResult.getGroupsCount());
+
+		Page<GroupEntry<Object>> groupEntries = groupResult.getGroupEntries();
+		Assert.assertEquals(1, groupEntries.getTotalElements());
+		Assert.assertEquals(1, groupEntries.getTotalPages());
+		Assert.assertEquals(false, groupEntries.hasNext());
+		
+		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
+		Assert.assertNotNull(groupEntriesContent);
+		Assert.assertEquals(1, groupEntriesContent.size());
+		
+		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
+		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
+
+		Page<Object> group1result = groupEntriesContentElement.getResult();
+		Assert.assertEquals(3, group1result.getTotalElements());
+		Assert.assertEquals(3, group1result.getTotalPages());
+		Assert.assertEquals(true, group1result.hasNext());
 	}
 
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {
