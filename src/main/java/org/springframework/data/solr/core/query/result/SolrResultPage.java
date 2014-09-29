@@ -26,10 +26,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.Function;
 import org.springframework.data.solr.core.query.PivotField;
+import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -38,7 +41,7 @@ import org.springframework.util.ObjectUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T> {
+public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T>, GroupPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -47,6 +50,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private Page<FacetQueryEntry> facetQueryResult;
 	private List<HighlightEntry<T>> highlighted;
 	private Float maxScore;
+	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
 
 	public SolrResultPage(List<T> content) {
 		super(content);
@@ -168,6 +172,10 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		}
 		return Collections.emptyList();
 	}
+	
+	public void setGroupResults(Map<Object, GroupResult<T>> groupResults) {
+		this.groupResults = groupResults;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -176,6 +184,30 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	@Override
 	public Float getMaxScore() {
 		return maxScore;
+	}
+
+	@Override
+	public GroupResult<T> getGroupResult(Field field) {
+		Assert.notNull(field, "group result field must not be null");
+		return groupResults.get(field.getName());
+	}
+
+	@Override
+	public GroupResult<T> getGroupResult(Function function) {
+		Assert.notNull(function, "group result function must not be null");
+		return groupResults.get(function);
+	}
+
+	@Override
+	public GroupResult<T> getGroupResult(Query query) {
+		Assert.notNull(query, "group result query must not be null");
+		return groupResults.get(query);
+	}
+
+	@Override
+	public GroupResult<T> getGroupResult(String name) {
+		Assert.notNull(name, "group result name must not be null");
+		return groupResults.get(name);
 	}
 
 }

@@ -32,7 +32,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
@@ -46,8 +45,10 @@ import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.Join;
+import org.springframework.data.solr.core.query.MaxFunction;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
@@ -466,13 +467,6 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingPresent(solrQuery, "group_1");
 		assertFactingNotPresent(solrQuery);
-	}
-
-	@Test(expected = InvalidDataAccessApiUsageException.class)
-	public void testConstructSolrQueryWithMultiGroupBy() {
-		Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addGroupByField("group_1").addGroupByField(
-				new SimpleField("group_2"));
-		queryParser.constructSolrQuery(query);
 	}
 
 	@Test
@@ -1022,6 +1016,90 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
+	
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConstructGroupQueryWithAllPossibleParameters() {
+		GroupOptions groupOptions = new GroupOptions();
+		
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(groupOptions);
+		groupOptions.setGroupOffset(1);
+		groupOptions.setGroupLimit(2);
+		groupOptions.addGroupByField("field_1");
+		groupOptions.addGroupByFunction(MaxFunction.max("field_1", "field_2"));
+		groupOptions.addGroupByQuery(new SimpleQuery("*:*"));
+		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		groupOptions.setGroupTotalCount(true);
+		
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		
+		assertGroupFormatPresent(solrQuery, true);
+		Assert.assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
+		Assert.assertEquals("max(field_1,field_2)", solrQuery.get(GroupParams.GROUP_FUNC));
+		Assert.assertEquals("*:*", solrQuery.get(GroupParams.GROUP_QUERY));
+		Assert.assertEquals("field_3 desc", solrQuery.get(GroupParams.GROUP_SORT));
+		Assert.assertEquals("1", solrQuery.get(GroupParams.GROUP_OFFSET));
+		Assert.assertEquals("2", solrQuery.get(GroupParams.GROUP_LIMIT));
+	}
+
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConstructGroupQueryWithoutPagingParameters() {
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(new GroupOptions().addGroupByField("fieldName"));
+		
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		
+		assertGroupFormatPresent(solrQuery, false);
+		Assert.assertNull(solrQuery.get(GroupParams.GROUP_SORT));
+		Assert.assertNull(solrQuery.get(GroupParams.GROUP_OFFSET));
+		Assert.assertNull(solrQuery.get(GroupParams.GROUP_LIMIT));
+	}
+
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConstructGroupQueryWithMultipleFunctions() {
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(new GroupOptions());
+		query.getGroupOptions().addGroupByFunction(MaxFunction.max("field_1", "field_2"));
+		query.getGroupOptions().addGroupByFunction(MaxFunction.max("field_3", "field_4"));
+		
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		
+		assertGroupFormatPresent(solrQuery, false);
+		Assert.assertArrayEquals(new String[] {"max(field_1,field_2)","max(field_3,field_4)"}, solrQuery.getParams(GroupParams.GROUP_FUNC));
+		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_QUERY));
+		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
+	}
+
+	/**
+	 * @see DATASOLR-121
+	 */
+	@Test
+	public void testConstructGroupQueryWithMultipleQueries() {
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(new GroupOptions());
+		query.getGroupOptions().addGroupByQuery(new SimpleQuery("query1"));
+		query.getGroupOptions().addGroupByQuery(new SimpleQuery("query2"));
+		
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		
+		assertGroupFormatPresent(solrQuery, false);
+		Assert.assertArrayEquals(new String[] {"query1","query2"}, solrQuery.getParams(GroupParams.GROUP_QUERY));
+		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FUNC));
+		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
+	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getParams(FacetParams.FACET_PIVOT));
@@ -1069,6 +1147,13 @@ public class DefaultQueryParserTests {
 		Assert.assertNotNull(solrQuery.get(GroupParams.GROUP_FIELD));
 		Assert.assertNotNull(solrQuery.get(GroupParams.GROUP_MAIN));
 		Assert.assertEquals(expected, solrQuery.get(GroupParams.GROUP_FIELD));
+	}
+
+	private void assertGroupFormatPresent(SolrQuery solrQuery, boolean groupTotalCount) {
+		Assert.assertEquals("true", solrQuery.get(GroupParams.GROUP));
+		Assert.assertEquals("false", solrQuery.get(GroupParams.GROUP_MAIN));
+		Assert.assertEquals("grouped", solrQuery.get(GroupParams.GROUP_FORMAT));
+		Assert.assertEquals(String.valueOf(groupTotalCount), solrQuery.get(GroupParams.GROUP_TOTAL_COUNT));
 	}
 
 }
