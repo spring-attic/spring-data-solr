@@ -259,4 +259,19 @@ public interface SolrOperations {
 	 */
 	<T> T execute(SolrCallback<T> action);
 
+	/**
+	 * Executes a realtime get using given id.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	<T> T getById(String id, Class<T> clazz);
+
+	/**
+	 * Executes a realtime get using given ids.
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	<T> Collection<T> getById(Collection<String> ids, Class<T> clazz);
 }

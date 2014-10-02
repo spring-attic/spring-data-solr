@@ -311,3 +311,29 @@ SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
 query.addFilterQuery(new FilterQuery(Criteria.where(QueryFunction.query("name:sol*"))));
 ----
 ====
+
+[[solr.misc.realtimeGet]]
+== Realtime Get
+
+The realtime get allows retrieval of the latest version of any document using the unique-key, without the need to reopen searchers.
+
+NOTE: realtime get relies on the update log feature.
+
+.Realtime get
+====
+[source,java]
+----
+Product product = solrTemplate.getById("123", Product.class);
+----
+====
+
+Multiple documents can be retrieved by providing a collection of ids as follows:
+
+.Realtime multi-get
+====
+[source,java]
+----
+Collection<String> ids = Arrays.asList("123", "134");
+Collection<Product> products = solrTemplate.getById(ids, Product.class);
+----
+====
