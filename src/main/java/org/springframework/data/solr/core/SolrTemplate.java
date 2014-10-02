@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -613,6 +614,39 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			return Collections.emptySet();
 		}
 		return Collections.unmodifiableSet(this.schemaCreationFeatures);
+	}
+
+	private QueryRequest buildRealTimeGetRequest(final Collection<String> ids) {
+		SolrQuery q = new SolrQuery().setRequestHandler("/get");
+		if (ids.size() == 1) {
+			q.add("ids", ids.iterator().next());
+		} else {
+			for (String id : ids) {
+				q.add("id", id);
+			}
+		}
+		return new QueryRequest(q);
+	}
+
+	@Override
+	public <T> Collection<T> getById(final Collection<String> ids, final Class<T> clazz) {
+		return execute(new SolrCallback<Collection<T>>() {
+			@Override
+			public Collection<T> doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+				QueryRequest request = buildRealTimeGetRequest(ids);
+				QueryResponse response = request.process(solrServer);
+				return convertSolrDocumentListToBeans(response.getResults(), clazz);
+			}
+
+		});
+	}
+
+	@Override
+	public <T> T getById(String id, Class<T> clazz) {
+		Collection<T> result = getById(Collections.singletonList(id), clazz);
+		if (result.isEmpty())
+			return null;
+		return result.iterator().next();
 	}
 
 }
