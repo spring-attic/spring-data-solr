@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -224,6 +225,24 @@ public interface SolrOperations {
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
 
 	/**
+	 * Executes a realtime get using given id.
+	 * 
+	 * @param id
+	 * @return
+	 * @since 1.4
+	 */
+	<T> T getById(Serializable id, Class<T> clazz);
+
+	/**
+	 * Executes a realtime get using given ids.
+	 * 
+	 * @param ids
+	 * @return
+	 * @since 1.4
+	 */
+	<T> Collection<T> getById(Collection<? extends Serializable> ids, Class<T> clazz);
+
+	/**
 	 * Send commit command {@link SolrServer#commit()}
 	 */
 	void commit();
@@ -259,19 +278,4 @@ public interface SolrOperations {
 	 */
 	<T> T execute(SolrCallback<T> action);
 
-	/**
-	 * Executes a realtime get using given id.
-	 * 
-	 * @param id
-	 * @return
-	 */
-	<T> T getById(String id, Class<T> clazz);
-
-	/**
-	 * Executes a realtime get using given ids.
-	 * 
-	 * @param ids
-	 * @return
-	 */
-	<T> Collection<T> getById(Collection<String> ids, Class<T> clazz);
 }

@@ -897,18 +897,27 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		assertGroupEntryContentIds(entry, ids);
 	}
 
+	/**
+	 * @see DATASOLR-83
+	 */
 	@Test
 	public void testGetById() {
+
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
 
 		ExampleSolrBean beanReturned = solrTemplate.getById("id-1", ExampleSolrBean.class);
+
 		Assert.assertEquals(bean1.getId(), beanReturned.getId());
 	}
 
+	/**
+	 * @see DATASOLR-83
+	 */
 	@Test
 	public void testGetByIds() {
+
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
@@ -916,6 +925,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		List<String> ids = Arrays.<String> asList("id-1", "id-2");
 		Collection<ExampleSolrBean> beansReturned = solrTemplate.getById(ids, ExampleSolrBean.class);
 		List<ExampleSolrBean> listBeansReturned = new ArrayList<ExampleSolrBean>(beansReturned);
+
 		Assert.assertEquals(2, beansReturned.size());
 		Assert.assertEquals(bean1.getId(), listBeansReturned.get(0).getId());
 		Assert.assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
