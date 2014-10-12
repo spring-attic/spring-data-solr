@@ -48,7 +48,9 @@ public class SolrRealtimeGetRequest extends SolrRequest {
 	public SolrRealtimeGetRequest(Collection<? extends Serializable> ids) {
 		super(METHOD.GET, "/get");
 
-		Assert.notEmpty(ids, "At least one 'id' id required for real time get request.");
+		Assert.notEmpty(ids, "At least one 'id' is required for real time get request.");
+		Assert.noNullElements(ids.toArray(), "Real time get request can't be made for 'null' id.");
+
 		toStringIds(ids);
 	}
 
