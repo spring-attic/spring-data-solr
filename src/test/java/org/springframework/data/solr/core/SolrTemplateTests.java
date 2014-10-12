@@ -17,6 +17,7 @@ package org.springframework.data.solr.core;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -420,6 +421,48 @@ public class SolrTemplateTests {
 		Assert.assertThat(capturedRequest.getMethod(), IsEqual.equalTo(SolrRequest.METHOD.POST));
 		Assert.assertThat(capturedRequest.getPath(), IsEqual.equalTo("/schema/fields"));
 		Assert.assertThat(capturedRequest.getContentStreams(), IsNull.notNullValue());
+	}
+
+	/**
+	 * @see DATASOLR-83
+	 */
+	@Test
+	public void testGetById() throws SolrServerException, IOException {
+
+		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
+		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
+		SolrDocumentList resultList = new SolrDocumentList();
+		Mockito.when(responseMock.getResults()).thenReturn(resultList);
+		Mockito.when(solrServerMock.request(captor.capture())).thenReturn(new NamedList<Object>());
+
+		DocumentWithIndexAnnotations result = solrTemplate.getById("myId", DocumentWithIndexAnnotations.class);
+
+		Mockito.verify(solrServerMock, Mockito.times(1)).request(captor.capture());
+		Assert.assertNull(result);
+		Assert.assertEquals("myId", captor.getValue().getParams().get("ids"));
+		Assert.assertEquals("/get", captor.getValue().getPath());
+	}
+
+	/**
+	 * @see DATASOLR-83
+	 */
+	@Test
+	public void testGetByIds() throws SolrServerException, IOException {
+
+		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
+
+		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
+		SolrDocumentList resultList = new SolrDocumentList();
+		Mockito.when(responseMock.getResults()).thenReturn(resultList);
+		Mockito.when(solrServerMock.request(captor.capture())).thenReturn(new NamedList<Object>());
+
+		List<String> ids = Arrays.asList("myId1", "myId2");
+		Collection<DocumentWithIndexAnnotations> result = solrTemplate.getById(ids, DocumentWithIndexAnnotations.class);
+
+		Mockito.verify(solrServerMock, Mockito.times(1)).request(captor.capture());
+		Assert.assertTrue(result.isEmpty());
+		Assert.assertArrayEquals(new String[] { "myId1", "myId2" }, captor.getValue().getParams().getParams("ids"));
+		Assert.assertEquals("/get", captor.getValue().getPath());
 	}
 
 	static class DocumentWithIndexAnnotations {
