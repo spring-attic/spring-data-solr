@@ -164,15 +164,15 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			solrQuery.add(GroupParams.GROUP_CACHE_PERCENTAGE, String.valueOf(groupOptions.getCachePercent()));
 		}
 
-		if (groupOptions.getGroupRows() != null && groupOptions.getGroupRows() >= 0) {
-			solrQuery.set(GroupParams.GROUP_LIMIT, groupOptions.getGroupRows());
+		if (groupOptions.getLimit() != null && groupOptions.getLimit() >= 0) {
+			solrQuery.set(GroupParams.GROUP_LIMIT, groupOptions.getLimit());
 		}
 
-		if (groupOptions.getGroupOffset() != null && groupOptions.getGroupOffset() >= 0) {
-			solrQuery.set(GroupParams.GROUP_OFFSET, groupOptions.getGroupOffset());
+		if (groupOptions.getOffset() != null && groupOptions.getOffset() >= 0) {
+			solrQuery.set(GroupParams.GROUP_OFFSET, groupOptions.getOffset());
 		}
 
-		solrQuery.set(GroupParams.GROUP_TOTAL_COUNT, groupOptions.isGroupTotalCount());
+		solrQuery.set(GroupParams.GROUP_TOTAL_COUNT, groupOptions.isTotalCount());
 		solrQuery.set(GroupParams.GROUP_FACET, groupOptions.isGroupFacets());
 		solrQuery.set(GroupParams.GROUP_TRUNCATE, groupOptions.isTruncateFacets());
 	}

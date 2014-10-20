@@ -272,7 +272,7 @@ final class ResultHelper {
 
 				SolrDocumentList documentList = group.getResult();
 				List<T> beans = solrTemplate.convertSolrDocumentListToBeans(documentList, clazz);
-				Page<T> page = new PageImpl<T>(beans, query.getGroupOptions().getGroupPageRequest(), documentList.getNumFound());
+				Page<T> page = new PageImpl<T>(beans, query.getGroupOptions().getPageRequest(), documentList.getNumFound());
 				groupEntries.add(new SimpleGroupEntry<T>(group.getGroupValue(), page));
 			}
 

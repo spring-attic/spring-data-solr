@@ -440,7 +440,7 @@ public class ResultHelperTests {
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(2);
 
 		GroupOptions groupOptions = new GroupOptions();
-		groupOptions.setGroupLimit(1);
+		groupOptions.setLimit(1);
 
 		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
@@ -503,7 +503,7 @@ public class ResultHelperTests {
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(null);
 		
 		GroupOptions groupOptions = new GroupOptions();
-		groupOptions.setGroupLimit(1);
+		groupOptions.setLimit(1);
 
 		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);

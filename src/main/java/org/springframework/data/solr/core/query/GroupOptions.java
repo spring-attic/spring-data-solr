@@ -45,7 +45,7 @@ public class GroupOptions {
 
 	private boolean truncateFacets = false;
 	private boolean groupFacets = false;
-	private boolean groupCount = false;
+	private boolean totalCount = false;
 	private boolean groupMain = false;
 	private int cachePercent = DEFAULT_CACHE_PERCENT;
 
@@ -135,23 +135,23 @@ public class GroupOptions {
 	 * @param offset
 	 * @return
 	 */
-	public GroupOptions setGroupOffset(Integer offset) {
+	public GroupOptions setOffset(Integer offset) {
 
-		this.offset = offset;
+		this.offset = offset == null ? null : Math.max(0, offset);
 		return this;
 	}
 
 	/**
 	 * @return initial offset of each group
 	 */
-	public Integer getGroupOffset() {
+	public Integer getOffset() {
 		return offset;
 	}
 
 	/**
 	 * @return the number of rows to return for each group.
 	 */
-	public Integer getGroupRows() {
+	public Integer getLimit() {
 		return limit;
 	}
 
@@ -161,7 +161,7 @@ public class GroupOptions {
 	 * @param limit
 	 * @return
 	 */
-	public GroupOptions setGroupLimit(Integer limit) {
+	public GroupOptions setLimit(Integer limit) {
 
 		this.limit = limit;
 		return this;
@@ -201,17 +201,17 @@ public class GroupOptions {
 	 * @param groupCount
 	 * @return
 	 */
-	public GroupOptions setGroupTotalCount(boolean groupCount) {
+	public GroupOptions setTotalCount(boolean groupCount) {
 
-		this.groupCount = groupCount;
+		this.totalCount = groupCount;
 		return this;
 	}
 
 	/**
 	 * @return whether the group count should be included in the response.
 	 */
-	public boolean isGroupTotalCount() {
-		return groupCount;
+	public boolean isTotalCount() {
+		return totalCount;
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class GroupOptions {
 	 */
 	public GroupOptions setCachePercent(int cachePercent) {
 
-		this.cachePercent = cachePercent;
+		this.cachePercent = Math.max(0, Math.min(100, cachePercent));
 		return this;
 	}
 
@@ -255,7 +255,7 @@ public class GroupOptions {
 	/**
 	 * Defines whether field facet shall be computed in grouped fashion.
 	 * 
-	 * @param truncateFacets
+	 * @param groupFacets
 	 * @return
 	 */
 	public GroupOptions setGroupFacets(boolean groupFacets) {
@@ -290,16 +290,16 @@ public class GroupOptions {
 		return groupMain;
 	}
 
-	public Pageable getGroupPageRequest() {
+	public Pageable getPageRequest() {
 
 		if (this.limit == null && this.offset == null) {
 			return null;
 		}
 
-		int rows = this.limit != null ? this.limit : DEFAULT_GROUP_LIMIT;
+		int limit = this.limit != null ? this.limit : DEFAULT_GROUP_LIMIT;
 		int offset = this.offset != null ? this.offset : 0;
 
-		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, this.sort);
+		return new SolrPageRequest(limit != 0 ? offset / limit : 0, limit, this.sort);
 	}
 
 }

@@ -1027,13 +1027,13 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery();
 		query.addCriteria(new SimpleStringCriteria("*:*"));
 		query.setGroupOptions(groupOptions);
-		groupOptions.setGroupOffset(1);
-		groupOptions.setGroupLimit(2);
+		groupOptions.setOffset(1);
+		groupOptions.setLimit(2);
 		groupOptions.addGroupByField("field_1");
 		groupOptions.addGroupByFunction(MaxFunction.max("field_1", "field_2"));
 		groupOptions.addGroupByQuery(new SimpleQuery("*:*"));
 		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
-		groupOptions.setGroupTotalCount(true);
+		groupOptions.setTotalCount(true);
 		
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
 		

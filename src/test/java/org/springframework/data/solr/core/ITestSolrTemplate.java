@@ -813,7 +813,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		groupOptions.addGroupByFunction(f);
 		groupOptions.addGroupByQuery(q1);
 		groupOptions.addGroupByQuery(q2);
-		groupOptions.setGroupLimit(2);
+		groupOptions.setLimit(2);
 
 		// asserts result page
 		GroupPage<ExampleSolrBean> groupResultPage = solrTemplate.queryForGroupPage(groupQuery, ExampleSolrBean.class);
