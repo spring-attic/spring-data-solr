@@ -138,7 +138,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		if (!CollectionUtils.isEmpty(groupOptions.getGroupByFunctions())) {
 			for (Function function : groupOptions.getGroupByFunctions()) {
-				String functionFragment = createFunctionFragment(function);
+				String functionFragment = createFunctionFragment(function, 0);
 				setObjectNameOnGroupQuery(query, function, functionFragment);
 				solrQuery.add(GroupParams.GROUP_FUNC, functionFragment);
 			}

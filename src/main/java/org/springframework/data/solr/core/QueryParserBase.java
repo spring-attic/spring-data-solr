@@ -239,8 +239,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @since 1.1
 	 */
 	protected String createCalculatedFieldFragment(CalculatedField calculatedField) {
-		return StringUtils.isNotBlank(calculatedField.getAlias()) ? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField
-				.getFunction())) : createFunctionFragment(calculatedField.getFunction());
+		return StringUtils.isNotBlank(calculatedField.getAlias()) ? (calculatedField.getAlias() + ":" + createFunctionFragment(
+				calculatedField.getFunction(), 0)) : createFunctionFragment(calculatedField.getFunction(), 0);
 	}
 
 	/**
@@ -250,15 +250,21 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @return
 	 * @since 1.1
 	 */
-	protected String createFunctionFragment(Function function) {
-		StringBuilder sb = new StringBuilder(function.getOperation());
+	protected String createFunctionFragment(Function function, int level) {
+
+		StringBuilder sb = new StringBuilder();
+		if (level <= 0) {
+			sb.append("{!func}");
+		}
+
+		sb.append(function.getOperation());
 		sb.append('(');
 		if (function.hasArguments()) {
 			List<String> solrReadableArguments = new ArrayList<String>();
 			for (Object arg : function.getArguments()) {
 				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
 				if (arg instanceof Function) {
-					solrReadableArguments.add(createFunctionFragment((Function) arg));
+					solrReadableArguments.add(createFunctionFragment((Function) arg, level + 1));
 				} else if (arg instanceof Criteria) {
 					solrReadableArguments.add(createQueryStringFromNode((Criteria) arg));
 				} else if (arg instanceof Field) {
@@ -737,7 +743,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Override
 		protected Object doProcess(Predicate predicate, Field field) {
-			return createFunctionFragment((Function) predicate.getValue());
+			return createFunctionFragment((Function) predicate.getValue(), 0);
 		}
 
 	}

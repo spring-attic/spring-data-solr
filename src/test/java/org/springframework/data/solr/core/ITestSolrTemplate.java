@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -729,11 +728,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
 		solrTemplate.commit();
 
-		Query q = new SimpleQuery("*:*")
-				.addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction.query("name:o*"))));
+		Query q = new SimpleQuery("*:*").addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction
+				.query("{!query v = 'one'}"))));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+		Assert.assertThat(result.getContent().get(0).getId(), IsEqual.equalTo(bean1.getId()));
 	}
 
 	@Test
@@ -743,10 +742,10 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
 		solrTemplate.commit();
 
-		Query q = new SimpleQuery(new Criteria(QueryFunction.query("name:o*")));
+		Query q = new SimpleQuery(new Criteria(QueryFunction.query("{!query v='two'}")));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+		Assert.assertThat(result.getContent().get(0).getId(), Is.is(bean2.getId()));
 	}
 
 	@Test
@@ -789,7 +788,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertThat(i, Is.is(100));
 	}
-	
+
 	/**
 	 * @see DATASOLR-121
 	 */
@@ -804,11 +803,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Function f = IfFunction.when("inStock").then("1").otherwise("2");
 		Query q1 = new SimpleQuery("cat:category2");
 		Query q2 = new SimpleQuery("cat:category1");
-		
+
 		SimpleQuery groupQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
 		GroupOptions groupOptions = new GroupOptions();
 		groupQuery.setGroupOptions(groupOptions);
-		groupOptions.addSort(new Sort("name","id"));
+		groupOptions.addSort(new Sort("name", "id"));
 		groupOptions.addGroupByField("name");
 		groupOptions.addGroupByFunction(f);
 		groupOptions.addGroupByQuery(q1);
@@ -821,7 +820,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		GroupResult<ExampleSolrBean> groupResultFunction = groupResultPage.getGroupResult(f);
 		GroupResult<ExampleSolrBean> groupResultQuery1 = groupResultPage.getGroupResult(q1);
 		GroupResult<ExampleSolrBean> groupResultQuery2 = groupResultPage.getGroupResult(q2);
-		
+
 		// asserts field group
 		Page<GroupEntry<ExampleSolrBean>> nameGroupEntries = groupResultName.getGroupEntries();
 		Assert.assertEquals(3, nameGroupEntries.getTotalElements());
@@ -834,14 +833,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Page<GroupEntry<ExampleSolrBean>> functionGroupEntries = groupResultFunction.getGroupEntries();
 		Assert.assertEquals(2, functionGroupEntries.getNumberOfElements());
 		List<GroupEntry<ExampleSolrBean>> functionGroupEntriesContent = functionGroupEntries.getContent();
-		assertGroupEntry(functionGroupEntriesContent.get(0), 2, "1.0", 2, "id_1","id_3");
-		assertGroupEntry(functionGroupEntriesContent.get(1), 2, "2.0", 2, "id_2","id_4");
+		assertGroupEntry(functionGroupEntriesContent.get(0), 2, "1.0", 2, "id_1", "id_3");
+		assertGroupEntry(functionGroupEntriesContent.get(1), 2, "2.0", 2, "id_2", "id_4");
 
 		// asserts first query group
 		Page<GroupEntry<ExampleSolrBean>> query1GroupEntries = groupResultQuery1.getGroupEntries();
 		Assert.assertEquals(1, query1GroupEntries.getNumberOfElements());
 		GroupEntry<ExampleSolrBean> query1GroupEntry = query1GroupEntries.getContent().get(0);
-		assertGroupEntry(query1GroupEntry, 3, "cat:category2", 2, "id_2","id_3");
+		assertGroupEntry(query1GroupEntry, 3, "cat:category2", 2, "id_2", "id_3");
 		assertTrue(query1GroupEntry.getResult().hasNext());
 
 		// asserts second query group
@@ -874,23 +873,23 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		FacetPage<ExampleSolrBean> groupResultPage = solrTemplate.queryForFacetPage(groupQuery, ExampleSolrBean.class);
 
 		Page<FacetFieldEntry> facetResultPage = groupResultPage.getFacetResultPage("inStock");
-		
+
 		List<FacetFieldEntry> facetContent = facetResultPage.getContent();
-		
-		Assert.assertEquals("true",facetContent.get(0).getValue());
-		Assert.assertEquals("false",facetContent.get(1).getValue());
-		Assert.assertEquals(2,facetContent.get(0).getValueCount());
-		Assert.assertEquals(1,facetContent.get(1).getValueCount());
+
+		Assert.assertEquals("true", facetContent.get(0).getValue());
+		Assert.assertEquals("false", facetContent.get(1).getValue());
+		Assert.assertEquals(2, facetContent.get(0).getValueCount());
+		Assert.assertEquals(1, facetContent.get(1).getValueCount());
 	}
-	
-	private void assertGroupEntryContentIds(GroupEntry<ExampleSolrBean> groupEntry, String ... ids) {
+
+	private void assertGroupEntryContentIds(GroupEntry<ExampleSolrBean> groupEntry, String... ids) {
 		for (int i = 0; i < ids.length; i++) {
 			Assert.assertEquals(ids[i], groupEntry.getResult().getContent().get(i).getId());
 		}
 	}
 
-	private void assertGroupEntry(GroupEntry<ExampleSolrBean> entry, long totalElements,
-			String groupValue, int numberOfDocuments, String ... ids) {
+	private void assertGroupEntry(GroupEntry<ExampleSolrBean> entry, long totalElements, String groupValue,
+			int numberOfDocuments, String... ids) {
 		Assert.assertEquals(totalElements, entry.getResult().getTotalElements());
 		Assert.assertEquals(groupValue, entry.getGroupValue());
 		Assert.assertEquals(numberOfDocuments, entry.getResult().getContent().size());

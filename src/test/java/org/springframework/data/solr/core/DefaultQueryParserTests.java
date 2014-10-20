@@ -1016,14 +1016,14 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
-	
+
 	/**
 	 * @see DATASOLR-121
 	 */
 	@Test
 	public void testConstructGroupQueryWithAllPossibleParameters() {
 		GroupOptions groupOptions = new GroupOptions();
-		
+
 		SimpleQuery query = new SimpleQuery();
 		query.addCriteria(new SimpleStringCriteria("*:*"));
 		query.setGroupOptions(groupOptions);
@@ -1034,12 +1034,12 @@ public class DefaultQueryParserTests {
 		groupOptions.addGroupByQuery(new SimpleQuery("*:*"));
 		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
 		groupOptions.setTotalCount(true);
-		
+
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		
+
 		assertGroupFormatPresent(solrQuery, true);
 		Assert.assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
-		Assert.assertEquals("max(field_1,field_2)", solrQuery.get(GroupParams.GROUP_FUNC));
+		Assert.assertEquals("{!func}max(field_1,field_2)", solrQuery.get(GroupParams.GROUP_FUNC));
 		Assert.assertEquals("*:*", solrQuery.get(GroupParams.GROUP_QUERY));
 		Assert.assertEquals("field_3 desc", solrQuery.get(GroupParams.GROUP_SORT));
 		Assert.assertEquals("1", solrQuery.get(GroupParams.GROUP_OFFSET));
@@ -1054,9 +1054,9 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery();
 		query.addCriteria(new SimpleStringCriteria("*:*"));
 		query.setGroupOptions(new GroupOptions().addGroupByField("fieldName"));
-		
+
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		
+
 		assertGroupFormatPresent(solrQuery, false);
 		Assert.assertNull(solrQuery.get(GroupParams.GROUP_SORT));
 		Assert.assertNull(solrQuery.get(GroupParams.GROUP_OFFSET));
@@ -1073,11 +1073,12 @@ public class DefaultQueryParserTests {
 		query.setGroupOptions(new GroupOptions());
 		query.getGroupOptions().addGroupByFunction(MaxFunction.max("field_1", "field_2"));
 		query.getGroupOptions().addGroupByFunction(MaxFunction.max("field_3", "field_4"));
-		
+
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		
+
 		assertGroupFormatPresent(solrQuery, false);
-		Assert.assertArrayEquals(new String[] {"max(field_1,field_2)","max(field_3,field_4)"}, solrQuery.getParams(GroupParams.GROUP_FUNC));
+		Assert.assertArrayEquals(new String[] { "{!func}max(field_1,field_2)", "{!func}max(field_3,field_4)" },
+				solrQuery.getParams(GroupParams.GROUP_FUNC));
 		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_QUERY));
 		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
 	}
@@ -1092,11 +1093,11 @@ public class DefaultQueryParserTests {
 		query.setGroupOptions(new GroupOptions());
 		query.getGroupOptions().addGroupByQuery(new SimpleQuery("query1"));
 		query.getGroupOptions().addGroupByQuery(new SimpleQuery("query2"));
-		
+
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		
+
 		assertGroupFormatPresent(solrQuery, false);
-		Assert.assertArrayEquals(new String[] {"query1","query2"}, solrQuery.getParams(GroupParams.GROUP_QUERY));
+		Assert.assertArrayEquals(new String[] { "query1", "query2" }, solrQuery.getParams(GroupParams.GROUP_QUERY));
 		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FUNC));
 		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
 	}

@@ -147,28 +147,28 @@ public class QueryParserBaseTests {
 	public void testFunctionFragmemtAppendsMultipleArgumentsCorrectly() {
 		Foo function = new Foo(Arrays.asList("one", "two"));
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(one,two)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(one,two)"));
 	}
 
 	@Test
 	public void testFunctionFragmemtAppendsSingleArgumentCorrectly() {
 		Foo function = new Foo(Arrays.asList("one"));
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(one)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(one)"));
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresNullArguments() {
 		Foo function = new Foo(null);
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo()"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresEmptyArguments() {
 		Foo function = new Foo(Collections.emptyList());
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo()"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo()"));
 	}
 
 	@Test
@@ -178,75 +178,75 @@ public class QueryParserBaseTests {
 
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Unable to parse 'null' within function arguments.");
-		parser.createFunctionFragment(new Foo(args));
+		parser.createFunctionFragment(new Foo(args), 0);
 	}
 
 	@Test
 	public void testCreateFunctionFragementsWihtNetsedFunction() {
 		Foo function = new Foo(Arrays.asList(new Bar(Arrays.asList("nested"))));
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(bar(nested))"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(bar(nested))"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsPointProperty() {
 		Foo function = new Foo(Arrays.asList(new Point(37.767624D, -122.48526D)));
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(37.767624,-122.48526)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(37.767624,-122.48526)"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsDistanceProperty() {
 		Foo function = new Foo(Arrays.asList(new Distance(5, Metrics.KILOMETERS)));
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(5.0)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(5.0)"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentUsesToStringForUnknowObject() {
 		Foo function = new Foo(Arrays.asList(new FooBar()));
 
-		Assert.assertThat(parser.createFunctionFragment(function), Is.is("foo(FooBar [])"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(FooBar [])"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresBlankAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(" ", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresNullAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(null, new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentPrependsAliasCorrectly() {
 		SimpleCalculatedField ff = new SimpleCalculatedField("alias", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:{!func}foo()"));
 	}
-	
+
 	/**
 	 * @see DATASOLR-121
 	 */
 	@Test
 	public void testNamedObjectsGroupQuery() {
-		List<Function> functionList = Arrays.asList(Mockito.mock(Function.class),Mockito.mock(Function.class));
-		List<Query> queriesList = Arrays.asList(Mockito.mock(Query.class),Mockito.mock(Query.class));
+		List<Function> functionList = Arrays.asList(Mockito.mock(Function.class), Mockito.mock(Function.class));
+		List<Query> queriesList = Arrays.asList(Mockito.mock(Query.class), Mockito.mock(Query.class));
 
 		Query groupQueryMock = Mockito.mock(Query.class);
 		GroupOptions groupOptions = Mockito.mock(GroupOptions.class);
 		Mockito.when(groupQueryMock.getGroupOptions()).thenReturn(groupOptions);
 		Mockito.when(groupOptions.getGroupByFunctions()).thenReturn(functionList);
 		Mockito.when(groupOptions.getGroupByQueries()).thenReturn(queriesList);
-		
+
 		NamedObjectsQuery decorator = new NamedObjectsQuery(groupQueryMock);
 		decorator.setName(functionList.get(0), "nameFunc0");
 		decorator.setName(functionList.get(1), "nameFunc1");
 		decorator.setName(queriesList.get(0), "nameQuery0");
 		decorator.setName(queriesList.get(1), "nameQuery1");
 		Map<String, Object> objectNames = decorator.getNamesAssociation();
-		
+
 		Assert.assertEquals(functionList.get(0), objectNames.get("nameFunc0"));
 		Assert.assertEquals(functionList.get(1), objectNames.get("nameFunc1"));
 		Assert.assertEquals(queriesList.get(0), objectNames.get("nameQuery0"));
