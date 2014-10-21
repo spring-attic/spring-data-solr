@@ -139,8 +139,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (position > 0) {
 			query.append(node.isOr() ? " OR " : " AND ");
 		}
+
 		if (node.hasSiblings()) {
-			if (!node.isRoot()) {
+			if (node.isNegating()) {
+				query.append("-");
+			}
+			if (!node.isRoot() || (node.isRoot() && node.isNegating())) {
 				query.append('(');
 			}
 
@@ -149,7 +153,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 				query.append(createQueryStringFromNode(nested, i++));
 			}
 
-			if (!node.isRoot()) {
+			if (!node.isRoot() || (node.isRoot() && node.isNegating())) {
 				query.append(')');
 			}
 		} else {

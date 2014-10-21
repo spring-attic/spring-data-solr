@@ -1101,6 +1101,114 @@ public class DefaultQueryParserTests {
 		Assert.assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
 	}
 
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void connectShouldAllowConcatinationOfCriteriaWithAndPreservingDesiredBracketing() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
+		Criteria criteria = part1.connect().and(part2);
+
+		Assert.assertEquals("z:roo AND (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void connectShouldAllowConcatinationOfCriteriaWithAndPreservingDesiredBracketingReverse() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
+		Criteria criteria = part2.connect().and(part1);
+
+		Assert.assertEquals("(x:foo OR y:bar) AND z:roo", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void connectShouldAllowConcatinationOfCriteriaWithOrPreservingDesiredBracketing() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
+		Criteria criteria = part1.connect().or(part2);
+
+		Assert.assertEquals("z:roo OR (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void connectShouldAllowConcatinationOfCriteriaWithOrPreservingDesiredBracketingReverse() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
+		Criteria criteria = part2.connect().or(part1);
+
+		Assert.assertEquals("(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void notOperatorShouldWrapWholeExpression() {
+
+		Criteria part1 = Criteria.where("text").startsWith("fx").or("product_code").startsWith("fx");
+		Criteria part2 = Criteria.where("text").startsWith("option").or("product_code").startsWith("option");
+		Criteria criteria = part1.connect().and(part2).notOperator();
+
+		String expected = "-((text:fx* OR product_code:fx*) AND (text:option* OR product_code:option*))";
+		Assert.assertEquals(expected, queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void notOperatorShouldWrapNestedExpressionCorrectly() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar").notOperator();
+
+		Criteria criteria = part1.connect().or(part2);
+
+		Assert.assertEquals("z:roo OR -(x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void notOperatorShouldWrapNestedExpressionCorrectlyReverse() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar").notOperator();
+
+		Criteria criteria = part2.connect().or(part1);
+
+		Assert.assertEquals("-(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-196
+	 */
+	@Test
+	public void notOperatorShouldWrapNestedExpressionCorrectlyReverseWithDoubleNegation() {
+
+		Criteria part1 = Criteria.where("z").is("roo");
+		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar").notOperator();
+
+		Criteria criteria = part2.connect().and(part1).notOperator();
+
+		Assert.assertEquals("-(-(x:foo OR y:bar) AND z:roo)", queryParser.createQueryStringFromNode(criteria));
+	}
+
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
 		Assert.assertArrayEquals(expected, solrQuery.getParams(FacetParams.FACET_PIVOT));
 	}

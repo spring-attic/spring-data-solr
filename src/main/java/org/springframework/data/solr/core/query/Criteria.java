@@ -44,7 +44,6 @@ public class Criteria extends Node {
 
 	private Field field;
 	private float boost = Float.NaN;
-	private boolean negating = false;
 
 	private Set<Predicate> predicates = new LinkedHashSet<Predicate>();
 
@@ -302,8 +301,23 @@ public class Criteria extends Node {
 	 * @return
 	 */
 	public Criteria not() {
-		this.negating = true;
+		setNegating(true);
 		return this;
+	}
+
+	/**
+	 * Explicitly wrap {@link Criteria} inside not operation.
+	 * 
+	 * @since 1.4
+	 * @return
+	 */
+	public Criteria notOperator() {
+
+		Crotch c = new Crotch();
+		c.setNegating(true);
+		c.add(this);
+
+		return c;
 	}
 
 	/**
@@ -574,7 +588,7 @@ public class Criteria extends Node {
 	 * @return true if {@code not()} criteria
 	 */
 	public boolean isNegating() {
-		return this.negating;
+		return super.isNegating();
 	}
 
 	/**
@@ -708,6 +722,18 @@ public class Criteria extends Node {
 	}
 
 	// -------- NODE STUFF ---------
+
+	/**
+	 * Explicitly connect {@link Criteria} with another one allows to create explicit bracketing.
+	 * 
+	 * @since 1.4
+	 * @return
+	 */
+	public Criteria connect() {
+		Crotch c = new Crotch();
+		c.add(this);
+		return c;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override

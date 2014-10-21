@@ -30,6 +30,7 @@ public abstract class Node {
 
 	private Node parent;
 	private boolean isOr = false;
+	private boolean negating = false;
 
 	protected Node() {}
 
@@ -82,6 +83,22 @@ public abstract class Node {
 	 */
 	public Collection<Criteria> getSiblings() {
 		return Collections.emptyList();
+	}
+
+	/**
+	 * @return true if {@code not()} criteria
+	 * @since 1.4
+	 */
+	public boolean isNegating() {
+		return this.negating;
+	}
+
+	/**
+	 * @param negating
+	 * @since 1.4
+	 */
+	protected void setNegating(boolean negating) {
+		this.negating = negating;
 	}
 
 	// ------ CONJUNCTIONS --------

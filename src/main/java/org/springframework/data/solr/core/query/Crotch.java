@@ -57,7 +57,19 @@ public class Crotch extends Criteria {
 
 	@Override
 	public Crotch not() {
+
 		mostRecentSibling.not();
+		return this;
+	}
+
+	@Override
+	public Crotch notOperator() {
+
+		if (this.isRoot()) {
+			this.setNegating(true);
+		} else {
+			super.notOperator();
+		}
 		return this;
 	}
 
