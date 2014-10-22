@@ -77,6 +77,49 @@ options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring")
 ----
 ====
 
+[[solr.misc.faceting.pivot]]
+=== Pivot Faceting
+
+Pivot faceting (Decision Tree) are also supported, and can be queried using `@Facet` annotation as follows: 
+
+====
+[soruce,java]
+----
+public interface {
+
+	@Facet(pivots = @Pivot({ "category", "dimension" }, pivotMinCount = 0))
+	FacetPage<Product> findByTitle(String title, Pageable page);
+
+	@Facet(pivots = @Pivot({ "category", "dimension" }))
+	FacetPage<Product> findByDescription(String description, Pageable page);
+
+}
+----
+====
+
+Alternatively it can be queried using `SolrTemplate` as follows:
+
+====
+[source,java]
+----
+FacetQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("title:foo"));
+FacetOptions facetOptions = new FacetOptions();
+facetOptions.setFacetMinCount(0);
+facetOptions.addFacetOnPivot("category","dimension");
+facetQuery.setFacetOptions(facetOptions);
+FacetPage<Product> facetResult = solrTemplate.queryForFacetPage(facetQuery, Product.class);
+----
+==== 
+
+In order to retrieve the pivot results the method `getPivot` can be used as follows:
+
+====
+[source,java]
+----
+List<FacetPivotFieldEntry> pivot = facetResult.getPivot(new SimplePivotField("categories","available"));
+----
+====
+
 [[solr.misc.terms]]
 == Terms
 
