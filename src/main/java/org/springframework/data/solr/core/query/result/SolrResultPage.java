@@ -42,7 +42,7 @@ import org.springframework.util.ObjectUtils;
  * @author Francisco Spaeth
  */
 public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T>,
-		GroupPage<T> {
+		GroupPage<T>, StatsPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -52,6 +52,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private List<HighlightEntry<T>> highlighted;
 	private Float maxScore;
 	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
+	private Map<String, FieldStatsResult> fieldStatsResults;
 
 	public SolrResultPage(List<T> content) {
 		super(content);
@@ -213,6 +214,29 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	public GroupResult<T> getGroupResult(String name) {
 		Assert.notNull(name, "group result name must not be null");
 		return groupResults.get(name);
+	}
+
+	/**
+	 * @param fieldStatsResult
+	 * @since 1.4
+	 */
+	public void setFieldStatsResults(Map<String, FieldStatsResult> fieldStatsResults) {
+		this.fieldStatsResults = fieldStatsResults;
+	}
+
+	@Override
+	public FieldStatsResult getFieldStatsResult(Field field) {
+		return getFieldStatsResult(field.getName());
+	}
+
+	@Override
+	public FieldStatsResult getFieldStatsResult(String fieldName) {
+		return this.fieldStatsResults.get(fieldName);
+	}
+
+	@Override
+	public Map<String, FieldStatsResult> getFieldStatsResults() {
+		return this.fieldStatsResults;
 	}
 
 }

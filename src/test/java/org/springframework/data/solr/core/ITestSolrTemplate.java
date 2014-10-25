@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -63,6 +64,7 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SimpleTermsQuery;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
+import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
@@ -71,10 +73,13 @@ import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.StatsPage;
+import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.xml.sax.SAXException;
@@ -928,6 +933,97 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(2, beansReturned.size());
 		Assert.assertEquals(bean1.getId(), listBeansReturned.get(0).getId());
 		Assert.assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
+	}
+
+	@Test
+	public void testQueryWithFieldsStatsAndFaceting() {
+		StatsOptions statsOptions = new StatsOptions().addField("price").addFacet("name");
+		testStatsRequest(statsOptions);
+	}
+
+	@Test
+	public void testQueryWithFieldsStatsAndSelectiveFaceting() {
+		StatsOptions statsOptions = new StatsOptions().addField("price").addSelectiveFacet("name");
+		testStatsRequest(statsOptions);
+	}
+
+	private void testStatsRequest(StatsOptions statsOptions) {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setPrice(10f);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
+		bean2.setPrice(20.5f);
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.commit();
+
+		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
+		statsQuery.setStatsOptions(statsOptions);
+		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
+
+		FieldStatsResult priceStats = statResultPage.getFieldStatsResult("price");
+		Assert.assertEquals(Long.valueOf(2), priceStats.getCount());
+		Assert.assertEquals(10D, priceStats.getMin());
+		Assert.assertEquals(20.50, priceStats.getMax());
+		Assert.assertEquals(Double.valueOf(10), priceStats.getMinAsDouble());
+		Assert.assertEquals(Double.valueOf(20.50), priceStats.getMaxAsDouble());
+		Assert.assertEquals("10.0", priceStats.getMinAsString());
+		Assert.assertEquals("20.5", priceStats.getMaxAsString());
+		Assert.assertNull(priceStats.getMinAsDate());
+		Assert.assertNull(priceStats.getMaxAsDate());
+		Assert.assertEquals(Double.valueOf(15.25), priceStats.getMean());
+		Assert.assertEquals(Double.valueOf(30.50), priceStats.getSum());
+		Assert.assertEquals(Long.valueOf(0), priceStats.getMissing());
+		Assert.assertEquals(Double.valueOf(7.424621202458749), priceStats.getStddev());
+		Assert.assertEquals(Double.valueOf(520.25), priceStats.getSumOfSquares());
+
+		Map<String, StatsResult> facetStatsResult = priceStats.getFacetStatsResult(new SimpleField("name"));
+		Assert.assertEquals(2, facetStatsResult.size());
+		{
+			StatsResult nameFacetStatsResult = facetStatsResult.get("one");
+			Assert.assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
+			Assert.assertEquals(10D, nameFacetStatsResult.getMin());
+			Assert.assertEquals(10D, nameFacetStatsResult.getMax());
+		}
+		{
+			StatsResult nameFacetStatsResult = facetStatsResult.get("two");
+			Assert.assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
+			Assert.assertEquals(20.5D, nameFacetStatsResult.getMin());
+			Assert.assertEquals(20.5D, nameFacetStatsResult.getMax());
+		}
+	}
+
+	@Test
+	public void testDistinctStatsRequest() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
+		bean1.setPrice(10);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
+		bean2.setPrice(20);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
+		bean3.setPrice(20);
+		bean1.setPopularity(2);
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit();
+
+		StatsOptions statsOptions = new StatsOptions().addField("popularity").addField("price")
+				.setSelectiveCalcDistinct(true);
+
+		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
+		statsQuery.setStatsOptions(statsOptions);
+		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
+
+		FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
+		FieldStatsResult popularityStatResult = statResultPage.getFieldStatsResult("popularity");
+
+		Assert.assertEquals(Long.valueOf(2), priceStatResult.getDistinctCount());
+		Collection<Object> distinctValues = priceStatResult.getDistinctValues();
+		Assert.assertEquals(2, distinctValues.size());
+		Assert.assertTrue(distinctValues.contains(10.0F));
+		Assert.assertTrue(distinctValues.contains(20.0F));
+		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
+
 	}
 
 }

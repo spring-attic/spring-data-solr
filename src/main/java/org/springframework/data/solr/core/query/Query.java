@@ -227,5 +227,18 @@ public interface Query extends SolrDataQuery {
 	 * @return group options
 	 */
 	GroupOptions getGroupOptions();
+	
+	/**
+	 * Set {@link StatsOptions} for this {@link Query}.
+	 * 
+	 * @param statsOptions
+	 * @return
+	 */
+	<T extends Query> T setStatsOptions(StatsOptions statsOptions);
+	
+	/**
+	 * @return stats options
+	 */
+	StatsOptions getStatsOptions();
 
 }

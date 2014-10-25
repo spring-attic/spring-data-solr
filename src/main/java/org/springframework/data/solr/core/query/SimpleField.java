@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.util.ObjectUtils;
+
 /**
  * The most trivial implementation of a Field
  * 
@@ -36,6 +38,23 @@ public class SimpleField implements Field {
 	@Override
 	public String toString() {
 		return this.name;
+	}
+
+	@Override
+	public int hashCode() {
+		return ObjectUtils.nullSafeHashCode(this.name) * 29;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (!(other instanceof SimpleField)) {
+			return false;
+		}
+		SimpleField that = (SimpleField) other;
+		return ObjectUtils.nullSafeEquals(this.name, that.name);
 	}
 
 }

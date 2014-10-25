@@ -18,6 +18,7 @@ package org.springframework.data.solr.repository.query;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.hamcrest.core.IsEqual;
@@ -32,6 +33,8 @@ import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.Pivot;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
+import org.springframework.data.solr.repository.SelectiveStats;
+import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.solr.repository.support.SolrEntityInformationCreatorImpl;
 
 /**
@@ -443,6 +446,55 @@ public class SolrQueryMethodTests {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
 		Assert.assertFalse(method.isDeleteQuery());
 	}
+	
+	@Test
+	public void testStatsForField() throws Exception {
+		
+		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStats", String.class);
+		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
+	}
+
+	@Test
+	public void testStatsForFieldAndFacets() throws Exception {
+		
+		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class);
+		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
+		Assert.assertEquals(Arrays.asList("field2"), method.getStatsFacets());
+	}
+	
+	@Test
+	public void testStatsForSelectiveFacets() throws Exception {
+		
+		SolrQueryMethod method = getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class);
+		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
+		Assert.assertEquals(2, statsSelectiveFacets.size());
+		Assert.assertArrayEquals(new String[] {"field1_1", "field1_2"}, statsSelectiveFacets.get("field1"));
+		Assert.assertArrayEquals(new String[] {"field2_1", "field2_2"}, statsSelectiveFacets.get("field2"));
+	}
+	
+	@Test
+	public void testStatsForFieldAndFacetsAndSelectiveFacets() throws Exception {
+		
+		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class);
+		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
+		Assert.assertEquals(Arrays.asList("field2","field3"), method.getStatsFacets());
+		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
+		Assert.assertEquals(1, statsSelectiveFacets.size());
+		Assert.assertArrayEquals(new String[] {"field4_1", "field4_2"}, statsSelectiveFacets.get("field4"));
+	}
+	
+	@Test
+	public void testHasStatsDefinition() throws Exception {
+
+		Assert.assertFalse(getQueryMethodByName("findByNameWithEmptyStats", String.class).hasStatsDefinition());
+		
+		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldStats", String.class).hasStatsDefinition());
+		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class).hasStatsDefinition());
+		Assert.assertTrue(getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class).hasStatsDefinition());
+		Assert
+				.assertTrue(getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class)
+						.hasStatsDefinition());
+	}
 
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
@@ -561,6 +613,29 @@ public class SolrQueryMethodTests {
 		@Facet(pivots = { @Pivot({ "field1", "field2" }), @Pivot({ "field2", "field3" }) })
 		List<ProductBean> findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation();
 
+		@Stats("field1")
+		List<ProductBean> findByNameWithFieldStats(String name);
+	
+		@Stats(value = "field1", facets = "field2")
+		List<ProductBean> findByNameWithFieldAndFacetStats(String name);
+
+		@Stats( //
+				selective = { 
+						@SelectiveStats(field = "field1", facets = { "field1_1", "field1_2" }), //
+						@SelectiveStats(field = "field2", facets = { "field2_1", "field2_2" }) //
+				}//
+		)
+		List<ProductBean> findByNameWithSelectiveFacetStats(String name);
+		
+		@Stats(//
+				value = "field1", //
+				facets = { "field2", "field3" }, //
+				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }) //
+		)
+		List<ProductBean> findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats(String name);
+		
+		@Stats
+		List<ProductBean> findByNameWithEmptyStats(String name);
 	}
 
 }

@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository.support;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -29,10 +30,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.ScoredPage;
+import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
+import org.springframework.data.solr.repository.SelectiveStats;
 import org.springframework.data.solr.repository.SolrCrudRepository;
+import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.solr.server.support.HttpSolrServerFactory;
 
 /**
@@ -155,6 +161,39 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		Assert.assertEquals(initial.getName(), result.getName());
 	}
 
+	@Test
+	public void testStatsAnnotatedMethod() {
+		ProductBean created = createProductBean("1");
+		created.setPrice(1F);
+		created.setAvailable(true);
+		created.setLastModified(new Date());
+		created.setWeight(10F);
+
+		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
+		repository.save(created);
+
+		StatsPage<ProductBean> statsPage = repository.findSomething(new SolrPageRequest(0, 0));
+
+		FieldStatsResult id = statsPage.getFieldStatsResult("id");
+		FieldStatsResult price = statsPage.getFieldStatsResult("price");
+		FieldStatsResult weight = statsPage.getFieldStatsResult("weight");
+
+		Assert.assertNotNull(id);
+		Assert.assertNotNull(price);
+		Assert.assertNotNull(price.getFacetStatsResult("id"));
+		Assert.assertNotNull(price.getFacetStatsResult("last_modified"));
+		Assert.assertNull(price.getFacetStatsResult("inStock"));
+		Assert.assertNotNull(id.getFacetStatsResult("id"));
+		Assert.assertNotNull(id.getFacetStatsResult("last_modified"));
+		Assert.assertNull(id.getFacetStatsResult("inStock"));
+
+		Assert.assertNotNull(weight);
+		Assert.assertNotNull(weight.getFacetStatsResult("inStock"));
+		Assert.assertNull(weight.getFacetStatsResult("last_modified"));
+		Assert.assertNull(weight.getFacetStatsResult("id"));
+
+	}
+
 	private ProductBean createProductBean(String id) {
 		ProductBean initial = new ProductBean();
 		initial.setId(id);
@@ -178,6 +217,14 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		@Query(value = "name:?0*", fields = { "*", "score" })
 		ScoredPage<ProductBean> findByAnnotatedQuery1(String prefix, Pageable page);
+
+		@Query("*:*")
+		@Stats(//
+				value = { "id", "price" },//
+				facets = { "last_modified", "id" },//
+				selective = @SelectiveStats(field = "weight", facets = "inStock")//
+		)
+		StatsPage<ProductBean> findSomething(Pageable pageable);
 
 	}
 
