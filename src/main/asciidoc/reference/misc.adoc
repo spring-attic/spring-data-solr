@@ -160,6 +160,109 @@ GroupResult<Product> queryGroup = page.getGroupResult(query);
 ----
 ====
 
+[[solr.misc.fieldStats]]
+== Field Stats
+
+Field stats are used to retrieve statistics (max, min, sum, count, mean, missing, stddev and distinct calculations) of given fields from Solr. It is possible by providing `StatsOptions` to your query and reading the `FieldStatsResult` from the returned `StatsPage`. This could be achieved for instance, using `SolrTemplate` as follows:
+
+====
+[source,java]
+----
+// simple field stats
+StatsOptions statsOptions = new StatsOptions().addField("price");
+
+// query
+SimpleQuery statsQuery = new SimpleQuery("*:*");
+statsQuery.setStatsOptions(statsOptions);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+
+// retrieving stats info
+FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
+Object max = priceStatResult.getMax();
+Long missing = priceStatResult.getMissing();
+----
+====
+
+The same result could be achieved annotating the repository method with `@Stats` as follows:
+
+====
+[source,java]
+----
+@Query("name:?0")
+@Stats(value = { "price" })
+Stats<Product> findByName(String name, Pageable page);
+----
+====
+
+Distinct calculation and faceting are also supported:
+====
+[source,java]
+----
+// for distinct calculation
+StatsOptions statsOptions = new StatsOptions()
+    .addField("category")
+    // for distinct calculation
+    .setCalcDistinct(true)
+    // for faceting
+    .addFacet("availability");
+
+// query
+SimpleQuery statsQuery = new SimpleQuery("*:*");
+statsQuery.setStatsOptions(statsOptions);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+
+// field stats
+FieldStatsResult categoryStatResult = statResultPage.getFieldStatsResult("category");
+
+// retrieving distinct
+List<Object> categoryValues = priceStatResult.getDistinctValues();
+Long distinctCount = categoryStatResult.getDistinctCount();
+
+// retrieving faceting
+Map<String, StatsResult> availabilityFacetResult = categoryStatResult.getFacetStatsResult("availability");
+Long availableCount = availabilityFacetResult.get("true").getCount();
+----
+====
+
+The annotated version of the sample above would be:
+====
+[source,java]
+----
+@Query("name:?0")
+@Stats(value = "category", facets = { "availability" }, calcDistinct = true)
+StatsPage<Product> findByName(String name);
+----
+====
+
+In order to perform a selective faceting or selective distinct calculation, `@SelectiveStats` may be used as follows:
+====
+[source,java]
+----
+// selective distinct faceting
+...
+Field facetField = getFacetField();
+StatsOptions statsOptions = new StatsOptions()
+    .addField("price")
+    .addField("category").addSelectiveFacet("name").addSelectiveFacet(facetField);
+...
+// or annotating repository method as follows
+...
+@Stats(value = "price", selective = @SelectiveStats(field = "category", facets = { "name", "available" }))
+...
+
+// selective distinct calculation
+...
+StatsOptions statsOptions = new StatsOptions()
+    .addField("price")
+    .addField("category").setSelectiveCalcDistinct(true);
+...
+// or annotating repository method as follows
+...
+@Stats(value = "price", selective = @SelectiveStats(field = "category", calcDistinct = true))
+...
+----
+====
+
 [[solr.misc.filter]]
 == Filter Query
 

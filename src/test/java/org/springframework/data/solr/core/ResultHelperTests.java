@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
@@ -63,6 +64,8 @@ import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
+import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
 /**
@@ -542,6 +545,74 @@ public class ResultHelperTests {
 		Assert.assertEquals(true, group1result.hasNext());
 	}
 
+	@Test
+	public void testConvertFieldStatsInfoToStatsResultMap() {
+		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
+
+		NamedList<Object> values = new NamedList<Object>();
+		NamedList<Object> facets = new NamedList<Object>();
+		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D);
+		nl.add("facets", facets);
+		facets.add("facetField", values);
+		values.add("value1", createFieldStatNameList("f1v1min", "f1v1max", 110D, 111L, 112L, 113D, 11.3D));
+		values.add("value2", createFieldStatNameList("f1v2min", "f1v2max", 120D, 121L, 122L, 123D, 12.3D));
+
+		fieldStatsInfos.put("field", new FieldStatsInfo(nl, "field"));
+
+		// convert
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(fieldStatsInfos);
+
+		// field
+		FieldStatsResult fieldStatsResult = converted.get("field");
+		Assert.assertEquals("min", fieldStatsResult.getMin());
+		Assert.assertEquals("max", fieldStatsResult.getMax());
+		Assert.assertEquals(Double.valueOf(20), fieldStatsResult.getSum());
+		Assert.assertEquals(Double.valueOf(22.5), fieldStatsResult.getMean());
+		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
+		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
+		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
+		
+		// facets
+		Map<String, Map<String, StatsResult>> facetStatsResults = fieldStatsResult.getFacetStatsResults();
+		Assert.assertEquals(1, facetStatsResults.size());
+		
+		// facet field
+		Map<String, StatsResult> facetStatsResult = facetStatsResults.get("facetField");
+		Assert.assertNotNull(facetStatsResult);
+
+		// facet values
+		StatsResult facetValue1StatsResult = facetStatsResult.get("value1");
+		Assert.assertEquals("f1v1min", facetValue1StatsResult.getMin());
+		Assert.assertEquals("f1v1max", facetValue1StatsResult.getMax());
+		Assert.assertEquals(Double.valueOf(110), facetValue1StatsResult.getSum());
+		Assert.assertEquals(Double.valueOf(113), facetValue1StatsResult.getMean());
+		Assert.assertEquals(Long.valueOf(111), facetValue1StatsResult.getCount());
+		Assert.assertEquals(Long.valueOf(112), facetValue1StatsResult.getMissing());
+		Assert.assertEquals(Double.valueOf(11.3), facetValue1StatsResult.getStddev());
+
+		StatsResult facetValue2StatsResult = facetStatsResult.get("value2");
+		Assert.assertEquals("f1v2min", facetValue2StatsResult.getMin());
+		Assert.assertEquals("f1v2max", facetValue2StatsResult.getMax());
+		Assert.assertEquals(Double.valueOf(120), facetValue2StatsResult.getSum());
+		Assert.assertEquals(Double.valueOf(123), facetValue2StatsResult.getMean());
+		Assert.assertEquals(Long.valueOf(121), facetValue2StatsResult.getCount());
+		Assert.assertEquals(Long.valueOf(122), facetValue2StatsResult.getMissing());
+		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
+	}
+
+	private NamedList<Object> createFieldStatNameList(String min, String max, Double sum, Long count, Long missing,
+			Double mean, Double stddev) {
+		NamedList<Object> nl = new NamedList<Object>();
+		nl.add("min", min);
+		nl.add("max", max);
+		nl.add("sum", sum);
+		nl.add("count", count);
+		nl.add("missing", missing);
+		nl.add("mean", mean);
+		nl.add("stddev", stddev);
+		return nl;
+	}
+	
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {
 		FacetQuery fq = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		fq.setFacetOptions(new FacetOptions(facetQueries));

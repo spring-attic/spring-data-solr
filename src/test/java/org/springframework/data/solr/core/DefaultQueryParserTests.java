@@ -17,6 +17,8 @@ package org.springframework.data.solr.core;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +27,7 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
+import org.apache.solr.common.params.StatsParams;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
@@ -58,6 +61,7 @@ import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.StatsOptions;
 
 /**
  * @author Christoph Strobl
@@ -1015,6 +1019,168 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithStatField() {
+		StatsOptions statsOptions = new StatsOptions().addField(new SimpleField("field_1"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		Assert.assertEquals("field_1", solrQuery.get(StatsParams.STATS_FIELD));
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithStatFields() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addField(new SimpleField("field_1"))//
+				.addField(new SimpleField("field_2"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		List<String> fields = Arrays.asList(solrQuery.getParams(StatsParams.STATS_FIELD));
+		Collections.sort(fields);
+		Assert.assertEquals(2, fields.size());
+		Assert.assertEquals(Arrays.asList("field_1", "field_2"), fields);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithStatFacets() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addFacet(new SimpleField("field_1"))//
+				.addFacet(new SimpleField("field_2"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		List<String> facets = Arrays.asList(solrQuery.getParams(StatsParams.STATS_FACET));
+		Collections.sort(facets);
+		Assert.assertEquals(2, facets.size());
+		Assert.assertEquals(Arrays.asList("field_1", "field_2"), facets);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithStatFieldsAndFacets() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addField(new SimpleField("field_1"))//
+				.addFacet(new SimpleField("field_2"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		String[] fields = solrQuery.getParams(StatsParams.STATS_FIELD);
+		String[] facets = solrQuery.getParams(StatsParams.STATS_FACET);
+
+		Assert.assertEquals(1, fields.length);
+		Assert.assertEquals(1, facets.length);
+		Assert.assertEquals("field_1", fields[0]);
+		Assert.assertEquals("field_2", facets[0]);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithSelectiveStatsFacet() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addField(new SimpleField("field_1"))//
+				.addSelectiveFacet(new SimpleField("field_2"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		String[] fields = solrQuery.getParams(StatsParams.STATS_FIELD);
+		String[] facets = solrQuery.getParams(CommonParams.FIELD + ".field_1." + StatsParams.STATS_FACET);
+
+		Assert.assertEquals(1, fields.length);
+		Assert.assertEquals(1, facets.length);
+		Assert.assertEquals("field_1", fields[0]);
+		Assert.assertEquals("field_2", facets[0]);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithSelectiveStatsCountDistinct() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addField(new SimpleField("field_1")).setSelectiveCalcDistinct(true) //
+				.addField(new SimpleField("field_2")).setSelectiveCalcDistinct(false) //
+				.addField(new SimpleField("field_3"));
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		String[] fields = solrQuery.getParams(StatsParams.STATS_FIELD);
+		String[] calc1 = solrQuery.getParams(CommonParams.FIELD + ".field_1." + StatsParams.STATS_CALC_DISTINCT);
+		String[] calc2 = solrQuery.getParams(CommonParams.FIELD + ".field_2." + StatsParams.STATS_CALC_DISTINCT);
+		String[] calc3 = solrQuery.getParams(CommonParams.FIELD + ".field_3." + StatsParams.STATS_CALC_DISTINCT);
+
+		Arrays.sort(fields);
+
+		Assert.assertEquals(3, fields.length);
+		Assert.assertArrayEquals(new String[] { "field_1", "field_2", "field_3" }, fields);
+		Assert.assertEquals("true", calc1[0]);
+		Assert.assertEquals("false", calc2[0]);
+		Assert.assertNull(calc3);
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConstructSolrQueryWithStatsConfig() {
+		StatsOptions statsOptions = new StatsOptions()//
+				.addField(new SimpleField("field_1"))//
+				.addSelectiveFacet(new SimpleField("field_1_1"))//
+				.addSelectiveFacet(new SimpleField("field_1_2"))//
+				.addField("field_2")//
+				.addFacet("field_3");
+
+		SimpleQuery query = new SimpleQuery("*:*");
+		query.setStatsOptions(statsOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		List<String> fields = Arrays.asList(solrQuery.getParams(StatsParams.STATS_FIELD));
+		Collections.sort(fields);
+		List<String> selectiveFacets = Arrays.asList(solrQuery.getParams(CommonParams.FIELD + ".field_1."
+				+ StatsParams.STATS_FACET));
+		String[] facets = solrQuery.getParams(StatsParams.STATS_FACET);
+
+		Assert.assertEquals(2, fields.size());
+		Assert.assertEquals(2, selectiveFacets.size());
+		Assert.assertEquals("field_1", fields.get(0));
+		Assert.assertEquals("field_2", fields.get(1));
+		Assert.assertEquals("field_1_1", selectiveFacets.get(0));
+		Assert.assertEquals("field_1_2", selectiveFacets.get(1));
+		Assert.assertEquals("field_3", facets[0]);
 	}
 
 	/**

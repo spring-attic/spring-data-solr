@@ -18,8 +18,12 @@ package org.springframework.data.solr.repository.query;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -28,6 +32,8 @@ import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.Pivot;
 import org.springframework.data.solr.repository.Query;
+import org.springframework.data.solr.repository.SelectiveStats;
+import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.util.CollectionUtils;
@@ -206,6 +212,70 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	/**
+	 * @return the {@link Stats} annotation, null if there is none
+	 */
+	private Stats getStatsAnnotation() {
+		return this.method.getAnnotation(Stats.class);
+	}
+
+	/**
+	 * @return if something was configured within {@link Stats}
+	 */
+	public boolean hasStatsDefinition() {
+		return (//
+		!(getStatsAnnotation() == null) && (//
+		!getFieldStats().isEmpty() || //
+				!getStatsFacets().isEmpty() || //
+				!getStatsSelectiveFacets().isEmpty() || //
+		!getStatsSelectiveCountDistinctFields().isEmpty())//
+		);
+	}
+
+	public boolean isFieldStatsCountDistinctEnable() {
+		return getStatsAnnotation().calcDistinct();
+	}
+
+	/**
+	 * @return value of {@link Stats#value()}
+	 */
+	public List<String> getFieldStats() {
+		return getAnnotationValuesAsStringList(getStatsAnnotation(), "value");
+	}
+
+	/**
+	 * @return value of {@link Stats#facets()}
+	 */
+	public List<String> getStatsFacets() {
+		return getAnnotationValuesAsStringList(getStatsAnnotation(), "facets");
+	}
+
+	/**
+	 * @return value of facets used in {@link Stats#selective()}
+	 */
+	public Map<String, String[]> getStatsSelectiveFacets() {
+		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
+		Map<String, String[]> result = new HashMap<String, String[]>();
+		for (SelectiveStats selectiveFacet : selective) {
+			result.put(selectiveFacet.field(), selectiveFacet.facets());
+		}
+		return result;
+	}
+
+	/**
+	 * @return value of facets used in {@link Stats#selective()}
+	 */
+	public Collection<String> getStatsSelectiveCountDistinctFields() {
+		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
+		Collection<String> result = new HashSet<String>();
+		for (SelectiveStats selectiveFacet : selective) {
+			if (selectiveFacet.calcDistinct()) {
+				result.add(selectiveFacet.field());
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * @return true if {@link Query#filters()} is not empty
 	 */
 	public boolean hasFilterQuery() {
@@ -376,7 +446,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> List<T> getAnnotationValuesList(Facet annotation, String attribute, Class<T> clazz) {
+	private <T> List<T> getAnnotationValuesList(Annotation annotation, String attribute, Class<T> clazz) {
 		T[] values = (T[]) AnnotationUtils.getValue(annotation, attribute);
 		return CollectionUtils.arrayToList(values);
 	}

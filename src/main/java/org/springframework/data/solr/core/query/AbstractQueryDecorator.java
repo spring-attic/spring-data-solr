@@ -177,5 +177,15 @@ public abstract class AbstractQueryDecorator implements Query {
 	public GroupOptions getGroupOptions() {
 		return query.getGroupOptions();
 	}
+	
+	@Override
+	public <T extends Query> T setStatsOptions(StatsOptions statsOptions) {
+		return query.setStatsOptions(statsOptions);
+	}
 
+	@Override
+	public StatsOptions getStatsOptions() {
+		return query.getStatsOptions();
+	}
+	
 }

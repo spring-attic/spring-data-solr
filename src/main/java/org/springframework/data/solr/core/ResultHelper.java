@@ -29,6 +29,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
@@ -38,6 +39,7 @@ import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
@@ -61,8 +63,12 @@ import org.springframework.data.solr.core.query.result.SimpleFacetPivotEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
 import org.springframework.data.solr.core.query.result.SimpleGroupEntry;
 import org.springframework.data.solr.core.query.result.SimpleGroupResult;
+import org.springframework.data.solr.core.query.result.SimpleFieldStatsResult;
+import org.springframework.data.solr.core.query.result.SimpleStatsResult;
 import org.springframework.data.solr.core.query.result.SimpleTermsFieldEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
+import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -296,4 +302,77 @@ final class ResultHelper {
 
 		return result;
 	}
+
+	static Map<String, FieldStatsResult> convertFieldStatsInfoToFieldStatsResultMap(
+			Map<String, FieldStatsInfo> fieldStatsInfo) {
+
+		if (fieldStatsInfo == null) {
+			return null;
+		}
+
+		Map<String, FieldStatsResult> result = new HashMap<String, FieldStatsResult>();
+		for (Entry<String, FieldStatsInfo> entry : fieldStatsInfo.entrySet()) {
+
+			FieldStatsInfo value = entry.getValue();
+			SimpleFieldStatsResult statsResult = populateStatsResultWithFieldStatsInfo(new SimpleFieldStatsResult(), value);
+
+			statsResult.setCountDistinct(value.getCountDistinct());
+			statsResult.setDistinctValues(value.getDistinctValues());
+
+			Map<String, List<FieldStatsInfo>> facets = value.getFacets();
+
+			if (facets != null) {
+				statsResult.setStatsResults(convertFieldStatsInfoToStatsResultMap(facets));
+			}
+
+			result.put(entry.getKey(), statsResult);
+
+		}
+
+		return result;
+	}
+
+	private static Map<String, Map<String, StatsResult>> convertFieldStatsInfoToStatsResultMap(
+			Map<String, List<FieldStatsInfo>> statsInfo) {
+		HashMap<String, Map<String, StatsResult>> result = new HashMap<String, Map<String, StatsResult>>();
+
+		for (Entry<String, List<FieldStatsInfo>> entry : statsInfo.entrySet()) {
+			Map<String, StatsResult> facetStatsValues = new HashMap<String, StatsResult>();
+
+			for (FieldStatsInfo fieldStatsInfo : entry.getValue()) {
+
+				SimpleStatsResult statsResult = populateStatsResultWithFieldStatsInfo(new SimpleStatsResult(), fieldStatsInfo);
+				facetStatsValues.put(fieldStatsInfo.getName(), statsResult);
+
+			}
+
+			result.put(entry.getKey(), facetStatsValues);
+		}
+
+		return result;
+	}
+
+	private static <T extends SimpleStatsResult> T populateStatsResultWithFieldStatsInfo(T statsResult,
+			FieldStatsInfo value) {
+
+		statsResult.setMax(value.getMax());
+		statsResult.setMin(value.getMin());
+		statsResult.setCount(value.getCount());
+		statsResult.setMissing(value.getMissing());
+		statsResult.setStddev(value.getStddev());
+		statsResult.setSumOfSquares((Double) new DirectFieldAccessor(value).getPropertyValue("sumOfSquares"));
+
+		Object mean = value.getMean();
+		if (mean instanceof Double) {
+			statsResult.setMean((Double) mean);
+		}
+
+		Object sum = value.getSum();
+		if (sum instanceof Double) {
+			statsResult.setSum((Double) sum);
+		}
+
+		return statsResult;
+	}
+
 }

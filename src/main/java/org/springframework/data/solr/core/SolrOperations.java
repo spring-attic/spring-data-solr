@@ -34,6 +34,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
+import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 
 /**
@@ -224,6 +225,16 @@ public interface SolrOperations {
 	 */
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
 
+	/**
+	 * Execute the query against solr and return result as {@link StatsPage}
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @return
+	 * @size 1.4
+	 */
+	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz);
+	
 	/**
 	 * Executes a realtime get using given id.
 	 * 

@@ -16,7 +16,9 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -25,6 +27,7 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
+import org.apache.solr.common.params.StatsParams;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.VersionUtil;
@@ -44,6 +47,7 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.QueryParameter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -98,6 +102,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		appendRequestHandler(solrQuery, query.getRequestHandler());
 
 		processGroupOptions(solrQuery, query);
+		processStatsOptions(solrQuery, query);
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -113,6 +118,48 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (query instanceof NamedObjectsQuery) {
 			((NamedObjectsQuery) query).setName(object, name);
 		}
+	}
+
+	private void processStatsOptions(SolrQuery solrQuery, Query query) {
+		StatsOptions statsOptions = query.getStatsOptions();
+
+		if (statsOptions == null
+				|| (CollectionUtils.isEmpty(statsOptions.getFields()) && CollectionUtils.isEmpty(statsOptions.getFacets()) && CollectionUtils
+						.isEmpty(statsOptions.getSelectiveFacets()))) {
+			return;
+		}
+
+		solrQuery.set(StatsParams.STATS, true);
+
+		for (Field field : statsOptions.getFields()) {
+			solrQuery.add(StatsParams.STATS_FIELD, field.getName());
+
+			String selectiveCalcDistinctParam = CommonParams.FIELD + "." + field.getName() + "."
+					+ StatsParams.STATS_CALC_DISTINCT;
+			Boolean selectiveCountDistincts = statsOptions.isSelectiveCalcDistincts(field);
+
+			if (selectiveCountDistincts != null) {
+				solrQuery.add(selectiveCalcDistinctParam, String.valueOf(selectiveCountDistincts.booleanValue()));
+			}
+
+		}
+
+		for (Field field : statsOptions.getFacets()) {
+			solrQuery.add(StatsParams.STATS_FACET, field.getName());
+		}
+
+		for (Entry<Field, Collection<Field>> entry : statsOptions.getSelectiveFacets().entrySet()) {
+
+			Field field = entry.getKey();
+			String prefix = CommonParams.FIELD + "." + field.getName() + ".";
+
+			String paramName = prefix + StatsParams.STATS_FACET;
+			for (Field facetField : entry.getValue()) {
+				solrQuery.add(paramName, facetField.getName());
+			}
+
+		}
+
 	}
 
 	private void processGroupOptions(SolrQuery solrQuery, Query query) {
