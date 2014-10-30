@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.3.1.RELEASE (2014-10-30)
+---------------------------------------------
+* DATASOLR-213 - Release 1.3.1.
+* DATASOLR-203 - SolrServerUtils do not load CoreContainer properly.
+
+
 Changes in version 1.3.0.RELEASE (2014-09-05)
 ---------------------------------------------
 * DATASOLR-199 - Release 1.3 GA.
