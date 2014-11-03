@@ -17,7 +17,10 @@ package org.springframework.data.solr.repository.query;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.solr.common.params.HighlightParams;
 import org.hamcrest.core.IsEqual;
@@ -44,15 +47,20 @@ import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.ProductBean;
+import org.springframework.data.solr.repository.SelectiveStats;
 import org.springframework.data.solr.repository.SolrCrudRepository;
+import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.solr.repository.support.MappingSolrEntityInformation;
 
 /**
@@ -251,6 +259,32 @@ public class SolrQueryTests {
 				Matchers.<Class<ProductBean>> any());
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testQueryWithStats() {
+		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+
+		createQueryForMethod("findAndApplyStats", Pageable.class).execute(new Object[] { new PageRequest(0, 10) });
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
+				(Class<ProductBean>) Matchers.any());
+
+		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
+		
+		Assert.assertEquals(2, capturedOptions.getFields().size());
+		Assert.assertTrue(capturedOptions.getFields().containsAll(
+				Arrays.asList(new SimpleField("field1"), new SimpleField("field4"))));
+
+		Assert.assertEquals(2, capturedOptions.getFacets().size());
+		Assert.assertTrue(capturedOptions.getFacets().containsAll(
+				Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))));
+		
+		Collection<Field> selectiveFacetsField = capturedOptions.getSelectiveFacets().get(new SimpleField("field4"));
+		List<SimpleField> selectiveFacetsFields = Arrays.asList(new SimpleField("field4_1"), new SimpleField("field4_2"));
+		Assert.assertEquals(1, capturedOptions.getSelectiveFacets().size());
+		Assert.assertTrue(selectiveFacetsField.containsAll(selectiveFacetsFields));
+	}
+
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
@@ -291,6 +325,13 @@ public class SolrQueryTests {
 		Page<ProductBean> findTop5ByName(String name, Pageable page);
 
 		Slice<ProductBean> findByName(String name, Pageable page);
+
+		@Stats(//
+				value = "field1", //
+				facets = { "field2", "field3" }, //
+				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }) //
+		)
+		Page<ProductBean> findAndApplyStats(Pageable page);
 
 	}
 

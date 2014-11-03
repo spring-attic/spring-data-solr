@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * @author Rosty Kerei
  * @author Luke Corpe
  * @author Andrey Paramonov
+ * @author Francisco Spaeth
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
@@ -46,6 +47,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private String defType;
 	
 	private GroupOptions groupOptions;
+	private StatsOptions statsOptions;
 
 	public SimpleQuery() {}
 
@@ -308,6 +310,18 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@Override
 	public GroupOptions getGroupOptions() {
 		return groupOptions;
+	}
+	
+	@Override
+	public StatsOptions getStatsOptions() {
+		return statsOptions;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Query> T setStatsOptions(StatsOptions statsOptions) {
+		this.statsOptions = statsOptions;
+		return (T) this;
 	}
 
 	@Override

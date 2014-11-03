@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.query;
 
 import java.util.Collection;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,8 @@ import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.StatsOptions;
+import org.springframework.data.solr.core.query.StatsOptions.FieldStatsOptions;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -118,6 +121,10 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setAllowedQueryExeutionTime(query);
 		setDefTypeIfDefined(query);
 		setRequestHandlerIfDefined(query);
+
+		if (solrQueryMethod.hasStatsDefinition()) {
+			query.setStatsOptions(extractStatsOptions(solrQueryMethod, accessor));
+		}
 
 		if (isCountQuery() && isDeleteQuery()) {
 			throw new InvalidDataAccessApiUsageException("Cannot execute 'delete' and 'count' at the same time.");
@@ -248,6 +255,35 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 
 		return parameter.toString();
+	}
+
+	private StatsOptions extractStatsOptions(SolrQueryMethod queryMethod, SolrParameterAccessor accessor) {
+		if (!queryMethod.hasStatsDefinition()) {
+			return null;
+		}
+
+		StatsOptions options = new StatsOptions();
+
+		for (String fieldName : queryMethod.getFieldStats()) {
+			options.addField(fieldName);
+		}
+
+		for (String facetFieldName : queryMethod.getStatsFacets()) {
+			options.addFacet(facetFieldName);
+		}
+
+		options.setCalcDistinct(queryMethod.isFieldStatsCountDistinctEnable());
+
+		Collection<String> selectiveCountDistinct = queryMethod.getStatsSelectiveCountDistinctFields();
+		for (Entry<String, String[]> selectiveFacet : queryMethod.getStatsSelectiveFacets().entrySet()) {
+			FieldStatsOptions fieldStatsOptions = options.addField(selectiveFacet.getKey());
+			for (String facetFieldName : selectiveFacet.getValue()) {
+				fieldStatsOptions.addSelectiveFacet(facetFieldName);
+			}
+			fieldStatsOptions.setSelectiveCalcDistinct(selectiveCountDistinct.contains(selectiveFacet.getKey()));
+		}
+
+		return options;
 	}
 
 	private FacetOptions extractFacetOptions(SolrQueryMethod queryMethod, SolrParameterAccessor parameterAccessor) {
