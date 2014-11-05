@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,13 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.apache.solr.core.CloseHook;
 import org.apache.solr.core.CoreContainer;
+import org.apache.solr.core.CoreDescriptor;
+import org.apache.solr.core.SolrCore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.util.ResourceUtils;
@@ -36,18 +39,41 @@ import org.xml.sax.SAXException;
  */
 public abstract class AbstractITestWithEmbeddedSolrServer {
 
-	protected static SolrServer solrServer;
+	protected static EmbeddedSolrServer solrServer;
 	protected static String DEFAULT_BEAN_ID = "1";
 
 	@BeforeClass
 	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException,
 			InterruptedException {
+
 		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
 		CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome, new File(solrHome + "/solr.xml"));
+
+		for (SolrCore core : coreContainer.getCores()) {
+			core.addCloseHook(new CloseHook() {
+				@Override
+				public void preClose(SolrCore core) {}
+
+				@Override
+				public void postClose(SolrCore core) {
+					CoreDescriptor cd = core.getCoreDescriptor();
+					if (cd != null) {
+						File dataDir = new File(cd.getInstanceDir() + File.separator + "data");
+						try {
+							FileUtils.deleteDirectory(dataDir);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+		}
+
 		solrServer = new EmbeddedSolrServer(coreContainer, "collection1");
 	}
 
 	public static void cleanDataInSolr() throws SolrServerException, IOException {
+
 		solrServer.deleteByQuery("*:*");
 		solrServer.commit();
 	}
