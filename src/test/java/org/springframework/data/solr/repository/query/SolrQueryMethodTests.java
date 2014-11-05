@@ -446,48 +446,64 @@ public class SolrQueryMethodTests {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
 		Assert.assertFalse(method.isDeleteQuery());
 	}
-	
+
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testStatsForField() throws Exception {
-		
+
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStats", String.class);
 		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testStatsForFieldAndFacets() throws Exception {
-		
+
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class);
 		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
 		Assert.assertEquals(Arrays.asList("field2"), method.getStatsFacets());
 	}
-	
+
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testStatsForSelectiveFacets() throws Exception {
-		
+
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class);
 		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
 		Assert.assertEquals(2, statsSelectiveFacets.size());
-		Assert.assertArrayEquals(new String[] {"field1_1", "field1_2"}, statsSelectiveFacets.get("field1"));
-		Assert.assertArrayEquals(new String[] {"field2_1", "field2_2"}, statsSelectiveFacets.get("field2"));
+		Assert.assertArrayEquals(new String[] { "field1_1", "field1_2" }, statsSelectiveFacets.get("field1"));
+		Assert.assertArrayEquals(new String[] { "field2_1", "field2_2" }, statsSelectiveFacets.get("field2"));
 	}
-	
+
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testStatsForFieldAndFacetsAndSelectiveFacets() throws Exception {
-		
-		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class);
+
+		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats",
+				String.class);
 		Assert.assertEquals(Arrays.asList("field1"), method.getFieldStats());
-		Assert.assertEquals(Arrays.asList("field2","field3"), method.getStatsFacets());
+		Assert.assertEquals(Arrays.asList("field2", "field3"), method.getStatsFacets());
 		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
 		Assert.assertEquals(1, statsSelectiveFacets.size());
-		Assert.assertArrayEquals(new String[] {"field4_1", "field4_2"}, statsSelectiveFacets.get("field4"));
+		Assert.assertArrayEquals(new String[] { "field4_1", "field4_2" }, statsSelectiveFacets.get("field4"));
 	}
-	
+
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testHasStatsDefinition() throws Exception {
 
 		Assert.assertFalse(getQueryMethodByName("findByNameWithEmptyStats", String.class).hasStatsDefinition());
-		
+
 		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldStats", String.class).hasStatsDefinition());
 		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class).hasStatsDefinition());
 		Assert.assertTrue(getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class).hasStatsDefinition());
@@ -615,25 +631,24 @@ public class SolrQueryMethodTests {
 
 		@Stats("field1")
 		List<ProductBean> findByNameWithFieldStats(String name);
-	
+
 		@Stats(value = "field1", facets = "field2")
 		List<ProductBean> findByNameWithFieldAndFacetStats(String name);
 
 		@Stats( //
-				selective = { 
-						@SelectiveStats(field = "field1", facets = { "field1_1", "field1_2" }), //
+				selective = { @SelectiveStats(field = "field1", facets = { "field1_1", "field1_2" }), //
 						@SelectiveStats(field = "field2", facets = { "field2_1", "field2_2" }) //
 				}//
 		)
 		List<ProductBean> findByNameWithSelectiveFacetStats(String name);
-		
+
 		@Stats(//
 				value = "field1", //
 				facets = { "field2", "field3" }, //
 				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }) //
 		)
 		List<ProductBean> findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats(String name);
-		
+
 		@Stats
 		List<ProductBean> findByNameWithEmptyStats(String name);
 	}

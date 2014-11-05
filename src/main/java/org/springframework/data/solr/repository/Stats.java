@@ -45,7 +45,7 @@ public @interface Stats {
 	/**
 	 * @return if distinct elements shall be calculated
 	 */
-	public boolean calcDistinct() default false;
+	public boolean distinct() default false;
 
 	/**
 	 * @return field selective stats parameters.

@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -44,11 +45,14 @@ import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.data.solr.core.query.SolrPageRequest;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -56,6 +60,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Christoph Strobl
  * @author John Dorman
+ * @author Francisco Spaeth
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -902,6 +907,41 @@ public class ITestSolrRepositoryOperations {
 
 		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(1, 20));
 		Assert.assertThat(slice.hasContent(), Is.is(false));
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testStatsAnnotatedMethod() {
+
+		ProductBean created = createProductBean("1", 1, true);
+		created.setPrice(1F);
+		created.setAvailable(true);
+		created.setLastModified(new Date());
+		created.setWeight(10F);
+
+		repo.save(created);
+
+		StatsPage<ProductBean> statsPage = repo.findAllWithStats(new SolrPageRequest(0, 0));
+
+		FieldStatsResult id = statsPage.getFieldStatsResult("id");
+		FieldStatsResult price = statsPage.getFieldStatsResult("price");
+		FieldStatsResult weight = statsPage.getFieldStatsResult("weight");
+
+		Assert.assertNotNull(id);
+		Assert.assertNotNull(price);
+		Assert.assertNotNull(price.getFacetStatsResult("id"));
+		Assert.assertNotNull(price.getFacetStatsResult("last_modified"));
+		Assert.assertNull(price.getFacetStatsResult("inStock"));
+		Assert.assertNotNull(id.getFacetStatsResult("id"));
+		Assert.assertNotNull(id.getFacetStatsResult("last_modified"));
+		Assert.assertNull(id.getFacetStatsResult("inStock"));
+
+		Assert.assertNotNull(weight);
+		Assert.assertNotNull(weight.getFacetStatsResult("inStock"));
+		Assert.assertNull(weight.getFacetStatsResult("last_modified"));
+		Assert.assertNull(weight.getFacetStatsResult("id"));
 	}
 
 	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {

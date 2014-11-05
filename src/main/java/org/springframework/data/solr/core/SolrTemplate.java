@@ -316,6 +316,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(query, clazz);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForStatsPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
+	 */
 	@Override
 	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz) {
 		Assert.notNull(query, "Query must not be 'null'.");

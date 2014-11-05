@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.solr.common.params.HighlightParams;
+import org.hamcrest.collection.IsEmptyIterable;
 import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,6 +66,7 @@ import org.springframework.data.solr.repository.support.MappingSolrEntityInforma
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryTests {
@@ -259,6 +261,9 @@ public class SolrQueryTests {
 				Matchers.<Class<ProductBean>> any());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testQueryWithStats() {
@@ -270,7 +275,7 @@ public class SolrQueryTests {
 				(Class<ProductBean>) Matchers.any());
 
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
-		
+
 		Assert.assertEquals(2, capturedOptions.getFields().size());
 		Assert.assertTrue(capturedOptions.getFields().containsAll(
 				Arrays.asList(new SimpleField("field1"), new SimpleField("field4"))));
@@ -278,11 +283,59 @@ public class SolrQueryTests {
 		Assert.assertEquals(2, capturedOptions.getFacets().size());
 		Assert.assertTrue(capturedOptions.getFacets().containsAll(
 				Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))));
-		
+
 		Collection<Field> selectiveFacetsField = capturedOptions.getSelectiveFacets().get(new SimpleField("field4"));
 		List<SimpleField> selectiveFacetsFields = Arrays.asList(new SimpleField("field4_1"), new SimpleField("field4_2"));
 		Assert.assertEquals(1, capturedOptions.getSelectiveFacets().size());
 		Assert.assertTrue(selectiveFacetsField.containsAll(selectiveFacetsFields));
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testQueryWithStatsNonSelective() {
+		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+
+		createQueryForMethod("findAndApplyStatsNonSelective", Pageable.class).execute(
+				new Object[] { new PageRequest(0, 10) });
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
+				(Class<ProductBean>) Matchers.any());
+
+		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
+
+		Assert.assertEquals(1, capturedOptions.getFields().size());
+		Assert.assertTrue(capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"))));
+
+		Assert.assertEquals(2, capturedOptions.getFacets().size());
+		Assert.assertTrue(capturedOptions.getFacets().containsAll(
+				Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))));
+
+		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testQueryWithStatsNoFacets() {
+		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+
+		createQueryForMethod("findAndApplyStatsNoFacets", Pageable.class).execute(new Object[] { new PageRequest(0, 10) });
+
+		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
+				(Class<ProductBean>) Matchers.any());
+
+		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
+
+		Assert.assertEquals(1, capturedOptions.getFields().size());
+		Assert.assertTrue(capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"))));
+
+		Assert.assertThat(capturedOptions.getFacets(), IsEmptyIterable.emptyIterable());
+		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
 	}
 
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
@@ -326,12 +379,15 @@ public class SolrQueryTests {
 
 		Slice<ProductBean> findByName(String name, Pageable page);
 
-		@Stats(//
-				value = "field1", //
-				facets = { "field2", "field3" }, //
-				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }) //
-		)
+		@Stats(value = "field1", facets = { "field2", "field3" }, //
+				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }))
 		Page<ProductBean> findAndApplyStats(Pageable page);
+
+		@Stats(value = "field1", facets = { "field2", "field3" })
+		Page<ProductBean> findAndApplyStatsNonSelective(Pageable page);
+
+		@Stats(value = "field1")
+		Page<ProductBean> findAndApplyStatsNoFacets(Pageable page);
 
 	}
 

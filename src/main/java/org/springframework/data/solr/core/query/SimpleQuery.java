@@ -45,7 +45,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Operator defaultOperator;
 	private Integer timeAllowed;
 	private String defType;
-	
+
 	private GroupOptions groupOptions;
 	private StatsOptions statsOptions;
 
@@ -204,7 +204,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		if (this.groupOptions == null) {
 			this.groupOptions = new GroupOptions();
 		}
-		
+
 		this.groupOptions.addGroupByField(field).setGroupMain(true);
 		return (T) this;
 	}
@@ -214,7 +214,6 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * 
 	 * @param fieldname must not be null
 	 * @return
-	 * 
 	 * @deprecated in favor of {@link GroupOptions}
 	 * @see GroupOptions
 	 */
@@ -306,20 +305,29 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.groupOptions = groupOptions;
 		return (T) this;
 	}
-	
+
 	@Override
 	public GroupOptions getGroupOptions() {
 		return groupOptions;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#getStatsOptions()
+	 */
 	@Override
 	public StatsOptions getStatsOptions() {
 		return statsOptions;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#setStatsOptions(org.springframework.data.solr.core.query.StatsOptions)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Query> T setStatsOptions(StatsOptions statsOptions) {
+
 		this.statsOptions = statsOptions;
 		return (T) this;
 	}

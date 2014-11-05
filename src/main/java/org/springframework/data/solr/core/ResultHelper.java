@@ -55,19 +55,19 @@ import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetFieldEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetPivotEntry;
 import org.springframework.data.solr.core.query.result.SimpleFacetQueryEntry;
+import org.springframework.data.solr.core.query.result.SimpleFieldStatsResult;
 import org.springframework.data.solr.core.query.result.SimpleGroupEntry;
 import org.springframework.data.solr.core.query.result.SimpleGroupResult;
-import org.springframework.data.solr.core.query.result.SimpleFieldStatsResult;
 import org.springframework.data.solr.core.query.result.SimpleStatsResult;
 import org.springframework.data.solr.core.query.result.SimpleTermsFieldEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
-import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.util.Assert;
@@ -307,13 +307,19 @@ final class ResultHelper {
 			Map<String, FieldStatsInfo> fieldStatsInfo) {
 
 		if (fieldStatsInfo == null) {
-			return null;
+			return Collections.emptyMap();
 		}
 
-		Map<String, FieldStatsResult> result = new HashMap<String, FieldStatsResult>();
+		Map<String, FieldStatsResult> result = new LinkedHashMap<String, FieldStatsResult>();
 		for (Entry<String, FieldStatsInfo> entry : fieldStatsInfo.entrySet()) {
 
 			FieldStatsInfo value = entry.getValue();
+
+			if (value == null) {
+				result.put(entry.getKey(), new SimpleFieldStatsResult());
+				continue;
+			}
+
 			SimpleFieldStatsResult statsResult = populateStatsResultWithFieldStatsInfo(new SimpleFieldStatsResult(), value);
 
 			statsResult.setCountDistinct(value.getCountDistinct());
@@ -326,7 +332,6 @@ final class ResultHelper {
 			}
 
 			result.put(entry.getKey(), statsResult);
-
 		}
 
 		return result;
@@ -334,16 +339,16 @@ final class ResultHelper {
 
 	private static Map<String, Map<String, StatsResult>> convertFieldStatsInfoToStatsResultMap(
 			Map<String, List<FieldStatsInfo>> statsInfo) {
-		HashMap<String, Map<String, StatsResult>> result = new HashMap<String, Map<String, StatsResult>>();
+
+		Map<String, Map<String, StatsResult>> result = new LinkedHashMap<String, Map<String, StatsResult>>();
 
 		for (Entry<String, List<FieldStatsInfo>> entry : statsInfo.entrySet()) {
-			Map<String, StatsResult> facetStatsValues = new HashMap<String, StatsResult>();
+			Map<String, StatsResult> facetStatsValues = new LinkedHashMap<String, StatsResult>();
 
 			for (FieldStatsInfo fieldStatsInfo : entry.getValue()) {
 
 				SimpleStatsResult statsResult = populateStatsResultWithFieldStatsInfo(new SimpleStatsResult(), fieldStatsInfo);
 				facetStatsValues.put(fieldStatsInfo.getName(), statsResult);
-
 			}
 
 			result.put(entry.getKey(), facetStatsValues);

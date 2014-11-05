@@ -23,9 +23,45 @@ import org.junit.Test;
 
 /**
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  */
-public class StatsOptionsTest {
+public class StatsOptionsTests {
 
+	/**
+	 * @see DATSOLR-160
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddingNullField() {
+		new StatsOptions().addField((Field) null);
+	}
+
+	/**
+	 * @see DATSOLR-160
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddingNullFieldName() {
+		new StatsOptions().addField((String) null);
+	}
+
+	/**
+	 * @see DATSOLR-160
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddingNullFacetField() {
+		new StatsOptions().addFacet((Field) null);
+	}
+
+	/**
+	 * @see DATSOLR-160
+	 */
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddingNullFacetFieldName() {
+		new StatsOptions().addFacet((String) null);
+	}
+
+	/**
+	 * @see DATSOLR-160
+	 */
 	@Test
 	public void testFluency() {
 
@@ -41,9 +77,11 @@ public class StatsOptionsTest {
 		Assert.assertArrayEquals(statsOptions.getFields().toArray(), configured.getFields().toArray());
 		Assert.assertEquals(statsOptions.getSelectiveFacets(), configured.getSelectiveFacets());
 		Assert.assertTrue(statsOptions.isCalcDistinct());
-
 	}
 
+	/**
+	 * @see DATSOLR-160
+	 */
 	@Test
 	public void testMultipleSelectiveFacet() {
 
@@ -58,9 +96,11 @@ public class StatsOptionsTest {
 		Assert.assertEquals(2, selectiveFacets.size());
 		Assert.assertEquals(1, selectiveFacets.get(new SimpleField("fieldName1")).size());
 		Assert.assertEquals(3, selectiveFacets.get(new SimpleField("fieldName2")).size());
-
 	}
-	
+
+	/**
+	 * @see DATSOLR-160
+	 */
 	@Test
 	public void testSelectiveFacetAndSelectiveCountDistinct() {
 
@@ -80,7 +120,6 @@ public class StatsOptionsTest {
 		Assert.assertTrue(configured.isCalcDistinct());
 		Assert.assertTrue(configured.isSelectiveCalcDistincts(new SimpleField("fieldName1")));
 		Assert.assertNull(configured.isSelectiveCalcDistincts(new SimpleField("fieldName2")));
-
 	}
 
 }

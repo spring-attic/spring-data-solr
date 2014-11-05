@@ -34,7 +34,10 @@ import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.hamcrest.collection.IsEmptyIterable;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,12 +62,12 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
-import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
@@ -75,8 +78,7 @@ import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 @RunWith(MockitoJUnitRunner.class)
 public class ResultHelperTests {
 
-	@Mock
-	private QueryResponse response;
+	@Mock private QueryResponse response;
 
 	@Test
 	public void testConvertFacetQueryResponseForNullQueryResponse() {
@@ -417,7 +419,7 @@ public class ResultHelperTests {
 		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
 				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
 	}
-	
+
 	/**
 	 * @see DATASOLR-121
 	 */
@@ -430,14 +432,15 @@ public class ResultHelperTests {
 		Group group1_1 = Mockito.mock(Group.class);
 		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
 		List<Object> documents1_1 = Arrays.asList(new Object());
-		
+
 		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
 		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
 		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
-		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(documents1_1);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(
+				documents1_1);
 		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
 		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(2);
@@ -451,12 +454,12 @@ public class ResultHelperTests {
 		Object group1Key = new Object();
 		Map<String, Object> objectNames = new HashMap<String, Object>();
 		objectNames.put("group1_name", group1Key);
-		
-		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, 
+
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query,
 				objectNames, response, solrTemplate, Object.class);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(2, result.size());
-		
+
 		GroupResult<Object> groupResult = result.get("group1_name");
 		Assert.assertEquals(groupResult, result.get(group1Key));
 		Assert.assertEquals("group1_name", groupResult.getName());
@@ -467,11 +470,11 @@ public class ResultHelperTests {
 		Assert.assertEquals(2, groupEntries.getTotalElements());
 		Assert.assertEquals(2, groupEntries.getTotalPages());
 		Assert.assertEquals(true, groupEntries.hasNext());
-		
+
 		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
 		Assert.assertNotNull(groupEntriesContent);
 		Assert.assertEquals(1, groupEntriesContent.size());
-		
+
 		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
 		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
 
@@ -493,18 +496,19 @@ public class ResultHelperTests {
 		Group group1_1 = Mockito.mock(Group.class);
 		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
 		List<Object> documents1_1 = Arrays.asList(new Object());
-		
+
 		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
 		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
 		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
-		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(documents1_1);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(
+				documents1_1);
 		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
 		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(null);
-		
+
 		GroupOptions groupOptions = new GroupOptions();
 		groupOptions.setLimit(1);
 
@@ -515,9 +519,9 @@ public class ResultHelperTests {
 		Map<String, Object> objectNames = new HashMap<String, Object>();
 		objectNames.put("group1_name", group1Key);
 
-		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, 
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query,
 				objectNames, response, solrTemplate, Object.class);
-		
+
 		Assert.assertNotNull(result);
 		Assert.assertEquals(2, result.size());
 
@@ -531,11 +535,11 @@ public class ResultHelperTests {
 		Assert.assertEquals(1, groupEntries.getTotalElements());
 		Assert.assertEquals(1, groupEntries.getTotalPages());
 		Assert.assertEquals(false, groupEntries.hasNext());
-		
+
 		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
 		Assert.assertNotNull(groupEntriesContent);
 		Assert.assertEquals(1, groupEntriesContent.size());
-		
+
 		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
 		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
 
@@ -545,17 +549,98 @@ public class ResultHelperTests {
 		Assert.assertEquals(true, group1result.hasNext());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConvertSingleFieldStatsInfoToStatsResultMap() {
+
+		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
+
+		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D, 1D);
+
+		fieldStatsInfos.put("field", new FieldStatsInfo(nl, "field"));
+
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(fieldStatsInfos);
+
+		FieldStatsResult fieldStatsResult = converted.get("field");
+
+		Assert.assertEquals("min", fieldStatsResult.getMin());
+		Assert.assertEquals("max", fieldStatsResult.getMax());
+		Assert.assertEquals(Double.valueOf(20), fieldStatsResult.getSum());
+		Assert.assertEquals(Double.valueOf(22.5), fieldStatsResult.getMean());
+		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
+		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
+		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
+		Assert.assertEquals(Double.valueOf(1D), fieldStatsResult.getSumOfSquares());
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConvertNullFieldStatsInfoToStatsResultMap() {
+
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(null);
+
+		Assert.assertThat(converted, IsNull.notNullValue());
+		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConvertEmptyFieldStatsInfoMapToStatsResultMap() {
+
+		Map<String, FieldStatsResult> converted = ResultHelper
+				.convertFieldStatsInfoToFieldStatsResultMap(new HashMap<String, FieldStatsInfo>());
+
+		Assert.assertThat(converted, IsNull.notNullValue());
+		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConvertFieldStatsInfoMapWithNullToStatsResultMap() {
+
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
+				.<String, FieldStatsInfo> singletonMap("field", null));
+
+		Assert.assertThat(converted, IsNull.notNullValue());
+		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testConvertFieldStatsInfoMapWithEmptyNamedListToStatsResultMap() {
+
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
+				.<String, FieldStatsInfo> singletonMap("field", new FieldStatsInfo(new NamedList<Object>(), "field")));
+
+		Assert.assertThat(converted, IsNull.notNullValue());
+		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
+	}
+
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testConvertFieldStatsInfoToStatsResultMap() {
+
 		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
 
 		NamedList<Object> values = new NamedList<Object>();
 		NamedList<Object> facets = new NamedList<Object>();
-		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D);
+		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D, 1D);
 		nl.add("facets", facets);
 		facets.add("facetField", values);
-		values.add("value1", createFieldStatNameList("f1v1min", "f1v1max", 110D, 111L, 112L, 113D, 11.3D));
-		values.add("value2", createFieldStatNameList("f1v2min", "f1v2max", 120D, 121L, 122L, 123D, 12.3D));
+		values.add("value1", createFieldStatNameList("f1v1min", "f1v1max", 110D, 111L, 112L, 113D, 11.3D, 1D));
+		values.add("value2", createFieldStatNameList("f1v2min", "f1v2max", 120D, 121L, 122L, 123D, 12.3D, 1D));
 
 		fieldStatsInfos.put("field", new FieldStatsInfo(nl, "field"));
 
@@ -571,11 +656,11 @@ public class ResultHelperTests {
 		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
-		
+
 		// facets
 		Map<String, Map<String, StatsResult>> facetStatsResults = fieldStatsResult.getFacetStatsResults();
 		Assert.assertEquals(1, facetStatsResults.size());
-		
+
 		// facet field
 		Map<String, StatsResult> facetStatsResult = facetStatsResults.get("facetField");
 		Assert.assertNotNull(facetStatsResult);
@@ -600,8 +685,8 @@ public class ResultHelperTests {
 		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
 	}
 
-	private NamedList<Object> createFieldStatNameList(String min, String max, Double sum, Long count, Long missing,
-			Double mean, Double stddev) {
+	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,
+			Object mean, Double stddev, Double sumOfSquares) {
 		NamedList<Object> nl = new NamedList<Object>();
 		nl.add("min", min);
 		nl.add("max", max);
@@ -610,9 +695,10 @@ public class ResultHelperTests {
 		nl.add("missing", missing);
 		nl.add("mean", mean);
 		nl.add("stddev", stddev);
+		nl.add("sumOfSquares", sumOfSquares);
 		return nl;
 	}
-	
+
 	private FacetQuery createFacetQuery(SolrDataQuery... facetQueries) {
 		FacetQuery fq = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		fq.setFacetOptions(new FacetOptions(facetQueries));
@@ -641,7 +727,7 @@ public class ResultHelperTests {
 
 	private static class SolrBeanWithIdNamedField {
 
-		@SuppressWarnings("unused")
+		@SuppressWarnings("unused")//
 		private String id;
 
 		public SolrBeanWithIdNamedField(String id) {
@@ -652,9 +738,7 @@ public class ResultHelperTests {
 
 	private static class SolrBeanWithAnnoteatedIdNamedField {
 
-		@SuppressWarnings("unused")
-		@Id
-		private String idField;
+		private @Id String idField;
 
 		public SolrBeanWithAnnoteatedIdNamedField(String idField) {
 			this.idField = idField;

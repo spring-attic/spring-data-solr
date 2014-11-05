@@ -27,6 +27,7 @@ import org.springframework.data.domain.Sort;
  * @author Rosty Kerei
  * @author Luke Corpe
  * @author Andrey Paramonov
+ * @author Francisco Spaeth
  */
 public interface Query extends SolrDataQuery {
 
@@ -227,17 +228,19 @@ public interface Query extends SolrDataQuery {
 	 * @return group options
 	 */
 	GroupOptions getGroupOptions();
-	
+
 	/**
 	 * Set {@link StatsOptions} for this {@link Query}.
 	 * 
 	 * @param statsOptions
 	 * @return
+	 * @since 1.4
 	 */
 	<T extends Query> T setStatsOptions(StatsOptions statsOptions);
-	
+
 	/**
-	 * @return stats options
+	 * @return {@link StatsOptions} or null if not set.
+	 * @since 1.4
 	 */
 	StatsOptions getStatsOptions();
 

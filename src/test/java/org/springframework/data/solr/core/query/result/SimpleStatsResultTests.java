@@ -20,10 +20,18 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SimpleStatsResultTest {
+/**
+ * @author Francisco Spaeth
+ * @author Christoph Strobl
+ */
+public class SimpleStatsResultTests {
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testGetMinDouble() {
+
 		SimpleStatsResult stats = new SimpleStatsResult();
 		stats.setMin(13);
 
@@ -32,8 +40,12 @@ public class SimpleStatsResultTest {
 		Assert.assertNull(null, stats.getMinAsDate());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testGetMinDate() {
+
 		SimpleStatsResult stats = new SimpleStatsResult();
 		Date date = new Date();
 		stats.setMin(date);
@@ -43,8 +55,12 @@ public class SimpleStatsResultTest {
 		Assert.assertEquals(date, stats.getMinAsDate());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testGetMaxDouble() {
+
 		SimpleStatsResult stats = new SimpleStatsResult();
 		stats.setMax(13);
 
@@ -53,8 +69,12 @@ public class SimpleStatsResultTest {
 		Assert.assertNull(null, stats.getMaxAsDate());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testGetMaxDate() {
+
 		SimpleStatsResult stats = new SimpleStatsResult();
 		Date date = new Date();
 		stats.setMax(date);

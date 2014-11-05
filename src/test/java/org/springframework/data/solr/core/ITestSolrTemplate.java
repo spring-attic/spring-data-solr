@@ -935,19 +935,64 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testQueryWithFieldsStatsAndFaceting() {
 		StatsOptions statsOptions = new StatsOptions().addField("price").addFacet("name");
-		testStatsRequest(statsOptions);
+		executeAndCheckStatsRequest(statsOptions);
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
 	@Test
 	public void testQueryWithFieldsStatsAndSelectiveFaceting() {
+
 		StatsOptions statsOptions = new StatsOptions().addField("price").addSelectiveFacet("name");
-		testStatsRequest(statsOptions);
+		executeAndCheckStatsRequest(statsOptions);
 	}
 
-	private void testStatsRequest(StatsOptions statsOptions) {
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testDistinctStatsRequest() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
+		bean1.setPrice(10);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
+		bean2.setPrice(20);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
+		bean3.setPrice(20);
+		bean1.setPopularity(2);
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit();
+
+		StatsOptions statsOptions = new StatsOptions().addField("popularity").addField("price")
+				.setSelectiveCalcDistinct(true);
+
+		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
+		statsQuery.setStatsOptions(statsOptions);
+		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
+
+		FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
+		FieldStatsResult popularityStatResult = statResultPage.getFieldStatsResult("popularity");
+
+		Assert.assertEquals(Long.valueOf(2), priceStatResult.getDistinctCount());
+		Collection<Object> distinctValues = priceStatResult.getDistinctValues();
+		Assert.assertEquals(2, distinctValues.size());
+		Assert.assertTrue(distinctValues.contains(10.0F));
+		Assert.assertTrue(distinctValues.contains(20.0F));
+		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
+	}
+
+	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {
+
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		bean1.setPrice(10f);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
@@ -989,41 +1034,6 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMin());
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMax());
 		}
-	}
-
-	@Test
-	public void testDistinctStatsRequest() {
-
-		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
-		bean1.setPrice(10);
-		bean1.setPopularity(1);
-		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
-		bean2.setPrice(20);
-		bean1.setPopularity(1);
-		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
-		bean3.setPrice(20);
-		bean1.setPopularity(2);
-
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
-		solrTemplate.commit();
-
-		StatsOptions statsOptions = new StatsOptions().addField("popularity").addField("price")
-				.setSelectiveCalcDistinct(true);
-
-		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
-		statsQuery.setStatsOptions(statsOptions);
-		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
-
-		FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
-		FieldStatsResult popularityStatResult = statResultPage.getFieldStatsResult("popularity");
-
-		Assert.assertEquals(Long.valueOf(2), priceStatResult.getDistinctCount());
-		Collection<Object> distinctValues = priceStatResult.getDistinctValues();
-		Assert.assertEquals(2, distinctValues.size());
-		Assert.assertTrue(distinctValues.contains(10.0F));
-		Assert.assertTrue(distinctValues.contains(20.0F));
-		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
-
 	}
 
 }

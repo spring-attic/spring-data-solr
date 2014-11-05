@@ -177,15 +177,23 @@ public abstract class AbstractQueryDecorator implements Query {
 	public GroupOptions getGroupOptions() {
 		return query.getGroupOptions();
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#setStatsOptions(org.springframework.data.solr.core.query.StatsOptions)
+	 */
 	@Override
 	public <T extends Query> T setStatsOptions(StatsOptions statsOptions) {
 		return query.setStatsOptions(statsOptions);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#getStatsOptions()
+	 */
 	@Override
 	public StatsOptions getStatsOptions() {
 		return query.getStatsOptions();
 	}
-	
+
 }

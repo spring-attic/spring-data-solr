@@ -69,12 +69,12 @@ public interface StatsResult {
 	/**
 	 * @return sum of all values
 	 */
-	Double getSum();
+	Object getSum();
 
 	/**
 	 * @return average
 	 */
-	Double getMean();
+	Object getMean();
 
 	/**
 	 * @return number of non-null values

@@ -275,11 +275,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		options.setCalcDistinct(queryMethod.isFieldStatsCountDistinctEnable());
 
 		Collection<String> selectiveCountDistinct = queryMethod.getStatsSelectiveCountDistinctFields();
+
 		for (Entry<String, String[]> selectiveFacet : queryMethod.getStatsSelectiveFacets().entrySet()) {
 			FieldStatsOptions fieldStatsOptions = options.addField(selectiveFacet.getKey());
 			for (String facetFieldName : selectiveFacet.getValue()) {
 				fieldStatsOptions.addSelectiveFacet(facetFieldName);
 			}
+
 			fieldStatsOptions.setSelectiveCalcDistinct(selectiveCountDistinct.contains(selectiveFacet.getKey()));
 		}
 

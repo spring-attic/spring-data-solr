@@ -36,6 +36,6 @@ public @interface SelectiveStats {
 	/**
 	 * @return if distinct elements for this field shall be calculated
 	 */
-	public boolean calcDistinct() default false;
+	public boolean distinct() default false;
 
 }

@@ -31,17 +31,17 @@ import org.springframework.util.Assert;
  */
 public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldStatsResult {
 
-	private Map<String, Map<String, StatsResult>> statsResults;
+	private Map<String, Map<String, StatsResult>> facetStatsResult;
 	private Long distinctCount;
 	private Collection<Object> distinctValues = Collections.emptyList();
 
 	@Override
 	public Map<String, Map<String, StatsResult>> getFacetStatsResults() {
-		return Collections.unmodifiableMap(statsResults);
+		return Collections.unmodifiableMap(facetStatsResult);
 	}
 
 	public void setStatsResults(Map<String, Map<String, StatsResult>> statsResults) {
-		this.statsResults = statsResults;
+		this.facetStatsResult = statsResults;
 	}
 
 	@Override
@@ -53,14 +53,14 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 	@Override
 	public Map<String, StatsResult> getFacetStatsResult(String fieldName) {
 		Assert.notNull("fieldName must be not null", fieldName);
-		return statsResults.get(fieldName);
+		return facetStatsResult.get(fieldName);
 	}
 
 	@Override
 	public Long getDistinctCount() {
 		return distinctCount;
 	}
-	
+
 	public void setCountDistinct(Long distinctCount) {
 		this.distinctCount = distinctCount;
 	}
@@ -69,7 +69,7 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 	public Collection<Object> getDistinctValues() {
 		return Collections.unmodifiableCollection(this.distinctValues);
 	}
-	
+
 	public void setDistinctValues(Collection<Object> distinctValues) {
 		if (distinctValues == null) {
 			this.distinctValues = Collections.emptyList();
@@ -83,7 +83,7 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 	public String toString() {
 		return "SimpleFieldStatsResult [min=" + getMin() + ", max=" + getMax() + ", sum=" + getSum() + ", mean="
 				+ getMean() + ", count=" + getCount() + ", missing=" + getMissing() + ", stddev=" + getStddev()
-				+ ", statsResults=" + statsResults + "]";
+				+ ", statsResults=" + facetStatsResult + "]";
 	}
 
 }

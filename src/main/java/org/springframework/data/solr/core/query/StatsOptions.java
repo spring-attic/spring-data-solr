@@ -18,13 +18,15 @@ package org.springframework.data.solr.core.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.Assert;
+
 /**
- * Set of options available to get field's statistics.
+ * Set of options available to get field statistics.
  * 
  * @author Francisco Spaeth
  * @since 1.4
@@ -48,17 +50,23 @@ public class StatsOptions {
 	 * @return
 	 */
 	public FieldStatsOptions addField(Field field) {
+
+		Assert.notNull(field, "Field for statistics must not be 'null'.");
+
 		state.fields.add(field);
 		return new FieldStatsOptions(field, state);
 	}
 
 	/**
-	 * Adds a field to the statistics to be requested.
+	 * Adds a field via its name to the statistics to be requested.
 	 * 
 	 * @param fieldName
 	 * @return
 	 */
 	public FieldStatsOptions addField(String fieldName) {
+
+		Assert.hasText(fieldName, "Fieldname for statistics must not be blank.");
+
 		return addField(new SimpleField(fieldName));
 	}
 
@@ -76,6 +84,9 @@ public class StatsOptions {
 	 * @return
 	 */
 	public StatsOptions addFacet(Field field) {
+
+		Assert.notNull(field, "Facet field for statistics must not be 'null'.");
+
 		state.facets.add(field);
 		return this;
 	}
@@ -87,6 +98,9 @@ public class StatsOptions {
 	 * @return
 	 */
 	public StatsOptions addFacet(String fieldName) {
+
+		Assert.hasText(fieldName, "Fieldname for facet statistics must not be blank.");
+
 		return addFacet(new SimpleField(fieldName));
 	}
 
@@ -103,7 +117,7 @@ public class StatsOptions {
 	public Map<Field, Collection<Field>> getSelectiveFacets() {
 		return Collections.unmodifiableMap(state.selectiveFacets);
 	}
-	
+
 	/**
 	 * Sets the distinct calculation for a given stats request.
 	 * 
@@ -116,7 +130,7 @@ public class StatsOptions {
 	}
 
 	/**
-	 * @return if distinct shall be calculated for the stats request
+	 * @return true if distinct shall be calculated for the stats request.
 	 */
 	public boolean isCalcDistinct() {
 		return state.calcDistinct;
@@ -128,15 +142,15 @@ public class StatsOptions {
 	public Map<Field, Boolean> getSelectiveCalcDistincts() {
 		return Collections.unmodifiableMap(state.selectiveCalcDistinct);
 	}
-	
+
 	/**
 	 * @param field
-	 * @return if a distinct calculation shall be done selectively to the given field
+	 * @return true if a distinct calculation shall be done selectively to the given field.
 	 */
 	public Boolean isSelectiveCalcDistincts(Field field) {
 		return state.selectiveCalcDistinct.get(field);
 	}
-	
+
 	/**
 	 * Set of options available to get field's statistics having a field as context.
 	 * 
@@ -177,14 +191,16 @@ public class StatsOptions {
 
 	}
 
+	/**
+	 * @author Francisco Spaeth
+	 * @since 1.4
+	 */
 	private static class StatsOptionsState {
 
-		private Set<Field> fields = new HashSet<Field>(1);
-		private Set<Field> facets = new HashSet<Field>(0);
+		private Set<Field> fields = new LinkedHashSet<Field>(1);
+		private Set<Field> facets = new LinkedHashSet<Field>(0);
 		private boolean calcDistinct = false;
-		private Map<Field, Collection<Field>> selectiveFacets = new HashMap<Field, Collection<Field>>();
-		private Map<Field, Boolean> selectiveCalcDistinct = new HashMap<Field, Boolean>();
-
+		private Map<Field, Collection<Field>> selectiveFacets = new LinkedHashMap<Field, Collection<Field>>();
+		private Map<Field, Boolean> selectiveCalcDistinct = new LinkedHashMap<Field, Boolean>();
 	}
-
 }

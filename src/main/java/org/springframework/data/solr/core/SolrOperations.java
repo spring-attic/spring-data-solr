@@ -226,15 +226,15 @@ public interface SolrOperations {
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
 
 	/**
-	 * Execute the query against solr and return result as {@link StatsPage}
+	 * Execute the query against Solr and return result as {@link StatsPage}.
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @size 1.4
 	 */
 	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz);
-	
+
 	/**
 	 * Executes a realtime get using given id.
 	 * 

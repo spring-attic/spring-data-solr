@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.util.ObjectUtils;
  * The most trivial implementation of a Field
  * 
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class SimpleField implements Field {
 
@@ -42,7 +43,7 @@ public class SimpleField implements Field {
 
 	@Override
 	public int hashCode() {
-		return ObjectUtils.nullSafeHashCode(this.name) * 29;
+		return ObjectUtils.nullSafeHashCode(this.name);
 	}
 
 	@Override

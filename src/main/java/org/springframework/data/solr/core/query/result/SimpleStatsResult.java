@@ -17,104 +17,152 @@ package org.springframework.data.solr.core.query.result;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.ObjectUtils;
-
+import org.springframework.util.ObjectUtils;
 
 /**
  * Trivial implementation of {@link StatsResult}.
  * 
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  * @since 1.4
  */
 public class SimpleStatsResult implements StatsResult {
 
 	private Object min;
 	private Object max;
-	private Double sum;
-	private Double mean;
+	private Object sum;
+	private Object mean;
 	private Long count;
 	private Long missing;
 	private Double stddev;
 	private Double sumOfSquares;
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMin()
+	 */
 	@Override
 	public Object getMin() {
 		return min;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMinAsDate()
+	 */
 	@Override
 	public Date getMinAsDate() {
+
 		if (min instanceof Date) {
 			return (Date) min;
 		}
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMinAsDouble()
+	 */
 	@Override
 	public Double getMinAsDouble() {
+
 		if (min instanceof Number) {
 			return ((Number) min).doubleValue();
 		}
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMinAsString()
+	 */
 	@Override
 	public String getMinAsString() {
-		return ObjectUtils.toString(min, null);
+		return ObjectUtils.nullSafeToString(min);
 	}
 
 	public void setMin(Object min) {
 		this.min = min;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMax()
+	 */
 	@Override
 	public Object getMax() {
 		return max;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMaxAsDate()
+	 */
 	@Override
 	public Date getMaxAsDate() {
+
 		if (max instanceof Date) {
 			return (Date) max;
 		}
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMaxAsDouble()
+	 */
 	@Override
 	public Double getMaxAsDouble() {
+
 		if (max instanceof Number) {
 			return ((Number) max).doubleValue();
 		}
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMaxAsString()
+	 */
 	@Override
 	public String getMaxAsString() {
-		return ObjectUtils.toString(max, null);
+		return ObjectUtils.nullSafeToString(max);
 	}
 
 	public void setMax(Object max) {
 		this.max = max;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getSum()
+	 */
 	@Override
-	public Double getSum() {
+	public Object getSum() {
 		return sum;
 	}
 
-	public void setSum(Double sum) {
+	public void setSum(Object sum) {
 		this.sum = sum;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMean()
+	 */
 	@Override
-	public Double getMean() {
+	public Object getMean() {
 		return mean;
 	}
 
-	public void setMean(Double mean) {
+	public void setMean(Object mean) {
 		this.mean = mean;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getCount()
+	 */
 	@Override
 	public Long getCount() {
 		return count;
@@ -124,6 +172,10 @@ public class SimpleStatsResult implements StatsResult {
 		this.count = count;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getMissing()
+	 */
 	@Override
 	public Long getMissing() {
 		return missing;
@@ -133,6 +185,10 @@ public class SimpleStatsResult implements StatsResult {
 		this.missing = missing;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getStddev()
+	 */
 	@Override
 	public Double getStddev() {
 		return stddev;
@@ -142,6 +198,10 @@ public class SimpleStatsResult implements StatsResult {
 		this.stddev = stddev;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.StatsResult#getSumOfSquares()
+	 */
 	@Override
 	public Double getSumOfSquares() {
 		return this.sumOfSquares;
@@ -151,6 +211,10 @@ public class SimpleStatsResult implements StatsResult {
 		this.sumOfSquares = sumOfSquares;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "SimpleStatsResult [min=" + min + ", max=" + max + ", sum=" + sum + ", mean=" + mean + ", count=" + count

@@ -24,7 +24,7 @@ import org.springframework.data.solr.core.query.Field;
  * Specialization of {@link StatsResult} to represent statistic information for a field.
  * 
  * @author Francisco Spaeth
- * @version 1.4
+ * @since 1.4
  * @see StatsResult
  */
 public interface FieldStatsResult extends StatsResult {
@@ -55,7 +55,7 @@ public interface FieldStatsResult extends StatsResult {
 	/**
 	 * Return the count of distinct values for this field.
 	 * 
-	 * @return distinct count, <code>null</code> when not requested
+	 * @return distinct count, {@literal null} when not requested
 	 */
 	Long getDistinctCount();
 

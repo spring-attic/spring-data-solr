@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -220,6 +220,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 	/**
 	 * @return if something was configured within {@link Stats}
+	 * @since 1.4
 	 */
 	public boolean hasStatsDefinition() {
 		return (//
@@ -231,12 +232,19 @@ public class SolrQueryMethod extends QueryMethod {
 		);
 	}
 
+	/**
+	 * @return true if stats is distinct
+	 * @since 1.4
+	 */
 	public boolean isFieldStatsCountDistinctEnable() {
-		return getStatsAnnotation().calcDistinct();
+
+		Stats stats = getStatsAnnotation();
+		return stats != null && stats.distinct();
 	}
 
 	/**
 	 * @return value of {@link Stats#value()}
+	 * @since 1.4
 	 */
 	public List<String> getFieldStats() {
 		return getAnnotationValuesAsStringList(getStatsAnnotation(), "value");
@@ -244,6 +252,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 	/**
 	 * @return value of {@link Stats#facets()}
+	 * @since 1.4
 	 */
 	public List<String> getStatsFacets() {
 		return getAnnotationValuesAsStringList(getStatsAnnotation(), "facets");
@@ -251,27 +260,35 @@ public class SolrQueryMethod extends QueryMethod {
 
 	/**
 	 * @return value of facets used in {@link Stats#selective()}
+	 * @since 1.4
 	 */
 	public Map<String, String[]> getStatsSelectiveFacets() {
+
 		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
-		Map<String, String[]> result = new HashMap<String, String[]>();
+
+		Map<String, String[]> result = new LinkedHashMap<String, String[]>();
 		for (SelectiveStats selectiveFacet : selective) {
 			result.put(selectiveFacet.field(), selectiveFacet.facets());
 		}
+
 		return result;
 	}
 
 	/**
 	 * @return value of facets used in {@link Stats#selective()}
+	 * @since 1.4
 	 */
 	public Collection<String> getStatsSelectiveCountDistinctFields() {
+
 		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
-		Collection<String> result = new HashSet<String>();
+
+		Collection<String> result = new LinkedHashSet<String>();
 		for (SelectiveStats selectiveFacet : selective) {
-			if (selectiveFacet.calcDistinct()) {
+			if (selectiveFacet.distinct()) {
 				result.add(selectiveFacet.field());
 			}
 		}
+
 		return result;
 	}
 

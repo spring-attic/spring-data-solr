@@ -28,6 +28,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.StatsPage;
 
 /**
  * @author Christoph Strobl
@@ -203,5 +204,13 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	Page<ProductBean> findTop3ByNameStartsWith(String string, Pageable page);
 
 	Slice<ProductBean> findProductBeanByName(String name, Pageable page);
+
+	@Query("*:*")
+	@Stats(//
+			value = { "id", "price" },//
+			facets = { "last_modified", "id" },//
+			selective = @SelectiveStats(field = "weight", facets = "inStock")//
+	)
+	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
 
 }
