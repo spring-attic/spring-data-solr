@@ -279,7 +279,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		query.setPageRequest(new PageRequest(0, 1));
-		QueryResponse response = query(query);
+		QueryResponse response = query(query, clazz);
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
@@ -293,7 +293,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz) {
 
 		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
-		QueryResponse response = query(namedObjectsQuery);
+		QueryResponse response = query(namedObjectsQuery, clazz);
 
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
@@ -334,7 +334,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
-		QueryResponse response = query(namedObjectsQuery);
+		QueryResponse response = query(namedObjectsQuery, clazz);
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
@@ -352,7 +352,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
-		QueryResponse response = query(namedObjectsQuery);
+		QueryResponse response = query(namedObjectsQuery, clazz);
 
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
@@ -385,17 +385,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public TermsPage queryForTermsPage(TermsQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
 
-		QueryResponse response = query(query);
+		QueryResponse response = query(query, null);
 
 		TermsResultPage page = new TermsResultPage();
 		page.addAllTerms(ResultHelper.convertTermsQueryResponseToTermsMap(response));
 		return page;
 	}
 
-	final QueryResponse query(SolrDataQuery query) {
+	final QueryResponse query(SolrDataQuery query, Class<?> clazz) {
 		Assert.notNull(query, "Query must not be 'null'");
 
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
+
+		if (clazz != null) {
+			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz);
+			if (persistedEntity.hasScoreProperty()) {
+				solrQuery.setIncludeScore(true);
+			}
+		}
+
 		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
 
 		return executeSolrQuery(solrQuery);
