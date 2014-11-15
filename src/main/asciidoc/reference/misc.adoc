@@ -483,3 +483,28 @@ Collection<String> ids = Arrays.asList("123", "134");
 Collection<Product> products = solrTemplate.getById(ids, Product.class);
 ----
 ====
+
+[[solr.misc.specialFields]]
+== Special Fields
+
+=== @Score
+
+In order to load score information of a query result, a field annotated with `@Score` annotation could be added, indicating where 
+shall be the score information loaded to.
+
+====
+[source,java]
+----
+public class MyEntity {
+
+    @Id
+    private String id;
+    
+    @Score
+    private Float score;
+    
+    // setters and getters ...
+
+}	            
+----
+====
