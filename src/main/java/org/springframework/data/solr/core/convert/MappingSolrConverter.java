@@ -35,9 +35,10 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.CollectionFactory;
 import org.springframework.data.convert.EntityInstantiator;
 import org.springframework.data.convert.EntityInstantiators;
+import org.springframework.data.mapping.PersistentPropertyAccessor;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContext;
-import org.springframework.data.mapping.model.BeanWrapper;
+import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
 import org.springframework.data.mapping.model.ParameterValueProvider;
 import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
 import org.springframework.data.mapping.model.PropertyValueProvider;
@@ -123,10 +124,9 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				parent);
 
 		EntityInstantiator instantiator = instantiators.getInstantiatorFor(entity);
-		S instance = instantiator.createInstance(entity, parameterValueProvider);
-
-		final BeanWrapper<S> wrapper = BeanWrapper.create(instance, getConversionService());
-		final S result = wrapper.getBean();
+		final S instance = instantiator.createInstance(entity, parameterValueProvider);
+		final PersistentPropertyAccessor accessor = new ConvertingPropertyAccessor(entity.getPropertyAccessor(instance),
+				getConversionService());
 
 		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
 
@@ -136,15 +136,15 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					return;
 				}
 
-				Object o = getValue(persistentProperty, source, result);
+				Object o = getValue(persistentProperty, source, instance);
 				if (o != null) {
-					wrapper.setProperty(persistentProperty, o);
+					accessor.setProperty(persistentProperty, o);
 				}
 
 			}
 		});
 
-		return result;
+		return instance;
 	}
 
 	protected Object getValue(SolrPersistentProperty property, Object source, Object parent) {
@@ -190,7 +190,9 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 	@SuppressWarnings("rawtypes")
 	protected void write(Object source, final Map target, SolrPersistentEntity<?> entity) {
-		final BeanWrapper wrapper = BeanWrapper.create(source, getConversionService());
+
+		final PersistentPropertyAccessor accessor = new ConvertingPropertyAccessor(entity.getPropertyAccessor(source),
+				getConversionService());
 
 		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
 
@@ -198,7 +200,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			@Override
 			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
 
-				Object value = wrapper.getProperty(persistentProperty, persistentProperty.getType());
+				Object value = accessor.getProperty(persistentProperty);
 				if (value == null || persistentProperty.isReadonly()) {
 					return;
 				}
