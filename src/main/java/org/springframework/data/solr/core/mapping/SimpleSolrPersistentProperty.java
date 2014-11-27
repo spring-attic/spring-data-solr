@@ -93,10 +93,6 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 			return false;
 		}
 
-		if (isScoreProperty()) {
-			return true;
-		}
-
 		Indexed indexedAnnotation = getIndexAnnotation();
 		if (indexedAnnotation != null && indexedAnnotation.readonly()) {
 			return true;

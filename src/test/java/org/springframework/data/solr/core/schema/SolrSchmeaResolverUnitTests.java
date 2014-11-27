@@ -15,11 +15,11 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.beans.HasPropertyWithValue.*;
-import static org.hamcrest.core.AllOf.*;
-import static org.hamcrest.core.IsEqual.*;
-import static org.hamcrest.core.IsNull.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +35,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
+import org.springframework.data.solr.repository.Score;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -203,6 +204,17 @@ public class SolrSchmeaResolverUnitTests {
 		ObjectMapper mapper = new ObjectMapper();
 		System.out.println(mapper.writeValueAsString(fieldDef));
 	}
+	
+	/**
+	 * @see DATASOLR-210
+	 */
+	@Test
+	public void scorePropertyShouldNotBeMapped() {
+
+		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("scoreProperty",
+				Foo.class));
+		assertThat(fieldDef, nullValue());
+	}
 
 	SolrPersistentEntity<?> createEntity(Class<?> type) {
 		return context.getPersistentEntity(type);
@@ -228,6 +240,8 @@ public class SolrSchmeaResolverUnitTests {
 		@Indexed(stored = false) String nonStoredProperty;
 		@Indexed(copyTo = { "foo", "bar" }) String propertyCopiedTo2Fields;
 		@Indexed List<String> collectionProperty;
+		@Score Float scoreProperty;
+
 	}
 
 }

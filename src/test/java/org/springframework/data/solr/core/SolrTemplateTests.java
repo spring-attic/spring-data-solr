@@ -66,6 +66,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.core.schema.SolrSchemaRequest;
+import org.springframework.data.solr.repository.Score;
 import org.springframework.data.solr.server.SolrServerFactory;
 
 /**
@@ -465,10 +466,31 @@ public class SolrTemplateTests {
 		Assert.assertEquals("/get", captor.getValue().getPath());
 	}
 
+	/**
+	 * @see DATASOLR-160
+	 */
+	@Test
+	public void testSaveShouldNotSaveScoreField() throws IOException, SolrServerException, SecurityException,
+			NoSuchFieldException {
+
+		solrTemplate.saveBean(new DocumentWithScoreAnnotation());
+
+		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+		Mockito.verify(solrServerMock, Mockito.times(1)).add(captor.capture(), Mockito.eq(-1));
+
+		Assert.assertNull(captor.getValue().getFieldValue("score"));
+	}
+
 	static class DocumentWithIndexAnnotations {
 
 		@Id String id;
 		@Indexed(name = "namedProperty") String renamedProperty;
+	}
+
+	static class DocumentWithScoreAnnotation {
+
+		@Id String id;
+		@Score Float scoreProperty;
 	}
 
 }
