@@ -104,8 +104,8 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 
 		registerSolrMappingContextIfNotPresent(registry, configurationSource);
 
-		BeanDefinitionBuilder definition = BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class);
-		registry.registerBeanDefinition("solrExceptionTranslator", definition.getBeanDefinition());
+		registerIfNotAlreadyRegistered(BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class)
+				.getBeanDefinition(), registry, "solrExceptionTranslator", configurationSource);
 	}
 
 	/* 
@@ -149,13 +149,10 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	private void registerSolrMappingContextIfNotPresent(BeanDefinitionRegistry registry,
 			RepositoryConfigurationSource configurationSource) {
 
-		if (!registry.containsBeanDefinition(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName())) {
+		RootBeanDefinition definition = new RootBeanDefinition(SimpleSolrMappingContext.class);
+		definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
+		definition.setSource(configurationSource.getSource());
 
-			RootBeanDefinition definition = new RootBeanDefinition(SimpleSolrMappingContext.class);
-			definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
-			definition.setSource(configurationSource.getSource());
-
-			registry.registerBeanDefinition(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), definition);
-		}
+		registerIfNotAlreadyRegistered(definition, registry, BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), definition);
 	}
 }
