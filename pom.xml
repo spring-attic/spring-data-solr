@@ -22,7 +22,7 @@
 		<dist.key>DATASOLR</dist.key>
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
-		<httpcomponents>4.2.2</httpcomponents>
+		<httpcomponents>4.2.6</httpcomponents>
 		<solr>4.7.2</solr>
 		<springdata.commons>1.8.5.BUILD-SNAPSHOT</springdata.commons>
 	</properties>
