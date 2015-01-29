@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.mapping;
 import java.util.Collection;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PersistentProperty;
 
 /**
@@ -101,6 +102,18 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @since 1.3
 	 */
 	boolean isRequired();
+
+	/**
+	 * Returns whether the property is a <em>potential</em> score property of the owning {@link PersistentEntity}. This
+	 * method is mainly used by {@link PersistentEntity} implementation to discover score property candidates on
+	 * {@link PersistentEntity} creation you should rather call
+	 * {@link PersistentEntity#isScoreProperty(PersistentProperty)} to determine whether the current property is the score
+	 * property of that {@link PersistentEntity} under consideration.
+	 * 
+	 * @return
+	 * @since 1.4
+	 */
+	boolean isScoreProperty();
 
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 

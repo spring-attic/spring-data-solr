@@ -321,7 +321,15 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			if (property.containsWildcard()) {
 				return (T) readWildcard(value, property, parent);
 			}
+			if (property.isScoreProperty()) {
+				return (T) readScore(value, property, parent);
+			}
 			return readValue(value.get(property.getFieldName()), property.getTypeInformation(), parent);
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T> T readScore(Map<String, ?> value, SolrPersistentProperty property, Object parent) {
+			return (T) value.get("score");
 		}
 
 		@SuppressWarnings("unchecked")

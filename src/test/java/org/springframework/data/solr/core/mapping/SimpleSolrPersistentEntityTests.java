@@ -23,10 +23,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.solr.core.mapping.SimpleSolrPersistentPropertyTest.BeanWithScore;
 import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrPersistentEntityTests {
@@ -34,6 +36,8 @@ public class SimpleSolrPersistentEntityTests {
 	private static final String CORE_NAME = "core1";
 
 	@SuppressWarnings("rawtypes") @Mock TypeInformation typeInfo;
+
+	@Mock private SolrPersistentProperty property;
 
 	@SuppressWarnings("unchecked")
 	@Test
@@ -107,6 +111,27 @@ public class SimpleSolrPersistentEntityTests {
 		Assert.assertThat(pe.getBoost(), IsNull.nullValue());
 	}
 
+	/**
+	 * @see DATASOLR-210
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testPersistentEntityWithScoreProperty() {
+
+		Mockito.when(typeInfo.getType()).thenReturn(BeanWithScore.class);
+		Mockito.when(property.isScoreProperty()).thenReturn(true);
+		Mockito.when(property.getFieldName()).thenReturn("myScoreProperty");
+
+		SimpleSolrPersistentEntity<BeanWithScore> pe = new SimpleSolrPersistentEntity<BeanWithScore>(typeInfo);
+		pe.addPersistentProperty(property);
+
+		Assert.assertTrue(pe.hasScoreProperty());
+		Assert.assertEquals(property, pe.getScoreProperty());
+		Assert.assertTrue(pe.isScoreProperty(property));
+		Assert.assertEquals("myScoreProperty", pe.getScoreProperty().getFieldName());
+
+	}
+
 	@SolrDocument(solrCoreName = CORE_NAME)
 	static class SearchableBeanWithSolrDocumentAnnotation {}
 
@@ -122,5 +147,7 @@ public class SimpleSolrPersistentEntityTests {
 
 	@SolrDocument(boost = 100)
 	static class DocumentWithBoost {}
+
+	static class DocumentWithScore {}
 
 }

@@ -27,6 +27,7 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.repository.Score;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -274,4 +275,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		Indexed indexedAnnotation = getIndexAnnotation();
 		return indexedAnnotation != null && indexedAnnotation.required();
 	}
+
+	@Override
+	public boolean isScoreProperty() {
+		return findAnnotation(Score.class) != null;
+	}
+
 }

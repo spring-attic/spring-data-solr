@@ -24,6 +24,7 @@ import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
@@ -43,6 +44,8 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private String solrCoreName;
 	private Float boost;
 
+	private SolrPersistentProperty scoreProperty;
+
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
 		super(typeInformation);
@@ -58,6 +61,25 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		context.addPropertyAccessor(new BeanFactoryAccessor());
 		context.setBeanResolver(new BeanFactoryResolver(applicationContext));
 		context.setRootObject(applicationContext);
+	}
+
+	@Override
+	public void addPersistentProperty(SolrPersistentProperty property) {
+
+		super.addPersistentProperty(property);
+
+		if (property.isScoreProperty()) {
+
+			if (this.scoreProperty != null) {
+				throw new MappingException(String.format(
+						"Attempt to add score property %s but already have property %s registered "
+								+ "as score. Check your mapping configuration!", property.getField(), scoreProperty.getField()));
+			}
+
+			this.scoreProperty = property;
+
+		}
+
 	}
 
 	private String derivateSolrCoreName() {
@@ -94,6 +116,21 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	@Override
 	public Float getBoost() {
 		return boost;
+	}
+
+	@Override
+	public boolean hasScoreProperty() {
+		return this.scoreProperty != null;
+	}
+
+	@Override
+	public SolrPersistentProperty getScoreProperty() {
+		return this.scoreProperty;
+	}
+
+	@Override
+	public boolean isScoreProperty(SolrPersistentProperty property) {
+		return this.scoreProperty == null ? false : this.scoreProperty.equals(property);
 	}
 
 }

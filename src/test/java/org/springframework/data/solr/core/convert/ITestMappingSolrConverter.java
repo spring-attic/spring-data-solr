@@ -16,7 +16,9 @@
 package org.springframework.data.solr.core.convert;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,14 +35,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.result.ScoredPage;
+import org.springframework.data.solr.repository.Score;
 import org.xml.sax.SAXException;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServer {
 
@@ -139,6 +145,34 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		Assert.assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
 
+	/**
+	 * @see DATASOLR-210
+	 */
+	@Test
+	public void testProcessesScoreCorrectly() {
+		Collection<BeanWithScore> beans = new ArrayList<BeanWithScore>();
+		beans.add(new BeanWithScore("1", "spring"));
+		beans.add(new BeanWithScore("2", "spring data solr"));
+		beans.add(new BeanWithScore("3", "apache solr"));
+		beans.add(new BeanWithScore("4", "apache lucene"));
+
+		solrTemplate.saveBeans(beans);
+		solrTemplate.commit();
+
+		ScoredPage<BeanWithScore> page = solrTemplate.queryForPage(new SimpleQuery("description:spring solr"),
+				BeanWithScore.class);
+
+		List<BeanWithScore> content = page.getContent();
+		Assert.assertEquals(3, page.getTotalElements());
+		Assert.assertEquals(Float.valueOf(0.9105287f), content.get(0).score);
+		Assert.assertEquals("spring data solr", content.get(0).description);
+		Assert.assertEquals(Float.valueOf(0.45526436f), content.get(1).score);
+		Assert.assertEquals("spring", content.get(1).description);
+		Assert.assertEquals(Float.valueOf(0.28454024f), content.get(2).score);
+		Assert.assertEquals("apache solr", content.get(2).description);
+
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
 		solrTemplate.saveBean(o);
@@ -215,6 +249,23 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		@Field("enumProperty_s")//
 		private LiteralNumberEnum enumProperty;
+
+	}
+
+	private static class BeanWithScore {
+		@Id @Field//
+		private String id;
+
+		@Indexed(type = "text")//
+		private String description;
+
+		@Score//
+		private Float score;
+
+		public BeanWithScore(String id, String description) {
+			this.id = id;
+			this.description = description;
+		}
 
 	}
 
