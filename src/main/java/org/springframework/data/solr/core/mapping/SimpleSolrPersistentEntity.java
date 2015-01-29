@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.mapping.model.MappingException;
+import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
@@ -44,8 +46,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private String solrCoreName;
 	private Float boost;
 
-	private SolrPersistentProperty scoreProperty;
-
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
 		super(typeInformation);
@@ -55,31 +55,16 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		this.boost = derivateDocumentBoost();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
 		context.addPropertyAccessor(new BeanFactoryAccessor());
 		context.setBeanResolver(new BeanFactoryResolver(applicationContext));
 		context.setRootObject(applicationContext);
-	}
-
-	@Override
-	public void addPersistentProperty(SolrPersistentProperty property) {
-
-		super.addPersistentProperty(property);
-
-		if (property.isScoreProperty()) {
-
-			if (this.scoreProperty != null) {
-				throw new MappingException(String.format(
-						"Attempt to add score property %s but already have property %s registered "
-								+ "as score. Check your mapping configuration!", property.getField(), scoreProperty.getField()));
-			}
-
-			this.scoreProperty = property;
-
-		}
-
 	}
 
 	private String derivateSolrCoreName() {
@@ -103,34 +88,98 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getSolrCoreName()
+	 */
 	@Override
 	public String getSolrCoreName() {
 		return this.solrCoreName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#isBoosted()
+	 */
 	@Override
 	public boolean isBoosted() {
 		return boost != null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getBoost()
+	 */
 	@Override
 	public Float getBoost() {
 		return boost;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#hasScoreProperty()
+	 */
 	@Override
 	public boolean hasScoreProperty() {
-		return this.scoreProperty != null;
+		return getScoreProperty() != null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getScoreProperty()
+	 */
 	@Override
 	public SolrPersistentProperty getScoreProperty() {
-		return this.scoreProperty;
+		return getPersistentProperty(Score.class);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.mapping.model.BasicPersistentEntity#verify()
+	 */
 	@Override
-	public boolean isScoreProperty(SolrPersistentProperty property) {
-		return this.scoreProperty == null ? false : this.scoreProperty.equals(property);
+	public void verify() {
+
+		super.verify();
+		verifyScoreFieldUniqueness();
+	}
+
+	private void verifyScoreFieldUniqueness() {
+		doWithProperties(new ScoreFieldUniquenessHandler());
+	}
+
+	/**
+	 * Handler to inspect {@link SolrPersistentProperty} instances and check that max one can be mapped as {@link Score}
+	 * property.
+	 * 
+	 * @author Christpoh Strobl
+	 * @since 1.4
+	 */
+	private static class ScoreFieldUniquenessHandler implements PropertyHandler<SolrPersistentProperty> {
+
+		private static final String AMBIGUOUS_FIELD_MAPPING = "Ambiguous score field mapping detected! Both %s and %s marked as target for score value. Disambiguate using @Score annotation!";
+		private SolrPersistentProperty scoreProperty;
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.springframework.data.mapping.PropertyHandler#doWithPersistentProperty(org.springframework.data.mapping.PersistentProperty)
+		 */
+		public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
+			assertUniqueness(persistentProperty);
+		}
+
+		private void assertUniqueness(SolrPersistentProperty property) {
+
+			if (property.isScoreProperty()) {
+
+				if (scoreProperty != null) {
+					throw new MappingException(String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(),
+							scoreProperty.getFieldName()));
+				}
+
+				scoreProperty = property;
+			}
+		}
 	}
 
 }

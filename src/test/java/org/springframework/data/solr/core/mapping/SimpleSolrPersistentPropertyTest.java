@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,16 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
@@ -32,45 +33,44 @@ import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrPersistentPropertyTest {
 
-	@Mock private PersistentEntity<BeanWithScore, SolrPersistentProperty> owner;
-	@Mock private SimpleTypeHolder simpleTypeHolder;
-	@Mock private TypeInformation<BeanWithScore> typeInformation;
+	private @Mock PersistentEntity<BeanWithScore, SolrPersistentProperty> owner;
+	private @Mock SimpleTypeHolder simpleTypeHolder;
+	private @Mock TypeInformation<BeanWithScore> typeInformation;
 
 	/**
 	 * @see DATASOLR-210
 	 */
 	@Test
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void scoredPropertyShouldBeReadOnlyAndNotWritable() throws NoSuchFieldException, SecurityException, IntrospectionException {
+	public void scoredPropertyShouldBeReadOnlyAndNotWritable() throws NoSuchFieldException, SecurityException,
+			IntrospectionException {
 
 		Field field = BeanWithScore.class.getDeclaredField("myScoreProperty");
-		PropertyDescriptor propertyDescriptor = new PropertyDescriptor("myScoreProperty", BeanWithScore.class,
-				"getMyScoreProperty", null);
+		PropertyDescriptor propertyDescriptor = new PropertyDescriptor("myScoreProperty", BeanWithScore.class, null, null);
 
-		Mockito.when(owner.getType()).thenReturn((Class) BeanWithScore.class);
-		Mockito.when(owner.getTypeInformation()).thenReturn(typeInformation);
-		Mockito.when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
+		when(owner.getType()).thenReturn((Class) BeanWithScore.class);
+		when(owner.getTypeInformation()).thenReturn(typeInformation);
+		when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(field, propertyDescriptor, owner,
 				simpleTypeHolder);
 
-		Assert.assertTrue(property.isScoreProperty());
-		Assert.assertFalse(property.isWritable());
-
+		assertTrue(property.isScoreProperty());
+		assertFalse(property.isWritable());
 	}
 
-	class BeanWithScore {
+	static class BeanWithScore {
 
-		@Score private Float myScoreProperty;
+		@Score Float myScoreProperty;
 
 		public Float getMyScoreProperty() {
 			return myScoreProperty;
 		}
-
 	}
 
 }

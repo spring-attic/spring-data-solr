@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.springframework.data.solr.core.mapping;
 
 import org.springframework.data.mapping.PersistentEntity;
-import org.springframework.data.mapping.PersistentProperty;
 
 /**
  * @param <T>
@@ -46,7 +45,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	 * Returns whether the {@link SolrPersistentEntity} has an score property. If this call returns {@literal true},
 	 * {@link #getScoreProperty()} will return a non-{@literal null} value.
 	 * 
-	 * @return
+	 * @return false when {@link SolrPersistentEntity} does not define a score property.
 	 * @since 1.4
 	 */
 	boolean hasScoreProperty();
@@ -55,18 +54,9 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	 * Returns the score property of the {@link SolrPersistentEntity}. Can be {@literal null} in case no score property is
 	 * available on the entity.
 	 * 
-	 * @return the score property of the {@link PersistentEntity}.
+	 * @return the score {@link SolrPersistentProperty} of the {@link PersistentEntity} or {@literal null} if not defined.
 	 * @since 1.4
 	 */
 	SolrPersistentProperty getScoreProperty();
-
-	/**
-	 * Returns whether the given {@link PersistentProperty} is the score property of the entity.
-	 * 
-	 * @param property
-	 * @return
-	 * @since 1.4
-	 */
-	boolean isScoreProperty(SolrPersistentProperty property);
 
 }

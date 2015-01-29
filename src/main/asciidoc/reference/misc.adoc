@@ -489,8 +489,9 @@ Collection<Product> products = solrTemplate.getById(ids, Product.class);
 
 === @Score
 
-In order to load score information of a query result, a field annotated with `@Score` annotation could be added, indicating where 
-shall be the score information loaded to.
+In order to load score information of a query result, a field annotated with `@Score` annotation could be added, indicating the property holding the documents score.
+
+NOTE: The score property needs to be numerical and can only appear once per document.
 
 ====
 [source,java]
