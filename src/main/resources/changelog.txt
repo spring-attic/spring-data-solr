@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.4.0.RC1 (2015-03-05)
+-----------------------------------------
+* DATASOLR-230 - Release 1.4 RC1.
+* DATASOLR-210 - Add @Score annotation marking a property as readonly and automatically add projection on score when present.
+
+
 Changes in version 1.3.2.RELEASE (2015-01-28)
 ---------------------------------------------
 * DATASOLR-225 - Release 1.3.2.
