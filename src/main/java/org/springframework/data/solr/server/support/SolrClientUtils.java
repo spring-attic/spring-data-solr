@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.CloudSolrServer;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.apache.solr.core.CoreContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +46,17 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * {@link SolrClientUtils} replaces SolrServerUtils from version 1.x
+ * 
  * @author Christoph Strobl
+ * @since 2.0
  */
-public class SolrServerUtils {
+public class SolrClientUtils {
 
-	private static final Logger logger = LoggerFactory.getLogger(SolrServerUtils.class);
+	private static final Logger logger = LoggerFactory.getLogger(SolrClientUtils.class);
 	private static final String SLASH = "/";
 
-	private SolrServerUtils() {}
+	private SolrClientUtils() {}
 
 	/**
 	 * Resolve solr core/collection name for given type.
@@ -70,42 +73,42 @@ public class SolrServerUtils {
 		return "";
 	}
 
-	public static <T extends SolrServer> T clone(T solrServer) {
-		return clone(solrServer, null);
+	public static <T extends SolrClient> T clone(T solrClient) {
+		return clone(solrClient, null);
 	}
 
 	/**
-	 * Create a clone of given {@link SolrServer} and modify baseUrl of clone to point to the given core.
+	 * Create a clone of given {@link SolrClient} and modify baseUrl of clone to point to the given core.
 	 * 
-	 * @param solrServer Non null reference {@link SolrServer} to copy properties from.
+	 * @param solrClient Non null reference {@link SolrClient} to copy properties from.
 	 * @param core Name of solr core to point to.
 	 * @return
 	 * @throws BeanInstantiationException if creating instance failed
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends SolrServer> T clone(T solrServer, String core) {
-		Assert.notNull(solrServer);
-		String shortName = getSolrServerTypeName(solrServer);
-		if (shortName.equals("SolrServer")) { // cannot create instance of interface,
-			return solrServer;
+	public static <T extends SolrClient> T clone(T solrClient, String core) {
+		Assert.notNull(solrClient);
+		String shortName = getSolrClientTypeName(solrClient);
+		if (shortName.equals("SolrClient")) { // cannot create instance of abstract class,
+			return solrClient;
 		}
 
-		SolrServer clone = null;
-		if (shortName.equals("HttpSolrServer") || shortName.equals("CommonsHttpSolrServer")) {
-			clone = cloneHttpSolrServer(solrServer, core);
-		} else if (shortName.equals("LBHttpSolrServer")) {
-			clone = cloneLBHttpSolrServer(solrServer, core);
-		} else if (shortName.equals("CloudSolrServer")) {
-			clone = cloneCloudSolrServer(solrServer, core);
+		SolrClient clone = null;
+		if (shortName.equals("HttpSolrClient")) {
+			clone = cloneHttpSolrClient(solrClient, core);
+		} else if (shortName.equals("LBHttpSolrClient")) {
+			clone = cloneLBHttpSolrClient(solrClient, core);
+		} else if (shortName.equals("CloudSolrClient")) {
+			clone = cloneCloudSolrClient(solrClient, core);
 		} else if (shortName.equals("EmbeddedSolrServer")) {
-			clone = cloneEmbeddedSolrServer(solrServer, core);
+			clone = cloneEmbeddedSolrServer(solrClient, core);
 		}
 
 		if (clone == null) {
-			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + shortName + ".");
+			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + shortName + ".");
 		}
 
-		copyProperties(solrServer, clone);
+		copyProperties(solrClient, clone);
 		return (T) clone;
 	}
 
@@ -130,97 +133,97 @@ public class SolrServerUtils {
 		return url;
 	}
 
-	private static String getSolrServerTypeName(SolrServer solrServer) {
-		Class<?> solrServerType = ClassUtils.isCglibProxy(solrServer) ? ClassUtils.getUserClass(solrServer) : solrServer
+	private static String getSolrClientTypeName(SolrClient solrClient) {
+		Class<?> solrClientType = ClassUtils.isCglibProxy(solrClient) ? ClassUtils.getUserClass(solrClient) : solrClient
 				.getClass();
-		String shortName = ClassUtils.getShortName(solrServerType);
+		String shortName = ClassUtils.getShortName(solrClientType);
 		return shortName;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static SolrServer cloneEmbeddedSolrServer(SolrServer solrServer, String core) {
+	private static SolrClient cloneEmbeddedSolrServer(SolrClient solrClient, String core) {
 
-		CoreContainer coreContainer = ((EmbeddedSolrServer) solrServer).getCoreContainer();
+		CoreContainer coreContainer = ((EmbeddedSolrServer) solrClient).getCoreContainer();
 		try {
-			Constructor constructor = ClassUtils.getConstructorIfAvailable(solrServer.getClass(), CoreContainer.class,
+			Constructor constructor = ClassUtils.getConstructorIfAvailable(solrClient.getClass(), CoreContainer.class,
 					String.class);
-			return (SolrServer) BeanUtils.instantiateClass(constructor, coreContainer, core);
+			return (SolrClient) BeanUtils.instantiateClass(constructor, coreContainer, core);
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
+			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
 					+ ".", e);
 		}
 	}
 
-	private static SolrServer cloneHttpSolrServer(SolrServer solrServer, String core) {
-		if (solrServer == null) {
+	private static SolrClient cloneHttpSolrClient(SolrClient solrClient, String core) {
+		if (solrClient == null) {
 			return null;
 		}
 
-		Method baseUrlGetterMethod = ClassUtils.getMethodIfAvailable(solrServer.getClass(), "getBaseURL");
+		Method baseUrlGetterMethod = ClassUtils.getMethodIfAvailable(solrClient.getClass(), "getBaseURL");
 		if (baseUrlGetterMethod == null) {
 			return null;
 		}
 
-		String baseUrl = (String) ReflectionUtils.invokeMethod(baseUrlGetterMethod, solrServer);
+		String baseUrl = (String) ReflectionUtils.invokeMethod(baseUrlGetterMethod, solrClient);
 		String url = appendCoreToBaseUrl(baseUrl, core);
 
 		try {
 
-			HttpClient clientToUse = readAndCloneHttpClient(solrServer);
+			HttpClient clientToUse = readAndCloneHttpClient(solrClient);
 
 			if (clientToUse != null) {
-				Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
-						.getConstructorIfAvailable(solrServer.getClass(), String.class, HttpClient.class);
+				Constructor<? extends SolrClient> constructor = (Constructor<? extends SolrClient>) ClassUtils
+						.getConstructorIfAvailable(solrClient.getClass(), String.class, HttpClient.class);
 				if (constructor != null) {
-					return (SolrServer) BeanUtils.instantiateClass(constructor, url, clientToUse);
+					return (SolrClient) BeanUtils.instantiateClass(constructor, url, clientToUse);
 				}
 			}
 
-			Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
-					.getConstructorIfAvailable(solrServer.getClass(), String.class);
-			return (SolrServer) BeanUtils.instantiateClass(constructor, url);
+			Constructor<? extends SolrClient> constructor = (Constructor<? extends SolrClient>) ClassUtils
+					.getConstructorIfAvailable(solrClient.getClass(), String.class);
+			return (SolrClient) BeanUtils.instantiateClass(constructor, url);
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
+			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
 					+ ". ", e);
 		}
 	}
 
-	private static LBHttpSolrServer cloneLBHttpSolrServer(SolrServer solrServer, String core) {
-		if (solrServer == null) {
+	private static LBHttpSolrClient cloneLBHttpSolrClient(SolrClient solrClient, String core) {
+		if (solrClient == null) {
 			return null;
 		}
 
-		LBHttpSolrServer clone = null;
+		LBHttpSolrClient clone = null;
 		try {
 			if (VersionUtil.isSolr3XAvailable()) {
-				clone = cloneSolr3LBHttpServer(solrServer, core);
+				clone = cloneSolr3LBHttpServer(solrClient, core);
 			} else if (VersionUtil.isSolr4XAvailable()) {
-				clone = cloneSolr4LBHttpServer(solrServer, core);
+				clone = cloneSolr4LBHttpServer(solrClient, core);
 			}
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrServer.getClass(), "Cannot create instace of " + solrServer.getClass()
+			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
 					+ ". ", e);
 		}
-		Object o = readField(solrServer, "interval");
+		Object o = readField(solrClient, "interval");
 		if (o != null) {
 			clone.setAliveCheckInterval(Integer.valueOf(o.toString()).intValue());
 		}
 		return clone;
 	}
 
-	private static SolrServer cloneCloudSolrServer(SolrServer solrServer, String core) {
-		if (VersionUtil.isSolr3XAvailable() || solrServer == null) {
+	private static SolrClient cloneCloudSolrClient(SolrClient solrClient, String core) {
+		if (VersionUtil.isSolr3XAvailable() || solrClient == null) {
 			return null;
 		}
 
-		CloudSolrServer cloudServer = (CloudSolrServer) solrServer;
-		String zkHost = readField(solrServer, "zkHost");
+		CloudSolrClient cloudServer = (CloudSolrClient) solrClient;
+		String zkHost = readField(solrClient, "zkHost");
 
-		Constructor<? extends SolrServer> constructor = (Constructor<? extends SolrServer>) ClassUtils
-				.getConstructorIfAvailable(solrServer.getClass(), String.class, LBHttpSolrServer.class);
+		Constructor<? extends SolrClient> constructor = (Constructor<? extends SolrClient>) ClassUtils
+				.getConstructorIfAvailable(solrClient.getClass(), String.class, LBHttpSolrClient.class);
 
-		CloudSolrServer clone = (CloudSolrServer) BeanUtils.instantiateClass(constructor, zkHost,
-				cloneLBHttpSolrServer(cloudServer.getLbServer(), core));
+		CloudSolrClient clone = (CloudSolrClient) BeanUtils.instantiateClass(constructor, zkHost,
+				cloneLBHttpSolrClient(cloudServer.getLbClient(), core));
 
 		if (org.springframework.util.StringUtils.hasText(core)) {
 			clone.setDefaultCollection(core);
@@ -228,21 +231,21 @@ public class SolrServerUtils {
 		return clone;
 	}
 
-	private static LBHttpSolrServer cloneSolr3LBHttpServer(SolrServer solrServer, String core)
+	private static LBHttpSolrClient cloneSolr3LBHttpServer(SolrClient solrClient, String core)
 			throws MalformedURLException {
-		CopyOnWriteArrayList<?> list = readField(solrServer, "aliveServers");
+		CopyOnWriteArrayList<?> list = readField(solrClient, "aliveServers");
 
 		String[] servers = new String[list.size()];
 		for (int i = 0; i < list.size(); i++) {
 			servers[i] = appendCoreToBaseUrl(list.get(i).toString(), core);
 		}
-		return new LBHttpSolrServer(servers);
+		return new LBHttpSolrClient(servers);
 	}
 
-	private static LBHttpSolrServer cloneSolr4LBHttpServer(SolrServer solrServer, String core)
+	private static LBHttpSolrClient cloneSolr4LBHttpServer(SolrClient solrClient, String core)
 			throws MalformedURLException, InstantiationException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
-		Map<String, ?> map = readField(solrServer, "aliveServers");
+		Map<String, ?> map = readField(solrClient, "aliveServers");
 
 		String[] servers = new String[map.size()];
 		int i = 0;
@@ -251,19 +254,19 @@ public class SolrServerUtils {
 			i++;
 		}
 
-		Boolean isInternalCient = readField(solrServer, "clientIsInternal");
+		Boolean isInternalCient = readField(solrClient, "clientIsInternal");
 
 		if (isInternalCient != null && !isInternalCient) {
-			HttpClient clientToUse = readAndCloneHttpClient(solrServer);
-			return new LBHttpSolrServer(clientToUse, servers);
+			HttpClient clientToUse = readAndCloneHttpClient(solrClient);
+			return new LBHttpSolrClient(clientToUse, servers);
 		}
-		return new LBHttpSolrServer(servers);
+		return new LBHttpSolrClient(servers);
 	}
 
-	private static HttpClient readAndCloneHttpClient(SolrServer solrServer) throws InstantiationException,
+	private static HttpClient readAndCloneHttpClient(SolrClient solrClient) throws InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-		HttpClient sourceClient = readField(solrServer, "httpClient");
+		HttpClient sourceClient = readField(solrClient, "httpClient");
 		return cloneHttpClient(sourceClient);
 	}
 
@@ -288,7 +291,7 @@ public class SolrServerUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> T readField(SolrServer solrServer, String fieldName) {
+	private static <T> T readField(SolrClient solrServer, String fieldName) {
 		Field field = ReflectionUtils.findField(solrServer.getClass(), fieldName);
 		if (field == null) {
 			return null;
@@ -304,7 +307,7 @@ public class SolrServerUtils {
 	 * @param source
 	 * @param target
 	 */
-	private static void copyProperties(SolrServer source, SolrServer target) {
+	private static void copyProperties(SolrClient source, SolrClient target) {
 		BeanWrapperImpl wrapperImpl = new BeanWrapperImpl(source);
 		for (PropertyDescriptor pd : wrapperImpl.getPropertyDescriptors()) {
 			Method writer = pd.getWriteMethod();

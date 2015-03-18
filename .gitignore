@@ -10,3 +10,4 @@ spring-data-solr.iml
 .DS_Store
 _site
 
+/bin/

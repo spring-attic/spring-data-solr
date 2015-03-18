@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.data.solr.core;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
@@ -47,14 +47,14 @@ import org.springframework.data.solr.core.query.result.TermsPage;
 public interface SolrOperations {
 
 	/**
-	 * Get the underlying SolrServer instance
+	 * Get the underlying SolrClient instance
 	 * 
 	 * @return
 	 */
-	SolrServer getSolrServer();
+	SolrClient getSolrClient();
 
 	/**
-	 * Execute ping against solrServer and return duration in msec
+	 * Execute ping against SolrClient and return duration in msec
 	 * 
 	 * @return
 	 */
@@ -254,17 +254,17 @@ public interface SolrOperations {
 	<T> Collection<T> getById(Collection<? extends Serializable> ids, Class<T> clazz);
 
 	/**
-	 * Send commit command {@link SolrServer#commit()}
+	 * Send commit command {@link SolrClient#commit()}
 	 */
 	void commit();
 
 	/**
-	 * Send soft commmit command {@link SolrServer#commit(boolean, boolean, boolean)}
+	 * Send soft commmit command {@link SolrClient#commit(boolean, boolean, boolean)}
 	 */
 	void softCommit();
 
 	/**
-	 * send rollback command {@link SolrServer#rollback()}
+	 * send rollback command {@link SolrClient#rollback()}
 	 */
 	void rollback();
 

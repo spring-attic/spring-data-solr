@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.ContentStream;
-import org.springframework.util.StopWatch;
 import org.springframework.util.StreamUtils;
 
 /**
  * @author Christoph Strobl
  * @since 1.3
  */
-public class SolrJsonRequest extends SolrRequest {
+public class SolrJsonRequest extends SolrRequest<SolrJsonResponse> {
 
 	private static final long serialVersionUID = 5786008418321490550L;
 
@@ -66,20 +64,6 @@ public class SolrJsonRequest extends SolrRequest {
 	@Override
 	public Collection<ContentStream> getContentStreams() throws IOException {
 		return contentStream != null ? Collections.<ContentStream> unmodifiableCollection(contentStream) : null;
-	}
-
-	@Override
-	public SolrJsonResponse process(SolrServer server) throws SolrServerException, IOException {
-
-		SolrJsonResponse response = new SolrJsonResponse();
-		StopWatch sw = new StopWatch();
-
-		sw.start();
-		response.setResponse(server.request(this));
-		sw.stop();
-
-		response.setElapsedTime(sw.getTotalTimeMillis());
-		return response;
 	}
 
 	public void addContentToStream(Object content) {
@@ -120,6 +104,11 @@ public class SolrJsonRequest extends SolrRequest {
 			}
 		}
 		return sb.toString();
+	}
+
+	@Override
+	protected SolrJsonResponse createResponse(SolrClient client) {
+		return new SolrJsonResponse();
 	}
 
 }

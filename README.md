@@ -133,8 +133,8 @@ public class SolrContext {
   private @Resource Environment env;
 
   @Bean
-  public SolrServer solrServer() throws MalformedURLException, IllegalStateException {
-    return new HttpSolrServer(env.getRequiredProperty("solr.host"));
+  public SolrClient solrClient() throws MalformedURLException, IllegalStateException {
+    return new HttpSolrClient(env.getRequiredProperty("solr.host"));
   }
 
 }
@@ -177,7 +177,7 @@ You can set up repository scanning via xml configuration, which will happily cre
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
   <solr:repositories base-package="com.acme.repository" multicoreSupport="true" />
-  <solr:solr-server id="solrServer" url="http://localhost:8983/solr" />
+  <solr:solr-client id="solrClient" url="http://localhost:8983/solr" />
   
 </beans>
 ```
@@ -194,8 +194,8 @@ Use `@Indexed` to provide additional details like specific solr types to use.
 class Config {
 
   @Bean
-  public SolrServer solrServer() {
-    return new HttpSolrServer("http://localhost:8983/solr");
+  public SolrClient solrClient() {
+    return new HttpSolrClient("http://localhost:8983/solr");
   }
 }
 

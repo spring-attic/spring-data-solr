@@ -130,7 +130,7 @@ public @interface EnableSolrRepositories {
 	 * 
 	 * @since 1.1
 	 */
-	String solrServerRef() default "solrServer";
+	String solrClientRef() default "solrClient";
 
 	/**
 	 * Configures Multicore support for Solr Server

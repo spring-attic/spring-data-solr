@@ -9,7 +9,7 @@ This chapter includes details of the Solr repository implementation.
 [[solr.namespace]]
 === Spring Namespace
 
-The Spring Data Solr module contains a custom namespace allowing definition of repository beans as well as elements for instantiating a `SolrServer` .
+The Spring Data Solr module contains a custom namespace allowing definition of repository beans as well as elements for instantiating a `SolrClient` .
 
 Using the `repositories` element looks up Spring Data repositories as described in <<repositories.create-instances>> .
 
@@ -31,9 +31,9 @@ Using the `repositories` element looks up Spring Data repositories as described 
 ----
 ====
 
-Using the `solr-server` or `embedded-solr-server` element registers an instance of `SolrServer` in the context. 
+Using the `solr-server` or `embedded-solr-server` element registers an instance of `SolrClient` in the context. 
 
-.HttpSolrServer using Namespace
+.HttpSolrClient using Namespace
 ====
 [source,xml]
 ----
@@ -46,12 +46,12 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
-  <solr:solr-server id="solrServer" url="http://locahost:8983/solr" />
+  <solr:solr-client id="solrClient" url="http://locahost:8983/solr" />
 </beans> 
 ----
 ====
 
-.LBSolrServer using Namespace
+.LBSolrClient using Namespace
 ====
 [source,xml]
 ----
@@ -64,7 +64,7 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
-  <solr:solr-server id="solrServer" url="http://locahost:8983/solr,http://localhost:8984/solr" />
+  <solr:solr-client id="solrClient" url="http://locahost:8983/solr,http://localhost:8984/solr" />
 </beans> 
 ----
 ====
@@ -82,7 +82,7 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
-  <solr:embedded-solr-server id="solrServer" solrHome="classpath:com/acme/solr" />
+  <solr:embedded-solr-server id="solrClient" solrHome="classpath:com/acme/solr" />
 </beans> 
 ----
 ====
@@ -101,14 +101,14 @@ The Spring Data Solr repositories support cannot only be activated through an XM
 class ApplicationConfig {
   
   @Bean
-  public SolrServer solrServer() {
+  public SolrClient solrClient() {
     EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory("classpath:com/acme/solr");
     return factory.getSolrServer();
   }
   
   @Bean
   public SolrOperations solrTemplate() {
-    return new SolrTemplate(solrServer());
+    return new SolrTemplate(solrClient());
   }
 }
 ----
@@ -119,7 +119,7 @@ The configuration above sets up an `EmbeddedSolrServer` which is used by the `So
 [[solr.multicore]]
 === Multicore Support
 
-Solr handles different collections within one core. Use `MulticoreSolrServerFactory` to create separate `SolrServer` for each core.
+Solr handles different collections within one core. Use `MulticoreSolrClientFactory` to create separate `SolrClient` for each core.
 
 .Multicore Configuration
 ====
@@ -135,8 +135,8 @@ class ApplicationConfig {
   private Environment environment;
   
   @Bean
-  public SolrServer solrServer() {
-    return new HttpSolrServer(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL));
+  public SolrClient solrClient() {
+    return new HttpSolrClient(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL));
   }
   
 }
@@ -488,7 +488,7 @@ To register a custom converter one must add `CustomConversions` to `SolrTemplate
 </bean>
 
 <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
-	<constructor-arg ref="solrServer" />
+	<constructor-arg ref="solrClient" />
 	<property name="solrConverter" ref="solrConverter" />
 </bean>
 ----

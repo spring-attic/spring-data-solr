@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import org.w3c.dom.Element;
 public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
 
 	enum BeanDefinition {
-		SOLR_MAPPTING_CONTEXT("solrMappingContext"), SOLR_OPERATIONS("solrOperations"), SOLR_SERVER("solrServer");
+		SOLR_MAPPTING_CONTEXT("solrMappingContext"), SOLR_OPERATIONS("solrOperations"), SOLR_CLIENT("solrClient");
 		String beanName;
 
 		private BeanDefinition(String beanName) {
@@ -91,7 +91,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
 					attributes.getString("solrTemplateRef"));
 		} else {
-			builder.addPropertyReference(BeanDefinition.SOLR_SERVER.getBeanName(), attributes.getString("solrServerRef"));
+			builder.addPropertyReference(BeanDefinition.SOLR_CLIENT.getBeanName(), attributes.getString("solrClientRef"));
 		}
 		builder.addPropertyValue("schemaCreationSupport", attributes.getBoolean("schemaCreationSupport"));
 		builder.addPropertyReference(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), "solrMappingContext");
@@ -120,7 +120,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
 					element.getAttribute("solr-template-ref"));
 		} else {
-			builder.addPropertyReference(BeanDefinition.SOLR_SERVER.getBeanName(), element.getAttribute("solr-server-ref"));
+			builder.addPropertyReference(BeanDefinition.SOLR_CLIENT.getBeanName(), element.getAttribute("solr-client-ref"));
 		}
 		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
 			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));

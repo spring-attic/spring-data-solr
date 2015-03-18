@@ -15,11 +15,11 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.beans.HasPropertyWithValue.hasProperty;
-import static org.hamcrest.core.AllOf.allOf;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.beans.HasPropertyWithValue.*;
+import static org.hamcrest.core.AllOf.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.*;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,6 @@ import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinitio
 import org.springframework.data.solr.repository.Score;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Christoph Strobl
@@ -200,11 +199,8 @@ public class SolrSchmeaResolverUnitTests {
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("collectionProperty",
 				Foo.class));
 		assertThat(fieldDef, hasProperty("type", equalTo("string")));
-
-		ObjectMapper mapper = new ObjectMapper();
-		System.out.println(mapper.writeValueAsString(fieldDef));
 	}
-	
+
 	/**
 	 * @see DATASOLR-210
 	 */

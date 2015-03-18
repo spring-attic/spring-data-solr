@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SpatialParams;
 import org.springframework.core.convert.converter.Converter;
@@ -232,7 +232,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	}
 
 	/**
-	 * Create {@link SolrServer} readable String representation for {@link CalculatedField}.
+	 * Create {@link SolrClient} readable String representation for {@link CalculatedField}.
 	 * 
 	 * @param calculatedField
 	 * @return
@@ -244,7 +244,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	}
 
 	/**
-	 * Create {@link SolrServer} readable String representation for {@link Function}
+	 * Create {@link SolrClient} readable String representation for {@link Function}
 	 * 
 	 * @param function
 	 * @return

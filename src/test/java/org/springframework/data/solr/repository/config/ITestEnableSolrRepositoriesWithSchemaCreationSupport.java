@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.solr.repository.config;
 
 import static org.hamcrest.CoreMatchers.*;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -48,8 +48,8 @@ public class ITestEnableSolrRepositoriesWithSchemaCreationSupport extends Abstra
 	static class Config {
 
 		@Bean
-		public SolrServer solrServer() {
-			return solrServer;
+		public SolrClient solrClient() {
+			return solrClient;
 		}
 	}
 

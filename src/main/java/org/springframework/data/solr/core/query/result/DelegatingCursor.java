@@ -256,7 +256,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 	}
 
 	/**
-	 * {@link PartialResult} provided by a round trip to SolrServer loading data for an iteration. Also holds the cursor
+	 * {@link PartialResult} provided by a round trip to SolrClient loading data for an iteration. Also holds the cursor
 	 * mark to use next.
 	 * 
 	 * @author Christoph Strobl

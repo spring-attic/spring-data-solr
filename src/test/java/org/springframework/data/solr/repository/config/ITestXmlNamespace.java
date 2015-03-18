@@ -15,13 +15,12 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +38,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("namespace.xml")
 public class ITestXmlNamespace {
 
-	@Autowired
-	ApplicationContext context;
+	@Autowired ApplicationContext context;
 
 	@Test
 	public void createsRepositoryAndEmbeddedServerCorrectly() {
 		assertThat(context.getBean(PersonRepository.class), is(notNullValue()));
 		assertThat(context.getBean(EmbeddedSolrServer.class), is(notNullValue()));
-		assertThat(context.getBean("httpSolrServer", HttpSolrServer.class), is(notNullValue()));
-		assertThat(context.getBean("lbHttpSolrServer", LBHttpSolrServer.class), is(notNullValue()));
+		assertThat(context.getBean("httpSolrClient", HttpSolrClient.class), is(notNullValue()));
+		assertThat(context.getBean("lbHttpSolrClient", LBHttpSolrClient.class), is(notNullValue()));
 	}
 }

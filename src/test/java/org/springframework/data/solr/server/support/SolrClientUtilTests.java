@@ -31,9 +31,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.impl.CloudSolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.apache.solr.core.CoreContainer;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsSame;
@@ -46,7 +46,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 /**
  * @author Christoph Strobl
  */
-public class SolrServerUtilTests {
+public class SolrClientUtilTests {
 
 	private static final String FIELD_ZOO_KEEPER = "zkHost";
 	private static final String FIELD_ALIVE_SERVERS = "aliveServers";
@@ -61,161 +61,159 @@ public class SolrServerUtilTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCloneNullThrowsIllegalArgumentException() {
-		SolrServerUtils.clone(null);
+		SolrClientUtils.clone(null);
 	}
 
 	@Test
-	public void testClonesHttpSolrServerCorrectly() {
-		HttpSolrServer httpSolrServer = new HttpSolrServer(BASE_URL);
-		httpSolrServer.setDefaultMaxConnectionsPerHost(10);
-		httpSolrServer.setFollowRedirects(true);
-		httpSolrServer.setMaxRetries(3);
-		httpSolrServer.setUseMultiPartPost(true);
+	public void testClonesHttpSolrClientCorrectly() {
+		HttpSolrClient httpSolrClient = new HttpSolrClient(BASE_URL);
+		httpSolrClient.setDefaultMaxConnectionsPerHost(10);
+		httpSolrClient.setFollowRedirects(true);
+		httpSolrClient.setUseMultiPartPost(true);
 
-		HttpSolrServer clone = SolrServerUtils.clone(httpSolrServer);
-		Assert.assertEquals(httpSolrServer.getBaseURL(), clone.getBaseURL());
-		assertHttpSolrServerProperties(httpSolrServer, clone);
+		HttpSolrClient clone = SolrClientUtils.clone(httpSolrClient);
+		Assert.assertEquals(httpSolrClient.getBaseURL(), clone.getBaseURL());
+		assertHttpSolrClientProperties(httpSolrClient, clone);
 	}
 
 	@Test
-	public void testClonesHttpSolrServerForCoreCorrectly() {
-		HttpSolrServer httpSolrServer = new HttpSolrServer(BASE_URL);
-		httpSolrServer.setDefaultMaxConnectionsPerHost(10);
-		httpSolrServer.setFollowRedirects(true);
-		httpSolrServer.setMaxRetries(3);
-		httpSolrServer.setUseMultiPartPost(true);
+	public void testClonesHttpSolrClientForCoreCorrectly() {
+		HttpSolrClient httpSolrClient = new HttpSolrClient(BASE_URL);
+		httpSolrClient.setDefaultMaxConnectionsPerHost(10);
+		httpSolrClient.setFollowRedirects(true);
+		httpSolrClient.setUseMultiPartPost(true);
 
-		HttpSolrServer clone = SolrServerUtils.clone(httpSolrServer, CORE_NAME);
+		HttpSolrClient clone = SolrClientUtils.clone(httpSolrClient, CORE_NAME);
 
 		Assert.assertEquals(CORE_URL, clone.getBaseURL());
 
-		assertHttpSolrServerProperties(httpSolrServer, clone);
+		assertHttpSolrClientProperties(httpSolrClient, clone);
 	}
 
 	@Test
-	public void testClonesLBHttpSolrServerCorrectly() throws MalformedURLException {
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(BASE_URL, ALTERNATE_BASE_URL);
-		lbSolrServer.setAliveCheckInterval(10);
+	public void testClonesLBHttpSolrClientCorrectly() throws MalformedURLException {
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(BASE_URL, ALTERNATE_BASE_URL);
+		lbSolrClient.setAliveCheckInterval(10);
 
-		LBHttpSolrServer clone = SolrServerUtils.clone(lbSolrServer);
+		LBHttpSolrClient clone = SolrClientUtils.clone(lbSolrClient);
 
-		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrServer, FIELD_ALIVE_SERVERS),
+		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrClient, FIELD_ALIVE_SERVERS),
 				ReflectionTestUtils.getField(clone, FIELD_ALIVE_SERVERS));
-		assertLBHttpSolrServerProperties(lbSolrServer, clone);
+		assertLBHttpSolrClientProperties(lbSolrClient, clone);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testClonesLBHttpSolrServerForCoreCorrectly() throws MalformedURLException {
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(BASE_URL, ALTERNATE_BASE_URL);
-		lbSolrServer.setAliveCheckInterval(10);
+	public void testClonesLBHttpSolrClientForCoreCorrectly() throws MalformedURLException {
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(BASE_URL, ALTERNATE_BASE_URL);
+		lbSolrClient.setAliveCheckInterval(10);
 
-		LBHttpSolrServer clone = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
+		LBHttpSolrClient clone = SolrClientUtils.clone(lbSolrClient, CORE_NAME);
 
 		Map<String, ?> aliveServers = (Map<String, ?>) ReflectionTestUtils.getField(clone, FIELD_ALIVE_SERVERS);
 		Assert.assertThat(aliveServers.keySet(), hasItems(CORE_URL, ALTERNATE_CORE_URL));
 
-		assertLBHttpSolrServerProperties(lbSolrServer, clone);
+		assertLBHttpSolrClientProperties(lbSolrClient, clone);
 	}
 
 	@Test
-	public void testClonesCloudSolrServerCorrectly() throws MalformedURLException {
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(BASE_URL, ALTERNATE_BASE_URL);
-		CloudSolrServer cloudServer = new CloudSolrServer(ZOO_KEEPER_URL, lbSolrServer);
+	public void testClonesCloudSolrClientCorrectly() throws MalformedURLException {
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(BASE_URL, ALTERNATE_BASE_URL);
+		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL, lbSolrClient);
 
-		CloudSolrServer clone = SolrServerUtils.clone(cloudServer);
+		CloudSolrClient clone = SolrClientUtils.clone(cloudClient);
 		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
 
-		LBHttpSolrServer lbClone = clone.getLbServer();
-		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrServer, FIELD_ALIVE_SERVERS),
+		LBHttpSolrClient lbClone = clone.getLbClient();
+		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrClient, FIELD_ALIVE_SERVERS),
 				ReflectionTestUtils.getField(lbClone, FIELD_ALIVE_SERVERS));
 
-		assertLBHttpSolrServerProperties(lbSolrServer, lbClone);
+		assertLBHttpSolrClientProperties(lbSolrClient, lbClone);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testClonesCloudSolrServerForCoreCorrectlyWhenCoreNameIsNotEmpty() throws MalformedURLException {
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(BASE_URL, ALTERNATE_BASE_URL);
-		CloudSolrServer cloudServer = new CloudSolrServer(ZOO_KEEPER_URL, lbSolrServer);
+	public void testClonesCloudSolrClientForCoreCorrectlyWhenCoreNameIsNotEmpty() throws MalformedURLException {
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(BASE_URL, ALTERNATE_BASE_URL);
+		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL, lbSolrClient);
 
-		CloudSolrServer clone = SolrServerUtils.clone(cloudServer, CORE_NAME);
+		CloudSolrClient clone = SolrClientUtils.clone(cloudClient, CORE_NAME);
 		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
 
-		LBHttpSolrServer lbClone = clone.getLbServer();
+		LBHttpSolrClient lbClone = clone.getLbClient();
 		Map<String, ?> aliveServers = (Map<String, ?>) ReflectionTestUtils.getField(lbClone, FIELD_ALIVE_SERVERS);
 		Assert.assertThat(aliveServers.keySet(), hasItems(CORE_URL, ALTERNATE_CORE_URL));
 
-		assertLBHttpSolrServerProperties(lbSolrServer, lbClone);
+		assertLBHttpSolrClientProperties(lbSolrClient, lbClone);
 		Assert.assertThat(clone.getDefaultCollection(), equalTo(CORE_NAME));
 	}
 
 	@Test
-	public void testClonesCloudSolrServerForCoreCorrectlyWhenNoLBHttpServerPresent() throws MalformedURLException {
-		CloudSolrServer cloudServer = new CloudSolrServer(ZOO_KEEPER_URL);
+	public void testClonesCloudSolrClientForCoreCorrectlyWhenNoLBHttpServerPresent() throws MalformedURLException {
+		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL);
 
-		CloudSolrServer clone = SolrServerUtils.clone(cloudServer, CORE_NAME);
+		CloudSolrClient clone = SolrClientUtils.clone(cloudClient, CORE_NAME);
 		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
 
-		LBHttpSolrServer lbClone = clone.getLbServer();
+		LBHttpSolrClient lbClone = clone.getLbClient();
 
-		assertLBHttpSolrServerProperties(cloudServer.getLbServer(), lbClone);
+		assertLBHttpSolrClientProperties(cloudClient.getLbClient(), lbClone);
 		Assert.assertThat(clone.getDefaultCollection(), equalTo(CORE_NAME));
 	}
 
 	@Test
 	public void testCreateUrlForCoreAppendsCoreCorrectly() {
-		Assert.assertEquals(CORE_URL, SolrServerUtils.appendCoreToBaseUrl(BASE_URL, CORE_NAME));
+		Assert.assertEquals(CORE_URL, SolrClientUtils.appendCoreToBaseUrl(BASE_URL, CORE_NAME));
 	}
 
 	@Test
 	public void testCreateUrlForCoreAppendsCoreCorrectlyWhenBaseUrlHasTrailingSlash() {
-		Assert.assertEquals(CORE_URL, SolrServerUtils.appendCoreToBaseUrl(BASE_URL + "/", CORE_NAME));
+		Assert.assertEquals(CORE_URL, SolrClientUtils.appendCoreToBaseUrl(BASE_URL + "/", CORE_NAME));
 	}
 
 	@Test
 	public void testCreateUrlForCoreAppendsCoreCorrectlyWhenCoreIsEmpty() {
-		Assert.assertEquals(BASE_URL, SolrServerUtils.appendCoreToBaseUrl(BASE_URL, "  "));
+		Assert.assertEquals(BASE_URL, SolrClientUtils.appendCoreToBaseUrl(BASE_URL, "  "));
 	}
 
 	@Test
 	public void testCreateUrlForCoreAppendsCoreCorrectlyWhenCoreIsNull() {
-		Assert.assertEquals(BASE_URL, SolrServerUtils.appendCoreToBaseUrl(BASE_URL, null));
+		Assert.assertEquals(BASE_URL, SolrClientUtils.appendCoreToBaseUrl(BASE_URL, null));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreateUrlForCoreThrowsIllegalArgumentExceptionWhenBaseUrlIsNull() {
-		Assert.assertEquals(BASE_URL, SolrServerUtils.appendCoreToBaseUrl(null, null));
+		Assert.assertEquals(BASE_URL, SolrClientUtils.appendCoreToBaseUrl(null, null));
 	}
 
 	@Test
 	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenNoAnnotationPresent() {
-		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithoutSolrDocumentAnnotation.class), isEmptyString());
+		Assert.assertThat(SolrClientUtils.resolveSolrCoreName(ClassWithoutSolrDocumentAnnotation.class), isEmptyString());
 	}
 
 	@Test
 	public void testResolveSolrCoreNameShouldReturnEmptyStringWhenAnnotationHasNoValue() {
-		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithEmptySolrDocumentAnnotation.class), isEmptyString());
+		Assert.assertThat(SolrClientUtils.resolveSolrCoreName(ClassWithEmptySolrDocumentAnnotation.class), isEmptyString());
 	}
 
 	@Test
 	public void testResolveSolrCoreNameShouldReturnAnnotationValueWhenPresent() {
-		Assert.assertThat(SolrServerUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
+		Assert.assertThat(SolrClientUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
 	}
 
 	/**
 	 * @see DATASOLR-189
 	 */
 	@Test
-	public void cloningLBHttpSolrServerShouldCopyHttpParamsCorrectly() throws MalformedURLException {
+	public void cloningLBHttpSolrClientShouldCopyHttpParamsCorrectly() throws MalformedURLException {
 
 		HttpParams params = new BasicHttpParams();
 		params.setParameter("foo", "bar");
 		DefaultHttpClient client = new DefaultHttpClient(params);
 
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(client, BASE_URL, ALTERNATE_BASE_URL);
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(client, BASE_URL, ALTERNATE_BASE_URL);
 
-		LBHttpSolrServer cloned = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
+		LBHttpSolrClient cloned = SolrClientUtils.clone(lbSolrClient, CORE_NAME);
 		Assert.assertThat(cloned.getHttpClient().getParams(), IsEqual.equalTo(params));
 
 	}
@@ -224,7 +222,7 @@ public class SolrServerUtilTests {
 	 * @see DATASOLR-189
 	 */
 	@Test
-	public void cloningLBHttpSolrServerShouldCopyCredentialsProviderCorrectly() {
+	public void cloningLBHttpSolrClientShouldCopyCredentialsProviderCorrectly() {
 
 		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("foo", "bar"));
@@ -232,9 +230,9 @@ public class SolrServerUtilTests {
 		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credentialsProvider);
 
-		LBHttpSolrServer lbSolrServer = new LBHttpSolrServer(client, BASE_URL, ALTERNATE_BASE_URL);
+		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(client, BASE_URL, ALTERNATE_BASE_URL);
 
-		LBHttpSolrServer cloned = SolrServerUtils.clone(lbSolrServer, CORE_NAME);
+		LBHttpSolrClient cloned = SolrClientUtils.clone(lbSolrClient, CORE_NAME);
 		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
 	}
@@ -243,14 +241,14 @@ public class SolrServerUtilTests {
 	 * @see DATASOLR-189
 	 */
 	@Test
-	public void cloningHttpSolrServerShouldCopyHttpParamsCorrectly() {
+	public void cloningHttpSolrClientShouldCopyHttpParamsCorrectly() {
 
 		HttpParams params = new BasicHttpParams();
 		params.setParameter("foo", "bar");
 		DefaultHttpClient client = new DefaultHttpClient(params);
 
-		HttpSolrServer solrServer = new HttpSolrServer(BASE_URL, client);
-		HttpSolrServer cloned = SolrServerUtils.clone(solrServer);
+		HttpSolrClient solrClient = new HttpSolrClient(BASE_URL, client);
+		HttpSolrClient cloned = SolrClientUtils.clone(solrClient);
 
 		Assert.assertThat(cloned.getHttpClient().getParams(), IsEqual.equalTo(params));
 	}
@@ -259,7 +257,7 @@ public class SolrServerUtilTests {
 	 * @see DATASOLR-189
 	 */
 	@Test
-	public void cloningHttpSolrServerShouldCopyCredentialsProviderCorrectly() {
+	public void cloningHttpSolrClientShouldCopyCredentialsProviderCorrectly() {
 
 		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("foo", "bar"));
@@ -267,8 +265,8 @@ public class SolrServerUtilTests {
 		DefaultHttpClient client = new DefaultHttpClient();
 		client.setCredentialsProvider(credentialsProvider);
 
-		HttpSolrServer solrServer = new HttpSolrServer(BASE_URL, client);
-		HttpSolrServer cloned = SolrServerUtils.clone(solrServer);
+		HttpSolrClient solrClient = new HttpSolrClient(BASE_URL, client);
+		HttpSolrClient cloned = SolrClientUtils.clone(solrClient);
 
 		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
@@ -281,22 +279,20 @@ public class SolrServerUtilTests {
 	public void cloningEmbeddedSolrServerShouldReuseCoreContainer() {
 
 		CoreContainer coreContainer = Mockito.mock(CoreContainer.class);
-		EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, null);
+		EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "core1");
 
-		EmbeddedSolrServer clone = SolrServerUtils.clone(solrServer, "core1");
+		EmbeddedSolrServer clone = SolrClientUtils.clone(solrServer, "core1");
 		Assert.assertThat(clone.getCoreContainer(), IsSame.sameInstance(coreContainer));
 	}
 
-	private void assertHttpSolrServerProperties(HttpSolrServer httpSolrServer, HttpSolrServer clone) {
+	private void assertHttpSolrClientProperties(HttpSolrClient httpSolrServer, HttpSolrClient clone) {
 		Assert.assertEquals(ReflectionTestUtils.getField(httpSolrServer, "followRedirects"),
 				ReflectionTestUtils.getField(clone, "followRedirects"));
-		Assert.assertEquals(ReflectionTestUtils.getField(httpSolrServer, "maxRetries"),
-				ReflectionTestUtils.getField(clone, "maxRetries"));
 		Assert.assertEquals(ReflectionTestUtils.getField(httpSolrServer, "useMultiPartPost"),
 				ReflectionTestUtils.getField(clone, "useMultiPartPost"));
 	}
 
-	private void assertLBHttpSolrServerProperties(LBHttpSolrServer lbSolrServer, LBHttpSolrServer clone) {
+	private void assertLBHttpSolrClientProperties(LBHttpSolrClient lbSolrServer, LBHttpSolrClient clone) {
 		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrServer, "interval"),
 				ReflectionTestUtils.getField(clone, "interval"));
 	}

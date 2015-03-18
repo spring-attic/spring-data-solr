@@ -18,7 +18,7 @@ package org.springframework.data.solr.repository;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,12 +58,12 @@ public class SimpleSolrRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullEntityClass() {
 		new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(
-				new HttpSolrServer("http://localhost:8080/solr"), null), null);
+				new HttpSolrClient("http://localhost:8080/solr"), null), null);
 	}
 
 	@Test
 	public void testInitRepository() {
-		repository = new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrServer(
+		repository = new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrClient(
 				"http://localhost:8080/solr"), null), ExampleSolrBean.class);
 		Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
 	}

@@ -46,7 +46,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
-		solrTemplate = new SolrTemplate(solrServer, null);
+		solrTemplate = new SolrTemplate(solrClient, null);
 		solrTemplate.afterPropertiesSet();
 	}
 

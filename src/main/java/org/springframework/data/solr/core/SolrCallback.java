@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,24 @@ package org.springframework.data.solr.core;
 
 import java.io.IOException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 
 /**
- * Callback interface for data access code that works with SolrServer. To be used with {@link SolrOperations} to execute
+ * Callback interface for data access code that works with SolrClient. To be used with {@link SolrOperations} to execute
  * methods.
  * 
  * @param <T>
- * 
  * @author Christoph Strobl
  */
 public interface SolrCallback<T> {
 
 	/**
-	 * @param solrServer execute
+	 * @param solrClient execute
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	T doInSolr(SolrServer solrServer) throws SolrServerException, IOException;
+	T doInSolr(SolrClient solrClient) throws SolrServerException, IOException;
 
 }

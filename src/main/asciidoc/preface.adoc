@@ -16,8 +16,7 @@ The Spring Data Solr project applies core Spring concepts to the development of 
 [preface]
 == Requirements
 
-Requires http://lucene.apache.org/solr/[Apache Solr] 3.6. Preferably the latest 4.x version.
-The client library of SolrJ 5.x is currently, due to breaking changes in the API, not supported.
+Requires http://lucene.apache.org/solr/[Apache Solr] 5. Preferably the latest 5.x version.
 
 [source,xml]
 ----
@@ -27,6 +26,3 @@ The client library of SolrJ 5.x is currently, due to breaking changes in the API
   <version>${solr.version}</version>
 </dependency>
 ----
-
-NOTE: If you tend to use the Embedded Version of Solr Server 4.x you will also have to add a version of servlet-api and check your <lockType> as well as <unlockOnStartup> settings.
-

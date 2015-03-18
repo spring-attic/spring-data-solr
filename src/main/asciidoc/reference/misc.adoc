@@ -6,9 +6,7 @@ This chapter covers additional support for Solr operations (such as faceting) th
 [[solr.misc.partialUpdates]]
 == Partial Updates
 
-PartialUpdates can be done using `PartialUpdate` which implements `Update` . NOTE: Partial updates require Solr 4.x. With Solr 4.0.0 it is not possible to update mulitvalue fields.
-
-NOTE: With Solr 4.1.0 you have to take care on parameter order when setting null values. Order parameters with nulls last.
+PartialUpdates can be done using `PartialUpdate` which implements `Update`.
 
 ====
 [source,java]

@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.server.support;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -26,9 +26,8 @@ import org.springframework.beans.factory.InitializingBean;
  * {@link DisposableBean} to shut down the core container when the enclosing Spring container is destroyed.
  * 
  * @author Christoph Strobl
- * 
  */
-public class EmbeddedSolrServerFactoryBean extends EmbeddedSolrServerFactory implements FactoryBean<SolrServer>,
+public class EmbeddedSolrServerFactoryBean extends EmbeddedSolrServerFactory implements FactoryBean<SolrClient>,
 		InitializingBean, DisposableBean {
 
 	@Override
@@ -37,12 +36,12 @@ public class EmbeddedSolrServerFactoryBean extends EmbeddedSolrServerFactory imp
 	}
 
 	@Override
-	public SolrServer getObject() throws Exception {
-		return getSolrServer();
+	public EmbeddedSolrServer getObject() throws Exception {
+		return getSolrClient();
 	}
 
 	@Override
-	public Class<? extends SolrServer> getObjectType() {
+	public Class<? extends SolrClient> getObjectType() {
 		return EmbeddedSolrServer.class;
 	}
 
