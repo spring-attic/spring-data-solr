@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.springframework.data.solr.core.schema;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.util.NamedList;
@@ -32,7 +32,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
 
 /**
  * @author Christoph Strobl
@@ -56,13 +56,13 @@ public class SolrSchemaWriterTests {
 	}
 
 	private SolrSchemaWriter writer;
-	private @Mock SolrServerFactory factoryMock;
-	private @Mock SolrServer solrServerMock;
+	private @Mock SolrClientFactory factoryMock;
+	private @Mock SolrClient solrClientMock;
 
 	@Before
 	public void setUp() {
 
-		Mockito.when(factoryMock.getSolrServer(Mockito.anyString())).thenReturn(solrServerMock);
+		Mockito.when(factoryMock.getSolrClient(Mockito.anyString())).thenReturn(solrClientMock);
 		writer = new SolrSchemaWriter(factoryMock);
 	}
 
@@ -90,7 +90,7 @@ public class SolrSchemaWriterTests {
 	@Test
 	public void schemaPresentCheckSouldIndicateFalseWhenServerReturnsNotFound() throws SolrServerException, IOException {
 
-		Mockito.when(solrServerMock.request(Mockito.any(SolrRequest.class))).thenThrow(
+		Mockito.when(solrClientMock.request(Mockito.any(SolrRequest.class))).thenThrow(
 				new SolrServerException(new SolrException(org.apache.solr.common.SolrException.ErrorCode.NOT_FOUND, "boom")));
 		Assert.assertFalse(writer.isSchemaPresent("collection1"));
 	}
@@ -151,7 +151,7 @@ public class SolrSchemaWriterTests {
 		namedList.add("json", json);
 
 		try {
-			Mockito.when(solrServerMock.request(Mockito.any(SolrRequest.class))).thenReturn(namedList);
+			Mockito.when(solrClientMock.request(Mockito.any(SolrRequest.class))).thenReturn(namedList);
 		} catch (Exception e) {}
 	}
 }

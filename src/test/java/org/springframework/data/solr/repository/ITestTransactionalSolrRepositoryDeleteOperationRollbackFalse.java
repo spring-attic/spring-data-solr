@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.data.solr.repository;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,21 +42,19 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 
 	private static final String ID = "id-tansaction-committed";
 
-	@Autowired
-	private ProductRepository repo;
+	@Autowired private ProductRepository repo;
 
-	@Autowired
-	private SolrServer solrServerMock;
+	@Autowired private SolrClient solrClientMock;
 
 	@BeforeTransaction
 	public void resetMock() {
-		Mockito.reset(solrServerMock);
+		Mockito.reset(solrClientMock);
 	}
 
 	@AfterTransaction
 	public void checkIfDeleted() throws SolrServerException, IOException {
-		Mockito.verify(solrServerMock, Mockito.times(1)).commit();
-		Mockito.verify(solrServerMock, Mockito.never()).rollback();
+		Mockito.verify(solrClientMock, Mockito.times(1)).commit();
+		Mockito.verify(solrClientMock, Mockito.never()).rollback();
 	}
 
 	@Test

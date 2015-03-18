@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryInformation;
@@ -41,9 +41,9 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
 import org.springframework.data.solr.repository.query.SolrEntityInformationCreator;
 import org.springframework.data.solr.repository.query.SolrQueryMethod;
 import org.springframework.data.solr.repository.query.StringBasedSolrQuery;
-import org.springframework.data.solr.server.SolrServerFactory;
-import org.springframework.data.solr.server.support.MulticoreSolrServerFactory;
-import org.springframework.data.solr.server.support.SolrServerUtils;
+import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
+import org.springframework.data.solr.server.support.SolrClientUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -55,7 +55,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	private SolrOperations solrOperations;
 	private final SolrEntityInformationCreator entityInformationCreator;
-	private SolrServerFactory factory;
+	private SolrClientFactory factory;
 	private SolrTemplateHolder templateHolder = new SolrTemplateHolder();
 	private boolean schemaCreationSupport;
 
@@ -71,20 +71,20 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 				.getMappingContext());
 	}
 
-	public SolrRepositoryFactory(SolrServer solrServer) {
-		Assert.notNull(solrServer);
+	public SolrRepositoryFactory(SolrClient solrClient) {
+		Assert.notNull(solrClient);
 
-		this.solrOperations = createTemplate(solrServer);
+		this.solrOperations = createTemplate(solrClient);
 
-		factory = new MulticoreSolrServerFactory(solrServer);
+		factory = new MulticoreSolrClientFactory(solrClient);
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(this.solrOperations.getConverter()
 				.getMappingContext());
 
 	}
 
-	private SolrTemplate createTemplate(SolrServer solrServer) {
+	private SolrTemplate createTemplate(SolrClient solrClient) {
 
-		SolrTemplate template = new SolrTemplate(solrServer);
+		SolrTemplate template = new SolrTemplate(solrClient);
 		addSchemaCreationFeaturesIfEnabled(template);
 		template.afterPropertiesSet();
 		return template;
@@ -105,7 +105,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 			if (this.solrOperations.getConverter() != null) {
 				template.setMappingContext(this.solrOperations.getConverter().getMappingContext());
 			}
-			template.setSolrCore(SolrServerUtils.resolveSolrCoreName(metadata.getDomainType()));
+			template.setSolrCore(SolrClientUtils.resolveSolrCoreName(metadata.getDomainType()));
 			addSchemaCreationFeaturesIfEnabled(template);
 			template.afterPropertiesSet();
 			operations = template;

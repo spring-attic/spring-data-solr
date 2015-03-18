@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.data.solr.repository.config;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +47,12 @@ public class EnableSolrRepositoriesWithPredefinedMappingContextTests extends Abs
 
 		@Bean
 		public SolrOperations solrTemplate() {
-			return new SolrTemplate(solrServer);
+			return new SolrTemplate(solrClient);
 		}
 
 		@Bean
-		public SolrServer solrServer() {
-			return solrServer;
+		public SolrClient solrClient() {
+			return solrClient;
 		}
 
 		@Bean

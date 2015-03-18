@@ -43,7 +43,7 @@ public class ITestEnableSolrRepositoriesWithOptionalSolrServer extends AbstractI
 
 		@Bean
 		public SolrOperations solrTemplate() {
-			return new SolrTemplate(solrServer);
+			return new SolrTemplate(solrClient);
 		}
 
 	}

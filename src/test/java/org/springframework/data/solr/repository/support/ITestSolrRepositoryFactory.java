@@ -33,7 +33,7 @@ import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
-import org.springframework.data.solr.server.support.HttpSolrServerFactory;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 
 /**
  * @author Christoph Strobl
@@ -45,7 +45,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 	@Before
 	public void setUp() {
-		SolrTemplate template = new SolrTemplate(new HttpSolrServerFactory(solrServer));
+		SolrTemplate template = new SolrTemplate(new HttpSolrClientFactory(solrClient));
 		template.afterPropertiesSet();
 		factory = new SolrRepositoryFactory(template);
 	}

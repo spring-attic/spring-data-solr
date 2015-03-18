@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,80 +22,80 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.solr.server.support.HttpSolrServerFactory;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 
 /**
  * @author Christoph Strobl
  */
-public class HttpSolrServerFactoryTests {
+public class HttpSolrClientFactoryTests {
 
 	private static final String URL = "http://solr.server.url";
-	private SolrServer solrServer;
+	private SolrClient solrClient;
 
 	@Before
 	public void setUp() throws MalformedURLException {
-		solrServer = new HttpSolrServer(URL);
+		solrClient = new HttpSolrClient(URL);
 	}
 
 	@After
 	public void tearDown() {
-		solrServer = null;
+		solrClient = null;
 	}
 
 	@Test
 	public void testInitFactory() {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer);
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient);
 		Assert.assertNotNull(factory.getCores());
 		Assert.assertThat(factory.getCores(), IsEmptyCollection.emptyCollectionOf(String.class));
-		Assert.assertEquals(solrServer, factory.getSolrServer());
-		Assert.assertEquals(URL, ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+		Assert.assertEquals(solrClient, factory.getSolrClient());
+		Assert.assertEquals(URL, ((HttpSolrClient) factory.getSolrClient()).getBaseURL());
 	}
 
 	@Test
-	public void testFactoryReturnsReferenceSolrServerWhenCallingGetWithCoreNameAndNoCoreSet() {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer);
-		Assert.assertEquals(solrServer, factory.getSolrServer("AnyCoreName"));
+	public void testFactoryReturnsReferenceSolrClientWhenCallingGetWithCoreNameAndNoCoreSet() {
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient);
+		Assert.assertEquals(solrClient, factory.getSolrClient("AnyCoreName"));
 	}
 
 	@Test
 	public void testInitFactoryWithCore() throws MalformedURLException {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core");
-		Assert.assertEquals(URL + "/core", ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient, "core");
+		Assert.assertEquals(URL + "/core", ((HttpSolrClient) factory.getSolrClient()).getBaseURL());
 
-		factory = new HttpSolrServerFactory(new HttpSolrServer(URL + "/"), "core");
-		Assert.assertEquals(URL + "/core", ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+		factory = new HttpSolrClientFactory(new HttpSolrClient(URL + "/"), "core");
+		Assert.assertEquals(URL + "/core", ((HttpSolrClient) factory.getSolrClient()).getBaseURL());
 	}
 
 	@Test
-	public void testFactoryReturnsReferenceSolrServerWhenCallingGetWithCoreNameAndCoreSet() {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core");
-		Assert.assertEquals(solrServer, factory.getSolrServer("AnyCoreName"));
+	public void testFactoryReturnsReferenceSolrClientWhenCallingGetWithCoreNameAndCoreSet() {
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient, "core");
+		Assert.assertEquals(solrClient, factory.getSolrClient("AnyCoreName"));
 	}
 
 	@Test
 	public void testInitFactoryWithEmptyCore() {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, StringUtils.EMPTY);
-		Assert.assertEquals(URL, ((HttpSolrServer) factory.getSolrServer()).getBaseURL());
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient, StringUtils.EMPTY);
+		Assert.assertEquals(URL, ((HttpSolrClient) factory.getSolrClient()).getBaseURL());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitFactoryWithNullServer() {
-		new HttpSolrServerFactory(null);
+		new HttpSolrClientFactory(null);
 	}
 
 	@Test
 	public void testInitFactoryWithAuthentication() {
-		HttpSolrServerFactory factory = new HttpSolrServerFactory(solrServer, "core", new UsernamePasswordCredentials(
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient, "core", new UsernamePasswordCredentials(
 				"username", "password"), "BASIC");
 
-		AbstractHttpClient solrHttpClient = (AbstractHttpClient) ((HttpSolrServer) factory.getSolrServer()).getHttpClient();
+		AbstractHttpClient solrHttpClient = (AbstractHttpClient) ((HttpSolrClient) factory.getSolrClient()).getHttpClient();
 		Assert.assertNotNull(solrHttpClient.getCredentialsProvider().getCredentials(AuthScope.ANY));
 		Assert.assertNotNull(solrHttpClient.getParams().getParameter(AuthPNames.TARGET_AUTH_PREF));
 		Assert.assertEquals("username", ((UsernamePasswordCredentials) solrHttpClient.getCredentialsProvider()
@@ -106,7 +106,7 @@ public class HttpSolrServerFactoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitFactoryWithoutAuthenticationSchema() {
-		new HttpSolrServerFactory(solrServer, "core", new UsernamePasswordCredentials("username", "password"), "");
+		new HttpSolrClientFactory(solrClient, "core", new UsernamePasswordCredentials("username", "password"), "");
 	}
 
 }

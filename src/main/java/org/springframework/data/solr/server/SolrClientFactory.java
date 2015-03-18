@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,31 @@ package org.springframework.data.solr.server;
 
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 /**
- * SolrServerFactory provides access to the solrj {@link SolrServer}.
+ * {@link SolrClientFactory} replaces SolrServerFactory from version 1.x and provides access to the solrj
+ * {@link SolrClient}.
  * 
  * @author Christoph Strobl
+ * @since 2.0
  */
-public interface SolrServerFactory {
+public interface SolrClientFactory {
 
 	/**
-	 * Get base {@link SolrServer} instance
+	 * Get base {@link SolrClient} instance
 	 * 
-	 * @return a reusable solrServer instance
+	 * @return a reusable SolrClient instance
 	 */
-	SolrServer getSolrServer();
+	SolrClient getSolrClient();
 
 	/**
-	 * Get configured {@link SolrServer} for specific core
+	 * Get configured {@link SolrClient} for specific core
 	 * 
 	 * @param core
 	 * @return
 	 */
-	SolrServer getSolrServer(String core);
+	SolrClient getSolrClient(String core);
 
 	/**
 	 * Get list of cores

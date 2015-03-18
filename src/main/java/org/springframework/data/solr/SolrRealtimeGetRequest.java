@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrException;
@@ -73,11 +73,11 @@ public class SolrRealtimeGetRequest extends SolrRequest {
 	}
 
 	@Override
-	public QueryResponse process(SolrServer server) throws SolrServerException, IOException {
+	public QueryResponse process(SolrClient solrClient) throws SolrServerException, IOException {
 
 		try {
 			long startTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
-			QueryResponse res = new QueryResponse(server.request(this), server);
+			QueryResponse res = new QueryResponse(solrClient.request(this), solrClient);
 			long endTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
 			res.setElapsedTime(endTime - startTime);
 			return res;

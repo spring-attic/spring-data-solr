@@ -26,13 +26,13 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Christoph Strobl
  */
-public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableBean {
+public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableBean {
 
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
@@ -69,7 +69,7 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 	}
 
 	@Override
-	public EmbeddedSolrServer getSolrServer() {
+	public EmbeddedSolrServer getSolrClient() {
 		if (this.solrServer == null) {
 			initSolrServer();
 		}
@@ -104,7 +104,7 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 		}
 
 		solrHomeDirectory = URLDecoder.decode(solrHomeDirectory, "utf-8");
-		return new EmbeddedSolrServer(createCoreContainer(solrHomeDirectory), null);
+		return new EmbeddedSolrServer(createCoreContainer(solrHomeDirectory), "collection1");
 	}
 
 	private CoreContainer createCoreContainer(String solrHomeDirectory) {
@@ -164,8 +164,8 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 	}
 
 	@Override
-	public SolrServer getSolrServer(String core) {
-		return getSolrServer();
+	public SolrClient getSolrClient(String core) {
+		return getSolrClient();
 	}
 
 }

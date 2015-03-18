@@ -15,8 +15,8 @@
  */
 package org.springframework.data.solr.test.util;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.junit.internal.AssumptionViolatedException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.junit.AssumptionViolatedException;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -36,7 +36,7 @@ public class ExternalServerWithManagedSchemaRule implements TestRule {
 	}
 
 	public ExternalServerWithManagedSchemaRule init() {
-		SolrTemplate template = new SolrTemplate(new HttpSolrServer(baseUrl));
+		SolrTemplate template = new SolrTemplate(new HttpSolrClient(baseUrl));
 
 		try {
 			String schemaName = template.getSchemaName("collection1");

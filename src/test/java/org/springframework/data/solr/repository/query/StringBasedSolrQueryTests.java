@@ -37,7 +37,7 @@ import org.springframework.data.solr.core.QueryParser;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
 
 /**
  * @author Christoph Strobl
@@ -51,7 +51,7 @@ public class StringBasedSolrQueryTests {
 
 	private @Mock SolrEntityInformationCreator entityInformationCreatorMock;
 
-	private @Mock SolrServerFactory solrServerFactoryMock;
+	private @Mock SolrClientFactory solrClientFactoryMock;
 
 	private QueryParser queryParser;
 

@@ -18,7 +18,7 @@ package org.springframework.data.solr.core.schema;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class ITestSolrSchemaCreation {
 
 	@Before
 	public void setUp() {
-		this.template = new SolrTemplate(new HttpSolrServer("http://localhost:8983/solr"));
+		this.template = new SolrTemplate(new HttpSolrClient("http://localhost:8983/solr"));
 		template.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
 		template.afterPropertiesSet();
 

@@ -18,10 +18,9 @@ package org.springframework.data.solr;
 import org.springframework.dao.UncategorizedDataAccessException;
 
 /**
- * SolrServer threw an exception that could not be mapped. UncategorizedSolrException wraps the original Exception
+ * SolrClient threw an exception that could not be mapped. UncategorizedSolrException wraps the original Exception
  * 
  * @author Christoph Strobl
- * 
  */
 public class UncategorizedSolrException extends UncategorizedDataAccessException {
 

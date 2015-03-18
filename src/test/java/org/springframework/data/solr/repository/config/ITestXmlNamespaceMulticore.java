@@ -15,11 +15,10 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +36,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("namespace-multicore.xml")
 public class ITestXmlNamespaceMulticore {
 
-	@Autowired
-	ApplicationContext context;
+	@Autowired ApplicationContext context;
 
 	@Test
 	public void createsRepositoryAndEmbeddedServerCorrectly() {
 		assertThat(context.getBean(PersonRepository.class), is(notNullValue()));
-		assertThat(context.getBean("solrServer", HttpSolrServer.class), is(notNullValue()));
+		assertThat(context.getBean("solrClient", HttpSolrClient.class), is(notNullValue()));
 	}
 }

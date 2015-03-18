@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014  - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
@@ -31,11 +31,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrRealtimeGetRequestUnitTests {
 
-	private @Mock SolrServer solrServerMock;
+	private @Mock SolrClient solrClientMock;
 
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExeptionWhenNoIdsGiven() {
@@ -56,15 +57,15 @@ public class SolrRealtimeGetRequestUnitTests {
 		// given
 		NamedList<Object> value = new NamedList<Object>();
 		SolrRealtimeGetRequest request = new SolrRealtimeGetRequest(1L, 2F, 3, "4");
-		when(solrServerMock.request(request)).thenReturn(value);
+		when(solrClientMock.request(request)).thenReturn(value);
 
 		// when
-		QueryResponse result = request.process(solrServerMock);
+		QueryResponse result = request.process(solrClientMock);
 
 		// then
 		Assert.assertEquals(value, result.getResponse());
 		Assert.assertArrayEquals(new String[] { "1", "2.0", "3", "4" }, request.getParams().getParams("ids"));
-		verify(solrServerMock).request(request);
+		verify(solrClientMock).request(request);
 	}
 
 }

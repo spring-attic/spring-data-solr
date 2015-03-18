@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.repository.support;
 
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +81,7 @@ public class SolrRepositoryFactoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetRepositoryOfUnmanageableType() {
 
-		SolrTemplate template = new SolrTemplate(new HttpSolrServer("http://solrserver:8983/solr"), null);
+		SolrTemplate template = new SolrTemplate(new HttpSolrClient("http://solrserver:8983/solr"), null);
 		template.afterPropertiesSet();
 		new SolrRepositoryFactory(template).getRepository(UnmanagedEntityRepository.class);
 	}

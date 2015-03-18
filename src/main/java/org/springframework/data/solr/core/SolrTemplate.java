@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -76,8 +76,8 @@ import org.springframework.data.solr.core.schema.SolrJsonResponse;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.core.schema.SolrSchemaRequest;
-import org.springframework.data.solr.server.SolrServerFactory;
-import org.springframework.data.solr.server.support.HttpSolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -106,30 +106,30 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	};
 
-	private SolrServerFactory solrServerFactory;
+	private SolrClientFactory solrClientFactory;
 
 	private SolrConverter solrConverter;
 
 	private Set<Feature> schemaCreationFeatures;
 
-	public SolrTemplate(SolrServer solrServer) {
-		this(solrServer, null);
+	public SolrTemplate(SolrClient solrClient) {
+		this(solrClient, null);
 	}
 
-	public SolrTemplate(SolrServer solrServer, String core) {
-		this(new HttpSolrServerFactory(solrServer, core));
+	public SolrTemplate(SolrClient solrClient, String core) {
+		this(new HttpSolrClientFactory(solrClient, core));
 		this.solrCore = core;
 	}
 
-	public SolrTemplate(SolrServerFactory solrServerFactory) {
-		this(solrServerFactory, null);
+	public SolrTemplate(SolrClientFactory solrClientFactory) {
+		this(solrClientFactory, null);
 	}
 
-	public SolrTemplate(SolrServerFactory solrServerFactory, SolrConverter solrConverter) {
-		Assert.notNull(solrServerFactory, "SolrServerFactory must not be 'null'.");
-		Assert.notNull(solrServerFactory.getSolrServer(), "SolrServerFactory has to return a SolrServer.");
+	public SolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter) {
+		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'.");
+		Assert.notNull(solrClientFactory.getSolrClient(), "SolrClientFactory has to return a SolrClient.");
 
-		this.solrServerFactory = solrServerFactory;
+		this.solrClientFactory = solrClientFactory;
 	}
 
 	@Override
@@ -137,8 +137,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(action);
 
 		try {
-			SolrServer solrServer = this.getSolrServer();
-			return action.doInSolr(solrServer);
+			SolrClient solrClient = this.getSolrClient();
+			return action.doInSolr(solrClient);
 		} catch (Exception e) {
 			DataAccessException resolved = getExceptionTranslator().translateExceptionIfPossible(
 					new RuntimeException(e.getMessage(), e));
@@ -150,8 +150,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public SolrPingResponse ping() {
 		return execute(new SolrCallback<SolrPingResponse>() {
 			@Override
-			public SolrPingResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.ping();
+			public SolrPingResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.ping();
 			}
 		});
 	}
@@ -163,12 +163,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(new SolrCallback<Long>() {
 
 			@Override
-			public Long doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+			public Long doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 				solrQuery.setStart(0);
 				solrQuery.setRows(0);
 
-				return solrServer.query(solrQuery).getResults().getNumFound();
+				return solrClient.query(solrQuery).getResults().getNumFound();
 			}
 		});
 	}
@@ -183,8 +183,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		assertNoCollection(objectToAdd);
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs);
 			}
 		});
 	}
@@ -198,8 +198,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs);
 			}
 		});
 	}
@@ -213,8 +213,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(documentToAdd, commitWithinMs);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.add(documentToAdd, commitWithinMs);
 			}
 		});
 	}
@@ -228,8 +228,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.add(documentsToAdd, commitWithinMs);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.add(documentsToAdd, commitWithinMs);
 			}
 		});
 	}
@@ -242,8 +242,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.deleteByQuery(queryString);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.deleteByQuery(queryString);
 			}
 		});
 	}
@@ -254,8 +254,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.deleteById(id);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.deleteById(id);
 			}
 		});
 	}
@@ -267,8 +267,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		final List<String> toBeDeleted = new ArrayList<String>(ids);
 		return execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.deleteById(toBeDeleted);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.deleteById(toBeDeleted);
 			}
 		});
 	}
@@ -412,8 +412,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	final QueryResponse executeSolrQuery(final SolrQuery solrQuery) {
 		return execute(new SolrCallback<QueryResponse>() {
 			@Override
-			public QueryResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.query(solrQuery);
+			public QueryResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.query(solrQuery);
 			}
 		});
 	}
@@ -422,8 +422,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public void commit() {
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.commit();
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.commit();
 			}
 		});
 	}
@@ -436,8 +436,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.commit(true, true, true);
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.commit(true, true, true);
 			}
 		});
 	}
@@ -446,8 +446,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public void rollback() {
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
-			public UpdateResponse doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				return solrServer.rollback();
+			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				return solrClient.rollback();
 			}
 		});
 	}
@@ -472,8 +472,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(new SolrCallback<String>() {
 
 			@Override
-			public String doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
-				SolrJsonResponse response = SolrSchemaRequest.name().process(solrServer);
+			public String doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+				SolrJsonResponse response = SolrSchemaRequest.name().process(solrClient);
 				if (response != null) {
 					return response.getNode("name").asText();
 				}
@@ -514,9 +514,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		return execute(new SolrCallback<Collection<T>>() {
 			@Override
-			public Collection<T> doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+			public Collection<T> doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 
-				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrServer);
+				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient);
 				return convertSolrDocumentListToBeans(response.getResults(), clazz);
 			}
 
@@ -576,8 +576,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public final SolrServer getSolrServer() {
-		return solrServerFactory.getSolrServer(this.solrCore);
+	public final SolrClient getSolrClient() {
+		return solrClientFactory.getSolrClient(this.solrCore);
 	}
 
 	@Override
@@ -615,7 +615,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		if (this.mappingContext == null) {
 			this.mappingContext = new SimpleSolrMappingContext(
-					new SolrPersistentEntitySchemaCreator(this.solrServerFactory).enable(this.schemaCreationFeatures));
+					new SolrPersistentEntitySchemaCreator(this.solrClientFactory).enable(this.schemaCreationFeatures));
 		}
 
 		if (this.solrConverter == null) {

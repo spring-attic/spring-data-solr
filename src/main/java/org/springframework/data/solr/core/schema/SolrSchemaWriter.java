@@ -26,7 +26,7 @@ import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.solr.core.SolrExceptionTranslator;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -42,9 +42,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class SolrSchemaWriter {
 
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
-	private SolrServerFactory factory;
+	private SolrClientFactory factory;
 
-	public SolrSchemaWriter(SolrServerFactory factory) {
+	public SolrSchemaWriter(SolrClientFactory factory) {
 		this.factory = factory;
 	}
 
@@ -79,7 +79,7 @@ public class SolrSchemaWriter {
 	private void writeFieldDefinitions(Collection<FieldDefinition> definitions, String collectionName) {
 		if (!CollectionUtils.isEmpty(definitions)) {
 			try {
-				SolrSchemaRequest.create().fields(definitions).build().process(factory.getSolrServer(collectionName));
+				SolrSchemaRequest.create().fields(definitions).build().process(factory.getSolrClient(collectionName));
 			} catch (SolrServerException e) {
 				throw EXCEPTION_TRANSLATOR.translateExceptionIfPossible(new RuntimeException(e));
 			} catch (IOException e) {
@@ -95,7 +95,7 @@ public class SolrSchemaWriter {
 	SchemaDefinition loadExistingSchema(String collectionName) {
 
 		try {
-			SolrJsonResponse response = SolrSchemaRequest.schema().process(factory.getSolrServer(collectionName));
+			SolrJsonResponse response = SolrSchemaRequest.schema().process(factory.getSolrClient(collectionName));
 			if (response != null && response.getNode("schema") != null) {
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.enable(MapperFeature.AUTO_DETECT_CREATORS);
@@ -115,7 +115,7 @@ public class SolrSchemaWriter {
 
 	Double retrieveSchemaVersion(String collectionName) {
 		try {
-			SolrJsonResponse response = SolrSchemaRequest.version().process(factory.getSolrServer(collectionName));
+			SolrJsonResponse response = SolrSchemaRequest.version().process(factory.getSolrClient(collectionName));
 			JsonNode node = response.getNode("version");
 			return node != null ? node.asDouble() : Double.NaN;
 		} catch (SolrServerException e) {

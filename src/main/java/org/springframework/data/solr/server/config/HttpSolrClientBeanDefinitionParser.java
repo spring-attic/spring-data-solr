@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,20 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.data.solr.server.support.HttpSolrServerFactoryBean;
+import org.springframework.data.solr.server.support.HttpSolrClientFactoryBean;
 import org.w3c.dom.Element;
 
 /**
+ * {@link HttpSolrClientBeanDefinitionParser} replaces HttpSolrServerBeanDefinitionParser from version 1.x.
+ * 
  * @author Christoph Strobl
+ * @since 2.0
  */
-public class HttpSolrServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class HttpSolrClientBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
 	@Override
 	protected AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
-		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HttpSolrServerFactoryBean.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HttpSolrClientFactoryBean.class);
 		setSolrHome(element, builder);
 		return getSourcedBeanDefinition(builder, element, parserContext);
 	}

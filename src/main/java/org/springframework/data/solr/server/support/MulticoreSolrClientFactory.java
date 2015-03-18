@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,85 +22,87 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * {@link MulticoreSolrClientFactory} replaces MulticoreSolrSolrFactory from version 1.x.
+ * 
  * @author Christoph Strobl
+ * @since 2.0
  */
-public class MulticoreSolrServerFactory extends SolrServerFactoryBase {
+public class MulticoreSolrClientFactory extends SolrClientFactoryBase {
 
-	private boolean createMissingSolrServer = true;
-	private Map<String, SolrServer> serverMap = new LinkedHashMap<String, SolrServer>();
+	private boolean createMissingSolrClient = true;
+	private Map<String, SolrClient> clientMap = new LinkedHashMap<String, SolrClient>();
 
-	protected MulticoreSolrServerFactory() {
+	protected MulticoreSolrClientFactory() {
 		super();
 	}
 
-	public MulticoreSolrServerFactory(SolrServer solrServer) {
+	public MulticoreSolrClientFactory(SolrClient solrServer) {
 		this(solrServer, Collections.<String> emptyList());
 	}
 
-	public MulticoreSolrServerFactory(SolrServer solrServer, String... cores) {
+	public MulticoreSolrClientFactory(SolrClient solrServer, String... cores) {
 		this(solrServer, (cores != null ? Arrays.asList(cores) : Collections.<String> emptyList()));
 	}
 
-	public MulticoreSolrServerFactory(SolrServer solrServer, List<String> cores) {
+	public MulticoreSolrClientFactory(SolrClient solrServer, List<String> cores) {
 		super(solrServer);
 		for (String core : cores) {
-			addSolrServerForCore(createServerForCore(solrServer, core), core);
+			addSolrClientForCore(createClientForCore(solrServer, core), core);
 		}
 	}
 
 	@Override
-	public SolrServer getSolrServer(String core) {
+	public SolrClient getSolrClient(String core) {
 		if (!StringUtils.hasText(core)) {
-			return getSolrServer();
+			return getSolrClient();
 		}
 
-		if (createMissingSolrServer && !serverMap.containsKey(core)) {
-			serverMap.put(core, createServerForCore(getSolrServer(), core));
+		if (createMissingSolrClient && !clientMap.containsKey(core)) {
+			clientMap.put(core, createClientForCore(getSolrClient(), core));
 		}
-		return serverMap.get(core);
+		return clientMap.get(core);
 	}
 
 	/**
-	 * Add SolrServer for core to factory - Will override existing.
+	 * Add SolrClient for core to factory - Will override existing.
 	 * 
-	 * @param solrServer
+	 * @param solrClient
 	 * @param core
 	 */
-	public void addSolrServerForCore(SolrServer solrServer, String core) {
-		serverMap.put(core, solrServer);
+	public void addSolrClientForCore(SolrClient solrClient, String core) {
+		clientMap.put(core, solrClient);
 	}
 
 	/**
-	 * Remove SolrServer from factory. Calls {@link SolrServer#shutdown()} on remove.
-	 * 
+	 * Remove SolrClient from factory. Calls {@link SolrClient#shutdown()} on remove.
 	 * 
 	 * @param core
 	 */
-	public void removeSolrSever(String core) {
-		if (serverMap.containsKey(core)) {
-			destroy(serverMap.remove(core));
+	public void removeSolrClient(String core) {
+		if (clientMap.containsKey(core)) {
+			destroy(clientMap.remove(core));
 		}
 	}
 
 	/**
-	 * Get configured {@link SolrServer} for specific class tying to determine core name via {@link SolrDocument} or its
+	 * Get configured {@link SolrClient} for specific class tying to determine core name via {@link SolrDocument} or its
 	 * class name.
 	 * 
 	 * @param clazz
 	 * @return
 	 */
-	public SolrServer getSolrServer(Class<?> clazz) {
+	public SolrClient getSolrClient(Class<?> clazz) {
 		Assert.notNull(clazz);
 
-		String coreName = SolrServerUtils.resolveSolrCoreName(clazz);
-		return getSolrServer(StringUtils.hasText(coreName) ? coreName : getShortClassName(clazz));
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz);
+		return getSolrClient(StringUtils.hasText(coreName) ? coreName : getShortClassName(clazz));
 	}
 
 	/**
@@ -118,35 +120,35 @@ public class MulticoreSolrServerFactory extends SolrServerFactoryBase {
 
 	@Override
 	public List<String> getCores() {
-		return new ArrayList<String>(serverMap.keySet());
+		return new ArrayList<String>(clientMap.keySet());
 	}
 
 	@Override
 	public void destroy() {
 		super.destroy();
-		for (SolrServer server : serverMap.values()) {
+		for (SolrClient server : clientMap.values()) {
 			destroy(server);
 		}
 	}
 
-	protected SolrServer createServerForCore(SolrServer reference, String core) {
+	protected SolrClient createClientForCore(SolrClient reference, String core) {
 		if (StringUtils.hasText(core)) {
-			return SolrServerUtils.clone(reference, core);
+			return SolrClientUtils.clone(reference, core);
 		}
 		return reference;
 	}
 
-	public boolean isCreateMissingSolrServer() {
-		return createMissingSolrServer;
+	public boolean isCreateMissingSolrClient() {
+		return createMissingSolrClient;
 	}
 
 	/**
 	 * if true missing solrServers for cores will be created
 	 * 
-	 * @param createMissingSolrServer default is true
+	 * @param createMissingSolrClient default is true
 	 */
-	public void setCreateMissingSolrServer(boolean createMissingSolrServer) {
-		this.createMissingSolrServer = createMissingSolrServer;
+	public void setCreateMissingSolrClient(boolean createMissingSolrClient) {
+		this.createMissingSolrClient = createMissingSolrClient;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package org.springframework.data.solr.core;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 
@@ -33,7 +33,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 public interface QueryParser {
 
 	/**
-	 * Convert given Query into a SolrQuery executable via {@link SolrServer}
+	 * Convert given Query into a SolrQuery executable via {@link SolrClient}
 	 * 
 	 * @param query
 	 * @return

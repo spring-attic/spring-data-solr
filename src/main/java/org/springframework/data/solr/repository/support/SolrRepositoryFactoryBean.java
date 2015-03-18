@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.springframework.data.solr.repository.support;
 
 import java.io.Serializable;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable> extends
 		TransactionalRepositoryFactoryBeanSupport<T, S, ID> {
 
-	private SolrServer solrServer;
+	private SolrClient solrClient;
 	private SolrOperations operations;
 	private boolean schemaCreationSupport;
 	private SimpleSolrMappingContext solrMappingContext;
@@ -49,8 +49,8 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 		this.operations = operations;
 	}
 
-	public void setSolrServer(SolrServer solrServer) {
-		this.solrServer = solrServer;
+	public void setSolrClient(SolrClient solrClient) {
+		this.solrClient = solrClient;
 	}
 
 	public void setSchemaCreationSupport(boolean schemaCreationSupport) {
@@ -89,14 +89,14 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	public void afterPropertiesSet() {
 
 		super.afterPropertiesSet();
-		Assert.isTrue((operations != null || solrServer != null), "SolrOperations or SolrServer must be configured!");
+		Assert.isTrue((operations != null || solrClient != null), "SolrOperations or SolrClient must be configured!");
 	}
 
 	@Override
 	protected RepositoryFactorySupport doCreateRepositoryFactory() {
 
 		SolrRepositoryFactory factory = operations != null ? new SolrRepositoryFactory(this.operations)
-				: new SolrRepositoryFactory(this.solrServer);
+				: new SolrRepositoryFactory(this.solrClient);
 		factory.setSchemaCreationSupport(schemaCreationSupport);
 		return factory;
 	}

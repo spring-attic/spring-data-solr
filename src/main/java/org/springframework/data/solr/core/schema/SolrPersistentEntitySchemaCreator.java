@@ -24,7 +24,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.mapping.context.MappingContextEvent;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -38,18 +38,18 @@ public class SolrPersistentEntitySchemaCreator implements
 		CREATE_MISSING_FIELDS;
 	}
 
-	private SolrServerFactory factory;
+	private SolrClientFactory factory;
 	private SolrSchemaWriter schemaWriter;
 	private SolrSchemaResolver schemaResolver;
 	private ConcurrentHashMap<Class<?>, Class<?>> processed;
 
 	private Set<Feature> features = new HashSet<Feature>();
 
-	public SolrPersistentEntitySchemaCreator(SolrServerFactory solrServerFactory) {
-		this(solrServerFactory, null);
+	public SolrPersistentEntitySchemaCreator(SolrClientFactory solrClientFactory) {
+		this(solrClientFactory, null);
 	}
 
-	public SolrPersistentEntitySchemaCreator(SolrServerFactory factory, SolrSchemaWriter schemaWriter) {
+	public SolrPersistentEntitySchemaCreator(SolrClientFactory factory, SolrSchemaWriter schemaWriter) {
 		super();
 		this.factory = factory;
 		this.schemaWriter = schemaWriter != null ? schemaWriter : new SolrSchemaWriter(this.factory);

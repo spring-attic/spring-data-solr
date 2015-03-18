@@ -21,8 +21,8 @@
 		<dist.key>DATASOLR</dist.key>
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
-		<httpcomponents>4.2.2</httpcomponents>
-		<solr>4.10.1</solr>
+		<httpcomponents>4.3.1</httpcomponents>
+		<solr>5.0.0</solr>
 		<springdata.commons>1.11.0.BUILD-SNAPSHOT</springdata.commons>
 	</properties>
 
@@ -89,33 +89,7 @@
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${httpcomponents}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>${httpcomponents}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient-cache</artifactId>
-			<version>${httpcomponents}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+		
 
 		<!-- JODA Time -->
 		<dependency>
@@ -142,15 +116,7 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>jcl-over-slf4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpclient</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpmime</artifactId>
-				</exclusion>
+				</exclusion>	
 			</exclusions>
 		</dependency>
 		<dependency>

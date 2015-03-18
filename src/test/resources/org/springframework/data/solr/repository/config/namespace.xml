@@ -2,16 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:solr="http://www.springframework.org/schema/data/solr"
-	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
-	<solr:embedded-solr-server id="solrServer" solrHome="classpath:org/springframework/data/solr" /> 
-	<solr:solr-server id="httpSolrServer" url="http://localhost:8983/solr" />
-	<solr:solr-server id="lbHttpSolrServer" url="http://localhost:8983/solr,http://127.0.0.1:8983/solr" />
+	<solr:embedded-solr-server id="solrClient" solrHome="classpath:org/springframework/data/solr" /> 
+	<solr:solr-client id="httpSolrClient" url="http://localhost:8983/solr" />
+	<solr:solr-client id="lbHttpSolrClient" url="http://localhost:8983/solr,http://127.0.0.1:8983/solr" />
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
-		<constructor-arg ref="solrServer" />
+		<constructor-arg ref="solrClient" />
 	</bean>
 	
 </beans>

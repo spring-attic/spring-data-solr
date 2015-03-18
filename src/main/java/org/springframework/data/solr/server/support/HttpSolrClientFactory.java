@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,39 +25,40 @@ import org.apache.http.auth.Credentials;
 import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.springframework.data.solr.server.SolrServerFactory;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.Assert;
 
 /**
- * The HttpSolrServerFactory configures an {@link HttpSolrServer} to work with the provided core. If provided
- * Credentials eg. (@link UsernamePasswordCredentials} and AuthPolicy (eg. BASIC, DIGEST,...) will be applied to the
- * underlying HttpClient.
+ * The {@link HttpSolrClientFactory} replaces HttpSolrServerFactory from version 1.x and configures an
+ * {@link HttpSolrClient} to work with the provided core. If provided Credentials eg. (@link
+ * UsernamePasswordCredentials} and AuthPolicy (eg. BASIC, DIGEST,...) will be applied to the underlying HttpClient.
  * 
  * @author Christoph Strobl
+ * @since 2.0
  */
-public class HttpSolrServerFactory extends SolrServerFactoryBase {
+public class HttpSolrClientFactory extends SolrClientFactoryBase {
 
 	private String core;
 	private Credentials credentials;
 	private String authPolicy;
 
-	protected HttpSolrServerFactory() {
+	protected HttpSolrClientFactory() {
 
 	}
 
-	public HttpSolrServerFactory(SolrServer solrServer) {
-		this(solrServer, null);
+	public HttpSolrClientFactory(SolrClient solrClient) {
+		this(solrClient, null);
 	}
 
-	public HttpSolrServerFactory(SolrServer solrServer, String core) {
-		this(solrServer, core, null, null);
+	public HttpSolrClientFactory(SolrClient solrClient, String core) {
+		this(solrClient, core, null, null);
 	}
 
-	public HttpSolrServerFactory(SolrServer solrServer, String core, Credentials credentials, String authPolicy) {
-		super(solrServer);
-		Assert.notNull(solrServer, "SolrServer must not be null");
+	public HttpSolrClientFactory(SolrClient solrClient, String core, Credentials credentials, String authPolicy) {
+		super(solrClient);
+		Assert.notNull(solrClient, "SolrServer must not be null");
 
 		if (authPolicy != null) {
 			Assert.hasText(authPolicy);
@@ -67,8 +68,8 @@ public class HttpSolrServerFactory extends SolrServerFactoryBase {
 		this.credentials = credentials;
 		this.authPolicy = authPolicy;
 
-		appendCoreToBaseUrl(this.core, this.getSolrServer());
-		appendAuthentication(this.credentials, this.authPolicy, this.getSolrServer());
+		appendCoreToBaseUrl(this.core, this.getSolrClient());
+		appendAuthentication(this.credentials, this.authPolicy, this.getSolrClient());
 	}
 
 	@Override
@@ -77,31 +78,31 @@ public class HttpSolrServerFactory extends SolrServerFactoryBase {
 	}
 
 	/**
-	 * returns the reference solrServer
+	 * returns the reference {@link SolrClient}
 	 * 
-	 * @see SolrServerFactory#getSolrServer()
+	 * @see SolrClientFactory#getSolrClient()
 	 */
 	@Override
-	public SolrServer getSolrServer(String core) {
-		return getSolrServer();
+	public SolrClient getSolrClient(String core) {
+		return getSolrClient();
 	}
 
-	protected void appendCoreToBaseUrl(String core, SolrServer solrServer) {
-		if (StringUtils.isNotEmpty(core) && isHttpSolrServer(solrServer)) {
-			HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
+	protected void appendCoreToBaseUrl(String core, SolrClient solrClient) {
+		if (StringUtils.isNotEmpty(core) && isHttpSolrClient(solrClient)) {
+			HttpSolrClient httpSolrClient = (HttpSolrClient) solrClient;
 
-			String url = SolrServerUtils.appendCoreToBaseUrl(httpSolrServer.getBaseURL(), core);
-			httpSolrServer.setBaseURL(url);
+			String url = SolrClientUtils.appendCoreToBaseUrl(httpSolrClient.getBaseURL(), core);
+			httpSolrClient.setBaseURL(url);
 		}
 	}
 
-	private void appendAuthentication(Credentials credentials, String authPolicy, SolrServer solrServer) {
-		if (isHttpSolrServer(solrServer)) {
-			HttpSolrServer httpSolrServer = (HttpSolrServer) solrServer;
+	private void appendAuthentication(Credentials credentials, String authPolicy, SolrClient solrClient) {
+		if (isHttpSolrClient(solrClient)) {
+			HttpSolrClient httpSolrClient = (HttpSolrClient) solrClient;
 
 			if (credentials != null && StringUtils.isNotBlank(authPolicy)
-					&& assertHttpClientInstance(httpSolrServer.getHttpClient())) {
-				AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrServer.getHttpClient();
+					&& assertHttpClientInstance(httpSolrClient.getHttpClient())) {
+				AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrClient.getHttpClient();
 				httpClient.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), credentials);
 				httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Arrays.asList(authPolicy));
 			}

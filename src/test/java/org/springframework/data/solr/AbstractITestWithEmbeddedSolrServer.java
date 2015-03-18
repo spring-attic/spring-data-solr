@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CloseHook;
@@ -39,7 +40,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class AbstractITestWithEmbeddedSolrServer {
 
-	protected static EmbeddedSolrServer solrServer;
+	protected static SolrClient solrClient;
 	protected static String DEFAULT_BEAN_ID = "1";
 
 	@BeforeClass
@@ -69,19 +70,19 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 			});
 		}
 
-		solrServer = new EmbeddedSolrServer(coreContainer, "collection1");
+		solrClient = new EmbeddedSolrServer(coreContainer, "collection1");
 	}
 
 	public static void cleanDataInSolr() throws SolrServerException, IOException {
 
-		solrServer.deleteByQuery("*:*");
-		solrServer.commit();
+		solrClient.deleteByQuery("*:*");
+		solrClient.commit();
 	}
 
 	@AfterClass
 	public static void shutdown() throws SolrServerException, IOException {
 		cleanDataInSolr();
-		solrServer.shutdown();
+		solrClient.shutdown();
 	}
 
 	public ExampleSolrBean createDefaultExampleBean() {
