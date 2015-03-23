@@ -4,7 +4,7 @@ Christoph Strobl, Oliver Gierke, Mark Pollack, Thomas Risberg
 :revdate: {localdate}
 :toc:
 :toc-placement!:
-:spring-data-commons-docs: https://raw.githubusercontent.com/spring-projects/spring-data-commons/master/src/main/asciidoc
+:spring-data-commons-docs: ../../../../spring-data-commons/src/main/asciidoc
 
 (C) 2012-2015 The original author(s).
 
@@ -34,4 +34,5 @@ include::reference/misc.adoc[]
 include::{spring-data-commons-docs}/repository-namespace-reference.adoc[]
 include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[]
 include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[]
+include::{spring-data-commons-docs}/repository-query-return-types-reference.adoc[]
 :leveloffset: -1

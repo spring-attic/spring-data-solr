@@ -83,7 +83,7 @@ options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring")
 Pivot faceting (Decision Tree) are also supported, and can be queried using `@Facet` annotation as follows: 
 
 ====
-[soruce,java]
+[source,java]
 ----
 public interface {
 
