@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.hamcrest.collection.IsCollectionWithSize;
@@ -46,6 +47,7 @@ import org.springframework.data.solr.core.query.PartialUpdate;
 
 /**
  * @author Christoph Strobl
+ * @author Francisco Spaeth
  */
 public class MappingSolrConverterTests {
 
@@ -773,6 +775,71 @@ public class MappingSolrConverterTests {
 		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
 	}
 
+	/**
+	 * @see DATASOLR-235
+	 */
+	@Test
+	public void testRegularFieldBoosting() {
+
+		BeanWithBoost bean = new BeanWithBoost();
+		bean.boostedRegularField = "value";
+		bean.regularField = "value";
+
+		Map<String, SolrInputField> target = new HashMap<String, SolrInputField>();
+		converter.write(bean, target);
+
+		// configured boost
+		Assert.assertEquals(0.5f, target.get("boostedRegularField").getBoost(), 0);
+		// default boost
+		Assert.assertEquals(1, target.get("regularField").getBoost(), 0);
+
+	}
+
+	/**
+	 * @see DATASOLR-235
+	 */
+	@Test
+	public void testMapWildcardFieldBoosting() {
+
+		BeanWithBoost bean = new BeanWithBoost();
+
+		bean.boostedMapWildcardField = new HashMap<String, String>();
+		bean.boostedMapWildcardField.put("val1_boostedMapWildcardField", "value");
+		bean.boostedMapWildcardField.put("val2_boostedMapWildcardField", "value");
+
+		bean.mapWildcardField = new HashMap<String, String>();
+		bean.mapWildcardField.put("val1_mapWildcardField", "value");
+		bean.mapWildcardField.put("val2_mapWildcardField", "value");
+
+		Map<String, SolrInputField> target = new HashMap<String, SolrInputField>();
+		converter.write(bean, target);
+
+		// configured boost
+		Assert.assertEquals(0.5f, target.get("val1_boostedMapWildcardField").getBoost(), 0);
+		Assert.assertEquals(0.5f, target.get("val2_boostedMapWildcardField").getBoost(), 0);
+		// default boost
+		Assert.assertEquals(1, target.get("val1_mapWildcardField").getBoost(), 0);
+		Assert.assertEquals(1, target.get("val2_mapWildcardField").getBoost(), 0);
+
+	}
+	
+	/**
+	 * @see DATASOLR-235
+	 */
+	@Test
+	public void testDocumentBoosting() {
+		SolrInputDocument boostedDocument = new SolrInputDocument();
+		SolrInputDocument regularDocument = new SolrInputDocument();
+
+		converter.write(new BeanWithBoost(), boostedDocument);
+		converter.write(new BeanBase(), regularDocument);
+		
+		// configured boost
+		Assert.assertEquals(0.5f, boostedDocument.getDocumentBoost(), 0);
+		// default boost
+		Assert.assertEquals(1, regularDocument.getDocumentBoost(), 0);
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -934,6 +1001,19 @@ public class MappingSolrConverterTests {
 		public BeanWithArrayConstructor(String[] fields) {
 			this.fields = fields;
 		}
+
+	}
+
+	@org.springframework.data.solr.core.mapping.SolrDocument(boost = 0.5f)
+	public static class BeanWithBoost {
+
+		@Indexed(boost = 0.5f) String boostedRegularField;
+
+		@Indexed(name = "*_boostedMapWildcardField", boost = 0.5f) Map<String, String> boostedMapWildcardField;
+
+		@Indexed String regularField;
+
+		@Indexed(name = "*_mapWildcardField") Map<String, String> mapWildcardField;
 
 	}
 
