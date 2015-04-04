@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,7 +196,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
 
-			@SuppressWarnings({ "unchecked" })
 			@Override
 			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
 
@@ -210,34 +209,59 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 							+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
 				}
 
-				Object fieldValue = value;
+				Collection<SolrInputField> fields;
 				if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
-					TypeInformation<?> mapTypeInformation = persistentProperty.getTypeInformation().getMapValueType();
-					Class<?> rawMapType = mapTypeInformation.getType();
+					fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value);
+				} else {
+					fields = writeRegularPropertyToTarget(target, persistentProperty, value);
+				}
 
-					Map<?, ?> map = (Map<?, ?>) fieldValue;
-					for (Map.Entry<?, ?> entry : map.entrySet()) {
-						String mappedFieldName = entry.getKey().toString();
-						SolrInputField field = new SolrInputField(mappedFieldName);
-						if (entry.getValue() instanceof Iterable) {
-							for (Object o : (Iterable<?>) entry.getValue()) {
+				if (persistentProperty.isBoosted()) {
+					for (SolrInputField field : fields) {
+						field.setBoost(persistentProperty.getBoost());
+					}
+				}
+			}
+
+			@SuppressWarnings({ "unchecked" })
+			private Collection<SolrInputField> writeWildcardMapPropertyToTarget(final Map target,
+					SolrPersistentProperty persistentProperty, Map<?, ?> fieldValue) {
+
+				TypeInformation<?> mapTypeInformation = persistentProperty.getTypeInformation().getMapValueType();
+				Class<?> rawMapType = mapTypeInformation.getType();
+
+				Collection<SolrInputField> fields = new ArrayList<SolrInputField>();
+
+				for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
+
+					String mappedFieldName = entry.getKey().toString();
+					SolrInputField field = new SolrInputField(mappedFieldName);
+					if (entry.getValue() instanceof Iterable) {
+						for (Object o : (Iterable<?>) entry.getValue()) {
+							field.addValue(convertToSolrType(rawMapType, o), 1f);
+						}
+					} else {
+						if (rawMapType.isArray()) {
+							for (Object o : (Object[]) entry.getValue()) {
 								field.addValue(convertToSolrType(rawMapType, o), 1f);
 							}
 						} else {
-							if (rawMapType.isArray()) {
-								for (Object o : (Object[]) entry.getValue()) {
-									field.addValue(convertToSolrType(rawMapType, o), 1f);
-								}
-							} else {
-								field.addValue(convertToSolrType(rawMapType, entry.getValue()), 1f);
-							}
+							field.addValue(convertToSolrType(rawMapType, entry.getValue()), 1f);
 						}
-						target.put(mappedFieldName, field);
 					}
-					return;
+					target.put(mappedFieldName, field);
+					fields.add(field);
 				}
 
+				return fields;
+			}
+
+			@SuppressWarnings({ "unchecked" })
+			private Collection<SolrInputField> writeRegularPropertyToTarget(final Map target,
+					SolrPersistentProperty persistentProperty, Object fieldValue) {
+
 				SolrInputField field = new SolrInputField(persistentProperty.getFieldName());
+
 				if (persistentProperty.isCollectionLike()) {
 					Collection<?> collection = asCollection(fieldValue);
 					for (Object o : collection) {
@@ -248,13 +272,13 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				} else {
 					field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 				}
+
 				target.put(persistentProperty.getFieldName(), field);
 
-				if (persistentProperty.isBoosted()) {
-					field.setBoost(persistentProperty.getBoost());
-				}
+				return Collections.singleton(field);
 
 			}
+
 		});
 
 		if (entity.isBoosted() && target instanceof SolrInputDocument) {
