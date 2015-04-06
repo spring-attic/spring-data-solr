@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -294,7 +294,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		solrQuery.setFacetMinCount(facetOptions.getFacetMinCount());
 		solrQuery.setFacetLimit(facetOptions.getPageable().getPageSize());
 		if (facetOptions.getPageable().getPageNumber() > 0) {
-			solrQuery.set(FacetParams.FACET_OFFSET, facetOptions.getPageable().getOffset());
+			int offset = Math.max(0, facetOptions.getPageable().getOffset());
+			solrQuery.set(FacetParams.FACET_OFFSET, offset);
 		}
 		if (FacetOptions.FacetSort.INDEX.equals(facetOptions.getFacetSort())) {
 			solrQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
@@ -304,9 +305,6 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
-		if (facetOptions.getPageable().getPageNumber() > 0) {
-			solrQuery.set(FacetParams.FACET_OFFSET, facetOptions.getPageable().getOffset());
-		}
 		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
 		if (facetOptions.hasFacetPrefix()) {
 			solrQuery.setFacetPrefix(facetOptions.getFacetPrefix());

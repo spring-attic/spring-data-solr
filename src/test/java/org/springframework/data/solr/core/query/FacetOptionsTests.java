@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,7 +195,7 @@ public class FacetOptionsTests {
 		Assert.assertEquals(20, options.getFacetLimit());
 
 		options.setFacetLimit(-1);
-		Assert.assertEquals(1, options.getFacetLimit());
+		Assert.assertEquals(-1, options.getFacetLimit());
 	}
 
 	@Test

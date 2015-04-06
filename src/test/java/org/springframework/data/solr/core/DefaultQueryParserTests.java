@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1374,6 +1374,54 @@ public class DefaultQueryParserTests {
 		Criteria criteria = part2.connect().and(part1).notOperator();
 
 		Assert.assertEquals("-(-(x:foo OR y:bar) AND z:roo)", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	/**
+	 * @see DATASOLR-236
+	 */
+	@Test
+	public void testNegativeFacetLimitUsingFacetOptions_setFacetLimit() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"));
+		facetOptions.setFacetLimit(-1);
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		Assert.assertEquals(-1, solrQuery.getFacetLimit());
+		Assert.assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
+	}
+
+	/**
+	 * @see DATASOLR-236
+	 */
+	@Test
+	public void testNegativeFacetLimitUsingFacetOptions_setPageable() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"));
+		facetOptions.setPageable(new SolrPageRequest(0, -1));
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		Assert.assertEquals(-1, solrQuery.getFacetLimit());
+		Assert.assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
+	}
+
+	/**
+	 * @see DATASOLR-236
+	 */
+	@Test
+	public void testNegativeFacetOffsetAndFacetLimitUsingFacetOptions_setPageable() {
+		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
+		FacetOptions facetOptions = new FacetOptions(new SimpleField("facet_1"));
+		facetOptions.setPageable(new SolrPageRequest(1, -1));
+		query.setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		Assert.assertEquals(-1, solrQuery.getFacetLimit());
+		Assert.assertEquals(Integer.valueOf(0), solrQuery.getInt(FacetParams.FACET_OFFSET));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
