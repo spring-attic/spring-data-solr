@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -310,4 +311,23 @@ public class SimpleQueryTests {
 		Assert.assertThat(query.getOffset(), Is.is(2));
 		Assert.assertThat(query.getRows(), Is.is(20));
 	}
+
+	/**
+	 * @see DATASOLR-229
+	 */
+	@Test
+	public void testSetPageRequestMultipleTimes() {
+		SimpleQuery query = new SimpleQuery();
+
+		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2");
+
+		query.setPageRequest(alteredPage);
+		query.setPageRequest(alteredPage);
+
+		Iterator<Order> iterator = query.getPageRequest().getSort().iterator();
+		iterator.next().equals(new Order(Sort.Direction.DESC, "value_1"));
+		iterator.next().equals(new Order(Sort.Direction.DESC, "value_2"));
+		Assert.assertFalse(iterator.hasNext());
+	}
+
 }

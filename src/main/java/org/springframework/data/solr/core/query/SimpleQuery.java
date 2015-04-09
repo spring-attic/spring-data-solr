@@ -41,6 +41,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private Integer rows = null;
 
 	private Sort sort;
+	private Sort pageRequestSort;
 
 	private Operator defaultOperator;
 	private Integer timeAllowed;
@@ -171,13 +172,15 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public final <T extends Query> T setPageRequest(Pageable pageable) {
 		Assert.notNull(pageable);
 
 		this.offset = pageable.getOffset();
 		this.rows = pageable.getPageSize();
-		return this.addSort(pageable.getSort());
+		this.pageRequestSort = pageable.getSort();
+		return (T)this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -240,7 +243,11 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@Override
 	public Sort getSort() {
-		return this.sort;
+		if (sort == null) {
+			return pageRequestSort;
+		} else {
+			return this.sort.and(pageRequestSort);
+		}
 	}
 
 	@Override
@@ -253,7 +260,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		int rows = this.rows != null ? this.rows : DEFAULT_PAGE_SIZE;
 		int offset = this.offset != null ? this.offset : 0;
 
-		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, this.sort);
+		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, getSort());
 	}
 
 	@Override
