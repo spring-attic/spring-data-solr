@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import org.springframework.data.solr.core.query.Query.Operator;
 /**
  * @author Christoph Strobl
  * @author Rosty Kerei
+ * @author Francisco Spaeth
  */
 public class SimpleQueryTests {
 
@@ -319,14 +321,40 @@ public class SimpleQueryTests {
 	public void testSetPageRequestMultipleTimes() {
 		SimpleQuery query = new SimpleQuery();
 
-		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2");
+		query.addSort(new Sort(Sort.Direction.DESC, "value_1"));
+
+		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_2");
 
 		query.setPageRequest(alteredPage);
 		query.setPageRequest(alteredPage);
 
 		Iterator<Order> iterator = query.getPageRequest().getSort().iterator();
-		iterator.next().equals(new Order(Sort.Direction.DESC, "value_1"));
-		iterator.next().equals(new Order(Sort.Direction.DESC, "value_2"));
+		Assert.assertEquals(iterator.next(), new Order(Sort.Direction.DESC, "value_1"));
+		Assert.assertEquals(iterator.next(), new Order(Sort.Direction.DESC, "value_2"));
+		Assert.assertFalse(iterator.hasNext());
+	}
+
+	/**
+	 * @see DATASOLR-229
+	 */
+	@Test
+	@Ignore
+	public void testSetPageRequestMultipleTimesWithSortDefinition() {
+		SimpleQuery query = new SimpleQuery();
+
+		query.addSort(new Sort(Sort.Direction.DESC, "value_1"));
+		
+		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_2");
+
+		query.setPageRequest(alteredPage);
+		query.setPageRequest(alteredPage);
+
+		query.addSort(new Sort(Sort.Direction.DESC, "value_3"));
+
+		Iterator<Order> iterator = query.getPageRequest().getSort().iterator();
+		Assert.assertEquals(iterator.next(), new Order(Sort.Direction.DESC, "value_1"));
+		Assert.assertEquals(iterator.next(), new Order(Sort.Direction.DESC, "value_2"));
+		Assert.assertEquals(iterator.next(), new Order(Sort.Direction.DESC, "value_3"));
 		Assert.assertFalse(iterator.hasNext());
 	}
 
