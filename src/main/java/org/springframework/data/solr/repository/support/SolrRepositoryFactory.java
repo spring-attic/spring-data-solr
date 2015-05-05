@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.WeakHashMap;
 import org.apache.solr.client.solrj.SolrServer;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.core.NamedQueries;
+import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.query.QueryLookupStrategy;
@@ -96,7 +97,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Object getTargetRepository(RepositoryMetadata metadata) {
+	protected Object getTargetRepository(RepositoryInformation metadata) {
 
 		SolrOperations operations = this.solrOperations;
 		if (factory != null) {
@@ -110,8 +111,8 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 			operations = template;
 		}
 
-		SimpleSolrRepository repository = new SimpleSolrRepository(getEntityInformation(metadata.getDomainType()),
-				operations);
+		SimpleSolrRepository repository = getTargetRepositoryViaReflection(metadata,
+				getEntityInformation(metadata.getDomainType()), operations);
 		repository.setEntityClass(metadata.getDomainType());
 
 		this.templateHolder.add(metadata.getDomainType(), operations);

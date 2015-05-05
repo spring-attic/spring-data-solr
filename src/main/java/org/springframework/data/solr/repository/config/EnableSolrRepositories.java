@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.repository.config.DefaultRepositoryBaseClass;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.solr.core.SolrTemplate;
@@ -105,6 +106,14 @@ public @interface EnableSolrRepositories {
 	 * @return
 	 */
 	Class<?> repositoryFactoryBeanClass() default SolrRepositoryFactoryBean.class;
+
+	/**
+	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
+	 * 
+	 * @return
+	 * @since 1.5
+	 */
+	Class<?> repositoryBaseClass() default DefaultRepositoryBaseClass.class;
 
 	// Solr specific configuration
 
