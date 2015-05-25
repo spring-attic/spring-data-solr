@@ -15,14 +15,17 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import static org.hamcrest.core.IsEqual.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,12 +33,14 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
@@ -174,6 +179,26 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		assertEquals("apache solr", content.get(2).description);
 	}
 
+	/**
+	 * @see DATASOLR-202
+	 */
+	@Test
+	public void testDynamicMap() {
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("key_1", "value 1");
+		map.put("key_2", "value 2");
+		BeanWithDynamicMap bean = new BeanWithDynamicMap("bean-id", map);
+
+		solrTemplate.saveBean(bean);
+		solrTemplate.commit();
+
+		BeanWithDynamicMap loaded = solrTemplate.getById("bean-id", BeanWithDynamicMap.class);
+		Assert.assertEquals("value 1", loaded.values.get("key_1"));
+		Assert.assertEquals("value 2", loaded.values.get("key_2"));
+
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
 		solrTemplate.saveBean(o);
@@ -269,4 +294,18 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		}
 
 	}
+
+	private static class BeanWithDynamicMap {
+
+		@Id @Field private String id;
+
+		@Dynamic @Field("*_s") private Map<String, String> values;
+
+		public BeanWithDynamicMap(String id, Map<String, String> values) {
+			this.id = id;
+			this.values = values;
+		}
+
+	}
+
 }

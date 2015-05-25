@@ -429,6 +429,10 @@ public class Product {
   @Field("mappedField_*")
   private Map<String, List<String>> mappedFieldValues; 
   
+  @Dynamic
+  @Field("dynamicMappedField_*")
+  private Map<String, String> dynamicMappedFieldValues; 
+  
   @Field
   private GeoLocation location;
 				
@@ -454,7 +458,10 @@ Taking a look as the above `MappingSolrConverter` will do as follows:
 | `//not written to document`
 
 | mappedFieldValues
-| `<field name="mapentry[0].key">mapentry[0].value[0]</field>` `<field name="mapentry[0].key">mapentry[0].value[2]</field>` `<field name="mapentry[1].key">mapentry[1].value[0]</field>`
+| `<field name="mapentry[0].key">mapentry[0].value[0]</field>` `<field name="mapentry[0].key">mapentry[0].value[1]</field>` `<field name="mapentry[1].key">mapentry[1].value[0]</field>`
+
+| dynamicMappedFieldValues
+| `<field name="'dynamicMappedField_' + mapentry[0].key">mapentry[0].value[0]</field>` `<field name="'dynamicMappedField_' + mapentry[0].key">mapentry[0].value[1]</field>` `<field name="'dynamicMappedField_' + mapentry[1].key">mapentry[1].value[0]</field>`
 
 | location
 | `<field name="location">48.362893,14.534437</field>`
