@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,15 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @since 1.4
 	 */
 	boolean isScoreProperty();
+
+	/**
+	 * Returns whether the property should be handled as dynamic property.
+	 * 
+	 * @return
+	 * @see {@link org.springframework.data.solr.core.mapping.Dynamic}
+	 * @since 1.5
+	 */
+	boolean isDynamicProperty();
 
 	public enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 

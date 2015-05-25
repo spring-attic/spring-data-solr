@@ -285,4 +285,12 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return findAnnotation(Score.class) != null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isDynamicProperty()
+	 */
+	@Override
+	public boolean isDynamicProperty() {
+		return findAnnotation(Dynamic.class) != null;
+	}
+
 }

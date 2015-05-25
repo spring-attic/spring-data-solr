@@ -41,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.geo.Point;
+import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -650,6 +651,156 @@ public class MappingSolrConverterTests {
 	}
 
 	@Test
+	public void testWriteDynamicMappedProperty() {
+		Map<String, String> values = new HashMap<String, String>(2);
+		values.put("key_1", "value_1");
+		values.put("key_2", "value_2");
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.flatMapWithLeadingWildcard = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertEquals(values.get("key_1_flatMapWithLeadingWildcard"), solrDocument.getFieldValue("key_1"));
+		Assert.assertEquals(values.get("key_2_flatMapWithLeadingWildcard"), solrDocument.getFieldValue("key_2"));
+	}
+
+	@Test
+	public void testWriteDynamicMappedListProperty() {
+		Map<String, List<String>> values = new HashMap<String, List<String>>(2);
+		values.put("key_1", Arrays.asList("value_1"));
+		values.put("key_2", Arrays.asList("value_2", "value_3"));
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.multivaluedFieldMapWithLeadingWildcardList = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertEquals(values.get("key_1_multivaluedFieldMapWithLeadingWildcard"),
+				solrDocument.getFieldValues("key_1"));
+		Assert.assertEquals(values.get("key_2_multivaluedFieldMapWithLeadingWildcard"),
+				solrDocument.getFieldValues("key_2"));
+	}
+
+	@Test
+	public void testWriteDynamicMappedArrayProperty() {
+		Map<String, String[]> values = new HashMap<String, String[]>(2);
+		values.put("key_1", new String[] { "value_1" });
+		values.put("key_2", new String[] { "value_2", "value_3" });
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.multivaluedFieldMapWithLeadingWildcardArray = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertEquals(Arrays.asList(values.get("key_1")),
+				solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"));
+		Assert.assertEquals(Arrays.asList(values.get("key_2")),
+				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
+	}
+
+	@Test
+	public void testReadFieldWithLeadingWildcardToDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("1_flatMapWithLeadingWildcard", "leading-map-value-1");
+		document.addField("2_flatMapWithLeadingWildcard", "leading-map-value-2");
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.flatMapWithLeadingWildcard.size());
+		Assert.assertThat(target.flatMapWithLeadingWildcard,
+				Matchers.allOf(Matchers.hasEntry("1", "leading-map-value-1"), Matchers.hasEntry("2", "leading-map-value-2")));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadMultivaluedFieldWithLeadingWildcardToDynamicMapWithSingleEntry() {
+		SolrDocument document = new SolrDocument();
+		document.addField("1_flatMapWithLeadingWildcard", Arrays.asList("leading-map-value-1", "leading-map-value-2"));
+		converter.read(BeanWithDynamicMapsWildcards.class, document);
+	}
+
+	@Test
+	public void testReadFieldWithTrailingWildcardToDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("flatMapWithTrailingWildcard_1", "trailing-map-value-1");
+		document.addField("flatMapWithTrailingWildcard_2", "trailing-map-value-2");
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.flatMapWithTrailingWildcard.size());
+		Assert.assertThat(target.flatMapWithTrailingWildcard,
+				Matchers.allOf(Matchers.hasEntry("1", "trailing-map-value-1"), Matchers.hasEntry("2", "trailing-map-value-2")));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testReadMultivaluedFieldWithTrailingWildcardToDynamicMapWithSingleEntry() {
+		SolrDocument document = new SolrDocument();
+		document.addField("flatMapWithTrailingWildcard_1", Arrays.asList("trailing-map-value-1", "trailing-map-value-2"));
+		converter.read(BeanWithDynamicMapsWildcards.class, document);
+	}
+
+	@Test
+	public void testReadMultivaluedFieldWithLeadingWildcardToArrayInDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("1_multivaluedFieldMapWithLeadingWildcard", "leading-map-value-1");
+		document.addField("2_multivaluedFieldMapWithLeadingWildcard",
+				Arrays.asList("leading-map-value-2", "leading-map-value-3"));
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardArray.size());
+		Assert.assertThat(
+				target.multivaluedFieldMapWithLeadingWildcardArray,
+				Matchers.allOf(Matchers.hasEntry("1", new String[] { "leading-map-value-1" }),
+						Matchers.hasEntry("2", new String[] { "leading-map-value-2", "leading-map-value-3" })));
+	}
+
+	@Test
+	public void testReadMultivaluedFieldWithLeadingWildcardToListInDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("1_multivaluedFieldMapWithLeadingWildcard", "leading-map-value-1");
+		document.addField("2_multivaluedFieldMapWithLeadingWildcard",
+				Arrays.asList("leading-map-value-2", "leading-map-value-3"));
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardList.size());
+		Assert.assertThat(
+				target.multivaluedFieldMapWithLeadingWildcardList,
+				Matchers.allOf(Matchers.hasEntry("1", Arrays.asList("leading-map-value-1")),
+						Matchers.hasEntry("2", Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
+	}
+
+	@Test
+	public void testReadMultivaluedFieldWithTrailingWildcardToArrayInDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("multivaluedFieldMapWithTrailingWildcard_1", "trailing-map-value-1");
+		document.addField("multivaluedFieldMapWithTrailingWildcard_2",
+				Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
+		Assert.assertThat(
+				target.multivaluedFieldMapWithTrailingWildcardArray,
+				Matchers.allOf(Matchers.hasEntry("1", new String[] { "trailing-map-value-1" }),
+						Matchers.hasEntry("2", new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
+	}
+
+	@Test
+	public void testReadMultivaluedFieldWithTrailingWildcardToListInDynamicMap() {
+		SolrDocument document = new SolrDocument();
+		document.addField("multivaluedFieldMapWithTrailingWildcard_1", "trailing-map-value-1");
+		document.addField("multivaluedFieldMapWithTrailingWildcard_2",
+				Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
+
+		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
+		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
+		Assert.assertThat(
+				target.multivaluedFieldMapWithTrailingWildcardList,
+				Matchers.allOf(Matchers.hasEntry("1", Arrays.asList("trailing-map-value-1")),
+						Matchers.hasEntry("2", Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
+	}
+
+	@Test
 	public void testReadWithWithFieldAnnotationOnSetters() {
 		SolrDocument document = new SolrDocument();
 		document.addField("name", "value_1");
@@ -950,6 +1101,22 @@ public class MappingSolrConverterTests {
 		@Field("multivaluedFieldMapWithTrailingWildcard_*") Map<String, String[]> multivaluedFieldMapWithTrailingWildcardArray;
 
 		@Field("multivaluedFieldMapWithTrailingWildcard_*") Map<String, List<String>> multivaluedFieldMapWithTrailingWildcardList;
+
+	}
+
+	public class BeanWithDynamicMapsWildcards {
+
+		@Field("*_flatMapWithLeadingWildcard") @Dynamic Map<String, String> flatMapWithLeadingWildcard;
+
+		@Field("flatMapWithTrailingWildcard_*") @Dynamic Map<String, String> flatMapWithTrailingWildcard;
+
+		@Field("*_multivaluedFieldMapWithLeadingWildcard") @Dynamic Map<String, String[]> multivaluedFieldMapWithLeadingWildcardArray;
+
+		@Field("*_multivaluedFieldMapWithLeadingWildcard") @Dynamic Map<String, List<String>> multivaluedFieldMapWithLeadingWildcardList;
+
+		@Field("multivaluedFieldMapWithTrailingWildcard_*") @Dynamic Map<String, String[]> multivaluedFieldMapWithTrailingWildcardArray;
+
+		@Field("multivaluedFieldMapWithTrailingWildcard_*") @Dynamic Map<String, List<String>> multivaluedFieldMapWithTrailingWildcardList;
 
 	}
 
