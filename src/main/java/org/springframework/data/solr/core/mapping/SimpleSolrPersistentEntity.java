@@ -142,10 +142,15 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 		super.verify();
 		verifyScoreFieldUniqueness();
+		verifyDynamicPropertyMapping();
 	}
 
 	private void verifyScoreFieldUniqueness() {
 		doWithProperties(new ScoreFieldUniquenessHandler());
+	}
+
+	private void verifyDynamicPropertyMapping() {
+		doWithProperties(DynamicFieldMappingHandler.INSTANCE);
 	}
 
 	/**
@@ -178,6 +183,37 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 				}
 
 				scoreProperty = property;
+			}
+		}
+	}
+
+	/**
+	 * Handler to inspect {@link SolrPersistentProperty} instances and check usage of {@link Dynamic}.
+	 * 
+	 * @author Christoph Strobl
+	 * @since 1.5
+	 */
+	private static enum DynamicFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
+
+		INSTANCE;
+
+		private static final String DYNAMIC_PROPERTY_NOT_A_MAP = "Invalid mapping information for property '%s' with mapped name '%s'. @Dynamic can only be applied on Map based types!";
+		private static final String DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD = "Invalid mapping information for property '%s' with mapped name '%s'. Dynamic property needs to specify wildcard.";
+
+		@Override
+		public void doWithPersistentProperty(SolrPersistentProperty property) {
+
+			if (property.isDynamicProperty()) {
+
+				if (!property.isMap()) {
+					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(),
+							property.getFieldName()));
+				}
+
+				if (!property.containsWildcard()) {
+					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(),
+							property.getFieldName()));
+				}
 			}
 		}
 	}

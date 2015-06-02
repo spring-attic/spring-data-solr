@@ -171,6 +171,62 @@ public class SimpleSolrPersistentEntityTests {
 		entity.verify();
 	}
 
+	/**
+	 * @see DATASOLR-202
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonMapPropety() {
+
+		expectedException.expect(MappingException.class);
+		expectedException.expectMessage("'dynFieldName' with mapped name '*_s'");
+		expectedException.expectMessage("Map");
+
+		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+
+		SolrPersistentProperty property = mock(SolrPersistentProperty.class);
+
+		when(property.isDynamicProperty()).thenReturn(true);
+		when(property.isAnnotationPresent(eq(Dynamic.class))).thenReturn(true);
+		when(property.getName()).thenReturn("dynFieldName");
+		when(property.getFieldName()).thenReturn("*_s");
+		when(property.containsWildcard()).thenReturn(true);
+		when(property.isMap()).thenReturn(false);
+
+		entity.addPersistentProperty(property);
+
+		entity.verify();
+	}
+
+	/**
+	 * @see DATASOLR-202
+	 */
+	@SuppressWarnings("unchecked")
+	@Test
+	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonWildcardPropety() {
+
+		expectedException.expect(MappingException.class);
+		expectedException.expectMessage("'dynFieldName' with mapped name 'someRandomFieldName'");
+		expectedException.expectMessage("wildcard");
+
+		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+
+		SolrPersistentProperty property = mock(SolrPersistentProperty.class);
+
+		when(property.isDynamicProperty()).thenReturn(true);
+		when(property.isAnnotationPresent(eq(Dynamic.class))).thenReturn(true);
+		when(property.getName()).thenReturn("dynFieldName");
+		when(property.getFieldName()).thenReturn("someRandomFieldName");
+		when(property.containsWildcard()).thenReturn(false);
+		when(property.isMap()).thenReturn(true);
+
+		entity.addPersistentProperty(property);
+
+		entity.verify();
+	}
+
 	@SolrDocument(solrCoreName = CORE_NAME)
 	static class SearchableBeanWithSolrDocumentAnnotation {}
 

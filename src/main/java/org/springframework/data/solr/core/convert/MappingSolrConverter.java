@@ -80,7 +80,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			public String createName(String fieldName, String name) {
 				return removeWildcard(fieldName) + name;
 			}
-
 		},
 
 		TRAILING {
@@ -100,7 +99,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			public String createName(String fieldName, String name) {
 				return name + removeWildcard(fieldName);
 			}
-
 		};
 
 		public static WildcardPosition getAppropriate(String fieldName) {
@@ -120,7 +118,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 		public abstract String extractName(String fieldName, String dynamicFieldName);
 
 		public abstract String createName(String fieldName, String name);
-
 	}
 
 	private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
@@ -198,7 +195,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				if (o != null) {
 					accessor.setProperty(persistentProperty, o);
 				}
-
 			}
 		});
 
@@ -234,12 +230,10 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 			SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
 			target.putAll(convertedDocument);
-
 		} else {
 
 			SolrPersistentEntity<?> entity = mappingContext.getPersistentEntity(sourceClass);
 			write(source, target, entity);
-
 		}
 
 	}
@@ -279,7 +273,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 					}
 				}
 			}
-
 		});
 
 		if (entity.isBoosted() && target instanceof SolrInputDocument) {
@@ -313,7 +306,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				for (Object o : (Iterable<?>) value) {
 					field.addValue(convertToSolrType(rawMapType, o), 1f);
 				}
-
 			} else {
 
 				if (rawMapType.isArray()) {
@@ -373,6 +365,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 	}
 
 	private static Collection<?> asCollection(Object source) {
+
 		if (source instanceof Collection) {
 			return (Collection<?>) source;
 		}
@@ -454,24 +447,21 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 		}
 
 		private Object readWildcard(Map<String, ?> source, SolrPersistentProperty property, Object parent) {
+
 			WildcardPosition wildcardPosition = WildcardPosition.getAppropriate(property.getFieldName());
 
 			if (property.isMap()) {
-
 				return readWildcardMap(source, property, parent, wildcardPosition);
-
 			} else if (property.isCollectionLike()) {
-
 				return readWildcardCollectionLike(source, property, parent, wildcardPosition);
-
 			} else {
 
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
+
 					if (wildcardPosition.match(property.getFieldName(), potentialMatch.getKey())) {
 						return getValue(property, potentialMatch.getValue(), parent);
 					}
 				}
-
 			}
 
 			return null;
@@ -491,11 +481,14 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 				}
 
 				Object value = potentialMatch.getValue();
+
 				if (value instanceof Iterable) {
+
 					for (Object o : (Iterable<?>) value) {
 						values.add(readValue(property, o, parent, genericTargetType));
 					}
 				} else {
+
 					Object o = readValue(property, potentialMatch.getValue(), parent, genericTargetType);
 					if (o instanceof Collection) {
 						values.addAll((Collection<?>) o);
@@ -503,11 +496,9 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 						values.add(o);
 					}
 				}
-
 			}
 
 			return values.isEmpty() ? null : (property.isArray() ? values.toArray() : values);
-
 		}
 
 		private Object readWildcardMap(Map<String, ?> source, SolrPersistentProperty property, Object parent,
@@ -555,7 +546,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 						throw new IllegalArgumentException("Incompartible types found. Expected " + rawMapType + " for "
 								+ property.getName() + " with name " + property.getFieldName() + ", but found " + value.getClass());
 					}
-
 				} else {
 
 					if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, List.class)) {
@@ -563,16 +553,14 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 						Object read = readValue(property, value, parent, genericTargetType);
 						singletonArrayList.add(read);
 						values.put(key, (rawMapType.isArray() ? singletonArrayList.toArray() : singletonArrayList));
+
 					} else {
 						values.put(key, getValue(property, value, parent));
 					}
-
 				}
-
 			}
 
 			return values.isEmpty() ? null : values;
-
 		}
 
 		private Object readValue(SolrPersistentProperty property, Object o, Object parent, Class<?> target) {
@@ -614,7 +602,6 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			}
 
 			return type.getType().isArray() ? convertItemsToArrayOfType(type, items) : items;
-
 		}
 
 		private Object convertItemsToArrayOfType(TypeInformation<?> type, Collection<Object> items) {
@@ -626,7 +613,5 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			}
 			return newArray;
 		}
-
 	}
-
 }
