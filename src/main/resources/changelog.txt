@@ -1,6 +1,15 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.5.0.M1 (2015-06-02)
+----------------------------------------
+* DATASOLR-240 - Pick up commons-io version from spring-data-build.
+* DATASOLR-239 - Release 1.5 M1 (Gosling).
+* DATASOLR-238 - Adapt to changes in Spring Data Commons.
+* DATASOLR-236 - face.limit parameter may be set to negative value.
+* DATASOLR-235 - Boost is not being applied to Map fields.
+
+
 Changes in version 1.4.0.RELEASE (2015-03-23)
 ---------------------------------------------
 * DATASOLR-234 - Release 1.4 GA.
