@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -87,6 +88,7 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
+ * @author Sateesh ks
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -98,7 +100,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private ApplicationContext applicationContext;
 	private String solrCore;
 
-	@SuppressWarnings("serial") private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
+	@SuppressWarnings("serial") //
+	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
 		{
 			add(List.class.getName());
 			add(Collection.class.getName());
@@ -140,8 +143,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			SolrClient solrClient = this.getSolrClient();
 			return action.doInSolr(solrClient);
 		} catch (Exception e) {
-			DataAccessException resolved = getExceptionTranslator().translateExceptionIfPossible(
-					new RuntimeException(e.getMessage(), e));
+			DataAccessException resolved = getExceptionTranslator()
+					.translateExceptionIfPossible(new RuntimeException(e.getMessage(), e));
 			throw resolved == null ? new UncategorizedSolrException(e.getMessage(), e) : resolved;
 		}
 	}
@@ -290,11 +293,14 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return null;
 	}
 
-	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz) {
-
+	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
+		QueryResponse response = null;
 		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz);
-
+		if (null != requestMethod && requestMethod.value().equals(requestMethod.POST)) {
+			response = query(namedObjectsQuery, clazz, SolrRequest.METHOD.POST);
+		} else {
+			response = query(namedObjectsQuery, clazz);
+		}
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		return createSolrResultPage(query, clazz, response, objectsName);
@@ -305,7 +311,23 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		return doQueryForPage(query, clazz);
+		return doQueryForPage(query, clazz, null);
+	}
+
+	/**
+	 * Execute the query against solr and retrun result as {@link Page}
+	 *
+	 * @param query
+	 * @param clazz
+	 * @param method - HTTP METHOD get or post
+	 * @return
+	 */
+	@Override
+	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(clazz, "Target class must not be 'null'.");
+
+		return doQueryForPage(query, clazz, method);
 	}
 
 	@Override
@@ -313,7 +335,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		return doQueryForPage(query, clazz);
+		return doQueryForPage(query, clazz, null);
 	}
 
 	/*
@@ -325,7 +347,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		return doQueryForPage(query, clazz);
+		return doQueryForPage(query, clazz, null);
 	}
 
 	@Override
@@ -376,8 +398,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrResultPage<T> page = new SolrResultPage<T>(beans, pageRequest, numFound, maxScore);
 
 		page.setFieldStatsResults(ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(response.getFieldStatsInfo()));
-		page.setGroupResults(ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectsName, response, this,
-				clazz));
+		page.setGroupResults(
+				ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectsName, response, this, clazz));
 
 		return page;
 	}
@@ -410,11 +432,37 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return executeSolrQuery(solrQuery);
 	}
 
+	final QueryResponse query(SolrDataQuery query, Class<?> clazz, SolrRequest.METHOD method) {
+		Assert.notNull(query, "Query must not be 'null'");
+
+		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
+
+		if (clazz != null) {
+			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz);
+			if (persistedEntity.hasScoreProperty()) {
+				solrQuery.setIncludeScore(true);
+			}
+		}
+
+		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
+
+		return executeSolrQuery(solrQuery, method);
+	}
+
 	final QueryResponse executeSolrQuery(final SolrQuery solrQuery) {
 		return execute(new SolrCallback<QueryResponse>() {
 			@Override
 			public QueryResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.query(solrQuery);
+			}
+		});
+	}
+
+	final QueryResponse executeSolrQuery(final SolrQuery solrQuery, final SolrRequest.METHOD method) {
+		return execute(new SolrCallback<QueryResponse>() {
+			@Override
+			public QueryResponse doInSolr(SolrClient solrServer) throws SolrServerException, IOException {
+				return solrServer.query(solrQuery, method);
 			}
 		});
 	}
@@ -549,8 +597,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	public <T> List<T> convertQueryResponseToBeans(QueryResponse response, Class<T> targetClass) {
-		return response != null ? convertSolrDocumentListToBeans(response.getResults(), targetClass) : Collections
-				.<T> emptyList();
+		return response != null ? convertSolrDocumentListToBeans(response.getResults(), targetClass)
+				: Collections.<T> emptyList();
 	}
 
 	public <T> List<T> convertSolrDocumentListToBeans(SolrDocumentList documents, Class<T> targetClass) {
@@ -629,8 +677,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		if (this.applicationContext != null
 				&& this.applicationContext.getBeansOfType(PersistenceExceptionTranslator.class).isEmpty()) {
 			if (this.applicationContext instanceof ConfigurableApplicationContext) {
-				((ConfigurableApplicationContext) this.applicationContext).getBeanFactory().registerSingleton(
-						"solrExceptionTranslator", EXCEPTION_TRANSLATOR);
+				((ConfigurableApplicationContext) this.applicationContext).getBeanFactory()
+						.registerSingleton("solrExceptionTranslator", EXCEPTION_TRANSLATOR);
 			}
 		}
 	}
@@ -639,7 +687,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @since 1.3
 	 * @param mappingContext
 	 */
-	public void setMappingContext(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+	public void setMappingContext(
+			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
 		this.mappingContext = mappingContext;
 	}
 

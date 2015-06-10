@@ -179,6 +179,15 @@ public interface SolrOperations {
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
 
 	/**
+	 * Execute the query against solr and retrun result as {@link Page}
+	 *
+	 * @param query
+	 * @param clazz
+	 * @return
+	 */
+	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
 	 * 
 	 * @param query
