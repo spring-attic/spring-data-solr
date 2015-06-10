@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.data.solr.core;
-
-import java.io.Serializable;
-import java.util.Collection;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -36,6 +32,11 @@ import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
+
+import java.io.Serializable;
+import java.util.Collection;
+
+
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -176,7 +177,18 @@ public interface SolrOperations {
 	 * @param clazz
 	 * @return
 	 */
-	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
+	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz );
+
+
+
+    /**
+     * Execute the query against solr and retrun result as {@link Page}
+     *
+     * @param query
+     * @param clazz
+     * @return
+     */
+    <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
