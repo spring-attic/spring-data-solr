@@ -52,7 +52,7 @@ Derived queries and annotations for Solr specific functionallity allow easy inte
 * High level repository abstractions with multicore support
 * Annotations for Boost-, Facet- and Highlighting
 * Customizable type mappings and type conversions
-* Solr template supporing fluent query api
+* Solr template supporting fluent query api
 * Exception translation to Spring's portable Data Access exception hierarchy
 
 <span id="quick-start"></span>
@@ -64,7 +64,7 @@ Derived queries and annotations for Solr specific functionallity allow easy inte
 
 ````java
 @Configuration
-@EnableSolrRepositores(basePackages={"com.acme.solr"}, multicoreSupport=true)
+@EnableSolrRepositories(basePackages={"com.acme.solr"}, multicoreSupport=true)
 public class SolrContext {
 
   static final String SOLR_HOST = "solr.host";
