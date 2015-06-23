@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.mapping.context.MappingContextEvent;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
-import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.server.SolrServerFactory;
 import org.springframework.util.CollectionUtils;
 
@@ -31,8 +30,7 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  * @since 1.3
  */
-public class SolrPersistentEntitySchemaCreator implements
-		ApplicationListener<MappingContextEvent<SolrPersistentEntity<?>, SolrPersistentProperty>> {
+public class SolrPersistentEntitySchemaCreator implements ApplicationListener<MappingContextEvent<?, ?>> {
 
 	public enum Feature {
 		CREATE_MISSING_FIELDS;
@@ -75,12 +73,15 @@ public class SolrPersistentEntitySchemaCreator implements
 	}
 
 	@Override
-	public void onApplicationEvent(MappingContextEvent<SolrPersistentEntity<?>, SolrPersistentProperty> event) {
+	public void onApplicationEvent(MappingContextEvent<?, ?> event) {
 
 		if (features.contains(Feature.CREATE_MISSING_FIELDS)) {
-			SolrPersistentEntity<?> entity = event.getPersistentEntity();
-			if (!processed.contains(entity.getType())) {
-				process(entity);
+
+			if (event.getPersistentEntity() instanceof SolrPersistentEntity) {
+				SolrPersistentEntity<?> entity = (SolrPersistentEntity<?>) event.getPersistentEntity();
+				if (!processed.contains(entity.getType())) {
+					process(entity);
+				}
 			}
 		}
 	}
