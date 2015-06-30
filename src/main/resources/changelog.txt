@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.4.1.RELEASE (2015-06-30)
+---------------------------------------------
+* DATASOLR-247 - Release 1.4.1 (Fowler).
+* DATASOLR-243 - Ensure Spring Framework 4.2 compatibility.
+
+
 Changes in version 1.5.0.M1 (2015-06-02)
 ----------------------------------------
 * DATASOLR-240 - Pick up commons-io version from spring-data-build.
