@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
 public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
 
 	private FacetOptions facetOptions;
-    private FacetRangeOptions facetRangeOptions;
 
 	public SimpleFacetQuery() {
 		super();
@@ -58,26 +57,6 @@ public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
 	@Override
 	public boolean hasFacetOptions() {
 		return this.getFacetOptions() != null;
-	}
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public final <T extends SolrDataQuery> T setFacetRangeOptions(FacetRangeOptions facetRangeOptions) {
-        if (facetRangeOptions != null) {
-            Assert.isTrue(facetRangeOptions.hasFields(), "Cannot set facet range options having neither fields nor queries.");
-        }
-        this.facetRangeOptions = facetRangeOptions;
-        return (T) this;
-    }
-
-    @Override
-    public FacetRangeOptions getFacetRangeOptions() {
-        return this.facetRangeOptions;
-    }
-
-    @Override
-    public boolean hasFacetRangeOptions() {
-        return this.getFacetRangeOptions() != null;
 	}
 
 }

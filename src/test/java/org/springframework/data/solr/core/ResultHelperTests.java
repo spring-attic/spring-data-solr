@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
@@ -55,6 +56,7 @@ import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.PivotField;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
+import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
@@ -302,46 +304,46 @@ public class ResultHelperTests {
 		}
 	}
 
-    @Test
-    public void testConvertFacetRangeQueryResponseToFacetPageMapForNullQueryResponse() {
-        Map<Field, Page<FacetFieldEntry>> result =
-                ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(this.createFacetQuery("field_1"), null);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isEmpty());
-    }
+	@Test
+	public void testConvertFacetRangeQueryResponseToFacetPageMapForNullQueryResponse() {
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
+				this.createFacetQuery("field_1"), null);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConvertFacetRangeQueryResponseForNullQuery() {
-        ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(null, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testConvertFacetRangeQueryResponseForNullQuery() {
+		ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(null, null);
+	}
 
-    @Test
-    public void testConvertFacetRangeQueryResponseForQueryWithoutFacetOptions() {
-        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
-                new SimpleFacetQuery(new Criteria("field_1")), null);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isEmpty());
-    }
+	@Test
+	public void testConvertFacetRangeQueryResponseForQueryWithoutFacetOptions() {
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
+				new SimpleFacetQuery(new SimpleStringCriteria("*:*")), null);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
+	}
 
-    @Test
-    public void testConvertFacetRangeQueryResponseForQueryResultWithNullFacetFields() {
-        Mockito.when(response.getFacetFields()).thenReturn(null);
-        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
-                createFacetQuery("field_1"), response);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isEmpty());
-    }
+	@Test
+	public void testConvertFacetRangeQueryResponseForQueryResultWithNullFacetFields() {
+		Mockito.when(response.getFacetFields()).thenReturn(null);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
+				createFacetQuery("field_1"), response);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
+	}
 
-    @Test
-    public void testConvertFacetRangeQueryResponseForQueryResultWithEmptyFacetFields() {
-        Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
-        Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetRangeQueryResponseToFacetPageMap(
-                createFacetQuery("field_1"), response);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.isEmpty());
-    }
+	@Test
+	public void testConvertFacetRangeQueryResponseForQueryResultWithEmptyFacetFields() {
+		Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
+				createFacetQuery("field_1"), response);
+		Assert.assertNotNull(result);
+		Assert.assertTrue(result.isEmpty());
+	}
 
-    @Test
+	@Test
 	public void testConvertFacetQueryResponseToFacetPivotMap() {
 		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<List<org.apache.solr.client.solrj.response.PivotField>>();
 		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
@@ -722,6 +724,49 @@ public class ResultHelperTests {
 		Assert.assertEquals(Long.valueOf(121), facetValue2StatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(122), facetValue2StatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
+	}
+
+	@Test
+	public void testConvertEmptyFacetRangeQueryResponseToFacetPageMap() {
+		SimpleFacetQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"))
+				.setFacetOptions(new FacetOptions("field1"));
+		SimpleFacetQuery emptyQuery = new SimpleFacetQuery();
+
+		Assert.assertTrue(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(facetQuery, null).isEmpty());
+		Assert.assertTrue(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(emptyQuery, response).isEmpty());
+	}
+
+	@Test
+	public void testConvertFacetRangeQueryResponseToFacetPageMap() {
+		SimpleFacetQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"))
+				.setFacetOptions(new FacetOptions("field1"));
+
+		RangeFacet.Numeric rangeFacet1 = new RangeFacet.Numeric("name", 10, 20, 2, 4, 6, 8);
+		rangeFacet1.addCount("count1", 1);
+		rangeFacet1.addCount("count2", 2);
+
+		RangeFacet.Numeric rangeFacet2 = new RangeFacet.Numeric("", 10, 20, 2, 4, 6, 8);
+
+		@SuppressWarnings("rawtypes")
+		List<RangeFacet> value = new ArrayList<RangeFacet>();
+		value.add(rangeFacet1);
+		value.add(rangeFacet2);
+		Mockito.when(response.getFacetRanges()).thenReturn(value);
+
+		Map<Field, Page<FacetFieldEntry>> converted = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(facetQuery,
+				response);
+
+		Page<FacetFieldEntry> page = converted.get(new SimpleField("name"));
+
+		Assert.assertEquals(1, converted.size());
+		Assert.assertEquals(2, page.getTotalElements());
+
+		List<FacetFieldEntry> content = page.getContent();
+		Assert.assertEquals(2, content.size());
+		Assert.assertEquals(1, content.get(0).getValueCount());
+		Assert.assertEquals("count1", content.get(0).getValue());
+		Assert.assertEquals(2, content.get(1).getValueCount());
+		Assert.assertEquals("count2", content.get(1).getValue());
 	}
 
 	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,
