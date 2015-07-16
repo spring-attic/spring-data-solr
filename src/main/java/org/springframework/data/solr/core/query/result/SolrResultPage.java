@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(1);
 	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<PageKey, List<FacetPivotFieldEntry>>();
+	private Map<PageKey, Page<FacetFieldEntry>> facetRangeResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(
+			1);
 	private Page<FacetQueryEntry> facetQueryResult;
 	private List<HighlightEntry<T>> highlighted;
 	private Float maxScore;
@@ -63,15 +65,37 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		this.maxScore = maxScore;
 	}
 
+	private Page<FacetFieldEntry> getResultPage(String fieldname, Map<PageKey, Page<FacetFieldEntry>> resultPages) {
+		Page<FacetFieldEntry> page = resultPages.get(new StringPageKey(fieldname));
+		return page != null ? page : new PageImpl<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList());
+	}
+
 	@Override
 	public final Page<FacetFieldEntry> getFacetResultPage(String fieldname) {
-		Page<FacetFieldEntry> page = this.facetResultPages.get(new StringPageKey(fieldname));
-		return page != null ? page : new PageImpl<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList());
+		return getResultPage(fieldname, this.facetResultPages);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.FacetPage#getRangeFacetResultPage(java.lang.String)
+	 */
+	@Override
+	public final Page<FacetFieldEntry> getRangeFacetResultPage(String fieldname) {
+		return getResultPage(fieldname, this.facetRangeResultPages);
 	}
 
 	@Override
 	public final Page<FacetFieldEntry> getFacetResultPage(Field field) {
 		return this.getFacetResultPage(field.getName());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.FacetPage#getRangeFacetResultPage(org.springframework.data.solr.core.query.Field)
+	 */
+	@Override
+	public final Page<FacetFieldEntry> getRangeFacetResultPage(Field field) {
+		return getRangeFacetResultPage(field.getName());
 	}
 
 	@Override
@@ -88,6 +112,15 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		this.facetResultPages.put(new StringPageKey(field.getName()), page);
 	}
 
+	/**
+	 * @param page
+	 * @param field
+	 * @since 1.5
+	 */
+	public final void addRangeFacetResultPage(Page<FacetFieldEntry> page, Field field) {
+		this.facetRangeResultPages.put(new StringPageKey(field.getName()), page);
+	}
+
 	public final void addFacetPivotResultPage(List<FacetPivotFieldEntry> result, PivotField field) {
 		this.facetPivotResultPages.put(new StringPageKey(field.getName()), result);
 	}
@@ -95,6 +128,16 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	public void addAllFacetFieldResultPages(Map<Field, Page<FacetFieldEntry>> pageMap) {
 		for (Map.Entry<Field, Page<FacetFieldEntry>> entry : pageMap.entrySet()) {
 			addFacetResultPage(entry.getValue(), entry.getKey());
+		}
+	}
+
+	/**
+	 * @param pageMap
+	 * @since 1.5
+	 */
+	public void addAllRangeFacetFieldResultPages(Map<Field, Page<FacetFieldEntry>> pageMap) {
+		for (Map.Entry<Field, Page<FacetFieldEntry>> entry : pageMap.entrySet()) {
+			addRangeFacetResultPage(entry.getValue(), entry.getKey());
 		}
 	}
 

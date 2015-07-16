@@ -18,6 +18,7 @@ package org.springframework.data.solr.core;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -25,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
+import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
 import org.apache.solr.common.params.StatsParams;
@@ -46,7 +49,9 @@ import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.HighlightOptions;
@@ -60,6 +65,7 @@ import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
+import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.SolrPageRequest;
 import org.springframework.data.solr.core.query.StatsOptions;
 
@@ -1422,6 +1428,163 @@ public class DefaultQueryParserTests {
 
 		Assert.assertEquals(-1, solrQuery.getFacetLimit());
 		Assert.assertEquals(Integer.valueOf(0), solrQuery.getInt(FacetParams.FACET_OFFSET));
+	}
+
+	/**
+	 * @see DATASOLR-86
+	 */
+	@Test
+	public void testRegularNumericRangeFacets() {
+		FacetOptions facetOptions = new FacetOptions() //
+				.addFacetByRange( //
+						new FieldWithNumericRangeParameters("field1", 4, 8, 2) //
+								.setHardEnd(true) //
+								.setInclude(FacetRangeInclude.ALL) //
+								.setOther(FacetRangeOther.ALL))//
+				.addFacetByRange( //
+						new FieldWithNumericRangeParameters("field2", 0.5, 12.3, 0.7) //
+								.setHardEnd(false) //
+								.setInclude(FacetRangeInclude.OUTER) //
+								.setOther(FacetRangeOther.NONE)).addFacetByRange( //
+						new FieldWithNumericRangeParameters("field3", 4, 8, 2) //
+								.setHardEnd(true) //
+								.setOther(FacetRangeOther.ALL))//
+				.addFacetByRange( //
+						new FieldWithNumericRangeParameters("field4", 4, 8, 2) //
+								.setHardEnd(true) //
+								.setInclude(FacetRangeInclude.OUTER)) //
+				.addFacetByRange( //
+						new FieldWithNumericRangeParameters("field5", 4, 8, 2));//
+
+		SolrDataQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*")).setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery);
+
+		Assert.assertTrue(facetOptions.hasFacets());
+		Assert.assertArrayEquals(new String[] {}, solrQuery.getFacetFields());
+		Assert.assertArrayEquals(new String[] { "field1", "field2", "field3", "field4", "field5" },
+				solrQuery.getParams(FacetParams.FACET_RANGE));
+
+		Assert.assertEquals("4", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("2", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("8", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("0.5", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("0.7", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("12.3", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
+		Assert.assertNull(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("outer", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("none", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("4", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("2", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("8", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull("all", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("all", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("4", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("2", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("8", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("outer", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull("all", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("4", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("2", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("8", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
+		Assert.assertNull("true", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
+	}
+
+	/**
+	 * @see DATASOLR-86
+	 */
+	@Test
+	public void testRegularDateRangeFacets() {
+		FacetOptions facetOptions = new FacetOptions() //
+				.addFacetByRange( //
+						new FieldWithDateRangeParameters("field1", new Date(100), new Date(10000000L), "+1DAY") //
+								.setHardEnd(true) //
+								.setInclude(FacetRangeInclude.ALL) //
+								.setOther(FacetRangeOther.ALL))//
+				.addFacetByRange( //
+						new FieldWithDateRangeParameters("field2", new Date(100), new Date(10000000L), "+2DAY") //
+								.setHardEnd(false) //
+								.setInclude(FacetRangeInclude.OUTER) //
+								.setOther(FacetRangeOther.NONE)).addFacetByRange( //
+						new FieldWithDateRangeParameters("field3", new Date(100), new Date(10000000L), "+2DAY") //
+								.setHardEnd(true) //
+								.setOther(FacetRangeOther.NONE)).addFacetByRange( //
+						new FieldWithDateRangeParameters("field4", new Date(100), new Date(10000000L), "+2DAY") //
+								.setHardEnd(true) //
+								.setInclude(FacetRangeInclude.OUTER)).addFacetByRange( //
+						new FieldWithDateRangeParameters("field5", new Date(100), new Date(10000000L), "+2DAY"));
+
+		SolrDataQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*")).setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery);
+
+		Assert.assertTrue(facetOptions.hasFacets());
+		Assert.assertArrayEquals(new String[] {}, solrQuery.getFacetFields());
+		Assert.assertArrayEquals(new String[] { "field1", "field2", "field3", "field4", "field5" },
+				solrQuery.getParams(FacetParams.FACET_RANGE));
+
+		// RANGE is being used on SolrJ even for DATE fields
+		Assert.assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("+1DAY", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("+2DAY", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
+		Assert.assertNull(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("outer", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("none", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("+2DAY", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertEquals("none", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("+2DAY", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
+		Assert.assertEquals("true", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertEquals("outer", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER));
+
+		Assert.assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START));
+		Assert.assertEquals("+2DAY", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP));
+		Assert.assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
+		Assert.assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
+	}
+
+	/**
+	 * @see DATASOLR-86
+	 */
+	@Test
+	public void testNoRangeFacetAssignmentWhenNoRangeFacetsPresent() {
+		FacetOptions facetOptions = new FacetOptions("field1");
+		SolrDataQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*")).setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery);
+
+		Assert.assertTrue(facetOptions.hasFacets());
+		Assert.assertArrayEquals(new String[] { "field1" }, solrQuery.getFacetFields());
+		Assert.assertNull(solrQuery.getParams(FacetParams.FACET_DATE));
+		Assert.assertNull(solrQuery.getParams(FacetParams.FACET_RANGE));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {

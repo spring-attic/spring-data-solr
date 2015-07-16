@@ -78,6 +78,44 @@ options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring")
 ====
 
 [[solr.misc.faceting.pivot]]
+=== Range Faceting
+
+Range faceting queries may be done by configure required ranges on `FacetOptions`. A simple way to request ranges would be by creating a `FacetOption`, setting this options to a `FacetQuery` and query for a facet page through `SolrTemplate` as follows.  
+
+====
+[source,java]
+----
+FacetOptions facetOptions = new FacetOptions()
+  .addFacetByRange(
+     new FieldWithNumericRangeParameters("price", 5, 20, 5)
+       .setHardEnd(true)
+       .setInclude(FacetRangeInclude.ALL)
+  )
+  .addFacetByRange(
+    new FieldWithDateRangeParameters("release", new Date(1420070400), new Date(946684800), "+1YEAR")
+      .setInclude(FacetRangeInclude.ALL)
+      .setOther(FacetRangeOther.BEFORE)
+  );
+facetOptions.setFacetMinCount(0);
+
+Criteria criteria = new SimpleStringCriteria("*:*");
+SimpleFacetQuery facetQuery = new SimpleFacetQuery(criteria).setFacetOptions(facetOptions);
+FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage(facetQuery, ExampleSolrBean.class);
+----
+==== 
+
+There are two implementations of fields for facet range requests:
+
+* Numeric Facet Range - used to perform range faceting over numeric fields. To request such range faceting an instance of the class `org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters` can be used. Its instantiation requires a field name, a start value (number), end value (number) and gap (number);
+* Date Facet Range - used to perform range faceting over date fields. To request such range faceting an instance of the class `org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters` can be used. Its instantiation requires a field name, a start value (date), end value (date) and gap (string). The gap for this kind of field can be defined using `org.apache.solr.util.DateMathParser` (i.e. `+6MONTHS+3DAYS/DAY`, that would mean 6 months and 3 days in the future from now, rounded down to nearest day).
+
+Additionally the following properties can be configured for a field with range parameters (org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters):
+
+* Hard End - `setHardEnd(Boolean)`, defines if the last range should be abruptly ended even if the end doesn't satisfies: `(start - end) % gap = 0`;
+* Include - `setInclude(org.apache.solr.common.params.FacetParams.FacetRangeInclude)`, defines how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet requests;
+* Other - `setOther(org.apache.solr.common.params.FacetParams.FacetRangeOther)`, defines the additional (other) counts for the range facet, i.e. count of documents that are before start of the range facet, end of range facet or even between start and end. 
+
+[[solr.misc.faceting.pivot]]
 === Pivot Faceting
 
 Pivot faceting (Decision Tree) are also supported, and can be queried using `@Facet` annotation as follows: 

@@ -19,11 +19,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
+import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -46,7 +49,10 @@ public class FacetOptions {
 
 	private List<Field> facetOnFields = new ArrayList<Field>(1);
 	private List<PivotField> facetOnPivotFields = new ArrayList<PivotField>(0);
+	private List<FieldWithRangeParameters<?, ?, ?>> facetRangeOnFields = new ArrayList<FieldWithRangeParameters<?, ?, ?>>(
+			1);
 	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
+
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
 	private String facetPrefix;
@@ -117,6 +123,21 @@ public class FacetOptions {
 	 */
 	public final FacetOptions addFacetOnField(String fieldname) {
 		addFacetOnField(new SimpleField(fieldname));
+		return this;
+	}
+
+	/**
+	 * Append additional field for range faceting
+	 * 
+	 * @param field the {@link Field} to be appended to range faceting fields
+	 * @return this
+	 * @since 1.5
+	 */
+	public final FacetOptions addFacetByRange(FieldWithRangeParameters<?, ?, ?> field) {
+		Assert.notNull(field, "Cannot range facet on null field.");
+		Assert.hasText(field.getName(), "Cannot range facet on field with null/empty fieldname.");
+
+		this.facetRangeOnFields.add(field);
 		return this;
 	}
 
@@ -331,11 +352,15 @@ public class FacetOptions {
 		return !facetOnPivotFields.isEmpty();
 	}
 
+	private boolean hasFacetRages() {
+		return !facetRangeOnFields.isEmpty();
+	}
+
 	/**
 	 * @return true if any {@code facet.field} or {@code facet.query} set
 	 */
 	public boolean hasFacets() {
-		return hasFields() || hasFacetQueries() || hasPivotFields();
+		return hasFields() || hasFacetQueries() || hasPivotFields() || hasFacetRages();
 	}
 
 	/**
@@ -509,6 +534,198 @@ public class FacetOptions {
 		public FieldWithFacetParameters addFacetParameter(FacetParameter parameter) {
 			this.addQueryParameter(parameter);
 			return this;
+		}
+
+	}
+
+	/**
+	 * @return
+	 * @since 1.5
+	 */
+	@SuppressWarnings("unchecked")
+	public Collection<FieldWithRangeParameters<?, ?, ?>> getFieldsWithRangeParameters() {
+		return (Collection<FieldWithRangeParameters<?, ?, ?>>) CollectionUtils.select(this.facetRangeOnFields,
+				new IsFieldWithFacetRangeParametersInstancePredicate());
+	}
+
+	private static class IsFieldWithFacetRangeParametersInstancePredicate implements Predicate {
+
+		@Override
+		public boolean evaluate(Object object) {
+			return object instanceof FieldWithRangeParameters;
+		}
+	}
+
+	/**
+	 * Class representing common facet range parameters.
+	 * 
+	 * @author Francisco Spaeth
+	 * @param <T> range field implementation type
+	 * @param <R> type of range
+	 * @param <G> type of gap
+	 * @since 1.5
+	 */
+	public abstract static class FieldWithRangeParameters<T extends FieldWithRangeParameters<?, ?, ?>, R, G> extends
+			FieldWithQueryParameters<FacetParameter> {
+
+		/**
+		 * @param name field name
+		 * @param start range facet start
+		 * @param end range facet end
+		 * @param gap gap to be used for faceting between start and end
+		 */
+		public FieldWithRangeParameters(String name, R start, R end, G gap) {
+			super(name);
+
+			Assert.notNull(start, "date range facet start must not be null for field " + name);
+			Assert.notNull(end, "date range facet end must not be null for field " + name);
+			Assert.notNull(gap, "date range facet gap must not be null for field" + gap);
+
+			addFacetRangeParameter(FacetParams.FACET_RANGE, name);
+			addFacetRangeParameter(FacetParams.FACET_RANGE_START, start);
+			addFacetRangeParameter(FacetParams.FACET_RANGE_END, end);
+			addFacetRangeParameter(FacetParams.FACET_RANGE_GAP, gap);
+		}
+
+		/**
+		 * Defines if the last range should be abruptly ended even if the end doesn't satisfies: (start - end) % gap = 0.
+		 * 
+		 * @param rangeHardEnd whenever <code>false</code> will expect to have the last range with the same size as the
+		 *          other ranges entries for the query, otherwise (<code>true</code>), may present the last range smaller
+		 *          than the other range entries.
+		 * @return this
+		 * @see FacetParams#FACET_RANGE_HARD_END
+		 */
+		@SuppressWarnings("unchecked")
+		public T setHardEnd(Boolean rangeHardEnd) {
+			addFacetRangeParameter(FacetParams.FACET_RANGE_HARD_END, rangeHardEnd);
+			return (T) this;
+		}
+
+		/**
+		 * If the last range should be abruptly ended even if the end doesn't satisfies: (start - end) % gap = 0.
+		 * 
+		 * @return if hard end should be used, <code>null</code> will be returned if not set
+		 * @see FacetParams#FACET_RANGE_HARD_END
+		 */
+		public Boolean getHardEnd() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_HARD_END);
+		}
+
+		/**
+		 * Defines the additional (other) counts for the range facet, i.e. count of documents that are before start of the
+		 * range facet, end of range facet or even between start and end.
+		 * 
+		 * @param rangeOther which other counts shall be added to the facet result
+		 * @return this
+		 * @see FacetParams.FACET_RANGE_OTHER
+		 */
+		@SuppressWarnings("unchecked")
+		public T setOther(FacetParams.FacetRangeOther rangeOther) {
+			addFacetRangeParameter(FacetParams.FACET_RANGE_OTHER, rangeOther);
+			return (T) this;
+		}
+
+		/**
+		 * The definition of additional (other) counts for the range facet.
+		 * 
+		 * @return null which other counts shall be added to the facet result
+		 * @see FacetParams.FACET_RANGE_OTHER
+		 */
+		public FacetRangeOther getOther() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_OTHER);
+		}
+
+		/**
+		 * Defines how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet requests.
+		 * 
+		 * @param rangeInclude include option for range
+		 * @return this
+		 * @see FacetParams.FACET_RANGE_INCLUDE
+		 */
+		@SuppressWarnings("unchecked")
+		public T setInclude(FacetParams.FacetRangeInclude rangeInclude) {
+			addFacetRangeParameter(FacetParams.FACET_RANGE_INCLUDE, rangeInclude);
+			return (T) this;
+		}
+
+		/**
+		 * The definition of how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet
+		 * requests.
+		 * 
+		 * @return null if not set
+		 * @see FacetParams.FACET_RANGE_INCLUDE
+		 */
+		public FacetRangeInclude getInclude() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE);
+		}
+
+		@SuppressWarnings("unchecked")
+		protected T addFacetRangeParameter(String parameterName, Object value) {
+			if (value == null) {
+				removeQueryParameter(parameterName);
+			} else {
+				addQueryParameter(new FacetParameter(parameterName, value));
+			}
+			return (T) this;
+		}
+
+		/**
+		 * The size of the range to be added to the lower bound.
+		 * 
+		 * @return size of each range.
+		 * @see FacetParams#FACET_RANGE_GAP
+		 */
+		public G getGap() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_GAP);
+		}
+
+		/**
+		 * Start value configured for this field range facet.
+		 * 
+		 * @return upper bound for the ranges.
+		 * @see FacetParams#FACET_RANGE_START
+		 */
+		public R getStart() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_START);
+		}
+
+		/**
+		 * @return lower bound for the ranges.
+		 * @see FacetParams#FACET_RANGE_END
+		 */
+		public R getEnd() {
+			return getQueryParameterValue(FacetParams.FACET_RANGE_END);
+		}
+
+	}
+
+	/**
+	 * Class representing date field specific facet range parameters
+	 * 
+	 * @author Francisco Spaeth
+	 * @since 1.5
+	 */
+	public static class FieldWithDateRangeParameters extends
+			FieldWithRangeParameters<FieldWithDateRangeParameters, Date, String> {
+
+		public FieldWithDateRangeParameters(String name, Date start, Date end, String gap) {
+			super(name, start, end, gap);
+		}
+
+	}
+
+	/**
+	 * Class representing numeric field specific facet range parameters
+	 * 
+	 * @author Francisco Spaeth
+	 * @since 1.5
+	 */
+	public static class FieldWithNumericRangeParameters extends
+			FieldWithRangeParameters<FieldWithNumericRangeParameters, Number, Number> {
+
+		public FieldWithNumericRangeParameters(String name, Number start, Number end, Number gap) {
+			super(name, start, end, gap);
 		}
 
 	}

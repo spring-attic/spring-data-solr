@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static java.util.Calendar.*;
+import static org.apache.solr.common.params.FacetParams.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
+import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
@@ -50,9 +53,11 @@ import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.DistanceField;
 import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.FacetRangeOptions;
 import org.springframework.data.solr.core.query.Function;
 import org.springframework.data.solr.core.query.GroupOptions;
 import org.springframework.data.solr.core.query.HighlightOptions;
@@ -453,111 +458,91 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
-    @Test
-    public void testFacetQueryWithFacetRangeFields() {
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testFacetQueryWithDateFacetRangeField() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			final ExampleSolrBean exampleSolrBean = createExampleBeanWithId(Integer.toString(i));
+			exampleSolrBean.setLastModified(new GregorianCalendar(2013, Calendar.DECEMBER, (i + 10) / 2).getTime());
+			values.add(exampleSolrBean);
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
 
-        final FacetRangeOptions.FieldWithDateFacetRangeParameters lastModifiedField =
-                new FacetRangeOptions.FieldWithDateFacetRangeParameters("last_modified");
+		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters("last_modified",
+				new GregorianCalendar(2013, NOVEMBER, 30).getTime(), new GregorianCalendar(2014, JANUARY, 1).getTime(), "+1DAY") //
+				.setOther(FacetRangeOther.ALL) //
+				.setInclude(FacetRangeInclude.LOWER);
 
-        lastModifiedField.setStart(new GregorianCalendar(2013, Calendar.NOVEMBER, 30).getTime());
-        lastModifiedField.setEnd(new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime());
-        lastModifiedField.setGap("+1DAY");
+		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
+				.setFacetOptions(//
+				new FacetOptions() //
+						.addFacetByRange(lastModifiedField) //
+						.setFacetLimit(5) //
+						.setFacetMinCount(1) //
+						.setFacetSort(FacetSort.COUNT) //
+						.setPageable(new PageRequest(1, 10)));
 
-        final FacetRangeOptions.FieldWithNumericFacetRangeParameters popularityField =
-                new FacetRangeOptions.FieldWithNumericFacetRangeParameters("popularity");
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
-        popularityField.setSort(FacetOptions.FacetSort.INDEX);
-        popularityField.setStart(100);
-        popularityField.setEnd(800);
-        popularityField.setGap(200);
+		Assert.assertEquals(FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FACET_RANGE_INCLUDE));
 
-        FacetRangeOptions facetRangeOptions = new FacetRangeOptions(lastModifiedField, popularityField);
-        Assert.assertEquals(2, facetRangeOptions.getFacetRangeOnFields().size());
-    }
+		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
+			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+		}
 
-    @Test
-    public void testFacetQueryWithDateFacetRangeField() {
-        List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
-        for (int i = 0; i < 10; i++) {
-            final ExampleSolrBean exampleSolrBean=createExampleBeanWithId(Integer.toString(i));
-            exampleSolrBean.setLastModified(new GregorianCalendar(2013, Calendar.DECEMBER, (i + 10) / 2).getTime());
-            values.add(exampleSolrBean);
-        }
-        solrTemplate.saveBeans(values);
-        solrTemplate.commit();
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("last_modified"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertNotNull(entry.getValue());
+			Assert.assertEquals("last_modified", entry.getField().getName());
+			Assert.assertEquals(2l, entry.getValueCount());
+		}
+	}
 
-        final FacetRangeOptions.FieldWithDateFacetRangeParameters lastModifiedField =
-        new FacetRangeOptions.FieldWithDateFacetRangeParameters("last_modified");
-        lastModifiedField.setSort(FacetOptions.FacetSort.COUNT);
-        lastModifiedField.setStart(new GregorianCalendar(2013, Calendar.NOVEMBER, 30).getTime());
-        lastModifiedField.setEnd(new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime());
-        lastModifiedField.setGap("+1DAY");
-        lastModifiedField.setOther(FacetParams.FacetRangeOther.ALL);
-        lastModifiedField.setInclude(FacetParams.FacetRangeInclude.LOWER);
-        Assert.assertEquals(FacetParams.FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE));
-        lastModifiedField.setInclude(null);
-        Assert.assertEquals(null, lastModifiedField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE));
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testFacetQueryWithNumericFacetRangeField() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			final ExampleSolrBean exampleSolrBean = createExampleBeanWithId(Integer.toString(i));
+			exampleSolrBean.setPopularity((i + 1) * 100);
+			values.add(exampleSolrBean);
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
 
-        FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(lastModifiedField)
-                        .setFacetLimit(5)
-                        .setFacetMinCount(1)
-                        .setFacetSort(FacetOptions.FacetSort.COUNT).setPageable(new PageRequest(1,10)));
+		final FieldWithNumericRangeParameters popularityField = new FieldWithNumericRangeParameters("popularity", 100, 800,
+				200) //
+				.setOther(FacetParams.FacetRangeOther.ALL) //
+				.setHardEnd(false) //
+				.setInclude(FacetRangeInclude.LOWER);
 
-        FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
+				.setFacetOptions( //
+				new FacetOptions() //
+						.addFacetByRange(popularityField) //
+						.setFacetLimit(5) //
+						.setFacetMinCount(1) //
+						.setFacetSort(FacetSort.COUNT));
 
-        for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-            Assert.assertEquals(5, facetResultPage.getNumberOfElements());
-        }
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
-        Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("last_modified"));
-        for (FacetFieldEntry entry : facetPage) {
-            Assert.assertNotNull(entry.getValue());
-            Assert.assertEquals("last_modified", entry.getField().getName());
-            Assert.assertEquals(2l, entry.getValueCount());
-        }
-    }
+		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
+			Assert.assertEquals(4, facetResultPage.getNumberOfElements());
+		}
 
-    @Test
-    public void testFacetQueryWithNumericFacetRangeField() {
-        List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
-        for (int i = 0; i < 10; i++) {
-            final ExampleSolrBean exampleSolrBean=createExampleBeanWithId(Integer.toString(i));
-            exampleSolrBean.setPopularity((i+1)*100);
-            values.add(exampleSolrBean);
-        }
-        solrTemplate.saveBeans(values);
-        solrTemplate.commit();
-
-        final FacetRangeOptions.FieldWithNumericFacetRangeParameters popularityField =
-                new FacetRangeOptions.FieldWithNumericFacetRangeParameters("popularity");
-        popularityField.setSort(FacetOptions.FacetSort.INDEX);
-        popularityField.setStart(100);
-        popularityField.setEnd(800);
-        popularityField.setGap(200);
-        popularityField.setOther(FacetParams.FacetRangeOther.ALL);
-        popularityField.setHardEnd(false);
-        popularityField.setInclude(FacetParams.FacetRangeInclude.LOWER);
-
-        FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-                .setFacetRangeOptions(new FacetRangeOptions().addFacetRangeOnField(popularityField)
-                        .setFacetLimit(5)
-                        .setFacetMinCount(1)
-                        .setFacetSort(FacetOptions.FacetSort.COUNT));
-
-        FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
-
-        for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-            Assert.assertEquals(4, facetResultPage.getNumberOfElements());
-        }
-
-        Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("popularity"));
-        for (FacetFieldEntry entry : facetPage) {
-            Assert.assertNotNull(entry.getValue());
-            Assert.assertEquals("popularity", entry.getField().getName());
-            Assert.assertEquals(2l, entry.getValueCount());
-        }
-    }
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("popularity"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertNotNull(entry.getValue());
+			Assert.assertEquals("popularity", entry.getField().getName());
+			Assert.assertEquals(2l, entry.getValueCount());
+		}
+	}
 
 	@Test
 	public void testFacetQueryWithPivotFields() {
@@ -1101,6 +1086,46 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertTrue(distinctValues.contains(10.0F));
 		Assert.assertTrue(distinctValues.contains(20.0F));
 		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
+	}
+
+	/**
+	 * @see DATASOLR-86
+	 */
+	@Test
+	public void testRangeFacetRequest() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
+		bean1.setPrice(10);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
+		bean2.setPrice(20);
+		bean1.setPopularity(1);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
+		bean3.setPrice(20);
+		bean1.setPopularity(2);
+
+		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit();
+
+		FacetOptions facetOptions = new FacetOptions().addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20,
+				5).setInclude(FacetRangeInclude.ALL));
+		facetOptions.setFacetMinCount(0);
+
+		SimpleFacetQuery statsQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
+		statsQuery.setFacetOptions(facetOptions);
+		FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage(statsQuery, ExampleSolrBean.class);
+
+		Page<FacetFieldEntry> priceRangeResult = statResultPage.getRangeFacetResultPage("price");
+
+		List<FacetFieldEntry> content = priceRangeResult.getContent();
+
+		Assert.assertEquals(3, priceRangeResult.getTotalElements());
+		Assert.assertEquals(2, content.get(2).getValueCount());
+		Assert.assertEquals(1, content.get(1).getValueCount());
+
+		Assert.assertEquals("5.0", content.get(0).getValue());
+		Assert.assertEquals("10.0", content.get(1).getValue());
+		Assert.assertEquals("15.0", content.get(2).getValue());
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {

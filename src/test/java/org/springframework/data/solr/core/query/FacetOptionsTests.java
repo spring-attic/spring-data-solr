@@ -15,10 +15,22 @@
  */
 package org.springframework.data.solr.core.query;
 
+import static java.util.Arrays.*;
+
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
+import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
 
 /**
  * @author Christoph Strobl
@@ -249,6 +261,157 @@ public class FacetOptionsTests {
 		FacetOptions options = new FacetOptions();
 		options.setFacetPrefix(null);
 		Assert.assertFalse(options.hasFacetPrefix());
+	}
+
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testFacetQueryWithFacetRangeFields() {
+
+		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters( //
+				"last_modified", //
+				new GregorianCalendar(2013, Calendar.NOVEMBER, 30).getTime(), //
+				new GregorianCalendar(2014, Calendar.JANUARY, 1).getTime(), //
+				"+1DAY" //
+		);
+
+		final FieldWithNumericRangeParameters popularityField = new FieldWithNumericRangeParameters( //
+				"popularity", //
+				100, //
+				800, //
+				200 //
+		);
+
+		FacetOptions facetRangeOptions = new FacetOptions() //
+				.addFacetByRange(lastModifiedField) //
+				.addFacetByRange(popularityField);
+		Collection<?> fieldsWithRangeParameters = facetRangeOptions.getFieldsWithRangeParameters();
+		Assert.assertEquals(asList(lastModifiedField, popularityField), fieldsWithRangeParameters);
+	}
+
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testDateRangeFacetAccessors() {
+		Date start = new Date(100);
+		Date end = new Date(10000000);
+		String gap = "+1DAY";
+		boolean hardEnd = true;
+		FacetRangeInclude include = FacetRangeInclude.LOWER;
+		FacetRangeOther other = FacetRangeOther.BEFORE;
+
+		FieldWithDateRangeParameters dateRangeField = new FieldWithDateRangeParameters( //
+				"name", //
+				start, //
+				end, //
+				gap//
+		)//
+		.setHardEnd(hardEnd) //
+				.setInclude(include) //
+				.setOther(other);
+
+		Assert.assertEquals("name", dateRangeField.getName());
+		Assert.assertEquals(start, dateRangeField.getStart());
+		Assert.assertEquals(end, dateRangeField.getEnd());
+		Assert.assertEquals(gap, dateRangeField.getGap());
+		Assert.assertEquals(hardEnd, dateRangeField.getHardEnd());
+		Assert.assertEquals(include, dateRangeField.getInclude());
+		Assert.assertEquals(other, dateRangeField.getOther());
+
+		Assert.assertEquals(start, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_START).getValue());
+		Assert.assertEquals(end, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_END).getValue());
+		Assert.assertEquals(gap, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_GAP).getValue());
+		Assert.assertEquals(hardEnd, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_HARD_END).getValue());
+		Assert.assertEquals(include, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE).getValue());
+		Assert.assertEquals(other, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER).getValue());
+	}
+
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testNumericRangeFacetAccessors() {
+		int start = 100;
+		int end = 10000000;
+		int gap = 200;
+		boolean hardEnd = true;
+		FacetRangeInclude include = FacetRangeInclude.LOWER;
+		FacetRangeOther other = FacetRangeOther.BEFORE;
+
+		FieldWithNumericRangeParameters numRangeField = new FieldWithNumericRangeParameters( //
+				"name", //
+				start, //
+				end, //
+				gap //
+		)//
+		.setHardEnd(hardEnd) //
+				.setInclude(include) //
+				.setOther(other);
+
+		Assert.assertEquals("name", numRangeField.getName());
+		Assert.assertEquals(start, numRangeField.getStart());
+		Assert.assertEquals(end, numRangeField.getEnd());
+		Assert.assertEquals(gap, numRangeField.getGap());
+		Assert.assertEquals(hardEnd, numRangeField.getHardEnd());
+		Assert.assertEquals(include, numRangeField.getInclude());
+		Assert.assertEquals(other, numRangeField.getOther());
+
+		Assert.assertEquals(start, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_START).getValue());
+		Assert.assertEquals(end, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_END).getValue());
+		Assert.assertEquals(gap, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_GAP).getValue());
+		Assert.assertEquals(hardEnd, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_HARD_END).getValue());
+		Assert.assertEquals(include, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE).getValue());
+		Assert.assertEquals(other, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER).getValue());
+	}
+
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testDateRangeFacetAccessorsAfterNullSet() {
+		FieldWithDateRangeParameters dateRangeField = new FieldWithDateRangeParameters( //
+				"name", //
+				new Date(100), //
+				new Date(10000000), //
+				"+1DAY"//
+		)//
+		.setHardEnd(true) //
+				.setInclude(FacetRangeInclude.LOWER) //
+				.setOther(FacetRangeOther.BEFORE);
+
+		dateRangeField.setHardEnd(null);
+		dateRangeField.setInclude(null);
+		dateRangeField.setOther(null);
+
+		Assert.assertNull(dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull(dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull(dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER));
+	}
+
+	/**
+	 * @see DATSOLR-86
+	 */
+	@Test
+	public void testNumericRangeFacetAccessorsAfterNullSet() {
+		FieldWithNumericRangeParameters numRangeField = new FieldWithNumericRangeParameters( //
+				"name", //
+				100, //
+				10000000, //
+				200 //
+		)//
+		.setHardEnd(true) //
+				.setInclude(FacetRangeInclude.LOWER) //
+				.setOther(FacetRangeOther.BEFORE);
+
+		numRangeField.setHardEnd(null);
+		numRangeField.setInclude(null);
+		numRangeField.setOther(null);
+
+		Assert.assertNull(numRangeField.getQueryParameter(FacetParams.FACET_RANGE_HARD_END));
+		Assert.assertNull(numRangeField.getQueryParameter(FacetParams.FACET_RANGE_INCLUDE));
+		Assert.assertNull(numRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER));
 	}
 
 }
