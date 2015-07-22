@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@ package org.springframework.data.solr.repository.support;
 
 import java.io.Serializable;
 
-import org.springframework.data.mapping.model.BeanWrapper;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
+import org.springframework.data.repository.core.support.PersistentEntityInformation;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
-import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
 
 /**
@@ -29,8 +28,9 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
  * @param <T>
  * @param <ID>
  * @author Christoph Strobl
+ * @author Oliver Gierke
  */
-public class MappingSolrEntityInformation<T, ID extends Serializable> extends AbstractEntityInformation<T, ID>
+public class MappingSolrEntityInformation<T, ID extends Serializable> extends PersistentEntityInformation<T, ID>
 		implements SolrEntityInformation<T, ID> {
 
 	private final SolrPersistentEntity<T> entityMetadata;
@@ -41,26 +41,9 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
 	}
 
 	public MappingSolrEntityInformation(SolrPersistentEntity<T> entity, String solrCoreName) {
-		super(entity.getType());
+		super(entity);
 		this.entityMetadata = entity;
 		this.solrCoreName = solrCoreName;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public ID getId(T entity) {
-		SolrPersistentProperty id = entityMetadata.getIdProperty();
-		try {
-			return (ID) BeanWrapper.create(entity, null).getProperty(id);
-		} catch (Exception e) {
-			throw new IllegalStateException("ID could not be resolved", e);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Class<ID> getIdType() {
-		return (Class<ID>) entityMetadata.getIdProperty().getType();
 	}
 
 	@Override
@@ -71,5 +54,4 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Ab
 	public String getSolrCoreName() {
 		return solrCoreName != null ? solrCoreName : entityMetadata.getSolrCoreName();
 	}
-
 }
