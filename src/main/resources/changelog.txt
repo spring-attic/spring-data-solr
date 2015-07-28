@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.4.2.RELEASE (2015-07-28)
+---------------------------------------------
+* DATASOLR-251 - Release 1.4.2 (Fowler).
+
+
 Changes in version 1.2.6.RELEASE (2015-07-01)
 ---------------------------------------------
 * DATASOLR-245 - Release 1.2.6 (Dijkstra).
