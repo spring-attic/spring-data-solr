@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package org.springframework.data.solr.core;
+
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
@@ -44,6 +48,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.repository.util.ClassUtils;
 import org.springframework.data.solr.VersionUtil;
@@ -82,7 +87,8 @@ import org.springframework.util.StringUtils;
  */
 final class ResultHelper {
 
-	private ResultHelper() {}
+	private ResultHelper() {
+	}
 
 	static Map<String, List<TermsFieldEntry>> convertTermsQueryResponseToTermsMap(QueryResponse response) {
 		if (response == null || response.getTermsResponse() == null || response.getTermsResponse().getTermMap() == null) {
@@ -180,6 +186,45 @@ final class ResultHelper {
 		}
 
 		return pivotFieldEntries;
+	}
+
+	static Map<Field, Page<FacetFieldEntry>> convertFacetQueryResponseToRangeFacetPageMap(FacetQuery query,
+			QueryResponse response) {
+		Assert.notNull(query, "Cannot convert response for 'null', query");
+
+		if (!hasFacets(query, response) || isEmpty(response.getFacetRanges())) {
+			return Collections.emptyMap();
+		}
+		Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
+
+		Pageable pageable = query.getFacetOptions().getPageable();
+		int initalPageSize = pageable.getPageSize();
+		for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
+
+			if (rangeFacet == null || !StringUtils.hasText(rangeFacet.getName())) {
+				continue;
+			}
+
+			Field field = new SimpleField(rangeFacet.getName());
+
+			List<FacetFieldEntry> entries;
+			long total;
+			if (isNotEmpty(rangeFacet.getCounts())) {
+				entries = new ArrayList<FacetFieldEntry>(initalPageSize);
+				for (RangeFacet.Count count : rangeFacet.getCounts()) {
+					entries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
+				}
+				total = rangeFacet.getCounts().size();
+			} else {
+				entries = Collections.<FacetFieldEntry> emptyList();
+				total = 0;
+			}
+
+			facetResult.put(field, new SolrResultPage<FacetFieldEntry>(entries, pageable, total, null));
+
+		}
+
+		return facetResult;
 	}
 
 	static List<FacetQueryEntry> convertFacetQueryResponseToFacetQueryResult(FacetQuery query, QueryResponse response) {

@@ -34,7 +34,10 @@ import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.FilterQuery;
@@ -63,6 +66,7 @@ import org.springframework.util.CollectionUtils;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  * @author Francisco Spaeth
+ * @author Joachim Uhrlaß
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -110,6 +114,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			appendFacetingOnFields(solrQuery, (FacetQuery) query);
 			appendFacetingQueries(solrQuery, (FacetQuery) query);
 			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
+			appendRangeFacetingOnFields(solrQuery, (FacetQuery) query);
 		}
 	}
 
@@ -286,8 +291,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
 		FacetOptions facetOptions = query.getFacetOptions();
-		if (facetOptions == null
-				|| (!facetOptions.hasFields() && !facetOptions.hasFacetQueries() && !facetOptions.hasPivotFields())) {
+		if (facetOptions == null || !facetOptions.hasFacets()) {
 			return false;
 		}
 		solrQuery.setFacet(true);
@@ -323,6 +327,54 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		for (FacetParameter parameter : field) {
 			addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter);
 		}
+	}
+
+	private void appendRangeFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+		FacetOptions facetRangeOptions = query.getFacetOptions();
+
+		if (facetRangeOptions == null) {
+			return;
+		}
+
+		for (FieldWithRangeParameters<?, ?, ?> rangeField : facetRangeOptions.getFieldsWithRangeParameters()) {
+
+			if (rangeField instanceof FieldWithDateRangeParameters) {
+				appendFieldFacetingByDateRange(solrQuery, (FieldWithDateRangeParameters) rangeField);
+			} else if (rangeField instanceof FieldWithNumericRangeParameters) {
+				appendFieldFacetingByNumberRange(solrQuery, (FieldWithNumericRangeParameters) rangeField);
+			}
+
+			if (rangeField.getHardEnd() != null && rangeField.getHardEnd()) {
+				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_HARD_END, true);
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+			}
+			if (rangeField.getOther() != null) {
+				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_OTHER, rangeField.getOther());
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+			}
+
+			if (rangeField.getInclude() != null) {
+				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_INCLUDE, rangeField.getInclude());
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+			}
+
+		}
+	}
+
+	private void appendFieldFacetingByNumberRange(SolrQuery solrQuery, FieldWithNumericRangeParameters field) {
+		solrQuery.addNumericRangeFacet( //
+				field.getName(), //
+				field.getStart(), //
+				field.getEnd(), //
+				field.getGap());
+	}
+
+	private void appendFieldFacetingByDateRange(SolrQuery solrQuery, FieldWithDateRangeParameters field) {
+		solrQuery.addDateRangeFacet( //
+				field.getName(), //
+				field.getStart(), //
+				field.getEnd(), //
+				field.getGap());
 	}
 
 	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query) {

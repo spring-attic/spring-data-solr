@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,22 @@ public interface FacetPage<T> extends Page<T> {
 	 * @return
 	 */
 	Page<FacetFieldEntry> getFacetResultPage(Field field);
+
+	/**
+	 * Get Range Facet results for field with given name
+	 * 
+	 * @param fieldname field name (must not be null)
+	 * @return facet range for the field name provided
+	 */
+	Page<FacetFieldEntry> getRangeFacetResultPage(String fieldname);
+
+	/**
+	 * Get Range Facet results for a given field with given name
+	 * 
+	 * @param field
+	 * @return facet range page for the field provided
+	 */
+	Page<FacetFieldEntry> getRangeFacetResultPage(Field field);
 
 	/**
 	 * Get Facet Pivot results for fields with given fields.
