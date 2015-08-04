@@ -1,6 +1,16 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.5.0.RC1 (2015-08-04)
+-----------------------------------------
+* DATASOLR-255 - Release 1.5 RC1 (Gosling).
+* DATASOLR-253 - Upgrade to Solr 4.10.4.
+* DATASOLR-250 - Switch from BeanWrapper to PersistentPropertyAccessor.
+* DATASOLR-243 - Ensure Spring Framework 4.2 compatibility.
+* DATASOLR-202 - Auto prefix/suffix map values.
+* DATASOLR-86 - Add Support for Range Facets.
+
+
 Changes in version 1.4.2.RELEASE (2015-07-28)
 ---------------------------------------------
 * DATASOLR-251 - Release 1.4.2 (Fowler).
