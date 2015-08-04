@@ -654,7 +654,7 @@ public class MappingSolrConverterTests {
 	 * @see DATASOLR-202
 	 */
 	@Test
-	public void testWriteDynamicMappedProperty() {
+	public void testWriteDynamicMappedPropertyWithLeadingWildcard() {
 
 		Map<String, String> values = new HashMap<String, String>(2);
 		values.put("key_1", "value_1");
@@ -666,15 +666,17 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(values.get("key_1_flatMapWithLeadingWildcard"), solrDocument.getFieldValue("key_1"));
-		Assert.assertEquals(values.get("key_2_flatMapWithLeadingWildcard"), solrDocument.getFieldValue("key_2"));
+		Assert.assertNotNull(solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard"));
+		Assert.assertNotNull(solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard"));
+		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard"));
+		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard"));
 	}
 
 	/**
 	 * @see DATASOLR-202
 	 */
 	@Test
-	public void testWriteDynamicMappedListProperty() {
+	public void testWriteDynamicMappedListPropertyWithLeadingWildcard() {
 
 		Map<String, List<String>> values = new HashMap<String, List<String>>(2);
 		values.put("key_1", Arrays.asList("value_1"));
@@ -686,17 +688,19 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(values.get("key_1_multivaluedFieldMapWithLeadingWildcard"),
-				solrDocument.getFieldValues("key_1"));
-		Assert.assertEquals(values.get("key_2_multivaluedFieldMapWithLeadingWildcard"),
-				solrDocument.getFieldValues("key_2"));
+		Assert.assertNotNull(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard"));
+		Assert.assertNotNull(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard"));
+		Assert.assertEquals(values.get("key_1"),
+				solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"));
+		Assert.assertEquals(values.get("key_2"),
+				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
 	}
 
 	/**
 	 * @see DATASOLR-202
 	 */
 	@Test
-	public void testWriteDynamicMappedArrayProperty() {
+	public void testWriteDynamicMappedArrayPropertyWithLeadingWildcard() {
 
 		Map<String, String[]> values = new HashMap<String, String[]>(2);
 		values.put("key_1", new String[] { "value_1" });
@@ -708,10 +712,82 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
+		Assert.assertNotNull(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard"));
+		Assert.assertNotNull(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard"));
 		Assert.assertEquals(Arrays.asList(values.get("key_1")),
 				solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"));
 		Assert.assertEquals(Arrays.asList(values.get("key_2")),
 				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
+	}
+
+	/**
+	 * @see DATASOLR-202
+	 */
+	@Test
+	public void testWriteDynamicMappedPropertyWithTrailingWildcard() {
+
+		Map<String, String> values = new HashMap<String, String>(2);
+		values.put("key_1", "value_1");
+		values.put("key_2", "value_2");
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.flatMapWithTrailingWildcard = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertNotNull(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1"));
+		Assert.assertNotNull(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2"));
+		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1"));
+		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2"));
+	}
+
+	/**
+	 * @see DATASOLR-202
+	 */
+	@Test
+	public void testWriteDynamicMappedListPropertyWithTrailingWildcard() {
+
+		Map<String, List<String>> values = new HashMap<String, List<String>>(2);
+		values.put("key_1", Arrays.asList("value_1"));
+		values.put("key_2", Arrays.asList("value_2", "value_3"));
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.multivaluedFieldMapWithTrailingWildcardList = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1"));
+		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2"));
+		Assert.assertEquals(values.get("key_1"),
+				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"));
+		Assert.assertEquals(values.get("key_2"),
+				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
+	}
+
+	/**
+	 * @see DATASOLR-202
+	 */
+	@Test
+	public void testWriteDynamicMappedArrayPropertyWithTrailingWildcard() {
+
+		Map<String, String[]> values = new HashMap<String, String[]>(2);
+		values.put("key_1", new String[] { "value_1" });
+		values.put("key_2", new String[] { "value_2", "value_3" });
+
+		BeanWithDynamicMapsWildcards bean = new BeanWithDynamicMapsWildcards();
+		bean.multivaluedFieldMapWithTrailingWildcardArray = values;
+
+		SolrInputDocument solrDocument = new SolrInputDocument();
+		converter.write(bean, solrDocument);
+
+		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1"));
+		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2"));
+		Assert.assertEquals(Arrays.asList(values.get("key_1")),
+				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"));
+		Assert.assertEquals(Arrays.asList(values.get("key_2")),
+				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
 	}
 
 	/**

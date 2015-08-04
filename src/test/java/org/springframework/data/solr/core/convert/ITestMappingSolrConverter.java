@@ -199,6 +199,26 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	}
 
+	/**
+	 * @see DATASOLR-202
+	 */
+	@Test
+	public void testDynamicMapList() {
+
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		map.put("key_1", Arrays.asList("value 11", "value 12"));
+		map.put("key_2", Arrays.asList("value 21", "value 22"));
+		BeanWithDynamicMapList bean = new BeanWithDynamicMapList("bean-id", map);
+
+		solrTemplate.saveBean(bean);
+		solrTemplate.commit();
+
+		BeanWithDynamicMapList loaded = solrTemplate.getById("bean-id", BeanWithDynamicMapList.class);
+		Assert.assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
+		Assert.assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
+
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
 		solrTemplate.saveBean(o);
@@ -302,6 +322,19 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		@Dynamic @Field("*_s") private Map<String, String> values;
 
 		public BeanWithDynamicMap(String id, Map<String, String> values) {
+			this.id = id;
+			this.values = values;
+		}
+
+	}
+
+	private static class BeanWithDynamicMapList {
+
+		@Id @Field private String id;
+
+		@Dynamic @Field("ss_*") private Map<String, List<String>> values;
+
+		public BeanWithDynamicMapList(String id, Map<String, List<String>> values) {
 			this.id = id;
 			this.values = values;
 		}
