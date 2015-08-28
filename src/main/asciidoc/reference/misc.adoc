@@ -77,7 +77,7 @@ options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring")
 ----
 ====
 
-[[solr.misc.faceting.pivot]]
+[[solr.misc.faceting.range]]
 === Range Faceting
 
 Range faceting queries may be done by configure required ranges on `FacetOptions`. A simple way to request ranges would be by creating a `FacetOption`, setting this options to a `FacetQuery` and query for a facet page through `SolrTemplate` as follows.  

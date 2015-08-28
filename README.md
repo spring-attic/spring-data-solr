@@ -245,7 +245,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.2.0.RELEASE</version>
+  <version>${version}.RELEASE</version>
 </dependency>  
 ```
 
@@ -255,7 +255,7 @@ Maven
 <dependency>
   <groupId>org.springframework.data</groupId>
   <artifactId>spring-data-solr</artifactId>
-  <version>1.3.0.BUILD-SNAPSHOT</version>
+  <version>${version}.BUILD-SNAPSHOT</version>
 </dependency> 
 
 <repository>

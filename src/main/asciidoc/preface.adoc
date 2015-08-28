@@ -8,15 +8,16 @@ The Spring Data Solr project applies core Spring concepts to the development of 
 
 * Version Control - https://github.com/spring-projects/spring-data-solr
 * Bugtacker - https://jira.spring.io/browse/DATASOLR
-* Release repository - https://repo.springsource.org/libs-release
-* Milestone repository - https://repo.springsource.org/libs-milestone
-* Snapshot repository - https://repo.springsource.org/libs-snapshot
+* Release repository - https://repo.spring.io/libs-release
+* Milestone repository - https://repo.spring.io/libs-milestone
+* Snapshot repository - https://repo.spring.io/libs-snapshot
 
 [[requirements]]
 [preface]
 == Requirements
 
-Requires http://lucene.apache.org/solr/[Apache Solr] 3.6 and above or optional dependency
+Requires http://lucene.apache.org/solr/[Apache Solr] 3.6. Preferably the latest 4.x version.
+The client library of SolrJ 5.x is currently, due to breaking changes in the API, not supported.
 
 [source,xml]
 ----

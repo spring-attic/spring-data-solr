@@ -1,11 +1,17 @@
 [[new-features]]
 = New & Noteworthy
 
+[[new-features.1-5-0]]
+== What's new in Spring Data Solr 1.5
+
+* Support for <<solr.misc.faceting.range>>.
+* Automatically prefix/suffix map keys via `@Dynamic` (See: _dynamicMappedFieldValues_ in <<solr.mapping.mappingSolr>>).
+
 [[new-features.1-4-0]]
 == What's new in Spring Data Solr 1.4
 
 * Upgraded to recent Solr 4.10.x distribution (requires Java 7).
 * Add support for <<solr.misc.realtimeGet>>.
 * Get <<solr.misc.fieldStats>> (max, min, sum, count, mean, missing, stddev and distinct calculations).
-* Use `@Score` to automatically add projection on document score (See <<solr.misc.specialFields>>).
+* Use `@Score` to automatically add projection on document score (See: <<solr.misc.specialFields>>).
 
