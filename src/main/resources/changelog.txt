@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.5.0.RELEASE (2015-09-01)
+---------------------------------------------
+* DATASOLR-257 - Release 1.5 GA (Gosling).
+* DATASOLR-256 - Update reference documentation.
+
+
 Changes in version 1.5.0.RC1 (2015-08-04)
 -----------------------------------------
 * DATASOLR-255 - Release 1.5 RC1 (Gosling).
