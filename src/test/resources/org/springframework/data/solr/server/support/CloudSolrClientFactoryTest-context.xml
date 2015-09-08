@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:solr="http://www.springframework.org/schema/data/solr"
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
+
+	<!-- Configures CloudSolrClient using a factory bean -->
+	<bean id="cloudSolrClientFactory"
+		class="org.springframework.data.solr.server.support.CloudSolrClientFactoryBean">
+		<property name="zkHost" value="127.0.0.1:2181,127.0.0.1:2182" />
+		<property name="collection" value="jet2pilot" />
+		<property name="httpConnectTimeout" value="1500" />
+		<property name="httpSoTimeout" value="1800" />
+		<property name="zkConnectTimeout" value="1300" />
+		<property name="zkClientTimeout" value="1400" />
+	</bean>
+
+	<!-- Configures Solr template -->
+	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
+		<constructor-arg index="0" ref="cloudSolrClientFactory" />
+	</bean>
+
+</beans>
