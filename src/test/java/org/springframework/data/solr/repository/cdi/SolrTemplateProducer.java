@@ -15,13 +15,6 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
-import java.io.IOException;
-
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.SimpleQuery;
@@ -29,6 +22,13 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.server.support.EmbeddedSolrServerFactory;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
+
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.IOException;
 
 /**
  * @author Christoph Strobl
@@ -39,8 +39,7 @@ class SolrTemplateProducer {
 	@Produces
 	public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
 
-		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(ResourceUtils.getURL(
-				"classpath:org/springframework/data/solr").getPath());
+		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(ResourceUtils.getFile("classpath:org/springframework/data/solr").getPath());
 
 		SolrTemplate template = new SolrTemplate(factory);
 		template.afterPropertiesSet();

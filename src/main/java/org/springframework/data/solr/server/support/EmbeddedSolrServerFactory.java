@@ -15,16 +15,6 @@
  */
 package org.springframework.data.solr.server.support;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -37,6 +27,16 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The EmbeddedSolrServerFactory allows hosting of an SolrServer instance in embedded mode. Configuration files are
@@ -100,7 +100,7 @@ public class EmbeddedSolrServerFactory implements SolrServerFactory, DisposableB
 		String solrHomeDirectory = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
 		if (StringUtils.isBlank(solrHomeDirectory)) {
-			solrHomeDirectory = ResourceUtils.getURL(path).getPath();
+			solrHomeDirectory = ResourceUtils.getFile(path).getPath();
 		}
 
 		solrHomeDirectory = URLDecoder.decode(solrHomeDirectory, "utf-8");

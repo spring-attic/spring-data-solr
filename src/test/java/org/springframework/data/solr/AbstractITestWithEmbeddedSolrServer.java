@@ -15,13 +15,6 @@
  */
 package org.springframework.data.solr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -33,6 +26,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Christoph Strobl
@@ -46,7 +46,7 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException,
 			InterruptedException {
 
-		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
+		String solrHome = ResourceUtils.getFile("classpath:org/springframework/data/solr").getPath();
 		CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome, new File(solrHome + "/solr.xml"));
 
 		for (SolrCore core : coreContainer.getCores()) {
