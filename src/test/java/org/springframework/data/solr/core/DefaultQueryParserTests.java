@@ -828,6 +828,15 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
+	public void testWithJoinTwoCoresOperator() {
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
+		query.setJoin(Join.from("inner_id").fromIndex("sourceIndex").to("outer_id"));
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+		Assert.assertEquals("{!join from=inner_id to=outer_id fromIndex=sourceIndex}field_1:value_1", solrQuery.getQuery());
+	}
+
+	@Test
 	public void testConstructSolrQueryWithEmptyHighlightOption() {
 		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setHighlightOptions(new HighlightOptions());

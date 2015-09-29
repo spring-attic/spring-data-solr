@@ -294,7 +294,10 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (query == null || query.getJoin() == null) {
 			return queryString;
 		}
-		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName() + "}"
+
+		String fromIndex = query.getJoin().getFromIndex() != null ? " fromIndex=" + query.getJoin().getFromIndex() : "";
+		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName()
+				+ fromIndex + "}"
 				+ queryString;
 	}
 
