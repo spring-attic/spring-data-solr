@@ -19,13 +19,14 @@ import org.springframework.util.Assert;
 
 /**
  * Abstraction for solr {@code !join} operation on documents within a single collection.
- * 
+ *
  * @author Christoph Strobl
  */
 public class Join {
 
 	private Field from;
 	private Field to;
+	private String fromIndex;
 
 	private Join() {
 		// hide default constructor
@@ -34,6 +35,12 @@ public class Join {
 	public Join(Field from, Field to) {
 		this.from = from;
 		this.to = to;
+	}
+
+	public Join(Field from, Field to, String fromIndex) {
+		this.from = from;
+		this.to = to;
+		this.fromIndex = fromIndex;
 	}
 
 	/**
@@ -64,6 +71,10 @@ public class Join {
 	 */
 	public Field getTo() {
 		return to;
+	}
+
+	public String getFromIndex() {
+		return fromIndex;
 	}
 
 	public static class Builder {
@@ -98,6 +109,12 @@ public class Join {
 		 */
 		public Join to(String fieldname) {
 			return to(new SimpleField(fieldname));
+		}
+
+
+		public Builder fromIndex(String fromIndex) {
+			join.fromIndex = fromIndex;
+			return this;
 		}
 
 	}
