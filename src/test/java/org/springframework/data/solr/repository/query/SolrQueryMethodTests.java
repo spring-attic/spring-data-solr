@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.hamcrest.core.IsEqual;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
@@ -41,6 +42,7 @@ import org.springframework.data.solr.repository.support.SolrEntityInformationCre
  * @author Christoph Strobl
  * @author Andrey Paramonov
  * @author Francisco Spaeth
+ * @author Oliver Gierke
  */
 public class SolrQueryMethodTests {
 
@@ -185,7 +187,8 @@ public class SolrQueryMethodTests {
 	 */
 	@Test
 	public void testWithMultipleFieldPivotUsingPivotAnnotation() throws Exception {
-		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation");
+		SolrQueryMethod method = getQueryMethodByName(
+				"findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation");
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasFacetFields());
@@ -201,7 +204,8 @@ public class SolrQueryMethodTests {
 	 */
 	@Test
 	public void testWithMultipleFieldPivotUsingOnlyPivotAnnotation() throws Exception {
-		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation");
+		SolrQueryMethod method = getQueryMethodByName(
+				"findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation");
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasFacetFields());
@@ -214,7 +218,8 @@ public class SolrQueryMethodTests {
 
 	@Test
 	public void testWithMultipleFieldPivotsLimitAndMinCount() throws Exception {
-		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount");
+		SolrQueryMethod method = getQueryMethodByName(
+				"findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount");
 		Assert.assertFalse(method.hasAnnotatedQuery());
 		Assert.assertFalse(method.hasProjectionFields());
 		Assert.assertFalse(method.hasFacetFields());
@@ -507,14 +512,14 @@ public class SolrQueryMethodTests {
 		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldStats", String.class).hasStatsDefinition());
 		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class).hasStatsDefinition());
 		Assert.assertTrue(getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class).hasStatsDefinition());
-		Assert
-				.assertTrue(getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class)
-						.hasStatsDefinition());
+		Assert.assertTrue(getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class)
+				.hasStatsDefinition());
 	}
 
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		Method method = Repo1.class.getMethod(name, parameters);
-		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class), creator);
+		return new SolrQueryMethod(method, new DefaultRepositoryMetadata(Repo1.class),
+				new SpelAwareProxyProjectionFactory(), creator);
 	}
 
 	interface Repo1 extends Repository<ProductBean, String> {
@@ -638,7 +643,7 @@ public class SolrQueryMethodTests {
 		@Stats( //
 				selective = { @SelectiveStats(field = "field1", facets = { "field1_1", "field1_2" }), //
 						@SelectiveStats(field = "field2", facets = { "field2_1", "field2_2" }) //
-				}//
+		}//
 		)
 		List<ProductBean> findByNameWithSelectiveFacetStats(String name);
 

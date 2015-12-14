@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryInformation;
@@ -67,8 +68,8 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 		}
 
 		this.solrOperations = solrOperations;
-		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(solrOperations.getConverter()
-				.getMappingContext());
+		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
+				solrOperations.getConverter().getMappingContext());
 	}
 
 	public SolrRepositoryFactory(SolrClient solrClient) {
@@ -77,8 +78,8 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 		this.solrOperations = createTemplate(solrClient);
 
 		factory = new MulticoreSolrClientFactory(solrClient);
-		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(this.solrOperations.getConverter()
-				.getMappingContext());
+		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
+				this.solrOperations.getConverter().getMappingContext());
 
 	}
 
@@ -161,9 +162,10 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	private class SolrQueryLookupStrategy implements QueryLookupStrategy {
 
 		@Override
-		public RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, NamedQueries namedQueries) {
+		public RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, ProjectionFactory factory,
+				NamedQueries namedQueries) {
 
-			SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, entityInformationCreator);
+			SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreator);
 			String namedQueryName = queryMethod.getNamedQueryName();
 
 			SolrOperations solrOperations = selectSolrOperations(metadata);

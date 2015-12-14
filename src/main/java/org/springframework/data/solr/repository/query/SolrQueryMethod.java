@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.solr.repository.Facet;
@@ -49,10 +50,11 @@ import org.springframework.util.StringUtils;
  */
 public class SolrQueryMethod extends QueryMethod {
 
-	private Method method;
+	private final Method method;
 
-	public SolrQueryMethod(Method method, RepositoryMetadata metadata, SolrEntityInformationCreator solrInformationCreator) {
-		super(method, metadata);
+	public SolrQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory,
+			SolrEntityInformationCreator solrInformationCreator) {
+		super(method, metadata, factory);
 		this.method = method;
 	}
 
@@ -228,7 +230,7 @@ public class SolrQueryMethod extends QueryMethod {
 		!getFieldStats().isEmpty() || //
 				!getStatsFacets().isEmpty() || //
 				!getStatsSelectiveFacets().isEmpty() || //
-		!getStatsSelectiveCountDistinctFields().isEmpty())//
+				!getStatsSelectiveCountDistinctFields().isEmpty())//
 		);
 	}
 

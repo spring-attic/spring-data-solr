@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,10 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
+import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.RepositoryMetadata;
+import org.springframework.data.repository.core.support.AbstractRepositoryMetadata;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.DefaultQueryParser;
 import org.springframework.data.solr.core.QueryParser;
@@ -47,16 +50,15 @@ import org.springframework.data.solr.repository.ProductBean;
  * @author Christoph Strobl
  * @author John Dorman
  * @author Francisco Spaeth
+ * @author Oliver Gierke
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrQueryCreatorTests {
 
-	private @Mock RepositoryMetadata metadataMock;
-
 	private @Mock SolrEntityInformationCreator entityInformationCreatorMock;
 
 	private MappingContext<?, SolrPersistentProperty> mappingContext;
-
+	private RepositoryMetadata metadata = AbstractRepositoryMetadata.getMetadata(SampleRepository.class);
 	private QueryParser queryParser;
 
 	@Before
@@ -251,8 +253,8 @@ public class SolrQueryCreatorTests {
 	public void testCreateQueryWithBeforeClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLastModifiedBefore", Date.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new DateTime(2012, 10, 15, 5, 31, 0,
-				DateTimeZone.UTC) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
 		Assert.assertEquals("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z}", queryParser.getQueryString(query));
 	}
 
@@ -276,8 +278,8 @@ public class SolrQueryCreatorTests {
 	public void testCreateQueryWithAfterClause() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLastModifiedAfter", Date.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new DateTime(2012, 10, 15, 5, 31, 0,
-				DateTimeZone.UTC) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
 		Assert.assertEquals("last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]", queryParser.getQueryString(query));
 	}
 
@@ -326,8 +328,8 @@ public class SolrQueryCreatorTests {
 	public void testCreateQueryWithNearWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new Point(48.303056, 14.290556),
-				new Distance(1, Metrics.MILES) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
 		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
 
@@ -344,8 +346,8 @@ public class SolrQueryCreatorTests {
 	public void testCreateQueryWithWithinWhereUnitIsMiles() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationWithin", Point.class, Distance.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new Point(48.303056, 14.290556),
-				new Distance(1, Metrics.MILES) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
 		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}", queryParser.getQueryString(query));
 	}
 
@@ -353,8 +355,8 @@ public class SolrQueryCreatorTests {
 	public void testCreateQueryWithNearUsingBox() throws NoSuchMethodException, SecurityException {
 		Method method = SampleRepository.class.getMethod("findByLocationNear", Box.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { new Box(new Point(48.303056, 14.290556),
-				new Point(48.306377, 14.283128)) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { new Box(new Point(48.303056, 14.290556), new Point(48.306377, 14.283128)) });
 		Assert.assertEquals("store:[48.303056,14.290556 TO 48.306377,14.283128]", queryParser.getQueryString(query));
 	}
 
@@ -376,22 +378,23 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByNameOrDescriptionAndLastModifiedAfter", String.class,
 				String.class, Date.class);
 
-		Query query = createQueryForMethodWithArgs(method, new Object[] { "mail", "domain",
-				new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
+		Query query = createQueryForMethodWithArgs(method,
+				new Object[] { "mail", "domain", new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
 		Assert.assertEquals("name:mail OR description:domain AND last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]",
 				queryParser.getQueryString(query));
 	}
 
 	private Query createQueryForMethodWithArgs(Method method, Object[] args) {
 		PartTree partTree = new PartTree(method.getName(), method.getReturnType());
-		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadataMock, entityInformationCreatorMock);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, new SpelAwareProxyProjectionFactory(),
+				entityInformationCreatorMock);
 		SolrQueryCreator creator = new SolrQueryCreator(partTree, new SolrParametersParameterAccessor(queryMethod, args),
 				mappingContext);
 
 		return creator.createQuery();
 	}
 
-	private interface SampleRepository {
+	private interface SampleRepository extends Repository<ProductBean, String> {
 
 		ProductBean findByPopularity(Integer popularity);
 
