@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -414,7 +415,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(new SolrCallback<QueryResponse>() {
 			@Override
 			public QueryResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.query(solrQuery);
+				return solrClient.query(solrQuery,SolrRequest.METHOD.POST);
 			}
 		});
 	}
