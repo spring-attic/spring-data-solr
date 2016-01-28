@@ -90,7 +90,7 @@
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
 		</dependency>
-		
+
 
 		<!-- JODA Time -->
 		<dependency>
@@ -117,7 +117,7 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>jcl-over-slf4j</artifactId>
-				</exclusion>	
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -241,6 +241,21 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jfrog.buildinfo</groupId>
+						<artifactId>artifactory-maven-plugin</artifactId>
+						<inherited>false</inherited>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<issueManagement>
 		<system>JIRA</system>
