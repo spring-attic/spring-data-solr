@@ -1,6 +1,16 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.0.0.M1 (2016-02-12)
+----------------------------------------
+* DATASOLR-275 - Add code of conduct.
+* DATASOLR-273 - Release 2.0 M1 (Hopper).
+* DATASOLR-271 - Adapt to API changes in Spring Data Commons.
+* DATASOLR-265 - Upgrade to Solr 5.3.1.
+* DATASOLR-232 - Upgrade to Solr 5.
+* DATASOLR-228 - Support for Solr 5.
+
+
 Changes in version 1.5.2.RELEASE (2015-12-18)
 ---------------------------------------------
 * DATASOLR-272 - Release 1.5.2 (Gosling).
