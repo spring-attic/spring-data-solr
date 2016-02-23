@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.5.4.RELEASE (2016-02-23)
+---------------------------------------------
+* DATASOLR-278 - Release 1.5.4 (Gosling SR4).
+
+
 Changes in version 2.0.0.M1 (2016-02-12)
 ----------------------------------------
 * DATASOLR-275 - Add code of conduct.
