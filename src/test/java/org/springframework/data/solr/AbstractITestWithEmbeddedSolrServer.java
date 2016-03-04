@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package org.springframework.data.solr;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,8 @@ import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.SolrCore;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
@@ -44,11 +49,26 @@ public abstract class AbstractITestWithEmbeddedSolrServer {
 	protected static String DEFAULT_BEAN_ID = "1";
 
 	@BeforeClass
-	public static void initSolrServer() throws IOException, ParserConfigurationException, SAXException,
-			InterruptedException {
+	public static void initSolrServer()
+			throws IOException, ParserConfigurationException, SAXException, InterruptedException {
 
 		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
-		CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome, new File(solrHome + "/solr.xml"));
+
+		Method createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", String.class,
+				File.class);
+
+		CoreContainer coreContainer = null;
+		if (createAndLoadMethod != null) {
+			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null, solrHome,
+					new File(solrHome + "/solr.xml"));
+		} else {
+
+			createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", Path.class, Path.class);
+
+			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null,
+					FileSystems.getDefault().getPath(solrHome),
+					FileSystems.getDefault().getPath(new File(solrHome + "/solr.xml").getPath()));
+		}
 
 		for (SolrCore core : coreContainer.getCores()) {
 			core.addCloseHook(new CloseHook() {

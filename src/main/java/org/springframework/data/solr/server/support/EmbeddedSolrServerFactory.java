@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package org.springframework.data.solr.server.support;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +38,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
@@ -95,8 +99,8 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	 * @throws IOException
 	 * @throws SAXException
 	 */
-	public final EmbeddedSolrServer createPathConfiguredSolrServer(String path) throws ParserConfigurationException,
-			IOException, SAXException {
+	public final EmbeddedSolrServer createPathConfiguredSolrServer(String path)
+			throws ParserConfigurationException, IOException, SAXException {
 		String solrHomeDirectory = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
 		if (StringUtils.isBlank(solrHomeDirectory)) {
@@ -129,14 +133,24 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	/**
-	 * Create {@link CoreContainer} for Solr version 4.4+
+	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in {@link CoreContainer#createAndLoad()}.
 	 * 
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
 	 * @return
 	 */
 	private CoreContainer createCoreContainer(String solrHomeDirectory, File solrXmlFile) {
-		return CoreContainer.createAndLoad(solrHomeDirectory, solrXmlFile);
+
+		Method createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", String.class,
+				File.class);
+
+		if (createAndLoadMethod != null) {
+			return (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null, solrHomeDirectory, solrXmlFile);
+		}
+
+		createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", Path.class, Path.class);
+		return (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null,
+				FileSystems.getDefault().getPath(solrHomeDirectory), FileSystems.getDefault().getPath(solrXmlFile.getPath()));
 	}
 
 	public void shutdownSolrServer() {

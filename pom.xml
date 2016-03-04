@@ -23,7 +23,7 @@
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
-		<solr>5.3.1</solr>
+		<solr>5.5.0</solr>
 		<springdata.commons>1.12.0.BUILD-SNAPSHOT</springdata.commons>
 	</properties>
 
