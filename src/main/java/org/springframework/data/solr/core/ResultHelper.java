@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.apache.commons.collections.CollectionUtils.*;
-
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -75,6 +71,7 @@ import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -94,8 +91,8 @@ final class ResultHelper {
 		}
 
 		TermsResponse termsResponse = response.getTermsResponse();
-		Map<String, List<TermsFieldEntry>> result = new LinkedHashMap<String, List<TermsFieldEntry>>(termsResponse
-				.getTermMap().size());
+		Map<String, List<TermsFieldEntry>> result = new LinkedHashMap<String, List<TermsFieldEntry>>(
+				termsResponse.getTermMap().size());
 
 		for (Map.Entry<String, List<Term>> entry : termsResponse.getTermMap().entrySet()) {
 			List<TermsFieldEntry> terms = new ArrayList<TermsFieldEntry>(entry.getValue().size());
@@ -119,23 +116,23 @@ final class ResultHelper {
 		}
 		Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
 
-		if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
+		if (!CollectionUtils.isEmpty(response.getFacetFields())) {
 			int initalPageSize = query.getFacetOptions().getPageable().getPageSize();
 			for (FacetField facetField : response.getFacetFields()) {
 				if (facetField != null && StringUtils.hasText(facetField.getName())) {
 					Field field = new SimpleField(facetField.getName());
-					if (CollectionUtils.isNotEmpty(facetField.getValues())) {
+					if (!CollectionUtils.isEmpty(facetField.getValues())) {
 						List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
 						for (Count count : facetField.getValues()) {
 							if (count != null) {
 								pageEntries.add(new SimpleFacetFieldEntry(field, count.getName(), count.getCount()));
 							}
 						}
-						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
-								.getPageable(), facetField.getValueCount(), null));
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries,
+								query.getFacetOptions().getPageable(), facetField.getValueCount(), null));
 					} else {
-						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
-								.getFacetOptions().getPageable(), 0, null));
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(),
+								query.getFacetOptions().getPageable(), 0, null));
 					}
 				}
 			}
@@ -196,7 +193,7 @@ final class ResultHelper {
 			QueryResponse response) {
 		Assert.notNull(query, "Cannot convert response for 'null', query");
 
-		if (!hasFacets(query, response) || isEmpty(response.getFacetRanges())) {
+		if (!hasFacets(query, response) || CollectionUtils.isEmpty(response.getFacetRanges())) {
 			return Collections.emptyMap();
 		}
 		Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
@@ -213,7 +210,7 @@ final class ResultHelper {
 
 			List<FacetFieldEntry> entries;
 			long total;
-			if (isNotEmpty(rangeFacet.getCounts())) {
+			if (!CollectionUtils.isEmpty(rangeFacet.getCounts())) {
 				entries = new ArrayList<FacetFieldEntry>(initalPageSize);
 				for (RangeFacet.Count count : rangeFacet.getCounts()) {
 					entries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
@@ -240,7 +237,7 @@ final class ResultHelper {
 
 		List<FacetQueryEntry> facetResult = new ArrayList<FacetQueryEntry>();
 
-		if (MapUtils.isNotEmpty(response.getFacetQuery())) {
+		if (!CollectionUtils.isEmpty(response.getFacetQuery())) {
 			for (Entry<String, Integer> entry : response.getFacetQuery().entrySet()) {
 				facetResult.add(new SimpleFacetQueryEntry(entry.getKey(), entry.getValue()));
 			}
@@ -250,7 +247,7 @@ final class ResultHelper {
 
 	static <T> List<HighlightEntry<T>> convertAndAddHighlightQueryResponseToResultPage(QueryResponse response,
 			SolrResultPage<T> page) {
-		if (response == null || MapUtils.isEmpty(response.getHighlighting()) || page == null) {
+		if (response == null || CollectionUtils.isEmpty(response.getHighlighting()) || page == null) {
 			return Collections.emptyList();
 		}
 
@@ -271,7 +268,7 @@ final class ResultHelper {
 		Object itemId = getMappedId(pageEntry);
 
 		Map<String, List<String>> highlights = highlighting.get(itemId.toString());
-		if (MapUtils.isNotEmpty(highlights)) {
+		if (!CollectionUtils.isEmpty(highlights)) {
 			for (Map.Entry<String, List<String>> entry : highlights.entrySet()) {
 				highlightEntry.addSnipplets(entry.getKey(), entry.getValue());
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
@@ -372,16 +370,16 @@ public class FacetOptions {
 
 	@SuppressWarnings("unchecked")
 	public Collection<FieldWithFacetParameters> getFieldsWithParameters() {
-		return (Collection<FieldWithFacetParameters>) CollectionUtils.select(this.facetOnFields,
-				new IsFieldWithFacetParametersInstancePredicate());
-	}
 
-	private static class IsFieldWithFacetParametersInstancePredicate implements Predicate {
+		List<FieldWithFacetParameters> result = new ArrayList<FieldWithFacetParameters>();
 
-		@Override
-		public boolean evaluate(Object object) {
-			return object instanceof FieldWithFacetParameters;
+		for (Field candidate : facetOnFields) {
+			if (candidate instanceof FieldWithFacetParameters) {
+				result.add((FieldWithFacetParameters) candidate);
+			}
+
 		}
+		return result;
 	}
 
 	public static class FacetParameter extends QueryParameterImpl {
@@ -517,7 +515,8 @@ public class FacetOptions {
 			return addFacetParameter(parameterName, value, false);
 		}
 
-		protected FieldWithFacetParameters addFacetParameter(String parameterName, Object value, boolean removeIfValueIsNull) {
+		protected FieldWithFacetParameters addFacetParameter(String parameterName, Object value,
+				boolean removeIfValueIsNull) {
 			if (removeIfValueIsNull && value == null) {
 				removeQueryParameter(parameterName);
 				return this;
@@ -542,18 +541,8 @@ public class FacetOptions {
 	 * @return
 	 * @since 1.5
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<FieldWithRangeParameters<?, ?, ?>> getFieldsWithRangeParameters() {
-		return (Collection<FieldWithRangeParameters<?, ?, ?>>) CollectionUtils.select(this.facetRangeOnFields,
-				new IsFieldWithFacetRangeParametersInstancePredicate());
-	}
-
-	private static class IsFieldWithFacetRangeParametersInstancePredicate implements Predicate {
-
-		@Override
-		public boolean evaluate(Object object) {
-			return object instanceof FieldWithRangeParameters;
-		}
+		return Collections.unmodifiableCollection(facetRangeOnFields);
 	}
 
 	/**
@@ -565,8 +554,8 @@ public class FacetOptions {
 	 * @param <G> type of gap
 	 * @since 1.5
 	 */
-	public abstract static class FieldWithRangeParameters<T extends FieldWithRangeParameters<?, ?, ?>, R, G> extends
-			FieldWithQueryParameters<FacetParameter> {
+	public abstract static class FieldWithRangeParameters<T extends FieldWithRangeParameters<?, ?, ?>, R, G>
+			extends FieldWithQueryParameters<FacetParameter> {
 
 		/**
 		 * @param name field name
@@ -706,8 +695,8 @@ public class FacetOptions {
 	 * @author Francisco Spaeth
 	 * @since 1.5
 	 */
-	public static class FieldWithDateRangeParameters extends
-			FieldWithRangeParameters<FieldWithDateRangeParameters, Date, String> {
+	public static class FieldWithDateRangeParameters
+			extends FieldWithRangeParameters<FieldWithDateRangeParameters, Date, String> {
 
 		public FieldWithDateRangeParameters(String name, Date start, Date end, String gap) {
 			super(name, start, end, gap);
@@ -721,8 +710,8 @@ public class FacetOptions {
 	 * @author Francisco Spaeth
 	 * @since 1.5
 	 */
-	public static class FieldWithNumericRangeParameters extends
-			FieldWithRangeParameters<FieldWithNumericRangeParameters, Number, Number> {
+	public static class FieldWithNumericRangeParameters
+			extends FieldWithRangeParameters<FieldWithNumericRangeParameters, Number, Number> {
 
 		public FieldWithNumericRangeParameters(String name, Number start, Number end, Number gap) {
 			super(name, start, end, gap);

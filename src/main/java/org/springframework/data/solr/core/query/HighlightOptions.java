@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.solr.common.params.HighlightParams;
 import org.springframework.util.Assert;
 
 /**
  * Empty Options indicate to set {@code hl=true}. As long as there are no fields defined {@code *} will be used. Some
- * options like {@see HighlightOptions#setFormatter(String)} can be set directly. Any option can be set via {@see
- * HighlightOptions#addHighlightParameter(HighlightParameter)}.
+ * options like {@see HighlightOptions#setFormatter(String)} can be set directly. Any option can be set via
+ * {@see HighlightOptions#addHighlightParameter(HighlightParameter)}.
  * 
  * @author Christoph Strobl
  */
@@ -253,10 +251,17 @@ public class HighlightOptions {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<FieldWithHighlightParameters> getFieldsWithHighlightParameters() {
-		return (Collection<FieldWithHighlightParameters>) CollectionUtils.select(this.fields,
-				new IsFieldWithHighlightParametersInstancePredicate());
+
+		List<FieldWithHighlightParameters> result = new ArrayList<FieldWithHighlightParameters>();
+		for (Field candidate : fields) {
+
+			if (candidate instanceof FieldWithHighlightParameters) {
+				result.add((FieldWithHighlightParameters) candidate);
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -273,19 +278,10 @@ public class HighlightOptions {
 		return !this.fields.isEmpty();
 	}
 
-	private static class IsFieldWithHighlightParametersInstancePredicate implements Predicate {
-
-		@Override
-		public boolean evaluate(Object object) {
-			return object instanceof FieldWithHighlightParameters;
-		}
-	}
-
 	/**
 	 * Query Parameter to be used for highlighting
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	public static class HighlightParameter extends QueryParameterImpl {
 
@@ -299,7 +295,6 @@ public class HighlightOptions {
 	 * Field with hightlight query parameters
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	public static class FieldWithHighlightParameters extends FieldWithQueryParameters<HighlightParameter> {
 

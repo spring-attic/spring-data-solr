@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.core.query;
 
-import static java.util.Arrays.*;
-
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -25,12 +23,14 @@ import java.util.GregorianCalendar;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
+import org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters;
 
 /**
  * @author Christoph Strobl
@@ -286,8 +286,12 @@ public class FacetOptionsTests {
 		FacetOptions facetRangeOptions = new FacetOptions() //
 				.addFacetByRange(lastModifiedField) //
 				.addFacetByRange(popularityField);
-		Collection<?> fieldsWithRangeParameters = facetRangeOptions.getFieldsWithRangeParameters();
-		Assert.assertEquals(asList(lastModifiedField, popularityField), fieldsWithRangeParameters);
+
+		Collection<FieldWithRangeParameters<?, ?, ?>> fieldsWithRangeParameters = facetRangeOptions
+				.getFieldsWithRangeParameters();
+
+		Assert.assertThat(fieldsWithRangeParameters,
+				IsIterableContainingInOrder.<Object> contains(lastModifiedField, popularityField));
 	}
 
 	/**
