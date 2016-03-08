@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,15 +114,16 @@ public class SolrTemplateTests {
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testQueryThrowsParseException() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class))).thenThrow(
+		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET))).thenThrow(
 				new SolrServerException("error", new SolrException(ErrorCode.BAD_REQUEST, new ParseException("parse error"))));
-		solrTemplate.executeSolrQuery(new SolrQuery());
+		solrTemplate.executeSolrQuery(new SolrQuery(), SolrRequest.METHOD.GET);
 	}
 
 	@Test(expected = UncategorizedSolrException.class)
 	public void testQueryThrowsUntranslateableException() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class))).thenThrow(new SecurityException());
-		solrTemplate.executeSolrQuery(new SolrQuery());
+		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET)))
+				.thenThrow(new SecurityException());
+		solrTemplate.executeSolrQuery(new SolrQuery(), SolrRequest.METHOD.GET);
 	}
 
 	@Test
@@ -275,12 +276,13 @@ public class SolrTemplateTests {
 		SolrDocumentList resultList = new SolrDocumentList();
 		resultList.setNumFound(10);
 		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.query(Mockito.any(SolrQuery.class))).thenReturn(responseMock);
+		Mockito.when(solrClientMock.query(Mockito.any(SolrQuery.class), Mockito.eq(SolrRequest.METHOD.GET)))
+				.thenReturn(responseMock);
 
 		long result = solrTemplate.count(new SimpleQuery(new Criteria("field_1").is("value1")));
 		Assert.assertEquals(resultList.getNumFound(), result);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture());
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture(), Mockito.eq(SolrRequest.METHOD.GET));
 
 		Assert.assertEquals(Integer.valueOf(0), captor.getValue().getStart());
 		Assert.assertEquals(Integer.valueOf(0), captor.getValue().getRows());
@@ -293,14 +295,15 @@ public class SolrTemplateTests {
 		SolrDocumentList resultList = new SolrDocumentList();
 		resultList.setNumFound(10);
 		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.query(Mockito.any(SolrQuery.class))).thenReturn(responseMock);
+		Mockito.when(solrClientMock.query(Mockito.any(SolrQuery.class), Mockito.eq(SolrRequest.METHOD.GET)))
+				.thenReturn(responseMock);
 
 		Query query = new SimpleQuery(new Criteria("field_1").is("value1"));
 		query.setPageRequest(new PageRequest(0, 5));
 		long result = solrTemplate.count(query);
 		Assert.assertEquals(resultList.getNumFound(), result);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture());
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture(), Mockito.eq(SolrRequest.METHOD.GET));
 
 		Assert.assertEquals(Integer.valueOf(0), captor.getValue().getStart());
 		Assert.assertEquals(Integer.valueOf(0), captor.getValue().getRows());
@@ -353,7 +356,7 @@ public class SolrTemplateTests {
 
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture());
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture(), Mockito.eq(SolrRequest.METHOD.GET));
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
 
@@ -479,6 +482,40 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock, Mockito.times(1)).add(captor.capture(), Mockito.eq(-1));
 
 		Assert.assertNull(captor.getValue().getFieldValue("score"));
+	}
+
+	/**
+	 * @see DATASOLR-215
+	 */
+	@Test
+	public void usesTemplateDefaultRequestMethodForQuery() throws SolrServerException, IOException {
+
+		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
+		solrTemplate.afterPropertiesSet();
+
+		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.POST)))
+				.thenReturn(new QueryResponse());
+		solrTemplate.query(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class);
+
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
+				Mockito.eq(SolrRequest.METHOD.POST));
+	}
+
+	/**
+	 * @see DATASOLR-215
+	 */
+	@Test
+	public void usesTemplateMethodRequetsParameterForQuery() throws SolrServerException, IOException {
+
+		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
+		solrTemplate.afterPropertiesSet();
+
+		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.PUT)))
+				.thenReturn(new QueryResponse());
+		solrTemplate.query(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, RequestMethod.PUT);
+
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
+				Mockito.eq(SolrRequest.METHOD.PUT));
 	}
 
 	static class DocumentWithIndexAnnotations {

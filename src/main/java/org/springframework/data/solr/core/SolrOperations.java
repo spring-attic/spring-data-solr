@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.data.solr.core.query.result.TermsPage;
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
+ * @author Shiradwade Sateesh Krishna
  */
 public interface SolrOperations {
 
@@ -67,6 +68,16 @@ public interface SolrOperations {
 	 * @return
 	 */
 	long count(SolrDataQuery query);
+
+	/**
+	 * return number of elements found by for given query
+	 * 
+	 * @param query
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	long count(SolrDataQuery query, RequestMethod method);
 
 	/**
 	 * Execute add operation against solr, which will do either insert or update
@@ -170,6 +181,17 @@ public interface SolrOperations {
 	<T> T queryForObject(Query query, Class<T> clazz);
 
 	/**
+	 * Execute the query against solr and return the first returned object
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @param method must not be {@literal null}.
+	 * @return the first matching object
+	 * @since 2.0
+	 */
+	<T> T queryForObject(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute the query against solr and retrun result as {@link Page}
 	 * 
 	 * @param query
@@ -181,9 +203,11 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and retrun result as {@link Page}
 	 *
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
 	 * @return
+	 * @since 2.0
 	 */
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method);
 
@@ -197,6 +221,17 @@ public interface SolrOperations {
 	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz);
 
 	/**
+	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute a query and highlight matches in result
 	 * 
 	 * @param query
@@ -206,12 +241,33 @@ public interface SolrOperations {
 	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
 
 	/**
+	 * Execute a query and highlight matches in result
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute query using terms handler
 	 * 
 	 * @param query
 	 * @return
 	 */
 	TermsPage queryForTermsPage(TermsQuery query);
+
+	/**
+	 * Execute query using terms handler
+	 * 
+	 * @param query
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	TermsPage queryForTermsPage(TermsQuery query, RequestMethod method);
 
 	/**
 	 * Executes the given {@link Query} and returns an open {@link Cursor} allowing to iterate of results, dynamically
@@ -235,6 +291,17 @@ public interface SolrOperations {
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
 
 	/**
+	 * Execute the query against solr and return result as {@link GroupPage}
+	 * 
+	 * @param query
+	 * @param clazz
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute the query against Solr and return result as {@link StatsPage}.
 	 * 
 	 * @param query must not be {@literal null}.
@@ -243,6 +310,17 @@ public interface SolrOperations {
 	 * @size 1.4
 	 */
 	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against Solr and return result as {@link StatsPage}.
+	 * 
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 2.0
+	 */
+	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
 	 * Executes a realtime get using given id.

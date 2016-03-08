@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,17 @@
  */
 package org.springframework.data.solr.core;
 
+import org.apache.solr.client.solrj.SolrRequest;
+
 /**
- * Enum for the HTTP request types supported
- * GET,POST, Optionally for feature  PUT,DELETE PATHC,OPTIONS,TRACE,HEAD are defined
- * @author Sateesh ks
+ * {@literal HTTP} request types supported by {@link SolrRequest}.
+ * 
+ * @author Shiradwade Sateesh Krishna
+ * @author Christoph Strobl
+ * @since 2.0
  */
 public enum RequestMethod {
 
-    GET("GET"), HEAD("HEAD"), POST("POST"), PUT("PUT"), PATCH("PATCH"), DELETE("DELETE"), OPTIONS("OPTIONS"), TRACE("TRACE");
-    private String value;
-    public String value() {
-        return name();
-    }
-
-    private RequestMethod( String value) {
-        this.value=value;
-    }
-
-    public static RequestMethod fromValue(String v) {
-        return valueOf(v);
-    }
+	GET, POST, PUT;
 
 }

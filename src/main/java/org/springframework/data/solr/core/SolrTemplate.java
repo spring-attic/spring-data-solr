@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
- * @author Sateesh ks
+ * @author Shiradwade Sateesh Krishna
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -99,6 +99,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	private ApplicationContext applicationContext;
 	private String solrCore;
+	private final RequestMethod defaultRequestMethod;
 
 	@SuppressWarnings("serial") //
 	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
@@ -124,15 +125,38 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.solrCore = core;
 	}
 
+	public SolrTemplate(SolrClient solrClient, String core, RequestMethod requestMethod) {
+		this(new HttpSolrClientFactory(solrClient, core), requestMethod);
+		this.solrCore = core;
+
+	}
+
 	public SolrTemplate(SolrClientFactory solrClientFactory) {
-		this(solrClientFactory, null);
+		this(solrClientFactory, (SolrConverter) null);
+	}
+
+	public SolrTemplate(SolrClientFactory solrClientFactory, RequestMethod requestMethod) {
+		this(solrClientFactory, null, requestMethod);
 	}
 
 	public SolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter) {
+		this(solrClientFactory, solrConverter, RequestMethod.GET);
+	}
+
+	/**
+	 * @param solrClientFactory must not be {@literal null}.
+	 * @param solrConverter must not be {@literal null}.
+	 * @param defaultRequestMethod can be {@literal null}. Will be defaulted to {@link RequestMethod#GET}
+	 * @since 2.0
+	 */
+	public SolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter,
+			RequestMethod defaultRequestMethod) {
+
 		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'.");
 		Assert.notNull(solrClientFactory.getSolrClient(), "SolrClientFactory has to return a SolrClient.");
 
 		this.solrClientFactory = solrClientFactory;
+		this.defaultRequestMethod = defaultRequestMethod != null ? defaultRequestMethod : RequestMethod.GET;
 	}
 
 	@Override
@@ -161,17 +185,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public long count(final SolrDataQuery query) {
+		return count(query, getDefaultRequestMethod());
+	}
+
+	@Override
+	public long count(final SolrDataQuery query, final RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(method, "Method must not be 'null'.");
 
 		return execute(new SolrCallback<Long>() {
 
 			@Override
 			public Long doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+
 				SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 				solrQuery.setStart(0);
 				solrQuery.setRows(0);
 
-				return solrClient.query(solrQuery).getResults().getNumFound();
+				return solrClient.query(solrQuery, getSolrRequestMethod(method)).getResults().getNumFound();
 			}
 		});
 	}
@@ -278,11 +310,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public <T> T queryForObject(Query query, Class<T> clazz) {
+		return queryForObject(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> T queryForObject(Query query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		query.setPageRequest(new PageRequest(0, 1));
-		QueryResponse response = query(query, clazz);
+		QueryResponse response = query(query, clazz, method);
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
@@ -294,13 +332,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
+
 		QueryResponse response = null;
 		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
-		if (null != requestMethod && requestMethod.value().equals(requestMethod.POST)) {
-			response = query(namedObjectsQuery, clazz, SolrRequest.METHOD.POST);
-		} else {
-			response = query(namedObjectsQuery, clazz);
-		}
+		response = query(namedObjectsQuery, clazz, requestMethod != null ? requestMethod : getDefaultRequestMethod());
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		return createSolrResultPage(query, clazz, response, objectsName);
@@ -308,34 +343,40 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
-		return doQueryForPage(query, clazz, null);
+		return doQueryForPage(query, clazz, getDefaultRequestMethod());
 	}
 
-	/**
-	 * Execute the query against solr and retrun result as {@link Page}
-	 *
-	 * @param query
-	 * @param clazz
-	 * @param method - HTTP METHOD get or post
-	 * @return
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
 	 */
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(method, "Method class must not be 'null'.");
 
 		return doQueryForPage(query, clazz, method);
 	}
 
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz) {
+		return queryForGroupPage(query, clazz, RequestMethod.GET);
+	}
+
+	@Override
+	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(method, "Method class must not be 'null'.");
 
-		return doQueryForPage(query, clazz, null);
+		return doQueryForPage(query, clazz, method);
 	}
 
 	/*
@@ -344,19 +385,32 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz) {
+		return queryForStatsPage(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(method, "Method class must not be 'null'.");
 
-		return doQueryForPage(query, clazz, null);
+		return doQueryForPage(query, clazz, method);
 	}
 
 	@Override
 	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz) {
+		return queryForFacetPage(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz);
+		QueryResponse response = query(namedObjectsQuery, clazz, method);
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
@@ -371,11 +425,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz) {
+		return queryForHighlightPage(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz);
+		QueryResponse response = query(namedObjectsQuery, clazz, getDefaultRequestMethod());
 
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
@@ -406,9 +466,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public TermsPage queryForTermsPage(TermsQuery query) {
+		return queryForTermsPage(query, getDefaultRequestMethod());
+	}
+
+	@Override
+	public TermsPage queryForTermsPage(TermsQuery query, RequestMethod method) {
+
 		Assert.notNull(query, "Query must not be 'null'.");
 
-		QueryResponse response = query(query, null);
+		QueryResponse response = query(query, null, method);
 
 		TermsResultPage page = new TermsResultPage();
 		page.addAllTerms(ResultHelper.convertTermsQueryResponseToTermsMap(response));
@@ -416,7 +482,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	final QueryResponse query(SolrDataQuery query, Class<?> clazz) {
+		return query(query, clazz, defaultRequestMethod);
+	}
+
+	final QueryResponse query(SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
+
 		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(requestMethod, "RequestMethod must not be 'null'");
 
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 
@@ -429,36 +501,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
 
-		return executeSolrQuery(solrQuery);
-	}
-
-	final QueryResponse query(SolrDataQuery query, Class<?> clazz, SolrRequest.METHOD method) {
-		Assert.notNull(query, "Query must not be 'null'");
-
-		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
-
-		if (clazz != null) {
-			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz);
-			if (persistedEntity.hasScoreProperty()) {
-				solrQuery.setIncludeScore(true);
-			}
-		}
-
-		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
-
-		return executeSolrQuery(solrQuery, method);
-	}
-
-	final QueryResponse executeSolrQuery(final SolrQuery solrQuery) {
-		return execute(new SolrCallback<QueryResponse>() {
-			@Override
-			public QueryResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.query(solrQuery);
-			}
-		});
+		return executeSolrQuery(solrQuery, getSolrRequestMethod(requestMethod));
 	}
 
 	final QueryResponse executeSolrQuery(final SolrQuery solrQuery, final SolrRequest.METHOD method) {
+
 		return execute(new SolrCallback<QueryResponse>() {
 			@Override
 			public QueryResponse doInSolr(SolrClient solrServer) throws SolrServerException, IOException {
@@ -543,7 +590,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
 					SolrQuery nativeQuery) {
 
-				QueryResponse response = executeSolrQuery(nativeQuery);
+				QueryResponse response = executeSolrQuery(nativeQuery, getSolrRequestMethod(getDefaultRequestMethod()));
 				if (response == null) {
 					return new PartialResult<T>("", Collections.<T> emptyList());
 				}
@@ -683,6 +730,22 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	}
 
+	private SolrRequest.METHOD getSolrRequestMethod(RequestMethod requestMethod) {
+
+		RequestMethod rm = requestMethod != null ? requestMethod : getDefaultRequestMethod();
+
+		switch (rm) {
+			case GET:
+				return SolrRequest.METHOD.GET;
+			case POST:
+				return SolrRequest.METHOD.POST;
+			case PUT:
+				return SolrRequest.METHOD.PUT;
+		}
+
+		throw new IllegalArgumentException("Unsupported request method type");
+	}
+
 	/**
 	 * @since 1.3
 	 * @param mappingContext
@@ -710,6 +773,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			return Collections.emptySet();
 		}
 		return Collections.unmodifiableSet(this.schemaCreationFeatures);
+	}
+
+	/**
+	 * @return never {@literal null}.
+	 */
+	public RequestMethod getDefaultRequestMethod() {
+		return defaultRequestMethod;
 	}
 
 }
