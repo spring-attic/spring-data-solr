@@ -18,7 +18,6 @@ package org.springframework.data.solr.core;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +79,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Venil Noronha
  */
 final class ResultHelper {
 
@@ -148,7 +148,7 @@ final class ResultHelper {
 			return Collections.emptyMap();
 		}
 
-		Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> facetResult = new HashMap<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>>();
+		Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> facetResult = new LinkedHashMap<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>>();
 		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 		if (facetPivot != null && facetPivot.size() > 0) {
 			for (int i = 0; i < facetPivot.size(); i++) {
@@ -196,7 +196,7 @@ final class ResultHelper {
 		if (!hasFacets(query, response) || CollectionUtils.isEmpty(response.getFacetRanges())) {
 			return Collections.emptyMap();
 		}
-		Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
+		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<Field, Page<FacetFieldEntry>>();
 
 		Pageable pageable = query.getFacetOptions().getPageable();
 		int initalPageSize = pageable.getPageSize();
