@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,7 @@ import com.google.common.collect.Lists;
  * @author Christoph Strobl
  * @author Andrey Paramonov
  * @author Francisco Spaeth
+ * @author Radek Mensik
  */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
@@ -781,6 +782,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
 
+	/**
+	 * @see DATASOLR-176
+	 */
 	@Test
 	public void testQueryWithJoinFromIndexOperation() {
 		ExampleSolrBean belkin = new ExampleSolrBean("belkin", "Belkin", null);

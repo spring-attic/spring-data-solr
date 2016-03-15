@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import org.springframework.util.CollectionUtils;
  * 
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Radek Mensik
  */
 public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
@@ -239,8 +240,9 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @since 1.1
 	 */
 	protected String createCalculatedFieldFragment(CalculatedField calculatedField) {
-		return StringUtils.isNotBlank(calculatedField.getAlias()) ? (calculatedField.getAlias() + ":" + createFunctionFragment(
-				calculatedField.getFunction(), 0)) : createFunctionFragment(calculatedField.getFunction(), 0);
+		return StringUtils.isNotBlank(calculatedField.getAlias())
+				? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField.getFunction(), 0))
+				: createFunctionFragment(calculatedField.getFunction(), 0);
 	}
 
 	/**
@@ -296,9 +298,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		String fromIndex = query.getJoin().getFromIndex() != null ? " fromIndex=" + query.getJoin().getFromIndex() : "";
-		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName()
-				+ fromIndex + "}"
-				+ queryString;
+		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName() + fromIndex
+				+ "}" + queryString;
 	}
 
 	/**

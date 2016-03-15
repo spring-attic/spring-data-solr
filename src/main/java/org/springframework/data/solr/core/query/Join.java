@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.util.Assert;
  * Abstraction for solr {@code !join} operation on documents within a single collection.
  *
  * @author Christoph Strobl
+ * @author Radek Mensik
  */
 public class Join {
 
@@ -33,10 +34,17 @@ public class Join {
 	}
 
 	public Join(Field from, Field to) {
-		this.from = from;
-		this.to = to;
+		this(from, to, null);
 	}
 
+	/**
+	 * Creates new {@link Join} between fields.
+	 *
+	 * @param from
+	 * @param to
+	 * @param fromIndex
+	 * @since 2.0
+	 */
 	public Join(Field from, Field to, String fromIndex) {
 		this.from = from;
 		this.to = to;
@@ -73,6 +81,10 @@ public class Join {
 		return to;
 	}
 
+	/**
+	 * @return can be {@literal null}.
+	 * @since 2.0
+	 */
 	public String getFromIndex() {
 		return fromIndex;
 	}
@@ -111,7 +123,11 @@ public class Join {
 			return to(new SimpleField(fieldname));
 		}
 
-
+		/**
+		 * @param fromIndex
+		 * @return
+		 * @since 2.0
+		 */
 		public Builder fromIndex(String fromIndex) {
 			join.fromIndex = fromIndex;
 			return this;

@@ -827,6 +827,9 @@ public class DefaultQueryParserTests {
 		Assert.assertEquals("{!join from=inner_id to=outer_id}field_1:value_1", solrQuery.getQuery());
 	}
 
+	/**
+	 * @see DATASOLR-176
+	 */
 	@Test
 	public void testWithJoinTwoCoresOperator() {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
