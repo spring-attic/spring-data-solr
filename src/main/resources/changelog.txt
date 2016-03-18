@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.0.0.RC1 (2016-03-18)
+-----------------------------------------
+* DATASOLR-285 - Release 2.0 RC1 (Hopper).
+* DATASOLR-280 - Order of Facet fields are not maintained.
+* DATASOLR-176 - Add fromIndex to Join.
+
+
 Changes in version 1.5.4.RELEASE (2016-02-23)
 ---------------------------------------------
 * DATASOLR-278 - Release 1.5.4 (Gosling SR4).
