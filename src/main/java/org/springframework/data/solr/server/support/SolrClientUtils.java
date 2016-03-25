@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.solr.client.solrj.SolrClient;
@@ -278,7 +279,18 @@ public class SolrClientUtils {
 		}
 
 		Class<?> clientType = ClassUtils.getUserClass(sourceClient);
-		Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(clientType, HttpParams.class);
+
+		Constructor<?> constructor = ClassUtils.getConstructorIfAvailable(clientType, ClientConnectionManager.class,
+				HttpParams.class);
+		if (constructor != null) {
+
+			HttpClient targetClient = (HttpClient) constructor.newInstance(sourceClient.getConnectionManager(),
+					sourceClient.getParams());
+			BeanUtils.copyProperties(sourceClient, targetClient);
+			return targetClient;
+		}
+
+		constructor = ClassUtils.getConstructorIfAvailable(clientType, HttpParams.class);
 		if (constructor != null) {
 
 			HttpClient targetClient = (HttpClient) constructor.newInstance(sourceClient.getParams());

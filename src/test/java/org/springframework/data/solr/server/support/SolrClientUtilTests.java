@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,11 @@ import java.util.Map;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -270,6 +272,23 @@ public class SolrClientUtilTests {
 
 		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getCredentialsProvider(),
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
+	}
+
+	/**
+	 * @see DATASOLR-227
+	 */
+	@Test
+	public void cloningHttpSolrClientShouldCopyConnectionManager() {
+
+		ClientConnectionManager conncetionManager = new SingleClientConnManager();
+
+		DefaultHttpClient client = new DefaultHttpClient(conncetionManager);
+
+		HttpSolrClient solrClient = new HttpSolrClient(BASE_URL, client);
+		HttpSolrClient cloned = SolrClientUtils.clone(solrClient);
+
+		Assert.assertThat(((AbstractHttpClient) cloned.getHttpClient()).getConnectionManager(),
+				IsEqual.<ClientConnectionManager> equalTo(conncetionManager));
 	}
 
 	/**
