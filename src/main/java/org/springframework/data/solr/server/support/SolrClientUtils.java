@@ -50,6 +50,7 @@ import org.springframework.util.ReflectionUtils;
  * {@link SolrClientUtils} replaces SolrServerUtils from version 1.x
  * 
  * @author Christoph Strobl
+ * @author Venil Noronha
  * @since 2.0
  */
 public class SolrClientUtils {
@@ -67,11 +68,27 @@ public class SolrClientUtils {
 	 * @since 1.1
 	 */
 	public static String resolveSolrCoreName(Class<?> type) {
-		SolrDocument annotation = AnnotationUtils.findAnnotation(type, SolrDocument.class);
-		if (annotation != null && StringUtils.isNotBlank(annotation.solrCoreName())) {
-			return annotation.solrCoreName();
+		return SolrClientUtils.resolveSolrCoreName(type, "");
+	}
+
+	/**
+	 * Resolves solr core/collection name from the given type's {@link SolrDocument} annotation.
+	 * If type is <code>null</code> or isn't annotated with {@link SolrDocument}, the default
+	 * core name is returned.
+	 * 
+	 * @param type the {@link Class} for which core name is to be resolved.
+	 * @param defaultCoreName the default core name.
+	 * @return default core name if type is <code>null</code> or isn't annotated
+	 *         with {@link SolrDocument}.
+	 */
+	public static String resolveSolrCoreName(Class<?> type, String defaultCoreName) {
+		if (type != null) {
+			SolrDocument annotation = AnnotationUtils.findAnnotation(type, SolrDocument.class);
+			if (annotation != null && StringUtils.isNotBlank(annotation.solrCoreName())) {
+				return annotation.solrCoreName();
+			}
 		}
-		return "";
+		return defaultCoreName;
 	}
 
 	public static <T extends SolrClient> T clone(T solrClient) {

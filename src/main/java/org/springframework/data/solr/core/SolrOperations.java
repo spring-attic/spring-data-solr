@@ -156,7 +156,7 @@ public interface SolrOperations {
 	UpdateResponse delete(SolrDataQuery query);
 
 	/**
-	 * Detele the one object with provided id
+	 * Delete the one object with provided id
 	 * 
 	 * @param id
 	 * @return
@@ -192,7 +192,7 @@ public interface SolrOperations {
 	<T> T queryForObject(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
-	 * Execute the query against solr and retrun result as {@link Page}
+	 * Execute the query against solr and return result as {@link Page}
 	 * 
 	 * @param query
 	 * @param clazz
@@ -201,7 +201,7 @@ public interface SolrOperations {
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
 
 	/**
-	 * Execute the query against solr and retrun result as {@link Page}
+	 * Execute the query against solr and return result as {@link Page}
 	 *
 	 * @param query must not be {@literal null}.
 	 * @param clazz must not be {@literal null}.
