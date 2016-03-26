@@ -627,9 +627,18 @@ public class SolrTemplate implements SolrOperations, MulticoreSolrOperations, In
 	}
 
 	final QueryResponse query(SolrDataQuery query, Class<?> clazz) {
-		return query(solrCore, query, clazz, getDefaultRequestMethod());
+		return query(query, clazz, getDefaultRequestMethod());
 	}
 
+	final QueryResponse query(String coreName, SolrDataQuery query, Class<?> clazz) {
+		return query(coreName, query, clazz, getDefaultRequestMethod());
+	}
+
+	final QueryResponse query(SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return query(coreName, query, clazz, requestMethod);
+	}
+	
 	final QueryResponse query(String coreName, SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
 		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'");
