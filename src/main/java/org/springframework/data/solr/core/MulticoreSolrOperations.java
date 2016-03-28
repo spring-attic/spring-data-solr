@@ -25,7 +25,7 @@ import org.springframework.data.solr.core.query.result.TermsPage;
  * 
  * @author Venil Noronha
  */
-public interface MulticoreSolrOperations {
+public interface MulticoreSolrOperations extends SolrOperations {
 
 	/**
 	 * Get the SolrClient instance for the given solr core.
