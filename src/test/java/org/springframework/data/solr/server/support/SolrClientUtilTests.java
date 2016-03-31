@@ -47,6 +47,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Christoph Strobl
+ * @author Venil Noronha
  */
 public class SolrClientUtilTests {
 
@@ -201,6 +202,21 @@ public class SolrClientUtilTests {
 	@Test
 	public void testResolveSolrCoreNameShouldReturnAnnotationValueWhenPresent() {
 		Assert.assertThat(SolrClientUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
+	}
+
+	@Test
+	public void testResolveDefaultSolrCoreName() {
+		Assert.assertEquals("default-core", SolrClientUtils.resolveSolrCoreName(ClassWithoutSolrDocumentAnnotation.class, "default-core"));
+	}
+
+	@Test
+	public void testResolveDefaultSolrCoreNameWithEmptyAnnotation() {
+		Assert.assertEquals("default-core", SolrClientUtils.resolveSolrCoreName(ClassWithEmptySolrDocumentAnnotation.class, "default-core"));
+	}
+
+	@Test
+	public void testResolveDefaultSolrCoreNameWithAnnotation() {
+		Assert.assertEquals("core1", SolrClientUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class, "default-core"));
 	}
 
 	/**
