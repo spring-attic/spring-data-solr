@@ -15,16 +15,22 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +38,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.FacetQuery;
+import org.springframework.data.solr.core.query.Field;
+import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.server.SolrClientFactory;
 
 /**
@@ -62,10 +74,10 @@ public class SolrTemplateMulticoreTests {
 	public void testGetSolrClients() throws SolrServerException, IOException {
 		SolrClient client1 = solrClientFactory.getSolrClient("core1");
 		SolrClient client2 = solrClientFactory.getSolrClient("core2");
-		Assert.assertNotNull(client1);
-		Assert.assertNotNull(client2);
-		Assert.assertEquals(core1Client, client1);
-		Assert.assertEquals(core2Client, client2);
+		assertNotNull(client1);
+		assertNotNull(client2);
+		assertEquals(core1Client, client1);
+		assertEquals(core2Client, client2);
 	}
 
 	@Test
@@ -74,8 +86,8 @@ public class SolrTemplateMulticoreTests {
 		Mockito.when(core2Client.ping()).thenReturn(new SolrPingResponse());
 		SolrPingResponse pingResult1 = solrTemplate.ping("core1");
 		SolrPingResponse pingResult2 = solrTemplate.ping("core2");
-		Assert.assertNotNull(pingResult1);
-		Assert.assertNotNull(pingResult2);
+		assertNotNull(pingResult1);
+		assertNotNull(pingResult2);
 		Mockito.verify(core1Client, Mockito.times(1)).ping();
 		Mockito.verify(core2Client, Mockito.times(1)).ping();
 	}
@@ -99,11 +111,50 @@ public class SolrTemplateMulticoreTests {
 
 		long result1 = solrTemplate.count("core1", new SimpleQuery(new Criteria("field_1").is("value1")));
 		long result2 = solrTemplate.count("core2", new SimpleQuery(new Criteria("field_2").is("value2")));
-		Assert.assertEquals(resultList1.getNumFound(), result1);
-		Assert.assertEquals(resultList2.getNumFound(), result2);
+		assertEquals(resultList1.getNumFound(), result1);
+		assertEquals(resultList2.getNumFound(), result2);
 
 		Mockito.verify(core1Client, Mockito.times(1)).query(captor1.capture(), Mockito.eq(SolrRequest.METHOD.GET));
 		Mockito.verify(core2Client, Mockito.times(1)).query(captor2.capture(), Mockito.eq(SolrRequest.METHOD.GET));
+	}
+
+	@Test
+	public void testMultipleSolrDocumentBasedQueryForFacetPage() throws SolrServerException, IOException {
+		ArgumentCaptor<SolrQuery> captor1 = ArgumentCaptor.forClass(SolrQuery.class);
+		ArgumentCaptor<SolrQuery> captor2 = ArgumentCaptor.forClass(SolrQuery.class);
+
+		QueryResponse response1Mock = Mockito.mock(QueryResponse.class);
+		Mockito.when(response1Mock.getFacetFields()).thenReturn(Arrays.asList(new FacetField("field_1")));
+		QueryResponse response2Mock = Mockito.mock(QueryResponse.class);
+		Mockito.when(response2Mock.getFacetFields()).thenReturn(Arrays.asList(new FacetField("field_2")));
+
+		Mockito.when(core1Client.query(Mockito.any(SolrQuery.class), Mockito.eq(SolrRequest.METHOD.GET))).thenReturn(response1Mock);
+		Mockito.when(core2Client.query(Mockito.any(SolrQuery.class), Mockito.eq(SolrRequest.METHOD.GET))).thenReturn(response2Mock);
+
+		FacetQuery query1 = new SimpleFacetQuery(Criteria.where("field_1").isNotNull());
+		query1.setFacetOptions(new FacetOptions("field_1"));
+		FacetQuery query2 = new SimpleFacetQuery(Criteria.where("field_2").isNotNull());
+		query2.setFacetOptions(new FacetOptions("field_2"));
+		
+		FacetPage<Core1Document> result1 = solrTemplate.queryForFacetPage(query1, Core1Document.class);
+		FacetPage<Core2Document> result2 = solrTemplate.queryForFacetPage(query2, Core2Document.class);
+		Collection<Field> facetFields1 = result1.getFacetFields();
+		Collection<Field> facetFields2 = result2.getFacetFields();
+		
+		assertTrue(facetFields1.iterator().next().getName().equals("field_1"));
+		assertTrue(facetFields2.iterator().next().getName().equals("field_2"));
+		Mockito.verify(core1Client, Mockito.times(1)).query(captor1.capture(), Mockito.eq(SolrRequest.METHOD.GET));
+		Mockito.verify(core2Client, Mockito.times(1)).query(captor2.capture(), Mockito.eq(SolrRequest.METHOD.GET));
+	}
+	
+	@SolrDocument(solrCoreName = "core1")
+	public class Core1Document {
+		
+	}
+
+	@SolrDocument(solrCoreName = "core2")
+	public class Core2Document {
+		
 	}
 
 }
