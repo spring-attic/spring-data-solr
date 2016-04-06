@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.0.0.RELEASE (2016-04-06)
+---------------------------------------------
+* DATASOLR-288 - Release 2.0 GA (Hopper).
+* DATASOLR-227 - SolrServerUtils clone doesn't copy HttpClient's ConnectionManager.
+
+
 Changes in version 2.0.0.RC1 (2016-03-18)
 -----------------------------------------
 * DATASOLR-285 - Release 2.0 RC1 (Hopper).
