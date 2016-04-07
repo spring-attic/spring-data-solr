@@ -79,6 +79,7 @@ import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreat
 import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.data.solr.server.support.SolrClientUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -89,8 +90,9 @@ import org.springframework.util.CollectionUtils;
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
+ * @author Venil Noronha
  */
-public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
+public class SolrTemplate implements SolrOperations, MulticoreSolrOperations, InitializingBean, ApplicationContextAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
@@ -162,9 +164,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> T execute(SolrCallback<T> action) {
 		Assert.notNull(action);
+		SolrClient solrClient = this.getSolrClient();
+		return execute(solrClient, action);
+	}
+	
+	@Override
+	public <T> T execute(String coreName, SolrCallback<T> action) {
+		Assert.notNull(coreName);
+		Assert.notNull(action);
+		SolrClient solrClient = this.getSolrClient(coreName);
+		return execute(solrClient, action);
+	}
 
+	private <T> T execute(SolrClient solrClient, SolrCallback<T> action) {
 		try {
-			SolrClient solrClient = this.getSolrClient();
 			return action.doInSolr(solrClient);
 		} catch (Exception e) {
 			DataAccessException resolved = getExceptionTranslator()
@@ -175,7 +188,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public SolrPingResponse ping() {
-		return execute(new SolrCallback<SolrPingResponse>() {
+		return ping(solrCore);
+	}
+
+	@Override
+	public SolrPingResponse ping(String coreName) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		return execute(coreName, new SolrCallback<SolrPingResponse>() {
 			@Override
 			public SolrPingResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.ping();
@@ -184,25 +203,31 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public long count(final SolrDataQuery query) {
+	public long count(SolrDataQuery query) {
 		return count(query, getDefaultRequestMethod());
 	}
 
 	@Override
-	public long count(final SolrDataQuery query, final RequestMethod method) {
+	public long count(String coreName, SolrDataQuery query) {
+		return count(coreName, query, getDefaultRequestMethod());
+	}
 
+	@Override
+	public long count(SolrDataQuery query, RequestMethod method) {
+		return count(solrCore, query, method);
+	}
+
+	@Override
+	public long count(String coreName, final SolrDataQuery query, final RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(method, "Method must not be 'null'.");
-
-		return execute(new SolrCallback<Long>() {
-
+		return execute(coreName, new SolrCallback<Long>() {
 			@Override
 			public Long doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-
 				SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 				solrQuery.setStart(0);
 				solrQuery.setRows(0);
-
 				return solrClient.query(solrQuery, getSolrRequestMethod(method)).getResults().getNumFound();
 			}
 		});
@@ -214,9 +239,21 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse saveBean(final Object objectToAdd, final int commitWithinMs) {
+	public UpdateResponse saveBean(String coreName, Object obj) {
+		return saveBean(coreName, obj, -1);
+	}
+
+	@Override
+	public UpdateResponse saveBean(Object objectToAdd, int commitWithinMs) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(objectToAdd.getClass(), solrCore);
+		return saveBean(coreName, objectToAdd, commitWithinMs);
+	}
+
+	@Override
+	public UpdateResponse saveBean(String coreName, final Object objectToAdd, final int commitWithinMs) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		assertNoCollection(objectToAdd);
-		return execute(new SolrCallback<UpdateResponse>() {
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs);
@@ -230,8 +267,21 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
+	public UpdateResponse saveBeans(String coreName, Collection<?> beans) {
+		return saveBeans(coreName, beans, -1);
+	}
+
+	@Override
+	public UpdateResponse saveBeans(Collection<?> beansToAdd, int commitWithinMs) {
+		Object oneBean = beansToAdd.iterator().next();
+		String coreName = SolrClientUtils.resolveSolrCoreName(oneBean.getClass(), solrCore);
+		return saveBeans(coreName, beansToAdd, commitWithinMs);
+	}
+
+	@Override
+	public UpdateResponse saveBeans(String coreName, final Collection<?> beansToAdd, final int commitWithinMs) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs);
@@ -245,8 +295,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
+	public UpdateResponse saveDocument(String coreName, SolrInputDocument document) {
+		return saveDocument(coreName, document, -1);
+	}
+
+	@Override
+	public UpdateResponse saveDocument(SolrInputDocument documentToAdd, int commitWithinMs) {
+		return saveDocument(solrCore, documentToAdd, commitWithinMs);
+	}
+
+	@Override
+	public UpdateResponse saveDocument(String coreName, final SolrInputDocument documentToAdd, final int commitWithinMs) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.add(documentToAdd, commitWithinMs);
@@ -260,8 +321,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
+	public UpdateResponse saveDocuments(String coreName, Collection<SolrInputDocument> documents) {
+		return saveDocuments(coreName, documents, -1);
+	}
+
+	@Override
+	public UpdateResponse saveDocuments(Collection<SolrInputDocument> documentsToAdd, int commitWithinMs) {
+		return saveDocuments(solrCore, documentsToAdd, commitWithinMs);
+	}
+
+	@Override
+	public UpdateResponse saveDocuments(String coreName, final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.add(documentsToAdd, commitWithinMs);
@@ -271,11 +343,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public UpdateResponse delete(SolrDataQuery query) {
+		return delete(solrCore, query);
+	}
+
+	@Override
+	public UpdateResponse delete(String coreName, SolrDataQuery query) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
-
 		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query);
-
-		return execute(new SolrCallback<UpdateResponse>() {
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.deleteByQuery(queryString);
@@ -284,10 +360,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse deleteById(final String id) {
-		Assert.notNull(id, "Cannot delete 'null' id.");
+	public UpdateResponse deleteById(String id) {
+		return deleteById(solrCore, id);
+	}
 
-		return execute(new SolrCallback<UpdateResponse>() {
+	@Override
+	public UpdateResponse deleteById(String coreName, final String id) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		Assert.notNull(id, "Cannot delete 'null' id.");
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.deleteById(id);
@@ -297,10 +378,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public UpdateResponse deleteById(Collection<String> ids) {
-		Assert.notNull(ids, "Cannot delete 'null' collection.");
+		return deleteById(solrCore, ids);
+	}
 
+	@Override
+	public UpdateResponse deleteById(String coreName, Collection<String> ids) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		Assert.notNull(ids, "Cannot delete 'null' collection.");
 		final List<String> toBeDeleted = new ArrayList<String>(ids);
-		return execute(new SolrCallback<UpdateResponse>() {
+		return execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.deleteById(toBeDeleted);
@@ -314,13 +400,24 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> T queryForObject(Query query, Class<T> clazz, RequestMethod method) {
+	public <T> T queryForObject(String coreName, Query query, Class<T> clazz) {
+		return queryForObject(coreName, query, clazz, getDefaultRequestMethod());
+	}
 
+	@Override
+	public <T> T queryForObject(Query query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForObject(coreName, query, clazz, method);
+	}
+
+	@Override
+	public <T> T queryForObject(String coreName, Query query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		query.setPageRequest(new PageRequest(0, 1));
-		QueryResponse response = query(query, clazz, method);
+		QueryResponse response = query(coreName, query, clazz, method);
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
@@ -331,11 +428,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return null;
 	}
 
-	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
+	private <T> SolrResultPage<T> doQueryForPage(String coreName, Query query, Class<T> clazz,
+			RequestMethod requestMethod) {
 
 		QueryResponse response = null;
 		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
-		response = query(namedObjectsQuery, clazz, requestMethod != null ? requestMethod : getDefaultRequestMethod());
+		response = query(coreName, namedObjectsQuery, clazz, requestMethod != null ? requestMethod : getDefaultRequestMethod());
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		return createSolrResultPage(query, clazz, response, objectsName);
@@ -343,59 +441,77 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, getDefaultRequestMethod());
+		return queryForPage(query, clazz, getDefaultRequestMethod());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
+	@Override
+	public <T> ScoredPage<T> queryForPage(String coreName, Query query, Class<T> clazz) {
+		return queryForPage(coreName, query, clazz, getDefaultRequestMethod());
+	}
+
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForPage(coreName, query, clazz, method);
+	}
 
+	@Override
+	public <T> ScoredPage<T> queryForPage(String coreName, Query query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
+		return doQueryForPage(coreName, query, clazz, method);
 	}
 
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz) {
-		return queryForGroupPage(query, clazz, RequestMethod.GET);
+		return queryForGroupPage(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> GroupPage<T> queryForGroupPage(String coreName, Query query, Class<T> clazz) {
+		return queryForGroupPage(coreName, query, clazz, getDefaultRequestMethod());
 	}
 
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForGroupPage(coreName, query, clazz, method);
+	}
 
+	@Override
+	public <T> GroupPage<T> queryForGroupPage(String coreName, Query query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
+		return doQueryForPage(coreName, query, clazz, method);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForStatsPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
 	@Override
 	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz) {
 		return queryForStatsPage(query, clazz, getDefaultRequestMethod());
 	}
 
 	@Override
-	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method) {
+	public <T> StatsPage<T> queryForStatsPage(String coreName, Query query, Class<T> clazz) {
+		return queryForStatsPage(coreName, query, clazz, getDefaultRequestMethod());
+	}
 
+	@Override
+	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForStatsPage(coreName, query, clazz, method);
+	}
+
+	@Override
+	public <T> StatsPage<T> queryForStatsPage(String coreName, Query query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
+		return doQueryForPage(coreName, query, clazz, method);
 	}
 
 	@Override
@@ -404,13 +520,24 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method) {
+	public <T> FacetPage<T> queryForFacetPage(String coreName, FacetQuery query, Class<T> clazz) {
+		return queryForFacetPage(coreName, query, clazz, getDefaultRequestMethod());
+	}
 
+	@Override
+	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForFacetPage(coreName, query, clazz, method);
+	}
+
+	@Override
+	public <T> FacetPage<T> queryForFacetPage(String coreName, FacetQuery query, Class<T> clazz, RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz, method);
+		QueryResponse response = query(coreName, namedObjectsQuery, clazz, method);
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
@@ -429,13 +556,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method) {
+	public <T> HighlightPage<T> queryForHighlightPage(String coreName, HighlightQuery query, Class<T> clazz) {
+		return queryForHighlightPage(coreName, query, clazz, getDefaultRequestMethod());
+	}
 
+	@Override
+	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForHighlightPage(coreName, query, clazz, method);
+	}
+
+	@Override
+	public <T> HighlightPage<T> queryForHighlightPage(String coreName, HighlightQuery query, Class<T> clazz,
+			RequestMethod method) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz, getDefaultRequestMethod());
+		QueryResponse response = query(coreName, namedObjectsQuery, clazz, getDefaultRequestMethod());
 
 		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
@@ -470,23 +609,38 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
+	public TermsPage queryForTermsPage(String coreName, TermsQuery query) {
+		return queryForTermsPage(coreName, query, getDefaultRequestMethod());
+	}
+
+	@Override
 	public TermsPage queryForTermsPage(TermsQuery query, RequestMethod method) {
+		return queryForTermsPage(solrCore, query, method);
+	}
 
-		Assert.notNull(query, "Query must not be 'null'.");
-
-		QueryResponse response = query(query, null, method);
-
+	@Override
+	public TermsPage queryForTermsPage(String coreName, TermsQuery query, RequestMethod method) {
+		QueryResponse response = query(coreName, query, null, method);
 		TermsResultPage page = new TermsResultPage();
 		page.addAllTerms(ResultHelper.convertTermsQueryResponseToTermsMap(response));
 		return page;
 	}
 
 	final QueryResponse query(SolrDataQuery query, Class<?> clazz) {
-		return query(query, clazz, defaultRequestMethod);
+		return query(query, clazz, getDefaultRequestMethod());
+	}
+
+	final QueryResponse query(String coreName, SolrDataQuery query, Class<?> clazz) {
+		return query(coreName, query, clazz, getDefaultRequestMethod());
 	}
 
 	final QueryResponse query(SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
-
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return query(coreName, query, clazz, requestMethod);
+	}
+	
+	final QueryResponse query(String coreName, SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		Assert.notNull(query, "Query must not be 'null'");
 		Assert.notNull(requestMethod, "RequestMethod must not be 'null'");
 
@@ -499,14 +653,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		}
 
-		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
-
-		return executeSolrQuery(solrQuery, getSolrRequestMethod(requestMethod));
+		LOGGER.debug("Executing query '" + solrQuery + "' against {} solr core.", coreName);
+		return executeSolrQuery(coreName, solrQuery, getSolrRequestMethod(requestMethod));
 	}
 
-	final QueryResponse executeSolrQuery(final SolrQuery solrQuery, final SolrRequest.METHOD method) {
-
-		return execute(new SolrCallback<QueryResponse>() {
+	final QueryResponse executeSolrQuery(SolrQuery solrQuery, SolrRequest.METHOD method) {
+		return executeSolrQuery(solrCore, solrQuery, method);
+	}
+	
+	final QueryResponse executeSolrQuery(final String coreName, final SolrQuery solrQuery,
+			final SolrRequest.METHOD method) {
+		return execute(coreName, new SolrCallback<QueryResponse>() {
 			@Override
 			public QueryResponse doInSolr(SolrClient solrServer) throws SolrServerException, IOException {
 				return solrServer.query(solrQuery, method);
@@ -516,7 +673,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void commit() {
-		execute(new SolrCallback<UpdateResponse>() {
+		commit(solrCore);
+	}
+
+	@Override
+	public void commit(String coreName) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.commit();
@@ -526,11 +689,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void softCommit() {
+		softCommit(solrCore);
+	}
+
+	@Override
+	public void softCommit(String coreName) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		if (VersionUtil.isSolr3XAvailable()) {
 			throw new UnsupportedOperationException(
 					"Soft commit is not available for solr version lower than 4.x - Please check your depdendencies.");
 		}
-		execute(new SolrCallback<UpdateResponse>() {
+		execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.commit(true, true, true);
@@ -540,7 +709,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void rollback() {
-		execute(new SolrCallback<UpdateResponse>() {
+		rollback(solrCore);
+	}
+
+	@Override
+	public void rollback(String coreName) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
+		execute(coreName, new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				return solrClient.rollback();
@@ -565,8 +740,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @since 1.3
 	 */
 	public String getSchemaName(String collectionName) {
-		return execute(new SolrCallback<String>() {
-
+		Assert.notNull(collectionName, "Collection name must not be 'null'.");
+		return execute(collectionName, new SolrCallback<String>() {
 			@Override
 			public String doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 				SolrJsonResponse response = SolrSchemaRequest.name().process(solrClient);
@@ -578,19 +753,21 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForCursor(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	public <T> Cursor<T> queryForCursor(Query query, final Class<T> clazz) {
+	public <T> Cursor<T> queryForCursor(Query query, Class<T> clazz) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return queryForCursor(coreName, query, clazz);
+	}
 
+	@Override
+	public <T> Cursor<T> queryForCursor(final String coreName, Query query, final Class<T> clazz) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
 
 			@Override
 			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
 					SolrQuery nativeQuery) {
 
-				QueryResponse response = executeSolrQuery(nativeQuery, getSolrRequestMethod(getDefaultRequestMethod()));
+				QueryResponse response = executeSolrQuery(coreName, nativeQuery, getSolrRequestMethod(getDefaultRequestMethod()));
 				if (response == null) {
 					return new PartialResult<T>("", Collections.<T> emptyList());
 				}
@@ -602,28 +779,35 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> Collection<T> getById(final Collection<? extends Serializable> ids, final Class<T> clazz) {
+	public <T> Collection<T> getById(Collection<? extends Serializable> ids, Class<T> clazz) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return getById(coreName, ids, clazz);
+	}
 
+	@Override
+	public <T> Collection<T> getById(String coreName, final Collection<? extends Serializable> ids, final Class<T> clazz) {
+		Assert.notNull(coreName, "Core name must not be 'null'.");
 		if (CollectionUtils.isEmpty(ids)) {
 			return Collections.emptyList();
 		}
-
-		return execute(new SolrCallback<Collection<T>>() {
+		return execute(coreName, new SolrCallback<Collection<T>>() {
 			@Override
 			public Collection<T> doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-
 				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient);
 				return convertSolrDocumentListToBeans(response.getResults(), clazz);
 			}
-
 		});
 	}
 
 	@Override
 	public <T> T getById(Serializable id, Class<T> clazz) {
+		String coreName = SolrClientUtils.resolveSolrCoreName(clazz, solrCore);
+		return getById(coreName, id, clazz);
+	}
 
+	@Override
+	public <T> T getById(String coreName, Serializable id, Class<T> clazz) {
 		Assert.notNull(id, "Id must not be 'null'.");
-
 		Collection<T> result = getById(Collections.singletonList(id), clazz);
 		if (result.isEmpty()) {
 			return null;
@@ -676,6 +860,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return solrClientFactory.getSolrClient(this.solrCore);
 	}
 
+	@Override
+	public final SolrClient getSolrClient(String coreName) {
+		return solrClientFactory.getSolrClient(coreName);
+	}
+	
 	@Override
 	public SolrConverter getConverter() {
 		return this.solrConverter;
