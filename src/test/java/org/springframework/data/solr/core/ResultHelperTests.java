@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -773,6 +773,26 @@ public class ResultHelperTests {
 		Assert.assertEquals("count1", content.get(0).getValue());
 		Assert.assertEquals(2, content.get(1).getValueCount());
 		Assert.assertEquals("count2", content.get(1).getValue());
+	}
+
+	/**
+	 * @see DATASOLR-305
+	 */
+	@Test
+	public void testConvertFacetQueryResponseForNegativeFacetLimit() {
+
+		List<FacetField> fieldList = new ArrayList<FacetField>(1);
+		FacetField ffield = createFacetField("field_1", 1, 2);
+		fieldList.add(ffield);
+
+		Mockito.when(response.getFacetFields()).thenReturn(fieldList);
+
+		FacetQuery query = createFacetQuery("field_1");
+		query.getFacetOptions().setFacetLimit(-1);
+
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response);
+		Assert.assertNotNull(result);
+		Assert.assertEquals(1, result.size());
 	}
 
 	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,
