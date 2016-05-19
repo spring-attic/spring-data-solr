@@ -107,7 +107,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 		String solrHomeDirectory = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
 		if (StringUtils.isBlank(solrHomeDirectory)) {
-			solrHomeDirectory = ResourceUtils.getURL(path).getPath();
+			solrHomeDirectory = ResourceUtils.getFile(path).getPath();
 		}
 
 		solrHomeDirectory = URLDecoder.decode(solrHomeDirectory, "utf-8");
