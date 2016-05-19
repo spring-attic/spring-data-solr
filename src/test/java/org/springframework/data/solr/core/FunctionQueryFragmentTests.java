@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,7 @@ public class FunctionQueryFragmentTests {
 
 	@Parameters(name = "{index}: {0}")
 	public static Collection<Object[]> data() {
-		Object[][] data = new Object[][] {
-				{ CurrencyFunction.currency("field_1"), "{!func}currency(field_1)" },
+		Object[][] data = new Object[][] { { CurrencyFunction.currency("field_1"), "{!func}currency(field_1)" },
 				{ CurrencyFunction.currency("field_1", "EUR"), "{!func}currency(field_1,EUR)" },
 				{ CurrencyFunction.currency(new SimpleField("field_1")), "{!func}currency(field_1)" },
 				{ CurrencyFunction.currency(new SimpleField("field_1"), "EUR"), "{!func}currency(field_1,EUR)" },
@@ -81,19 +80,22 @@ public class FunctionQueryFragmentTests {
 				{ DefaultValueFunction.defaultValue(new Foo(), "value"), "{!func}def(foo(),value)" },
 				{ DefaultValueFunction.defaultValue(new Foo(), 1), "{!func}def(foo(),1)" },
 				{ DefaultValueFunction.defaultValue(new Foo(), new Bar()), "{!func}def(foo(),bar())" },
-				{ DistanceFunction.euclideanDistance().between(new Point(1, 2), new Point(3, 4)), "{!func}dist(2,1,2,3,4)" },
+				{ DistanceFunction.euclideanDistance().between(new Point(1, 2), new Point(3, 4)),
+						"{!func}dist(2,1.0,2.0,3.0,4.0)" },
 				{ DistanceFunction.euclideanDistance().between(new Point(1, 2, 3), new Point(4, 5, 6)),
-						"{!func}dist(2,1,2,3,4,5,6)" },
+						"{!func}dist(2,1.0,2.0,3.0,4.0,5.0,6.0)" },
 				{ DistanceFunction.infiniteNormDistance().between(new Point(1, 2), new Point(3, 4)),
-						"{!func}dist(Infinite,1,2,3,4)" },
+						"{!func}dist(Infinite,1.0,2.0,3.0,4.0)" },
 				{ DistanceFunction.infiniteNormDistance().between(new Point(1, 2, 3), new Point(4, 5, 6)),
-						"{!func}dist(Infinite,1,2,3,4,5,6)" },
-				{ DistanceFunction.manhattanDistance().between(new Point(1, 2), new Point(3, 4)), "{!func}dist(1,1,2,3,4)" },
+						"{!func}dist(Infinite,1.0,2.0,3.0,4.0,5.0,6.0)" },
+				{ DistanceFunction.manhattanDistance().between(new Point(1, 2), new Point(3, 4)),
+						"{!func}dist(1,1.0,2.0,3.0,4.0)" },
 				{ DistanceFunction.manhattanDistance().between(new Point(1, 2, 3), new Point(4, 5, 6)),
-						"{!func}dist(1,1,2,3,4,5,6)" },
-				{ DistanceFunction.sparsenessDistance().between(new Point(1, 2), new Point(3, 4)), "{!func}dist(0,1,2,3,4)" },
+						"{!func}dist(1,1.0,2.0,3.0,4.0,5.0,6.0)" },
+				{ DistanceFunction.sparsenessDistance().between(new Point(1, 2), new Point(3, 4)),
+						"{!func}dist(0,1.0,2.0,3.0,4.0)" },
 				{ DistanceFunction.sparsenessDistance().between(new Point(1, 2, 3), new Point(4, 5, 6)),
-						"{!func}dist(0,1,2,3,4,5,6)" },
+						"{!func}dist(0,1.0,2.0,3.0,4.0,5.0,6.0)" },
 				{ DivideFunction.divide(new Foo()).by(new Bar()), "{!func}div(foo(),bar())" },
 				{ DivideFunction.divide(new Foo()).by(Long.valueOf(3)), "{!func}div(foo(),3)" },
 				{ DivideFunction.divide(new Foo()).by("field_1"), "{!func}div(foo(),field_1)" },
@@ -115,45 +117,49 @@ public class FunctionQueryFragmentTests {
 				{ ExistsFunction.exists(new Foo()), "{!func}exists(foo())" },
 				{ ExistsFunction.exists(new SimpleField("field_1")), "{!func}exists(field_1)" },
 				{ GeoDistanceFunction.distanceFrom("field_1").to(new org.springframework.data.geo.Point(12, 13)),
-						"{!func}geodist(field_1,12,13)" },
-				{
-						GeoDistanceFunction.distanceFrom(new SimpleField("field_1")).to(
-								new org.springframework.data.geo.Point(12, 13)), "{!func}geodist(field_1,12,13)" },
-				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "{!func}geodist(field_1,12,13)" },
-				{ GeoHashFunction.geohash(new org.springframework.data.geo.Point(1, 2)), "{!func}geohash(1,2)" },
-				{ GeoHashFunction.geohash(1, 2), "{!func}geohash(1,2)" },
+						"{!func}geodist(field_1,12.0,13.0)" },
+				{ GeoDistanceFunction.distanceFrom(new SimpleField("field_1"))
+						.to(new org.springframework.data.geo.Point(12, 13)), "{!func}geodist(field_1,12.0,13.0)" },
+				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "{!func}geodist(field_1,12.0,13.0)" },
+				{ GeoHashFunction.geohash(new org.springframework.data.geo.Point(1, 2)), "{!func}geohash(1.0,2.0)" },
+				{ GeoHashFunction.geohash(1, 2), "{!func}geohash(1.0,2.0)" },
 				{ IfFunction.when(new Foo()).then("field_1").otherwise(3), "{!func}if(foo(),field_1,3)" },
 				{ IfFunction.when(new Foo()).then(new SimpleField("field_1")).otherwise(3), "{!func}if(foo(),field_1,3)" },
 				{ IfFunction.when("field_1").then(new Foo()).otherwise(new Bar()), "{!func}if(field_1,foo(),bar())" },
 				{ IfFunction.when(new SimpleField("field_1")).then(new Foo()).otherwise(new Bar()),
 						"{!func}if(field_1,foo(),bar())" },
 				{ MaxFunction.max(new Foo(), new Bar()), "{!func}max(foo(),bar())" },
-				{ MaxFunction.max(new Foo(), Long.valueOf(3)), "{!func}max(foo(),3)" },
-				{ MaxFunction.max(new Foo(), "field_1"), "{!func}max(foo(),field_1)" },
-				{ MaxFunction.max(Long.valueOf(3), new Bar()), "{!func}max(3,bar())" },
-				{ MaxFunction.max(Long.valueOf(3), Long.valueOf(4)), "{!func}max(3,4)" },
-				{ MaxFunction.max(Long.valueOf(3), "field_1"), "{!func}max(3,field_1)" },
-				{ MaxFunction.max("field_1", new Bar()), "{!func}max(field_1,bar())" },
-				{ MaxFunction.max("field_1", Long.valueOf(3)), "{!func}max(field_1,3)" },
-				{ MaxFunction.max("field_1", "field_2"), "{!func}max(field_1,field_2)" },
-				{ NotFunction.not("field_1"), "{!func}not(field_1)" },
-				{ NotFunction.not(new Foo()), "{!func}not(foo())" },
+				{ MaxFunction.max(new Foo(), Long.valueOf(3)),
+						"{!func}max(foo(),3)" },
+				{ MaxFunction.max(new Foo(), "field_1"),
+						"{!func}max(foo(),field_1)" },
+				{ MaxFunction.max(Long.valueOf(3), new Bar()),
+						"{!func}max(3,bar())" },
+				{ MaxFunction.max(Long.valueOf(3), Long.valueOf(4)),
+						"{!func}max(3,4)" },
+				{ MaxFunction.max(Long.valueOf(3), "field_1"),
+						"{!func}max(3,field_1)" },
+				{ MaxFunction.max("field_1", new Bar()),
+						"{!func}max(field_1,bar())" },
+				{ MaxFunction.max("field_1", Long.valueOf(3)),
+						"{!func}max(field_1,3)" },
+				{ MaxFunction.max("field_1", "field_2"),
+						"{!func}max(field_1,field_2)" },
+				{ NotFunction.not("field_1"), "{!func}not(field_1)" }, { NotFunction.not(new Foo()), "{!func}not(foo())" },
 				{ NotFunction.not(new SimpleField("field_1")), "{!func}not(field_1)" },
 				{ ProductFunction.product("field_1").times("field_2").build(), "{!func}product(field_1,field_2)" },
 				{ ProductFunction.product(new SimpleField("field_1")).times("field_2").build(),
 						"{!func}product(field_1,field_2)" },
 				{ ProductFunction.product(Long.valueOf(3)).times("field_2").build(), "{!func}product(3,field_2)" },
 				{ ProductFunction.product("field_1").times("field_2").build(), "{!func}product(field_1,field_2)" },
-				{ ProductFunction.product(new Foo()).times(new SimpleField("field_1")).build(), "{!func}product(foo(),field_1)" },
+				{ ProductFunction.product(new Foo()).times(new SimpleField("field_1")).build(),
+						"{!func}product(foo(),field_1)" },
 				{ ProductFunction.product(new Foo()).times(new SimpleField("field_1")).times(new Bar()).build(),
 						"{!func}product(foo(),field_1,bar())" },
-				{
-						ProductFunction.product(new Foo()).times(new SimpleField("field_1")).times(new Bar())
-								.times(Long.valueOf(3)).build(), "{!func}product(foo(),field_1,bar(),3)" },
-				{
-						ProductFunction.product(new Foo()).times(new SimpleField("field_1")).times(new Bar())
-								.times(Long.valueOf(3)).times(new SimpleField("field_2")).build(),
-						"{!func}product(foo(),field_1,bar(),3,field_2)" },
+				{ ProductFunction.product(new Foo()).times(new SimpleField("field_1")).times(new Bar()).times(Long.valueOf(3))
+						.build(), "{!func}product(foo(),field_1,bar(),3)" },
+				{ ProductFunction.product(new Foo()).times(new SimpleField("field_1")).times(new Bar()).times(Long.valueOf(3))
+						.times(new SimpleField("field_2")).build(), "{!func}product(foo(),field_1,bar(),3,field_2)" },
 				{ QueryFunction.query(new Criteria("field_1").is("value")), "{!func}query(field_1:value)" },
 				{ QueryFunction.query(new SimpleQuery(new Criteria("field_1").is("value"))), "{!func}query(field_1:value)" },
 				{ TermFrequencyFunction.termFequency("term").inField(new SimpleField("field_1")),
@@ -162,10 +168,13 @@ public class FunctionQueryFragmentTests {
 		return Arrays.asList(data);
 	}
 
+	/**
+	 * @see DATAREDIS-307
+	 */
 	@Test
 	public void queryParserConstructsExpectedFragment() {
-		Assert
-				.assertThat(queryParser.createFunctionFragment(this.function, 0), IsEqual.equalTo(this.expectedQueryFragment));
+		Assert.assertThat(queryParser.createFunctionFragment(this.function, 0),
+				IsEqual.equalTo(this.expectedQueryFragment));
 	}
 
 	private static class Foo extends AbstractFunction {

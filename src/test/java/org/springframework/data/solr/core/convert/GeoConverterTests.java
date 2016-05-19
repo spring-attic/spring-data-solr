@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,45 @@ public class GeoConverterTests {
 		public void testConvertPointXYZToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341,-12.78",
 					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
+		}
+
+		/**
+		 * @see DATASOLR-307
+		 */
+		@Test
+		public void shouldConvertYCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("53.549999,10.0",
+					GeoConverters.Point2DToStringConverter.INSTANCE.convert(new Point(53.549999, 10.000000)));
+		}
+
+		/**
+		 * @see DATASOLR-307
+		 */
+		@Test
+		public void shouldConvertXCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("10.0,53.549999",
+					GeoConverters.Point2DToStringConverter.INSTANCE.convert(new Point(10.000000, 53.549999)));
+		}
+
+		/**
+		 * @see DATASOLR-307
+		 */
+		@Test
+		public void shouldConvertZCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("123.456,53.549999,10.0", GeoConverters.Point3DToStringConverter.INSTANCE
+					.convert(new org.springframework.data.solr.core.geo.Point(123.456, 53.549999, 10.00)));
+		}
+
+		/**
+		 * @see DATASOLR-307
+		 */
+		@Test
+		public void shouldConvertXYZCoordWithZeroScaleCorrectly() {
+			Assert.assertEquals("123.0,456.0,789.0", GeoConverters.Point3DToStringConverter.INSTANCE
+					.convert(new org.springframework.data.solr.core.geo.Point(123, 456, 789)));
 		}
 
 	}
