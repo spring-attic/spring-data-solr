@@ -117,7 +117,7 @@ final class ResultHelper {
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<Field, Page<FacetFieldEntry>>();
 
 		if (!CollectionUtils.isEmpty(response.getFacetFields())) {
-			int initalPageSize = query.getFacetOptions().getPageable().getPageSize();
+			int initalPageSize = Math.max(1, query.getFacetOptions().getPageable().getPageSize());
 			for (FacetField facetField : response.getFacetFields()) {
 				if (facetField != null && StringUtils.hasText(facetField.getName())) {
 					Field field = new SimpleField(facetField.getName());
