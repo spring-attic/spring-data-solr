@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,14 +110,12 @@ public final class GeoConverters {
 					+ "," + StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0");
 
 			if (source instanceof Point) {
-				formattedString += (((Point) source).getZ() != null ? ("," + StringUtils.stripEnd(
-						String.format(java.util.Locale.ENGLISH, "%f", ((Point) source).getZ()), "0")) : "");
+				formattedString += (((Point) source).getZ() != null
+						? ("," + StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", ((Point) source).getZ()), "0"))
+						: "");
 			}
 
-			if (formattedString.endsWith(".")) {
-				return formattedString.replace(".", "");
-			}
-			return formattedString;
+			return formattedString.replaceAll("\\.,", "\\.0,").replaceFirst("\\.$", ".0");
 		}
 
 	}
