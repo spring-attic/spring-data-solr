@@ -94,8 +94,8 @@ final class ResultHelper {
 		}
 
 		TermsResponse termsResponse = response.getTermsResponse();
-		Map<String, List<TermsFieldEntry>> result = new LinkedHashMap<String, List<TermsFieldEntry>>(termsResponse
-				.getTermMap().size());
+		Map<String, List<TermsFieldEntry>> result = new LinkedHashMap<String, List<TermsFieldEntry>>(
+				termsResponse.getTermMap().size());
 
 		for (Map.Entry<String, List<Term>> entry : termsResponse.getTermMap().entrySet()) {
 			List<TermsFieldEntry> terms = new ArrayList<TermsFieldEntry>(entry.getValue().size());
@@ -119,8 +119,8 @@ final class ResultHelper {
 		}
 		Map<Field, Page<FacetFieldEntry>> facetResult = new HashMap<Field, Page<FacetFieldEntry>>();
 
-		if (CollectionUtils.isNotEmpty(response.getFacetFields())) {
-			int initalPageSize = query.getFacetOptions().getPageable().getPageSize();
+		if (!CollectionUtils.isEmpty(response.getFacetFields())) {
+			int initalPageSize = Math.max(1, query.getFacetOptions().getPageable().getPageSize());
 			for (FacetField facetField : response.getFacetFields()) {
 				if (facetField != null && StringUtils.hasText(facetField.getName())) {
 					Field field = new SimpleField(facetField.getName());
@@ -131,11 +131,11 @@ final class ResultHelper {
 								pageEntries.add(new SimpleFacetFieldEntry(field, count.getName(), count.getCount()));
 							}
 						}
-						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries, query.getFacetOptions()
-								.getPageable(), facetField.getValueCount(), null));
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(pageEntries,
+								query.getFacetOptions().getPageable(), facetField.getValueCount(), null));
 					} else {
-						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(), query
-								.getFacetOptions().getPageable(), 0, null));
+						facetResult.put(field, new SolrResultPage<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList(),
+								query.getFacetOptions().getPageable(), 0, null));
 					}
 				}
 			}
