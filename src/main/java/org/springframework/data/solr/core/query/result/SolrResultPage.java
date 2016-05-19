@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,10 @@ import org.springframework.util.ObjectUtils;
  * 
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author David Webb
  */
-public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T>,
-		GroupPage<T>, StatsPage<T> {
+public class SolrResultPage<T> extends PageImpl<T>
+		implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>, ScoredPage<T>, GroupPage<T>, StatsPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -158,8 +159,8 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public Page<FacetQueryEntry> getFacetQueryResult() {
-		return this.facetQueryResult != null ? this.facetQueryResult : new PageImpl<FacetQueryEntry>(
-				Collections.<FacetQueryEntry> emptyList());
+		return this.facetQueryResult != null ? this.facetQueryResult
+				: new PageImpl<FacetQueryEntry>(Collections.<FacetQueryEntry> emptyList());
 	}
 
 	@Override

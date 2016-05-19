@@ -36,6 +36,7 @@ import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
+import org.springframework.data.solr.core.query.AbstractFacetAndHighlightQueryDecorator;
 import org.springframework.data.solr.core.query.AbstractFacetQueryDecorator;
 import org.springframework.data.solr.core.query.AbstractHighlightQueryDecorator;
 import org.springframework.data.solr.core.query.AbstractQueryDecorator;
@@ -43,6 +44,7 @@ import org.springframework.data.solr.core.query.CalculatedField;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
+import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.Function;
@@ -62,6 +64,7 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Radek Mensik
+ * @author David Webb
  */
 public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
@@ -181,7 +184,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @return
 	 */
 	protected String createQueryFragmentForCriteria(Criteria part) {
-		Criteria criteria = (Criteria) part;
+		Criteria criteria = part;
 		StringBuilder queryFragment = new StringBuilder();
 		boolean singeEntryCriteria = (criteria.getPredicates().size() == 1);
 		if (criteria instanceof QueryStringHolder) {
@@ -826,6 +829,30 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
 
 		public NamedObjectsHighlightQuery(HighlightQuery query) {
+			super(query);
+		}
+
+		@Override
+		public void setName(Object object, String name) {
+			setObjectName(namesAssociation, object, name);
+		}
+
+		@Override
+		public Map<String, Object> getNamesAssociation() {
+			return Collections.unmodifiableMap(namesAssociation);
+		}
+
+	}
+
+	/**
+	 * @author David Webb
+	 */
+	static class NamedObjectsFacetAndHighlightQuery extends AbstractFacetAndHighlightQueryDecorator
+			implements NamedObjects {
+
+		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+
+		public NamedObjectsFacetAndHighlightQuery(FacetAndHighlightQuery query) {
 			super(query);
 		}
 

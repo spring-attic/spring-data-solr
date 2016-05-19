@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
@@ -186,6 +187,27 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Highlight(query = "description:?1")
 	HighlightPage<ProductBean> findByNameHighlightWihtQueryOverride(String name, String highlightOn, Pageable page);
 
+	@Query("name:?0*")
+	@Highlight
+	@Facet(fields = "name")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnNameHighlightAll(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(prefix = "<b>", postfix = "</b>")
+	@Facet(fields = "inStock")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnInStockHighlightAllWithPreAndPostfix(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(fields = { "description" })
+	@Facet(fields = "name", prefix = "pro")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnNameHighlightAllLimitToFields(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(query = "description:?1")
+	@Facet(fields = "store")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnStoreHighlightWihtQueryOverride(String name, String highlightOn,
+			Pageable page);
+
 	Long countProductBeanByName(String name);
 
 	Long countByName(String name);
@@ -207,9 +229,9 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	@Query("*:*")
 	@Stats(//
-			value = { "id", "price" },//
-			facets = { "last_modified", "id" },//
-			selective = @SelectiveStats(field = "weight", facets = "inStock")//
+			value = { "id", "price" }, //
+			facets = { "last_modified", "id" }, //
+			selective = @SelectiveStats(field = "weight", facets = "inStock") //
 	)
 	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
 

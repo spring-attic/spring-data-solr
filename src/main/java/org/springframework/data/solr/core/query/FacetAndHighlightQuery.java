@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.core.query.result;
-
-import org.springframework.data.domain.Page;
+package org.springframework.data.solr.core.query;
 
 /**
- * HighlightPage holds a page for each field targeted by the highlight query as well as the page values returned by the
- * solr query
+ * A Query that combines a {@link FacetQuery} and a {@link HighlightQuery}
  * 
- * @param <T>
- * @author Christoph Strobl
  * @author David Webb
+ * @since 2.1.0
  */
-public interface HighlightPage<T> extends HighlightQueryResult<T>, Page<T> {
+public interface FacetAndHighlightQuery extends FacetQuery, HighlightQuery {
 
 }

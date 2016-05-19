@@ -50,6 +50,7 @@ import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.SolrRealtimeGetRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.VersionUtil;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetAndHighlightQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsHighlightQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsQuery;
@@ -58,6 +59,7 @@ import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
@@ -65,6 +67,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.DelegatingCursor;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
@@ -89,6 +92,7 @@ import org.springframework.util.CollectionUtils;
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
+ * @author David Webb
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -326,7 +330,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			if (response.getResults().size() > 1) {
 				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
 			}
-			return (T) convertSolrDocumentListToBeans(response.getResults(), clazz).get(0);
+			return convertSolrDocumentListToBeans(response.getResults(), clazz).get(0);
 		}
 		return null;
 	}
@@ -442,6 +446,36 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
 
 		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
+
+		return page;
+	}
+
+	@Override
+	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz) {
+		return queryForFacetAndHighlightPage(query, clazz, getDefaultRequestMethod());
+	}
+
+	@Override
+	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz,
+			RequestMethod method) {
+
+		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(clazz, "Target class must not be 'null'.");
+
+		NamedObjectsFacetAndHighlightQuery namedObjectsFacetAndHighlightQuery = new NamedObjectsFacetAndHighlightQuery(
+				query);
+
+		QueryResponse response = query(namedObjectsFacetAndHighlightQuery, clazz, method);
+		Map<String, Object> objectsName = namedObjectsFacetAndHighlightQuery.getNamesAssociation();
+
+		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
+
+		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
+
+		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
+		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
+		page.addAllRangeFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query, response));
+		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
 
 		return page;
 	}
@@ -582,6 +616,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.SolrOperations#queryForCursor(org.springframework.data.solr.core.query.Query, java.lang.Class)
 	 */
+	@Override
 	public <T> Cursor<T> queryForCursor(Query query, final Class<T> clazz) {
 
 		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
