@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
@@ -76,7 +77,8 @@ public class ITestSolrRepositoryOperations {
 	@Before
 	public void setUp() {
 		repo.deleteAll();
-		repo.save(Arrays.asList(POPULAR_AVAILABLE_PRODUCT, UNPOPULAR_AVAILABLE_PRODUCT, UNAVAILABLE_PRODUCT, NAMED_PRODUCT));
+		repo.save(
+				Arrays.asList(POPULAR_AVAILABLE_PRODUCT, UNPOPULAR_AVAILABLE_PRODUCT, UNAVAILABLE_PRODUCT, NAMED_PRODUCT));
 	}
 
 	@After
@@ -195,8 +197,8 @@ public class ITestSolrRepositoryOperations {
 		modifiedMid2011.setLastModified(new DateTime(2011, 6, 1, 0, 0, 0, DateTimeZone.UTC).toDate());
 
 		repo.save(Arrays.asList(modifiedMid2012, modifiedMid2011));
-		List<ProductBean> found = repo.findByLastModifiedBefore(new DateTime(2011, 12, 31, 23, 59, 59, DateTimeZone.UTC)
-				.toDate());
+		List<ProductBean> found = repo
+				.findByLastModifiedBefore(new DateTime(2011, 12, 31, 23, 59, 59, DateTimeZone.UTC).toDate());
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(modifiedMid2011.getId(), found.get(0).getId());
 	}
@@ -377,8 +379,8 @@ public class ITestSolrRepositoryOperations {
 		}
 		repo.save(values);
 
-		List<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSort(true, new Sort(Direction.DESC,
-				"popularity"));
+		List<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSort(true,
+				new Sort(Direction.DESC, "popularity"));
 
 		ProductBean prev = found.get(0);
 		for (int i = 1; i < found.size(); i++) {
@@ -398,8 +400,8 @@ public class ITestSolrRepositoryOperations {
 		}
 		repo.save(values);
 
-		Page<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSortInPageable(true, new PageRequest(0, 50,
-				new Sort(Direction.DESC, "popularity")));
+		Page<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSortInPageable(true,
+				new PageRequest(0, 50, new Sort(Direction.DESC, "popularity")));
 
 		ProductBean prev = found.getContent().get(0);
 		for (int i = 1; i < found.getContent().size(); i++) {
@@ -439,8 +441,8 @@ public class ITestSolrRepositoryOperations {
 		}
 		repo.save(values);
 
-		Page<ProductBean> found = repo.findByAvailableWithSort(true, new PageRequest(0, 30, new Sort(Direction.DESC,
-				"popularity")));
+		Page<ProductBean> found = repo.findByAvailableWithSort(true,
+				new PageRequest(0, 30, new Sort(Direction.DESC, "popularity")));
 
 		ProductBean prev = found.getContent().get(0);
 		for (int i = 1; i < found.getContent().size(); i++) {
@@ -587,6 +589,96 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals("name", page.getContent().get(0).getField().getName());
 		Assert.assertEquals("product", page.getContent().get(0).getValue());
 		Assert.assertEquals(1, page.getContent().get(0).getValueCount());
+	}
+
+	@Test
+	public void testQueryWithFacetAndHighlight() {
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAll("na", new PageRequest(0, 10));
+		Assert.assertEquals(3, page.getNumberOfElements());
+
+		Assert.assertTrue(page.getFacetFields().size() > 0);
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("name", highlight.getField().getName());
+				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testFacetAndHighlightWithPrefixPostfix() {
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnInStockHighlightAllWithPreAndPostfix("na",
+				new PageRequest(0, 10));
+		Assert.assertEquals(3, page.getNumberOfElements());
+		Assert.assertTrue(page.getFacetFields().size() > 0);
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("name", highlight.getField().getName());
+				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <b>name</b> but was \"" + s + "\"", s.contains("<b>name</b>"));
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testFacetAndHighlightWithFields() {
+		ProductBean beanWithText = createProductBean("withName", 5, true);
+		beanWithText.setDescription("some text with name in it");
+		repo.save(beanWithText);
+
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("na",
+				new PageRequest(0, 10));
+		Assert.assertEquals(4, page.getNumberOfElements());
+		Assert.assertTrue(page.getFacetFields().size() > 0);
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			if (!product.getId().equals(beanWithText.getId())) {
+				Assert.assertThat(highlights, IsEmptyCollection.empty());
+			} else {
+				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				for (Highlight highlight : highlights) {
+					Assert.assertEquals("description", highlight.getField().getName());
+					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					for (String s : highlight.getSnipplets()) {
+						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testFacetAndHighlightWithQueryOverride() {
+		ProductBean beanWithText = createProductBean("withName", 5, true);
+		beanWithText.setDescription("some text with name in it");
+		repo.save(beanWithText);
+
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnStoreHighlightWihtQueryOverride("na", "some",
+				new PageRequest(0, 10));
+		Assert.assertEquals(4, page.getNumberOfElements());
+		Assert.assertTrue(page.getFacetFields().size() > 0);
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			for (Highlight highlight : highlights) {
+				Assert.assertEquals("description", highlight.getField().getName());
+				for (String s : highlight.getSnipplets()) {
+					Assert.assertTrue("expected to find <em>some</em> but was \"" + s + "\"", s.contains("<em>some</em>"));
+				}
+			}
+		}
 	}
 
 	@Test

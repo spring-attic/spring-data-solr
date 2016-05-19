@@ -15,9 +15,11 @@
  */
 package org.springframework.data.solr.core;
 
-import static java.util.Calendar.*;
-import static org.apache.solr.common.params.FacetParams.*;
-import static org.junit.Assert.*;
+import static java.util.Calendar.JANUARY;
+import static java.util.Calendar.NOVEMBER;
+import static org.apache.solr.common.params.FacetParams.FACET_RANGE_INCLUDE;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,6 +55,7 @@ import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.DistanceField;
+import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
@@ -68,6 +71,7 @@ import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.QueryFunction;
+import org.springframework.data.solr.core.query.SimpleFacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
@@ -82,14 +86,13 @@ import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.GroupResult;
-import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.HighlightQueryResult;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
@@ -314,14 +317,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals(10, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		Page<ExampleSolrBean> recalled = solrTemplate.queryForPage(
-				new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
+		Page<ExampleSolrBean> recalled = solrTemplate
+				.queryForPage(new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
 
 		Assert.assertEquals(5, recalled.getNumberOfElements());
 
 		for (ExampleSolrBean bean : recalled) {
-			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(), bean.getCategory()
-					.get(0));
+			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(),
+					bean.getCategory().get(0));
 		}
 	}
 
@@ -439,7 +442,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
 			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
@@ -476,19 +480,20 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters("last_modified",
 				new GregorianCalendar(2013, NOVEMBER, 30).getTime(), new GregorianCalendar(2014, JANUARY, 1).getTime(), "+1DAY") //
-				.setOther(FacetRangeOther.ALL) //
-				.setInclude(FacetRangeInclude.LOWER);
+						.setOther(FacetRangeOther.ALL) //
+						.setInclude(FacetRangeInclude.LOWER);
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
 				.setFacetOptions(//
-				new FacetOptions() //
-						.addFacetByRange(lastModifiedField) //
-						.setFacetLimit(5) //
-						.setFacetMinCount(1) //
-						.setFacetSort(FacetSort.COUNT) //
-						.setPageable(new PageRequest(1, 10)));
+						new FacetOptions() //
+								.addFacetByRange(lastModifiedField) //
+								.setFacetLimit(5) //
+								.setFacetMinCount(1) //
+								.setFacetSort(FacetSort.COUNT) //
+								.setPageable(new PageRequest(1, 10)));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 
 		Assert.assertEquals(FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FACET_RANGE_INCLUDE));
 
@@ -520,19 +525,20 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final FieldWithNumericRangeParameters popularityField = new FieldWithNumericRangeParameters("popularity", 100, 800,
 				200) //
-				.setOther(FacetParams.FacetRangeOther.ALL) //
-				.setHardEnd(false) //
-				.setInclude(FacetRangeInclude.LOWER);
+						.setOther(FacetParams.FacetRangeOther.ALL) //
+						.setHardEnd(false) //
+						.setInclude(FacetRangeInclude.LOWER);
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
 				.setFacetOptions( //
-				new FacetOptions() //
-						.addFacetByRange(popularityField) //
-						.setFacetLimit(5) //
-						.setFacetMinCount(1) //
-						.setFacetSort(FacetSort.COUNT));
+						new FacetOptions() //
+								.addFacetByRange(popularityField) //
+								.setFacetLimit(5) //
+								.setFacetMinCount(1) //
+								.setFacetSort(FacetSort.COUNT));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
 			Assert.assertEquals(4, facetResultPage.getNumberOfElements());
@@ -558,7 +564,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnPivot("cat", "name"));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 
 		List<FacetPivotFieldEntry> pivotEntries = page.getPivot("cat,name");
 		Assert.assertNotNull(pivotEntries);
@@ -589,10 +596,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit();
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
-		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")), new SimpleQuery(
-				new SimpleStringCriteria("inStock:false"))));
+		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")),
+				new SimpleQuery(new SimpleStringCriteria("inStock:false"))));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 
 		Page<FacetQueryEntry> facetQueryResultPage = page.getFacetQueryResult();
 		Assert.assertEquals(2, facetQueryResultPage.getContent().size());
@@ -618,7 +626,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5).setFacetPrefix("spr"));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
 			Assert.assertEquals("spring", entry.getValue());
@@ -640,7 +649,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 				.setFacetOptions(new FacetOptions().addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spr"))
 						.addFacetOnField("cat").setFacetPrefix("lan").setFacetLimit(5));
 
-		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
 			Assert.assertEquals("spring", entry.getValue());
@@ -652,6 +662,43 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (FacetFieldEntry entry : facetPage) {
 			Assert.assertEquals("language", entry.getValue());
 			Assert.assertEquals("cat", entry.getField().getName());
+			Assert.assertEquals(1l, entry.getValueCount());
+		}
+	}
+
+	@Test
+	public void testFacetAndHighlightQueryWithFacetFields() {
+		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		for (int i = 0; i < 10; i++) {
+			values.add(createExampleBeanWithId(Integer.toString(i)));
+		}
+		solrTemplate.saveBeans(values);
+		solrTemplate.commit();
+
+		FacetAndHighlightQuery q = new SimpleFacetAndHighlightQuery(
+				new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+						.setFacetOptions(new FacetOptions().addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
+
+		q.setHighlightOptions(new HighlightOptions().addField("name"));
+
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
+				.queryForFacetPage(q, ExampleSolrBean.class);
+
+		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
+			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+		}
+
+		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertNotNull(entry.getValue());
+			Assert.assertEquals("name", entry.getField().getName());
+			Assert.assertEquals(1l, entry.getValueCount());
+		}
+
+		facetPage = page.getFacetResultPage(new SimpleField("id"));
+		for (FacetFieldEntry entry : facetPage) {
+			Assert.assertNotNull(entry.getValue());
+			Assert.assertEquals("id", entry.getField().getName());
 			Assert.assertEquals(1l, entry.getValueCount());
 		}
 	}
@@ -815,12 +862,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
 		query.setHighlightOptions(new HighlightOptions());
 
-		HighlightPage<ExampleSolrBean> page = solrTemplate.queryForHighlightPage(query, ExampleSolrBean.class);
+		HighlightQueryResult<ExampleSolrBean> page = solrTemplate.queryForHighlightPage(query, ExampleSolrBean.class);
 		Assert.assertEquals(2, page.getHighlighted().size());
 
 		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
-		Assert.assertEquals("Test <em>with</em> some GB18030TEST", page.getHighlighted().get(0).getHighlights().get(0)
-				.getSnipplets().get(0));
+		Assert.assertEquals("Test <em>with</em> some GB18030TEST",
+				page.getHighlighted().get(0).getHighlights().get(0).getSnipplets().get(0));
 	}
 
 	@Test
@@ -854,8 +901,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
 		solrTemplate.commit();
 
-		Query q = new SimpleQuery("*:*").addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction
-				.query("{!query v = 'one'}"))));
+		Query q = new SimpleQuery("*:*")
+				.addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction.query("{!query v = 'one'}"))));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
 		Assert.assertThat(result.getContent().get(0).getId(), IsEqual.equalTo(bean1.getId()));
@@ -902,8 +949,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(createBeansWithId(100));
 		solrTemplate.commit();
 
-		Cursor<ExampleSolrBean> cursor = solrTemplate.queryForCursor(
-				new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
+		Cursor<ExampleSolrBean> cursor = solrTemplate
+				.queryForCursor(new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
 
 		int i = 0;
 		while (cursor.hasNext()) {
@@ -997,7 +1044,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		groupQuery.setFacetOptions(new FacetOptions("inStock"));
 		groupOptions.addGroupByField("name");
 		groupOptions.setGroupFacets(true);
-		FacetPage<ExampleSolrBean> groupResultPage = solrTemplate.queryForFacetPage(groupQuery, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> groupResultPage = solrTemplate
+				.queryForFacetPage(groupQuery, ExampleSolrBean.class);
 
 		Page<FacetFieldEntry> facetResultPage = groupResultPage.getFacetResultPage("inStock");
 
@@ -1132,13 +1180,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
 		solrTemplate.commit();
 
-		FacetOptions facetOptions = new FacetOptions().addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20,
-				5).setInclude(FacetRangeInclude.ALL));
+		FacetOptions facetOptions = new FacetOptions()
+				.addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20, 5).setInclude(FacetRangeInclude.ALL));
 		facetOptions.setFacetMinCount(0);
 
 		SimpleFacetQuery statsQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		statsQuery.setFacetOptions(facetOptions);
-		FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage(statsQuery, ExampleSolrBean.class);
+		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> statResultPage = solrTemplate
+				.queryForFacetPage(statsQuery, ExampleSolrBean.class);
 
 		Page<FacetFieldEntry> priceRangeResult = statResultPage.getRangeFacetResultPage("price");
 

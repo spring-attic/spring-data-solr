@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,10 +111,10 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
 		if (enableFaceting(solrQuery, query)) {
-			appendFacetingOnFields(solrQuery, (FacetQuery) query);
-			appendFacetingQueries(solrQuery, (FacetQuery) query);
-			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
-			appendRangeFacetingOnFields(solrQuery, (FacetQuery) query);
+			appendFacetingOnFields(solrQuery, query);
+			appendFacetingQueries(solrQuery, query);
+			appendFacetingOnPivot(solrQuery, query);
+			appendRangeFacetingOnFields(solrQuery, query);
 		}
 	}
 
@@ -129,8 +129,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		StatsOptions statsOptions = query.getStatsOptions();
 
 		if (statsOptions == null
-				|| (CollectionUtils.isEmpty(statsOptions.getFields()) && CollectionUtils.isEmpty(statsOptions.getFacets()) && CollectionUtils
-						.isEmpty(statsOptions.getSelectiveFacets()))) {
+				|| (CollectionUtils.isEmpty(statsOptions.getFields()) && CollectionUtils.isEmpty(statsOptions.getFacets())
+						&& CollectionUtils.isEmpty(statsOptions.getSelectiveFacets()))) {
 			return;
 		}
 
@@ -171,10 +171,9 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		GroupOptions groupOptions = query.getGroupOptions();
 
-		if (groupOptions == null
-				|| (CollectionUtils.isEmpty(groupOptions.getGroupByFields())
-						&& CollectionUtils.isEmpty(groupOptions.getGroupByFunctions()) && CollectionUtils.isEmpty(groupOptions
-						.getGroupByQueries()))) {
+		if (groupOptions == null || (CollectionUtils.isEmpty(groupOptions.getGroupByFields())
+				&& CollectionUtils.isEmpty(groupOptions.getGroupByFunctions())
+				&& CollectionUtils.isEmpty(groupOptions.getGroupByQueries()))) {
 			return;
 		}
 
@@ -207,8 +206,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (groupOptions.getSort() != null) {
 
 			for (Order order : groupOptions.getSort()) {
-				solrQuery.add(GroupParams.GROUP_SORT, order.getProperty().trim() + " "
-						+ (order.isAscending() ? ORDER.asc : ORDER.desc));
+				solrQuery.add(GroupParams.GROUP_SORT,
+						order.getProperty().trim() + " " + (order.isAscending() ? ORDER.asc : ORDER.desc));
 			}
 		}
 
@@ -316,8 +315,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		for (FieldWithFacetParameters parametrizedField : facetOptions.getFieldsWithParameters()) {
 			addPerFieldFacetParameters(solrQuery, parametrizedField);
 			if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
-				addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,
-						FacetParams.FACET_SORT_INDEX));
+				addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField,
+						new FacetParameter(FacetParams.FACET_SORT, FacetParams.FACET_SORT_INDEX));
 			}
 
 		}

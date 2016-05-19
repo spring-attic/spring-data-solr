@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -95,7 +94,7 @@ public class SolrQueryTests {
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverter);
 	}
 
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test
 	public void testQueryWithHighlightAndFaceting() throws NoSuchMethodException, SecurityException {
 		createQueryForMethod("findAndApplyHighlightingAndFaceting", Pageable.class)
 				.execute(new Object[] { new PageRequest(0, 10) });

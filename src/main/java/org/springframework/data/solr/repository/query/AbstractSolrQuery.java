@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,14 @@ import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterB
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
+import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleFacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleFacetQuery;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleHighlightQuery;
@@ -51,6 +53,7 @@ import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrPageRequest;
 import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.data.solr.core.query.StatsOptions.FieldStatsOptions;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -65,6 +68,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Corpe
  * @author Andrey Paramonov
  * @author Francisco Spaeth
+ * @author David Webb
  */
 public abstract class AbstractSolrQuery implements RepositoryQuery {
 
@@ -139,7 +143,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		if (solrQueryMethod.isPageQuery() || solrQueryMethod.isSliceQuery()) {
 			if (solrQueryMethod.isFacetQuery() && solrQueryMethod.isHighlightQuery()) {
-				throw new InvalidDataAccessApiUsageException("Facet and Highlight cannot be combined.");
+				FacetAndHighlightQuery facetAndHighlightQuery = SimpleFacetAndHighlightQuery.fromQuery(query,
+						new SimpleFacetAndHighlightQuery());
+				facetAndHighlightQuery.setFacetOptions(extractFacetOptions(solrQueryMethod, accessor));
+				facetAndHighlightQuery.setHighlightOptions(extractHighlightOptions(solrQueryMethod, accessor));
+				return new FacetAndHighlightPageExecution(accessor.getPageable()).execute(facetAndHighlightQuery);
 			}
 			if (solrQueryMethod.isFacetQuery()) {
 				FacetQuery facetQuery = SimpleFacetQuery.fromQuery(query, new SimpleFacetQuery());
@@ -551,12 +559,34 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			super(pageable);
 		}
 
+		@Override
 		protected HighlightPage<?> executeFind(Query query) {
 			Assert.isInstanceOf(HighlightQuery.class, query);
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
 		};
+
+	}
+
+	/**
+	 * Implementation to query solr returning {@link FacetAndHighlightPage}
+	 * 
+	 * @author David Webb
+	 */
+	class FacetAndHighlightPageExecution extends PagedExecution {
+
+		public FacetAndHighlightPageExecution(Pageable pageable) {
+			super(pageable);
+		}
+
+		@Override
+		protected FacetAndHighlightPage<?> executeFind(Query query) {
+			Assert.isInstanceOf(FacetAndHighlightQuery.class, query);
+
+			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
+			return solrOperations.queryForFacetAndHighlightPage((FacetAndHighlightQuery) query, metadata.getJavaType());
+		}
 
 	}
 
