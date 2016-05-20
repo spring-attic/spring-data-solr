@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -556,8 +556,7 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.flatMapWithLeadingWildcard.size());
-		Assert.assertThat(
-				target.flatMapWithLeadingWildcard,
+		Assert.assertThat(target.flatMapWithLeadingWildcard,
 				Matchers.allOf(Matchers.hasEntry("1_flatMapWithLeadingWildcard", "leading-map-value-1"),
 						Matchers.hasEntry("2_flatMapWithLeadingWildcard", "leading-map-value-2")));
 	}
@@ -577,8 +576,7 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.flatMapWithTrailingWildcard.size());
-		Assert.assertThat(
-				target.flatMapWithTrailingWildcard,
+		Assert.assertThat(target.flatMapWithTrailingWildcard,
 				Matchers.allOf(Matchers.hasEntry("flatMapWithTrailingWildcard_1", "trailing-map-value-1"),
 						Matchers.hasEntry("flatMapWithTrailingWildcard_2", "trailing-map-value-2")));
 	}
@@ -599,10 +597,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardArray, Matchers.allOf(
-				Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard", new String[] { "leading-map-value-1" }),
-				Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard", new String[] { "leading-map-value-2",
-						"leading-map-value-3" })));
+		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardArray,
+				Matchers.allOf(
+						Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard", new String[] { "leading-map-value-1" }),
+						Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard",
+								new String[] { "leading-map-value-2", "leading-map-value-3" })));
 	}
 
 	@Test
@@ -614,10 +613,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardList.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardList, Matchers.allOf(
-				Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard", Arrays.asList("leading-map-value-1")),
-				Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard",
-						Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
+		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardList,
+				Matchers.allOf(
+						Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard", Arrays.asList("leading-map-value-1")),
+						Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard",
+								Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
 	}
 
 	@Test
@@ -629,10 +629,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardArray, Matchers.allOf(
-				Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1", new String[] { "trailing-map-value-1" }),
-				Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2", new String[] { "trailing-map-value-2",
-						"trailing-map-value-3" })));
+		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardArray,
+				Matchers.allOf(
+						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1", new String[] { "trailing-map-value-1" }),
+						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2",
+								new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
 	}
 
 	@Test
@@ -644,10 +645,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
 		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardList, Matchers.allOf(
-				Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1", Arrays.asList("trailing-map-value-1")),
-				Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2",
-						Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
+		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardList,
+				Matchers.allOf(
+						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1", Arrays.asList("trailing-map-value-1")),
+						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2",
+								Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
 	}
 
 	/**
@@ -721,7 +723,7 @@ public class MappingSolrConverterTests {
 	}
 
 	/**
-	 * @see DATASOLR-202
+	 * @see DATASOLR-308
 	 */
 	@Test
 	public void testWriteDynamicMappedPropertyWithTrailingWildcard() {
@@ -743,7 +745,7 @@ public class MappingSolrConverterTests {
 	}
 
 	/**
-	 * @see DATASOLR-202
+	 * @see DATASOLR-308
 	 */
 	@Test
 	public void testWriteDynamicMappedListPropertyWithTrailingWildcard() {
@@ -767,7 +769,7 @@ public class MappingSolrConverterTests {
 	}
 
 	/**
-	 * @see DATASOLR-202
+	 * @see DATASOLR-308
 	 */
 	@Test
 	public void testWriteDynamicMappedArrayPropertyWithTrailingWildcard() {
@@ -856,8 +858,7 @@ public class MappingSolrConverterTests {
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
 		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardArray.size());
-		Assert.assertThat(
-				target.multivaluedFieldMapWithLeadingWildcardArray,
+		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardArray,
 				Matchers.allOf(Matchers.hasEntry("1", new String[] { "leading-map-value-1" }),
 						Matchers.hasEntry("2", new String[] { "leading-map-value-2", "leading-map-value-3" })));
 	}
@@ -876,8 +877,7 @@ public class MappingSolrConverterTests {
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
 		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardList.size());
-		Assert.assertThat(
-				target.multivaluedFieldMapWithLeadingWildcardList,
+		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardList,
 				Matchers.allOf(Matchers.hasEntry("1", Arrays.asList("leading-map-value-1")),
 						Matchers.hasEntry("2", Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
 	}
@@ -896,8 +896,7 @@ public class MappingSolrConverterTests {
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
 		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(
-				target.multivaluedFieldMapWithTrailingWildcardArray,
+		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardArray,
 				Matchers.allOf(Matchers.hasEntry("1", new String[] { "trailing-map-value-1" }),
 						Matchers.hasEntry("2", new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
 	}
@@ -916,8 +915,7 @@ public class MappingSolrConverterTests {
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
 		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(
-				target.multivaluedFieldMapWithTrailingWildcardList,
+		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardList,
 				Matchers.allOf(Matchers.hasEntry("1", Arrays.asList("trailing-map-value-1")),
 						Matchers.hasEntry("2", Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
 	}
@@ -1026,8 +1024,8 @@ public class MappingSolrConverterTests {
 		SolrDocument document = new SolrDocument();
 		document.addField("fieldWithDateTimeInListOfMap_d", new Date(60264684000000L));
 
-		BeanWithWildcardsOnTypesThatRequireConversion target = converter.read(
-				BeanWithWildcardsOnTypesThatRequireConversion.class, document);
+		BeanWithWildcardsOnTypesThatRequireConversion target = converter
+				.read(BeanWithWildcardsOnTypesThatRequireConversion.class, document);
 		Assert.assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d"),
 				IsInstanceOf.instanceOf(List.class));
 		Assert.assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d").get(0),
