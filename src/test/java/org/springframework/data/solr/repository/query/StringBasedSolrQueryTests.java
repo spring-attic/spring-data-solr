@@ -202,6 +202,27 @@ public class StringBasedSolrQueryTests {
 		Assert.assertEquals(sort, query.getSort());
 	}
 
+	/**
+	 * @see DATASOLR-296
+	 */
+	@Test
+	public void shouldReplaceLotsOfParametersCorrectly() throws NoSuchMethodException, SecurityException {
+
+		Method method = SampleRepository.class.getMethod("findWithQuiteSomeParameters", String.class, String.class,
+				String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class,
+				String.class, String.class);
+		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreatorMock);
+
+		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
+
+		org.springframework.data.solr.core.query.Query query = solrQuery
+				.createQuery(new SolrParametersParameterAccessor(queryMethod, new Object[] { "arg0", "arg1", "arg2", "arg3",
+						"arg4", "arg5", "arg6", "arg7", "arg8", "arg9", "arg10", "arg11" }));
+
+		Assert.assertEquals("name:(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11)",
+				queryParser.getQueryString(query));
+	}
+
 	private interface SampleRepository extends Repository<ProductBean, String> {
 
 		@Query("textGeneral:?0")
@@ -224,5 +245,9 @@ public class StringBasedSolrQueryTests {
 
 		@Query(value = "name:?0")
 		Page<ProductBean> findByNameWithSortInPageable(String name, Pageable pageable);
+
+		@Query(value = "name:(?0, ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)")
+		ProductBean findWithQuiteSomeParameters(String arg0, String arg1, String arg2, String arg3, String arg4,
+				String arg5, String arg6, String arg7, String arg8, String arg9, String arg10, String arg11);
 	}
 }
