@@ -78,7 +78,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 			@Override
 			public String createName(String fieldName, String name) {
-				return removeWildcard(fieldName) + name;
+				return name + removeWildcard(fieldName);
 			}
 		},
 
@@ -97,7 +97,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 			@Override
 			public String createName(String fieldName, String name) {
-				return name + removeWildcard(fieldName);
+				return removeWildcard(fieldName) + name;
 			}
 		};
 
@@ -296,7 +296,7 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 			String key = entry.getKey().toString();
 
 			if (persistentProperty.isDynamicProperty()) {
-				key = WildcardPosition.getAppropriate(key).createName(fieldName, key);
+				key = WildcardPosition.getAppropriate(fieldName).createName(fieldName, key);
 			}
 
 			SolrInputField field = new SolrInputField(key);

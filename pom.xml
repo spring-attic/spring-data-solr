@@ -5,7 +5,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-solr</artifactId>
-	<version>2.1.0.BUILD-SNAPSHOT</version>
+	<version>2.1.0.DATASOLR-202-SNAPSHOT</version>
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
@@ -25,6 +25,8 @@
 		<httpcomponents>4.3.1</httpcomponents>
 		<solr>5.5.0</solr>
 		<springdata.commons>1.13.0.BUILD-SNAPSHOT</springdata.commons>
+        <bundlor.enabled>false</bundlor.enabled>
+        <bundlor.failOnWarnings>false</bundlor.failOnWarnings>
 	</properties>
 
 	<developers>
