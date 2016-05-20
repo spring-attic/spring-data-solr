@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.springframework.util.Assert;
 
 /**
  * Trivial implementation of {@link FacetAndHighlightQuery}
- * 
+ *
  * @author David Webb
  * @since 2.1.0
  */
@@ -41,9 +41,14 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 		super(criteria, pageable);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.FacetQuery#setFacetOptions(org.springframework.data.solr.core.query.FacetOptions)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public final <T extends SolrDataQuery> T setFacetOptions(FacetOptions facetOptions) {
+
 		if (facetOptions != null) {
 			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries.");
 		}
@@ -51,31 +56,51 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 		return (T) this;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.FacetQuery#getFacetOptions()
+	 */
 	@Override
 	public FacetOptions getFacetOptions() {
 		return this.facetOptions;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.FacetQuery#hasFacetOptions()
+	 */
 	@Override
 	public boolean hasFacetOptions() {
 		return this.getFacetOptions() != null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.HighlightQuery#setHighlightOptions(org.springframework.data.solr.core.query.HighlightOptions)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends SolrDataQuery> T setHighlightOptions(HighlightOptions highlightOptions) {
+
 		this.highlightOptions = highlightOptions;
 		return (T) this;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.HighlightQuery#getHighlightOptions()
+	 */
 	@Override
 	public HighlightOptions getHighlightOptions() {
 		return this.highlightOptions;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.HighlightQuery#hasHighlightOptions()
+	 */
 	@Override
 	public boolean hasHighlightOptions() {
 		return this.highlightOptions != null;
 	}
-
 }

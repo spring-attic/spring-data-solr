@@ -62,6 +62,7 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author John Dorman
  * @author Francisco Spaeth
+ * @author David Webb
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -591,8 +592,12 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(1, page.getContent().get(0).getValueCount());
 	}
 
+	/**
+	 * @see DATASOLR-244
+	 */
 	@Test
 	public void testQueryWithFacetAndHighlight() {
+
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAll("na", new PageRequest(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
 
@@ -611,8 +616,12 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
+	/**
+	 * @see DATASOLR-244
+	 */
 	@Test
 	public void testFacetAndHighlightWithPrefixPostfix() {
+
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnInStockHighlightAllWithPreAndPostfix("na",
 				new PageRequest(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
@@ -631,8 +640,12 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
+	/**
+	 * @see DATASOLR-244
+	 */
 	@Test
 	public void testFacetAndHighlightWithFields() {
+
 		ProductBean beanWithText = createProductBean("withName", 5, true);
 		beanWithText.setDescription("some text with name in it");
 		repo.save(beanWithText);
@@ -659,8 +672,48 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
+	/**
+	 * @see DATASOLR-244
+	 */
+	@Test
+	public void testFacetAndHighlightWithFieldsAndFacetResult() {
+
+		ProductBean beanWithText = createProductBean("withName", 5, true);
+		beanWithText.setDescription("some text with name in it");
+		repo.save(beanWithText);
+
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("",
+				new PageRequest(0, 10));
+		Assert.assertEquals(5, page.getNumberOfElements());
+		Assert.assertTrue(page.getFacetFields().size() > 0);
+
+		for (ProductBean product : page) {
+			List<Highlight> highlights = page.getHighlights(product);
+			if (!product.getId().equals(beanWithText.getId())) {
+				Assert.assertThat(highlights, IsEmptyCollection.empty());
+			} else {
+				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				for (Highlight highlight : highlights) {
+					Assert.assertEquals("description", highlight.getField().getName());
+					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					for (String s : highlight.getSnipplets()) {
+						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
+					}
+				}
+			}
+		}
+
+		Assert.assertEquals("name", page.getFacetResultPage("name").getContent().get(0).getKey().getName());
+		Assert.assertEquals("product", page.getFacetResultPage("name").getContent().get(0).getValue());
+		Assert.assertEquals(1, page.getFacetResultPage("name").getContent().get(0).getValueCount());
+	}
+
+	/**
+	 * @see DATASOLR-244
+	 */
 	@Test
 	public void testFacetAndHighlightWithQueryOverride() {
+
 		ProductBean beanWithText = createProductBean("withName", 5, true);
 		beanWithText.setDescription("some text with name in it");
 		repo.save(beanWithText);

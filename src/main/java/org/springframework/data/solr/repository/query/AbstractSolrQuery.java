@@ -571,8 +571,9 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	/**
 	 * Implementation to query solr returning {@link FacetAndHighlightPage}
-	 * 
+	 *
 	 * @author David Webb
+	 * @since 2.1
 	 */
 	class FacetAndHighlightPageExecution extends PagedExecution {
 
@@ -582,17 +583,17 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		protected FacetAndHighlightPage<?> executeFind(Query query) {
+
 			Assert.isInstanceOf(FacetAndHighlightQuery.class, query);
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetAndHighlightPage((FacetAndHighlightQuery) query, metadata.getJavaType());
 		}
-
 	}
 
 	/**
 	 * Implementation to query solr returning one single entity
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	class SingleEntityExecution implements QueryExecution {

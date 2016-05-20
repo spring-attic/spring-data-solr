@@ -15,11 +15,9 @@
  */
 package org.springframework.data.solr.core;
 
-import static java.util.Calendar.JANUARY;
-import static java.util.Calendar.NOVEMBER;
-import static org.apache.solr.common.params.FacetParams.FACET_RANGE_INCLUDE;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static java.util.Calendar.*;
+import static org.apache.solr.common.params.FacetParams.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -666,8 +664,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
+	/**
+	 * @see DATASOLR-244
+	 */
 	@Test
 	public void testFacetAndHighlightQueryWithFacetFields() {
+
 		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));

@@ -67,7 +67,7 @@ public interface SolrOperations {
 	/**
 	 * return number of elements found by for given query
 	 * 
-	 * @param query
+	 * @param query must not be {@literal null}.
 	 * @return
 	 */
 	long count(SolrDataQuery query);
@@ -75,7 +75,7 @@ public interface SolrOperations {
 	/**
 	 * return number of elements found by for given query
 	 * 
-	 * @param query
+	 * @param query must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
 	 * @since 2.0
@@ -153,7 +153,7 @@ public interface SolrOperations {
 	/**
 	 * Find and delete all objects matching the provided Query
 	 * 
-	 * @param query
+	 * @param query must not be {@literal null}.
 	 * @return
 	 */
 	UpdateResponse delete(SolrDataQuery query);
@@ -161,7 +161,7 @@ public interface SolrOperations {
 	/**
 	 * Detele the one object with provided id
 	 * 
-	 * @param id
+	 * @param id must not be {@literal null}.
 	 * @return
 	 */
 	UpdateResponse deleteById(String id);
@@ -169,7 +169,7 @@ public interface SolrOperations {
 	/**
 	 * Delete objects with given ids
 	 * 
-	 * @param id
+	 * @param id must not be {@literal null}.
 	 * @return
 	 */
 	UpdateResponse deleteById(Collection<String> id);
@@ -177,8 +177,8 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and return the first returned object
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return the first matching object
 	 */
 	<T> T queryForObject(Query query, Class<T> clazz);
@@ -186,8 +186,8 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and return the first returned object
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return the first matching object
 	 * @since 2.0
@@ -197,8 +197,8 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and retrun result as {@link Page}
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 */
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
@@ -217,8 +217,8 @@ public interface SolrOperations {
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 */
 	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz);
@@ -226,8 +226,8 @@ public interface SolrOperations {
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
 	 * @since 2.0
@@ -237,8 +237,8 @@ public interface SolrOperations {
 	/**
 	 * Execute a query and highlight matches in result
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 */
 	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
@@ -246,8 +246,8 @@ public interface SolrOperations {
 	/**
 	 * Execute a query and highlight matches in result
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
 	 * @since 2.0
@@ -256,20 +256,22 @@ public interface SolrOperations {
 
 	/**
 	 * Execute a query and highlight matches in result
-	 * 
-	 * @param query
-	 * @param clazz
+	 *
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
+	 * @since 2.1
 	 */
 	<T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz);
 
 	/**
 	 * Execute a query and highlight matches in result
-	 * 
-	 * @param query
-	 * @param clazz
+	 *
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
+	 * @since 2.1
 	 */
 	<T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz,
 			RequestMethod method);
@@ -277,7 +279,7 @@ public interface SolrOperations {
 	/**
 	 * Execute query using terms handler
 	 * 
-	 * @param query
+	 * @param query must not be {@literal null}.
 	 * @return
 	 */
 	TermsPage queryForTermsPage(TermsQuery query);
@@ -285,7 +287,7 @@ public interface SolrOperations {
 	/**
 	 * Execute query using terms handler
 	 * 
-	 * @param query
+	 * @param query must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
 	 * @since 2.0
@@ -296,8 +298,8 @@ public interface SolrOperations {
 	 * Executes the given {@link Query} and returns an open {@link Cursor} allowing to iterate of results, dynamically
 	 * fetching additional ones if required.
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @since 1.3
 	 */
@@ -306,8 +308,8 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and return result as {@link GroupPage}
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @since 1.4
 	 */
@@ -316,8 +318,8 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against solr and return result as {@link GroupPage}
 	 * 
-	 * @param query
-	 * @param clazz
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
 	 * @return
 	 * @since 2.0
@@ -348,7 +350,8 @@ public interface SolrOperations {
 	/**
 	 * Executes a realtime get using given id.
 	 * 
-	 * @param id
+	 * @param id must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @since 1.4
 	 */
@@ -357,7 +360,8 @@ public interface SolrOperations {
 	/**
 	 * Executes a realtime get using given ids.
 	 * 
-	 * @param ids
+	 * @param ids must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @since 1.4
 	 */

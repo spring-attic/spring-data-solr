@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.data.solr.core.query.PivotField;
 
 /**
  * Hold the results of a solr facet query.
- * 
+ *
  * @param <T>
  * @author David Webb
  * @since 2.1.0
@@ -33,15 +33,15 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Facet results for field with given name
-	 * 
-	 * @param fieldname must not be null
+	 *
+	 * @param fieldname must not be {@literal null}.
 	 * @return
 	 */
 	Page<FacetFieldEntry> getFacetResultPage(String fieldname);
 
 	/**
 	 * Get Facet results for field with given field
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -49,8 +49,8 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Range Facet results for field with given name
-	 * 
-	 * @param fieldname field name (must not be null)
+	 *
+	 * @param fieldname field name (must not be {@literal null})
 	 * @return facet range for the field name provided
 	 * @since 1.5
 	 */
@@ -58,7 +58,7 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Range Facet results for a given field with given name
-	 * 
+	 *
 	 * @param field
 	 * @return facet range page for the field provided
 	 * @since 1.5
@@ -67,7 +67,7 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Facet Pivot results for fields with given fields.
-	 * 
+	 *
 	 * @param fields pivot field name
 	 * @return
 	 */
@@ -75,7 +75,7 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Facet Pivot results for fields with given fields.
-	 * 
+	 *
 	 * @param fields pivot field
 	 * @return
 	 */
@@ -93,14 +93,14 @@ public interface FacetQueryResult<T> {
 
 	/**
 	 * Get Fields contained in Result.
-	 * 
+	 *
 	 * @return
 	 */
 	Collection<Field> getFacetFields();
 
 	/**
 	 * Get Pivot Fields contained in Result.
-	 * 
+	 *
 	 * @return
 	 */
 	Collection<PivotField> getFacetPivotFields();

@@ -20,7 +20,7 @@ import org.springframework.data.domain.Page;
 /**
  * HighlightPage holds a page for each field targeted by the highlight query as well as the page values returned by the
  * solr query
- * 
+ *
  * @param <T>
  * @author Christoph Strobl
  * @author David Webb

@@ -163,6 +163,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.defaultRequestMethod = defaultRequestMethod != null ? defaultRequestMethod : RequestMethod.GET;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#execute(org.springframework.data.solr.core.SolrCallback)
+	 */
 	@Override
 	public <T> T execute(SolrCallback<T> action) {
 		Assert.notNull(action);
@@ -177,6 +181,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#ping()
+	 */
 	@Override
 	public SolrPingResponse ping() {
 		return execute(new SolrCallback<SolrPingResponse>() {
@@ -187,11 +195,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#count(org.springframework.data.solr.core.query.SolrDataQuery)
+	 */
 	@Override
 	public long count(final SolrDataQuery query) {
 		return count(query, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#count(org.springframework.data.solr.core.query.SolrDataQuery, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public long count(final SolrDataQuery query, final RequestMethod method) {
 
@@ -212,11 +228,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveBean(java.lang.Object)
+	 */
 	@Override
 	public UpdateResponse saveBean(Object obj) {
 		return saveBean(obj, -1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveBean(java.lang.Object, int)
+	 */
 	@Override
 	public UpdateResponse saveBean(final Object objectToAdd, final int commitWithinMs) {
 		assertNoCollection(objectToAdd);
@@ -228,11 +252,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveBeans(java.util.Collection)
+	 */
 	@Override
 	public UpdateResponse saveBeans(Collection<?> beans) {
 		return saveBeans(beans, -1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveBeans(java.util.Collection, int)
+	 */
 	@Override
 	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
@@ -243,11 +275,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveDocument(org.apache.solr.common.SolrInputDocument)
+	 */
 	@Override
 	public UpdateResponse saveDocument(SolrInputDocument document) {
 		return saveDocument(document, -1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveDocument(org.apache.solr.common.SolrInputDocument, int)
+	 */
 	@Override
 	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
@@ -258,11 +298,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveDocuments(java.util.Collection)
+	 */
 	@Override
 	public UpdateResponse saveDocuments(Collection<SolrInputDocument> documents) {
 		return saveDocuments(documents, -1);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#saveDocuments(java.util.Collection, int)
+	 */
 	@Override
 	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
 		return execute(new SolrCallback<UpdateResponse>() {
@@ -273,6 +321,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#delete(org.springframework.data.solr.core.query.SolrDataQuery)
+	 */
 	@Override
 	public UpdateResponse delete(SolrDataQuery query) {
 		Assert.notNull(query, "Query must not be 'null'.");
@@ -287,6 +339,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#deleteById(java.lang.String)
+	 */
 	@Override
 	public UpdateResponse deleteById(final String id) {
 		Assert.notNull(id, "Cannot delete 'null' id.");
@@ -299,6 +355,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#deleteById(java.util.Collection)
+	 */
 	@Override
 	public UpdateResponse deleteById(Collection<String> ids) {
 		Assert.notNull(ids, "Cannot delete 'null' collection.");
@@ -312,11 +372,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class)
+	 */
 	@Override
 	public <T> T queryForObject(Query query, Class<T> clazz) {
 		return queryForObject(query, clazz, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> T queryForObject(Query query, Class<T> clazz, RequestMethod method) {
 
@@ -345,6 +413,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return createSolrResultPage(query, clazz, response, objectsName);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
+	 */
 	@Override
 	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
 
@@ -368,11 +440,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(query, clazz, method);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForGroupPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
+	 */
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz) {
 		return queryForGroupPage(query, clazz, RequestMethod.GET);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForGroupPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method) {
 
@@ -392,6 +472,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return queryForStatsPage(query, clazz, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForStatsPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method) {
 
@@ -402,11 +486,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(query, clazz, method);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetPage(org.springframework.data.solr.core.query.FacetQuery, java.lang.Class)
+	 */
 	@Override
 	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz) {
 		return queryForFacetPage(query, clazz, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetPage(org.springframework.data.solr.core.query.FacetQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method) {
 
@@ -414,24 +506,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
-		QueryResponse response = query(namedObjectsQuery, clazz, method);
-		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
-		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
+		return createSolrResultPage(query, clazz, query(namedObjectsQuery, clazz, method),
+				namedObjectsQuery.getNamesAssociation());
 
-		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
-		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
-		page.addAllRangeFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query, response));
-		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
-
-		return page;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForHighlightPage(org.springframework.data.solr.core.query.HighlightQuery, java.lang.Class)
+	 */
 	@Override
 	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz) {
 		return queryForHighlightPage(query, clazz, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForHighlightPage(org.springframework.data.solr.core.query.HighlightQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method) {
 
@@ -441,20 +534,22 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
 		QueryResponse response = query(namedObjectsQuery, clazz, getDefaultRequestMethod());
 
-		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
-
-		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
-
-		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
-
-		return page;
+		return createSolrResultPage(query, clazz, response, namedObjectsQuery.getNamesAssociation());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetAndHighlightPage(org.springframework.data.solr.core.query.FacetAndHighlightQuery, java.lang.Class)
+	 */
 	@Override
 	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz) {
 		return queryForFacetAndHighlightPage(query, clazz, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetAndHighlightPage(org.springframework.data.solr.core.query.FacetAndHighlightQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz,
 			RequestMethod method) {
@@ -468,20 +563,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		QueryResponse response = query(namedObjectsFacetAndHighlightQuery, clazz, method);
 		Map<String, Object> objectsName = namedObjectsFacetAndHighlightQuery.getNamesAssociation();
 
-		SolrResultPage<T> page = createSolrResultPage(query, clazz, response, objectsName);
-
-		ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
-
-		page.addAllFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response));
-		page.addAllFacetPivotFieldResult(ResultHelper.convertFacetQueryResponseToFacetPivotMap(query, response));
-		page.addAllRangeFacetFieldResultPages(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query, response));
-		page.setFacetQueryResultPage(ResultHelper.convertFacetQueryResponseToFacetQueryResult(query, response));
-
-		return page;
+		return createSolrResultPage(query, clazz, response, objectsName);
 	}
 
 	private <T> SolrResultPage<T> createSolrResultPage(Query query, Class<T> clazz, QueryResponse response,
 			Map<String, Object> objectsName) {
+
 		List<T> beans = convertQueryResponseToBeans(response, clazz);
 		SolrDocumentList results = response.getResults();
 		long numFound = results == null ? 0 : results.getNumFound();
@@ -495,14 +582,38 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		page.setGroupResults(
 				ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectsName, response, this, clazz));
 
+		if (query instanceof HighlightQuery) {
+			ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response, page);
+		}
+
+		if (query instanceof FacetQuery) {
+
+			page.setFacetQueryResultPage(
+					ResultHelper.convertFacetQueryResponseToFacetQueryResult((FacetQuery) query, response));
+			page.addAllFacetFieldResultPages(
+					ResultHelper.convertFacetQueryResponseToFacetPageMap((FacetQuery) query, response));
+			page.addAllFacetPivotFieldResult(
+					ResultHelper.convertFacetQueryResponseToFacetPivotMap((FacetQuery) query, response));
+			page.addAllRangeFacetFieldResultPages(
+					ResultHelper.convertFacetQueryResponseToRangeFacetPageMap((FacetQuery) query, response));
+		}
+
 		return page;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForTermsPage(org.springframework.data.solr.core.query.TermsQuery)
+	 */
 	@Override
 	public TermsPage queryForTermsPage(TermsQuery query) {
 		return queryForTermsPage(query, getDefaultRequestMethod());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#queryForTermsPage(org.springframework.data.solr.core.query.TermsQuery, org.springframework.data.solr.core.RequestMethod)
+	 */
 	@Override
 	public TermsPage queryForTermsPage(TermsQuery query, RequestMethod method) {
 
@@ -548,6 +659,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#commit()
+	 */
 	@Override
 	public void commit() {
 		execute(new SolrCallback<UpdateResponse>() {
@@ -558,6 +673,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#softCommit()
+	 */
 	@Override
 	public void softCommit() {
 		if (VersionUtil.isSolr3XAvailable()) {
@@ -572,6 +691,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#rollback()
+	 */
 	@Override
 	public void rollback() {
 		execute(new SolrCallback<UpdateResponse>() {
@@ -582,6 +705,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#convertBeanToSolrInputDocument(java.lang.Object)
+	 */
 	@Override
 	public SolrInputDocument convertBeanToSolrInputDocument(Object bean) {
 		if (bean instanceof SolrInputDocument) {
@@ -617,6 +744,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @see org.springframework.data.solr.core.SolrOperations#queryForCursor(org.springframework.data.solr.core.query.Query, java.lang.Class)
 	 */
 	@Override
+	@SuppressWarnings("resource")
 	public <T> Cursor<T> queryForCursor(Query query, final Class<T> clazz) {
 
 		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
@@ -636,6 +764,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}.open();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#getById(java.util.Collection, java.lang.Class)
+	 */
 	@Override
 	public <T> Collection<T> getById(final Collection<? extends Serializable> ids, final Class<T> clazz) {
 
@@ -654,6 +786,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#getById(java.io.Serializable, java.lang.Class)
+	 */
 	@Override
 	public <T> T getById(Serializable id, Class<T> clazz) {
 
@@ -706,11 +842,19 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return converter;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#getSolrClient()
+	 */
 	@Override
 	public final SolrClient getSolrClient() {
 		return solrClientFactory.getSolrClient(this.solrCore);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#getConverter()
+	 */
 	@Override
 	public SolrConverter getConverter() {
 		return this.solrConverter;
@@ -720,6 +864,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return EXCEPTION_TRANSLATOR;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
@@ -741,6 +889,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.solrCore = solrCore;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+	 */
 	@Override
 	public void afterPropertiesSet() {
 

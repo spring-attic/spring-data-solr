@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package org.springframework.data.solr.core.query.result;
 import org.springframework.data.domain.Page;
 
 /**
- * FacetAndHighlightPage holds a page for each field targeted by the facet query, each highlight returned by the
+ * {@link FacetAndHighlightPage} holds a page for each field targeted by the facet query, each highlight returned by the
  * highlight query as well as the page values returned by the solr query
- * 
+ *
  * @param <T>
  * @author David Webb
  * @since 2.1.0

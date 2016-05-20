@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 
 /**
  * FacetPage holds a page for each field targeted by the facet query as well as the page values returned by facet.query
- * 
+ *
  * @param <T>
  * @author Christoph Strobl
  * @author Francisco Spaeth

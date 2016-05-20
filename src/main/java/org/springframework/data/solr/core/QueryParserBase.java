@@ -846,6 +846,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 	/**
 	 * @author David Webb
+	 * @since 2.1
 	 */
 	static class NamedObjectsFacetAndHighlightQuery extends AbstractFacetAndHighlightQueryDecorator
 			implements NamedObjects {
@@ -856,16 +857,22 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			super(query);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.springframework.data.solr.core.QueryParserBase.NamedObjects#setName(java.lang.Object, java.lang.String)
+		 */
 		@Override
 		public void setName(Object object, String name) {
 			setObjectName(namesAssociation, object, name);
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see org.springframework.data.solr.core.QueryParserBase.NamedObjects#getNamesAssociation()
+		 */
 		@Override
 		public Map<String, Object> getNamesAssociation() {
 			return Collections.unmodifiableMap(namesAssociation);
 		}
-
 	}
-
 }
