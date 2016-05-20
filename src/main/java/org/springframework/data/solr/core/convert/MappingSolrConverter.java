@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-public class MappingSolrConverter extends SolrConverterBase implements SolrConverter, ApplicationContextAware,
-		InitializingBean {
+public class MappingSolrConverter extends SolrConverterBase
+		implements SolrConverter, ApplicationContextAware, InitializingBean {
 
 	private enum WildcardPosition {
 
@@ -123,10 +123,11 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 	private final MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 	private final EntityInstantiators instantiators = new EntityInstantiators();
 
-	@SuppressWarnings("unused")//
+	@SuppressWarnings("unused") //
 	private ApplicationContext applicationContext;
 
-	public MappingSolrConverter(MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+	public MappingSolrConverter(
+			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
 		Assert.notNull(mappingContext);
 
 		this.mappingContext = mappingContext;
@@ -226,7 +227,8 @@ public class MappingSolrConverter extends SolrConverterBase implements SolrConve
 
 		Class<? extends Object> sourceClass = source.getClass();
 
-		if (hasCustomWriteTarget(sourceClass, SolrInputDocument.class) && canConvert(sourceClass, SolrInputDocument.class)) {
+		if (hasCustomWriteTarget(sourceClass, SolrInputDocument.class)
+				&& canConvert(sourceClass, SolrInputDocument.class)) {
 
 			SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
 			target.putAll(convertedDocument);
