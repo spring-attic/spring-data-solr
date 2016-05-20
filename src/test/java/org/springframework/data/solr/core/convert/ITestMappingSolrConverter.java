@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.core.IsEqual.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -200,7 +199,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	}
 
 	/**
-	 * @see DATASOLR-202
+	 * @see DATASOLR-308
 	 */
 	@Test
 	public void testDynamicMapList() {
@@ -229,57 +228,57 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	private static class BeanWithPoint {
 
-		@Id//
+		@Id //
 		@Field private String id;
 
-		@Field("store")//
+		@Field("store") //
 		private Point location;
 
 	}
 
 	private static class BeanWithJodaDateTime {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("manufacturedate_dt")//
+		@Field("manufacturedate_dt") //
 		private DateTime manufactured;
 
 	}
 
 	private static class BeanWithJodaLocalDateTime {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("manufacturedate_dt")//
+		@Field("manufacturedate_dt") //
 		private LocalDateTime manufactured;
 
 	}
 
 	private static class BeanWithList {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("cat")//
+		@Field("cat") //
 		private List<String> categories;
 
 	}
 
 	private static class BeanBaseClass {
 
-		@Id @Field//
+		@Id @Field //
 		protected String id;
 
 	}
 
 	private static class BeanWithBaseClass extends BeanBaseClass {
 
-		@Field("name")//
+		@Field("name") //
 		private String name;
 
 	}
@@ -290,22 +289,22 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	private static class BeanWithEnum {
 
-		@Id @Field//
+		@Id @Field //
 		private String id;
 
-		@Field("enumProperty_s")//
+		@Field("enumProperty_s") //
 		private LiteralNumberEnum enumProperty;
 
 	}
 
 	private static class BeanWithScore {
-		@Id @Field//
+		@Id @Field //
 		private String id;
 
-		@Indexed(type = "text")//
+		@Indexed(type = "text") //
 		private String description;
 
-		@Score//
+		@Score //
 		private Float score;
 
 		public BeanWithScore(String id, String description) {
@@ -332,7 +331,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		@Id @Field private String id;
 
-		@Dynamic @Field("ss_*") private Map<String, List<String>> values;
+		@Dynamic @Field("*_ss") private Map<String, List<String>> values;
 
 		public BeanWithDynamicMapList(String id, Map<String, List<String>> values) {
 			this.id = id;
