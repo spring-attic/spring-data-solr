@@ -1526,7 +1526,7 @@ public class DefaultQueryParserTests {
 		assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
 	}
 
-	@Test // DATASOLR-86
+	@Test // DATASOLR-86, DATASOLR-309
 	public void testRegularDateRangeFacets() {
 
 		FacetOptions facetOptions = new FacetOptions() //
@@ -1563,35 +1563,35 @@ public class DefaultQueryParserTests {
 		// RANGE is being used on SolrJ even for DATE fields
 		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START));
 		assertEquals("+1DAY", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
+		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
 		assertEquals("true", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END));
 		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE));
 		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER));
 
 		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START));
 		assertEquals("+2DAY", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
+		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
 		assertNull(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END));
 		assertEquals("outer", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE));
 		assertEquals("none", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER));
 
 		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START));
 		assertEquals("+2DAY", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
+		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
 		assertEquals("true", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END));
 		assertNull(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE));
 		assertEquals("none", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER));
 
 		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START));
 		assertEquals("+2DAY", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
+		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
 		assertEquals("true", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END));
 		assertEquals("outer", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE));
 		assertNull(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER));
 
 		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START));
 		assertEquals("+2DAY", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40.000Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
+		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
 		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END));
 		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE));
 		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));

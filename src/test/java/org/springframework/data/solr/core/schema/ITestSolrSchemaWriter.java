@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
@@ -57,7 +57,7 @@ public class ITestSolrSchemaWriter {
 	public void getSchemaVersionShouldReturnVersionNumberCorrectly() {
 
 		Double version = schemaWriter.retrieveSchemaVersion("collection1");
-		assertThat(version, equalTo(1.5D));
+		assertThat(version, is(closeTo(1.6D, 0.1D)));
 	}
 
 	@Test // DATASOLR-72

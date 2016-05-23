@@ -21,7 +21,7 @@
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
-		<solr>5.5.0</solr>
+		<solr>6.5.0</solr>
 		<springdata.commons>2.0.0.BUILD-SNAPSHOT</springdata.commons>
 	</properties>
 
@@ -139,6 +139,12 @@
 					<artifactId>jackson-core</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-langid</artifactId>
+			<version>${solr}</version>
+			<scope>test</scope>
 		</dependency>
 
 

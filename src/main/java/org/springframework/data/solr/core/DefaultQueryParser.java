@@ -435,10 +435,6 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	}
 
 	private void appendFacetingOnPivot(SolrQuery solrQuery, FacetQuery query) {
-		if (VersionUtil.isSolr3XAvailable()) {
-			throw new UnsupportedOperationException(
-					"Pivot Facets are not available for solr version lower than 4.x - Please check your depdendencies.");
-		}
 
 		FacetOptions facetOptions = query.getFacetOptions();
 		String[] pivotFields = convertFieldListToStringArray(facetOptions.getFacetOnPivots());

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -397,19 +398,19 @@ public class SolrTemplateTests {
 		Assert.assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
-	@Test // DATASOLR-72, DATASOLR-313
+	@Test // DATASOLR-72, DATASOLR-313, DATASOLR-309
 	public void schemaShouldBeUpdatedPriorToSavingEntity() throws SolrServerException, IOException {
 
 		NamedList<Object> nl = new NamedList<Object>();
-		NamedList<Object> schema = new NamedList<Object>();
+		Map<String, Object> schema = new LinkedHashMap<>();
 		nl.add("version", 1.5F);
 		nl.add("schema", schema);
-		schema.add("version", 1.5F);
-		schema.add("name", "mock");
-		schema.add("fields", Collections.<NamedList<Object>> emptyList());
-		schema.add("dynamicFields", Collections.<NamedList<Object>> emptyList());
-		schema.add("fieldTypes", Collections.<NamedList<Object>> emptyList());
-		schema.add("copyFields", Collections.<NamedList<Object>> emptyList());
+		schema.put("version", 1.5F);
+		schema.put("name", "mock");
+		schema.put("fields", Collections.<NamedList<Object>> emptyList());
+		schema.put("dynamicFields", Collections.<NamedList<Object>> emptyList());
+		schema.put("fieldTypes", Collections.<NamedList<Object>> emptyList());
+		schema.put("copyFields", Collections.<NamedList<Object>> emptyList());
 
 		// schema.add(name, val);
 
@@ -422,7 +423,7 @@ public class SolrTemplateTests {
 		solrTemplate.saveBean(new DocumentWithIndexAnnotations());
 
 		ArgumentCaptor<SolrRequest> requestCaptor = ArgumentCaptor.forClass(SolrRequest.class);
-		Mockito.verify(solrClientMock, Mockito.times(4)).request(requestCaptor.capture(), Mockito.anyString());
+		Mockito.verify(solrClientMock, Mockito.times(5)).request(requestCaptor.capture(), Mockito.anyString());
 
 		SolrRequest capturedRequest = requestCaptor.getValue();
 

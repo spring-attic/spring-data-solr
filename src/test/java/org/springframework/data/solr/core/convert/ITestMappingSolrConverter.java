@@ -147,7 +147,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
 
-	@Test // DATASOLR-210
+	@Test // DATASOLR-210, DATASOLR-309
 	public void testProcessesScoreCorrectly() {
 
 		Collection<BeanWithScore> beans = new ArrayList<BeanWithScore>();
@@ -164,11 +164,12 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		List<BeanWithScore> content = page.getContent();
 		assertEquals(3, page.getTotalElements());
-		assertEquals(Float.valueOf(0.9105287f), content.get(0).score);
+
+		assertNotNull(content.get(0).score);
 		assertEquals("spring data solr", content.get(0).description);
-		assertEquals(Float.valueOf(0.45526436f), content.get(1).score);
+		assertNotNull(content.get(1).score);
 		assertEquals("spring", content.get(1).description);
-		assertEquals(Float.valueOf(0.28454024f), content.get(2).score);
+		assertNotNull(content.get(2).score);
 		assertEquals("apache solr", content.get(2).description);
 	}
 

@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.response.schema.SchemaRepresentation;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse.UpdateResponse;
+import org.apache.solr.common.util.NamedList;
 import org.springframework.data.solr.core.CollectionCallback;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.schema.SchemaDefinition.CopyFieldDefinition;
@@ -95,6 +96,10 @@ public class DefaultSchemaOperations implements SchemaOperations {
 			@Override
 			public SchemaRepresentation doInSolr(SolrClient solrClient, String collection)
 					throws SolrServerException, IOException {
+
+				NamedList<Object> x = solrClient.request(new SchemaRequest(), collection);
+
+
 				return new SchemaRequest().process(solrClient, collection).getSchemaRepresentation();
 			}
 		});

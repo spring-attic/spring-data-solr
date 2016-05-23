@@ -119,7 +119,7 @@ public class DefaultSchemaOperationsTests {
 
 	@Test // DATASOLR-313
 	public void readsSchemaVersionCorrectly() {
-		assertThat(schemaOps.getSchemaVersion(), is(closeTo(1.5D, 0.0D)));
+		assertThat(schemaOps.getSchemaVersion(), is(closeTo(1.6D, 0.1D)));
 	}
 
 	@Test(expected = SchemaModificationException.class) // DATASOLR-313

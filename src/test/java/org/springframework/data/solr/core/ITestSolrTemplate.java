@@ -935,6 +935,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
+	@Ignore("No longer supported in Solr 6 - A ValueSource isn't directly available from this field. Instead try a query using the distance as the score.")
 	public void testFunctionQueryInFieldProjection() {
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		bean1.setStore("45.17614,-93.87341");

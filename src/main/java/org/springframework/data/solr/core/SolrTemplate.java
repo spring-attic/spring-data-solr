@@ -754,10 +754,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public void softCommit() {
-		if (VersionUtil.isSolr3XAvailable()) {
-			throw new UnsupportedOperationException(
-					"Soft commit is not available for solr version lower than 4.x - Please check your depdendencies.");
-		}
+
 		execute(new SolrCallback<UpdateResponse>() {
 			@Override
 			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {

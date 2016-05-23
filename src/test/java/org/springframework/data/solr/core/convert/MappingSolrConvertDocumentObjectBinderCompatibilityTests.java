@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,10 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Assert.assertEquals("CCTV Store", supplierTwo.get(0));
 	}
 
+	/**
+	 * @see DATASOLR-87
+	 * @see DATASOLR-309
+	 */
 	@Test
 	public void testToAndFromSolrDocument() {
 		Item item = new Item();
@@ -183,7 +187,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		return converter.read(solDocList, Item.class);
 	}
 
-	private SolrDocument toSolrDocument(SolrInputDocument d) {
+	public static SolrDocument toSolrDocument(SolrInputDocument d) {
 		SolrDocument doc = new SolrDocument();
 		for (SolrInputField field : d) {
 			doc.setField(field.getName(), field.getValue());
@@ -212,7 +216,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Map<String, List<String>> supplier;
 
 		@Field("sup_simple_*") //
-		Map<String, String> supplier_simple; // XXX: damn what do we have here - mapping gets confused and deliminates on underscore failing proeprty resolution :/
+		Map<String, String> supplier_simple;
 
 		@Indexed(readonly = true) //
 		private String[] allSuppliers;
@@ -238,10 +242,10 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 	}
 
 	public static class NotGettableItem {
-		@Field//
+		@Field //
 		String id;
 
-		@SuppressWarnings("unused")//
+		@SuppressWarnings("unused") //
 		private boolean inStock;
 
 		private String aaa;
@@ -261,8 +265,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		}
 	}
 
-	public static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-			+ "<response>"
+	public static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<response>"
 			+ "<lst name=\"responseHeader\"><int name=\"status\">0</int><int name=\"QTime\">0</int><lst name=\"params\"><str name=\"start\">0</str><str name=\"q\">*:*\n"
 			+ "</str><str name=\"version\">2.2</str><str name=\"rows\">4</str></lst></lst><result name=\"response\" numFound=\"26\" start=\"0\"><doc><arr name=\"cat\">"
 			+ "<str>electronics</str><str>hard drive</str></arr><arr name=\"features\"><str>7200RPM, 8MB cache, IDE Ultra ATA-133</str>"

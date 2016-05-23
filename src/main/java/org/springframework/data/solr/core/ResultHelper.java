@@ -145,11 +145,6 @@ final class ResultHelper {
 	static Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> convertFacetQueryResponseToFacetPivotMap(
 			FacetQuery query, QueryResponse response) {
 
-		if (VersionUtil.isSolr3XAvailable()) {
-			// pivot facets are a solr 4+ Feature
-			return Collections.emptyMap();
-		}
-
 		Map<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>> facetResult = new LinkedHashMap<org.springframework.data.solr.core.query.PivotField, List<FacetPivotFieldEntry>>();
 		NamedList<List<PivotField>> facetPivot = response.getFacetPivot();
 		if (facetPivot != null && facetPivot.size() > 0) {

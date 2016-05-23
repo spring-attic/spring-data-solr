@@ -120,11 +120,12 @@ public class SolrClientUtilTests {
 
 	@Test
 	public void testClonesCloudSolrClientCorrectly() throws MalformedURLException {
+
 		LBHttpSolrClient lbSolrClient = new LBHttpSolrClient(BASE_URL, ALTERNATE_BASE_URL);
 		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL, lbSolrClient);
 
 		CloudSolrClient clone = SolrClientUtils.clone(cloudClient);
-		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
+		Assert.assertEquals(ZOO_KEEPER_URL, clone.getZkHost());
 
 		LBHttpSolrClient lbClone = clone.getLbClient();
 		Assert.assertEquals(ReflectionTestUtils.getField(lbSolrClient, FIELD_ALIVE_SERVERS),
@@ -140,7 +141,7 @@ public class SolrClientUtilTests {
 		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL, lbSolrClient);
 
 		CloudSolrClient clone = SolrClientUtils.clone(cloudClient, CORE_NAME);
-		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
+		Assert.assertEquals(ZOO_KEEPER_URL,  clone.getZkHost());
 
 		LBHttpSolrClient lbClone = clone.getLbClient();
 		Map<String, ?> aliveServers = (Map<String, ?>) ReflectionTestUtils.getField(lbClone, FIELD_ALIVE_SERVERS);
@@ -155,7 +156,7 @@ public class SolrClientUtilTests {
 		CloudSolrClient cloudClient = new CloudSolrClient(ZOO_KEEPER_URL);
 
 		CloudSolrClient clone = SolrClientUtils.clone(cloudClient, CORE_NAME);
-		Assert.assertEquals(ZOO_KEEPER_URL, ReflectionTestUtils.getField(clone, FIELD_ZOO_KEEPER));
+		Assert.assertEquals(ZOO_KEEPER_URL, clone.getZkHost());
 
 		LBHttpSolrClient lbClone = clone.getLbClient();
 
