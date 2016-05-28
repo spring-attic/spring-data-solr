@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1228,6 +1228,28 @@ public class DefaultQueryParserTests {
 		Assert.assertEquals("field_3 desc", solrQuery.get(GroupParams.GROUP_SORT));
 		Assert.assertEquals("1", solrQuery.get(GroupParams.GROUP_OFFSET));
 		Assert.assertEquals("2", solrQuery.get(GroupParams.GROUP_LIMIT));
+	}
+
+	/**
+	 * @see DATASOLR-310
+	 */
+	@Test
+	public void testConstructGroupQueryWithLimitSetToNegative1() {
+		GroupOptions groupOptions = new GroupOptions();
+
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(groupOptions);
+		groupOptions.setLimit(-1);
+		groupOptions.addGroupByField("field_1");
+		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		groupOptions.setTotalCount(true);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		assertGroupFormatPresent(solrQuery, true);
+		Assert.assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
+		Assert.assertEquals("-1", solrQuery.get(GroupParams.GROUP_LIMIT));
 	}
 
 	/**
