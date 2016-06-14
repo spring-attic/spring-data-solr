@@ -17,6 +17,9 @@ package org.springframework.data.solr.core;
 
 import static java.util.Calendar.*;
 import static org.apache.solr.common.params.FacetParams.*;
+import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -31,22 +34,26 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
@@ -103,6 +110,8 @@ import com.google.common.collect.Lists;
  * @author Francisco Spaeth
  */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
+
+	public @Rule ExpectedException exception = ExpectedException.none();
 
 	private static final Query DEFAULT_BEAN_OBJECT_QUERY = new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID));
 	private static final Query ALL_DOCUMENTS_QUERY = new SimpleQuery(new SimpleStringCriteria("*:*"));
@@ -312,14 +321,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		Assert.assertEquals(10, solrTemplate.count(ALL_DOCUMENTS_QUERY));
 
-		Page<ExampleSolrBean> recalled = solrTemplate.queryForPage(
-				new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
+		Page<ExampleSolrBean> recalled = solrTemplate
+				.queryForPage(new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
 
 		Assert.assertEquals(5, recalled.getNumberOfElements());
 
 		for (ExampleSolrBean bean : recalled) {
-			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(), bean.getCategory()
-					.get(0));
+			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(),
+					bean.getCategory().get(0));
 		}
 	}
 
@@ -474,17 +483,17 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters("last_modified",
 				new GregorianCalendar(2013, NOVEMBER, 30).getTime(), new GregorianCalendar(2014, JANUARY, 1).getTime(), "+1DAY") //
-				.setOther(FacetRangeOther.ALL) //
-				.setInclude(FacetRangeInclude.LOWER);
+						.setOther(FacetRangeOther.ALL) //
+						.setInclude(FacetRangeInclude.LOWER);
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
 				.setFacetOptions(//
-				new FacetOptions() //
-						.addFacetByRange(lastModifiedField) //
-						.setFacetLimit(5) //
-						.setFacetMinCount(1) //
-						.setFacetSort(FacetSort.COUNT) //
-						.setPageable(new PageRequest(1, 10)));
+						new FacetOptions() //
+								.addFacetByRange(lastModifiedField) //
+								.setFacetLimit(5) //
+								.setFacetMinCount(1) //
+								.setFacetSort(FacetSort.COUNT) //
+								.setPageable(new PageRequest(1, 10)));
 
 		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
@@ -518,17 +527,17 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final FieldWithNumericRangeParameters popularityField = new FieldWithNumericRangeParameters("popularity", 100, 800,
 				200) //
-				.setOther(FacetParams.FacetRangeOther.ALL) //
-				.setHardEnd(false) //
-				.setInclude(FacetRangeInclude.LOWER);
+						.setOther(FacetParams.FacetRangeOther.ALL) //
+						.setHardEnd(false) //
+						.setInclude(FacetRangeInclude.LOWER);
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*")) //
 				.setFacetOptions( //
-				new FacetOptions() //
-						.addFacetByRange(popularityField) //
-						.setFacetLimit(5) //
-						.setFacetMinCount(1) //
-						.setFacetSort(FacetSort.COUNT));
+						new FacetOptions() //
+								.addFacetByRange(popularityField) //
+								.setFacetLimit(5) //
+								.setFacetMinCount(1) //
+								.setFacetSort(FacetSort.COUNT));
 
 		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
@@ -587,8 +596,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit();
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
-		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")), new SimpleQuery(
-				new SimpleStringCriteria("inStock:false"))));
+		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")),
+				new SimpleQuery(new SimpleStringCriteria("inStock:false"))));
 
 		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(q, ExampleSolrBean.class);
 
@@ -795,8 +804,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(2, page.getHighlighted().size());
 
 		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
-		Assert.assertEquals("Test <em>with</em> some GB18030TEST", page.getHighlighted().get(0).getHighlights().get(0)
-				.getSnipplets().get(0));
+		Assert.assertEquals("Test <em>with</em> some GB18030TEST",
+				page.getHighlighted().get(0).getHighlights().get(0).getSnipplets().get(0));
 	}
 
 	@Test
@@ -830,11 +839,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
 		solrTemplate.commit();
 
-		Query q = new SimpleQuery("*:*").addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction
-				.query("{!query v = 'one'}"))));
+		Query q = new SimpleQuery("*:*")
+				.addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction.query("{!query v = 'one'}"))));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), IsEqual.equalTo(bean1.getId()));
+		Assert.assertThat(result.getContent().get(0).getId(), equalTo(bean1.getId()));
 	}
 
 	@Test
@@ -847,7 +856,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Query q = new SimpleQuery(new Criteria(QueryFunction.query("{!query v='two'}")));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), Is.is(bean2.getId()));
+		Assert.assertThat(result.getContent().get(0).getId(), is(bean2.getId()));
 	}
 
 	@Test
@@ -864,7 +873,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
 		for (ExampleSolrBean bean : result) {
-			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
+			Assert.assertThat(bean.getDistance(), notNullValue());
 		}
 
 	}
@@ -878,8 +887,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(createBeansWithId(100));
 		solrTemplate.commit();
 
-		Cursor<ExampleSolrBean> cursor = solrTemplate.queryForCursor(
-				new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
+		Cursor<ExampleSolrBean> cursor = solrTemplate
+				.queryForCursor(new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
 
 		int i = 0;
 		while (cursor.hasNext()) {
@@ -888,7 +897,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 		cursor.close();
 
-		Assert.assertThat(i, Is.is(100));
+		Assert.assertThat(i, is(100));
 	}
 
 	/**
@@ -1107,8 +1116,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
 		solrTemplate.commit();
 
-		FacetOptions facetOptions = new FacetOptions().addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20,
-				5).setInclude(FacetRangeInclude.ALL));
+		FacetOptions facetOptions = new FacetOptions()
+				.addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20, 5).setInclude(FacetRangeInclude.ALL));
 		facetOptions.setFacetMinCount(0);
 
 		SimpleFacetQuery statsQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
@@ -1126,6 +1135,77 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals("5.0", content.get(0).getValue());
 		Assert.assertEquals("10.0", content.get(1).getValue());
 		Assert.assertEquals("15.0", content.get(2).getValue());
+	}
+
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldAllowReadingMultivaluedFieldWithOnlyOneEntryIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				sid.addField("title", "title");
+				solrServer.add(sid).getStatus();
+				return solrServer.commit();
+			}
+		});
+
+		SomeDoc document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		assertThat(document.title, is(equalTo("title")));
+	}
+
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldThrowExceptionReadingMultivaluedFieldWithManyEntriesIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				sid.addField("title", new String[] { "title-1", "title-2" });
+				solrServer.add(sid).getStatus();
+				return solrServer.commit();
+			}
+		});
+
+		exception.expect(MappingException.class);
+		exception.expectMessage("title-1");
+		exception.expectMessage("title-2");
+
+		solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+	}
+
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldAllowReadingMultivaluedFieldWithNoEntriesIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrServer solrServer) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				solrServer.add(sid).getStatus();
+				return solrServer.commit();
+			}
+		});
+
+		SomeDoc document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		assertThat(document.title, is(nullValue()));
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {
@@ -1171,6 +1251,13 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMin());
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMax());
 		}
+	}
+
+	static class SomeDoc {
+
+		@Id String id;
+
+		@Field String title;
 	}
 
 }
