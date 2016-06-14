@@ -39,6 +39,7 @@ import org.springframework.data.mapping.PersistentPropertyAccessor;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.mapping.model.ParameterValueProvider;
 import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
 import org.springframework.data.mapping.model.PropertyValueProvider;
@@ -194,7 +195,26 @@ public class MappingSolrConverter extends SolrConverterBase
 
 				Object o = getValue(persistentProperty, source, instance);
 				if (o != null) {
-					accessor.setProperty(persistentProperty, o);
+
+					if (o instanceof Collection && !persistentProperty.isCollectionLike()) {
+
+						Collection<?> c = (Collection<?>) o;
+
+						if (!c.isEmpty()) {
+
+							if (c.size() == 1) {
+								accessor.setProperty(persistentProperty, c.iterator().next());
+							} else {
+								throw new MappingException(String.format(
+										"Cannot set multiple values %s read from '%s' to non collection property '%s'. Please check your mapping / schema defintion!",
+										c, persistentProperty.getFieldName(), persistentProperty.getName()));
+							}
+						}
+
+					} else {
+						accessor.setProperty(persistentProperty, o);
+					}
+
 				}
 			}
 		});
@@ -596,7 +616,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				items = CollectionFactory.createCollection(collectionType, source.size());
 			}
 
-			TypeInformation<?> componentType = type.getComponentType();
+			TypeInformation<?> componentType = type.isCollectionLike() ? type.getComponentType() : type;
 
 			Iterator<?> it = source.iterator();
 			while (it.hasNext()) {

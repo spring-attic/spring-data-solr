@@ -17,6 +17,9 @@ package org.springframework.data.solr.core;
 
 import static java.util.Calendar.*;
 import static org.apache.solr.common.params.FacetParams.*;
+import static org.hamcrest.core.Is.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -31,23 +34,27 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
@@ -98,6 +105,8 @@ import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
 
+import lombok.Data;
+
 /**
  * @author Christoph Strobl
  * @author Andrey Paramonov
@@ -105,6 +114,8 @@ import com.google.common.collect.Lists;
  * @author Radek Mensik
  */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
+
+	public @Rule ExpectedException exception = ExpectedException.none();
 
 	private static final Query DEFAULT_BEAN_OBJECT_QUERY = new SimpleQuery(new Criteria("id").is(DEFAULT_BEAN_ID));
 	private static final Query ALL_DOCUMENTS_QUERY = new SimpleQuery(new SimpleStringCriteria("*:*"));
@@ -858,7 +869,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 				.query("{!query v = 'one'}"))));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), IsEqual.equalTo(bean1.getId()));
+		Assert.assertThat(result.getContent().get(0).getId(), equalTo(bean1.getId()));
 	}
 
 	@Test
@@ -871,7 +882,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Query q = new SimpleQuery(new Criteria(QueryFunction.query("{!query v='two'}")));
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), Is.is(bean2.getId()));
+		Assert.assertThat(result.getContent().get(0).getId(), is(bean2.getId()));
 	}
 
 	@Test
@@ -888,7 +899,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
 		for (ExampleSolrBean bean : result) {
-			Assert.assertThat(bean.getDistance(), IsNull.notNullValue());
+			Assert.assertThat(bean.getDistance(), notNullValue());
 		}
 
 	}
@@ -912,7 +923,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 		cursor.close();
 
-		Assert.assertThat(i, Is.is(100));
+		Assert.assertThat(i, is(100));
 	}
 
 	/**
@@ -1153,6 +1164,77 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals("15.0", content.get(2).getValue());
 	}
 
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldAllowReadingMultivaluedFieldWithOnlyOneEntryIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				sid.addField("title", "title");
+				solrClient.add(sid).getStatus();
+				return solrClient.commit();
+			}
+		});
+
+		SomeDoc document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		assertThat(document.title, is(equalTo("title")));
+	}
+
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldThrowExceptionReadingMultivaluedFieldWithManyEntriesIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				sid.addField("title", new String[] { "title-1", "title-2" });
+				solrClient.add(sid).getStatus();
+				return solrClient.commit();
+			}
+		});
+
+		exception.expect(MappingException.class);
+		exception.expectMessage("title-1");
+		exception.expectMessage("title-2");
+
+		solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+	}
+
+	/**
+	 * @see DATASOLR-248
+	 */
+	@Test
+	public void shouldAllowReadingMultivaluedFieldWithNoEntriesIntoSingleValuedProperty() {
+
+		solrTemplate.execute(new SolrCallback<Object>() {
+
+			@Override
+			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+
+				SolrInputDocument sid = new SolrInputDocument();
+				sid.addField("id", "id-1");
+				solrClient.add(sid).getStatus();
+				return solrClient.commit();
+			}
+		});
+
+		SomeDoc document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		assertThat(document.title, is(nullValue()));
+	}
+
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
@@ -1196,6 +1278,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMin());
 			Assert.assertEquals(20.5D, nameFacetStatsResult.getMax());
 		}
+	}
+
+	@Data
+	static class SomeDoc {
+
+		@Id String id;
+
+		@Field String title;
 	}
 
 }
