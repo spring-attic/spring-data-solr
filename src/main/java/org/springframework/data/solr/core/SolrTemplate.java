@@ -76,14 +76,15 @@ import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.query.result.TermsResultPage;
-import org.springframework.data.solr.core.schema.SolrJsonResponse;
+import org.springframework.data.solr.core.schema.DefaultSchemaOperations;
+import org.springframework.data.solr.core.schema.SchemaOperations;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
-import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Implementation of {@link SolrOperations}
@@ -139,6 +140,17 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this(solrClientFactory, (SolrConverter) null);
 	}
 
+	/**
+	 * @param solrClientFactory
+	 * @param defaultCore
+	 * @since 2.1
+	 */
+
+	public SolrTemplate(SolrClientFactory solrClientFactory, String defaultCore) {
+		this(solrClientFactory, (SolrConverter) null);
+		this.solrCore = defaultCore;
+	}
+
 	public SolrTemplate(SolrClientFactory solrClientFactory, RequestMethod requestMethod) {
 		this(solrClientFactory, null, requestMethod);
 	}
@@ -157,7 +169,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			RequestMethod defaultRequestMethod) {
 
 		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'.");
-		Assert.notNull(solrClientFactory.getSolrClient(), "SolrClientFactory has to return a SolrClient.");
 
 		this.solrClientFactory = solrClientFactory;
 		this.defaultRequestMethod = defaultRequestMethod != null ? defaultRequestMethod : RequestMethod.GET;
@@ -177,6 +188,25 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		} catch (Exception e) {
 			DataAccessException resolved = getExceptionTranslator()
 					.translateExceptionIfPossible(new RuntimeException(e.getMessage(), e));
+			throw resolved == null ? new UncategorizedSolrException(e.getMessage(), e) : resolved;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#execute(java.lang.String, org.springframework.data.solr.core.CollectionCallback)
+	 */
+	@Override
+	public <T> T execute(String collection, CollectionCallback<T> action) {
+
+		Assert.notNull(action);
+
+		try {
+			SolrClient solrClient = this.solrClientFactory.getSolrClient(collection);
+			return action.doInSolr(solrClient, collection);
+		} catch (Exception e) {
+			DataAccessException resolved = getExceptionTranslator().translateExceptionIfPossible(
+					e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e.getMessage(), e));
 			throw resolved == null ? new UncategorizedSolrException(e.getMessage(), e) : resolved;
 		}
 	}
@@ -725,18 +755,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @return
 	 * @since 1.3
 	 */
-	public String getSchemaName(String collectionName) {
-		return execute(new SolrCallback<String>() {
-
-			@Override
-			public String doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				SolrJsonResponse response = SolrSchemaRequest.name().process(solrClient);
-				if (response != null) {
-					return response.getNode("name").asText();
-				}
-				return null;
-			}
-		});
+	public String getSchemaName(final String collectionName) {
+		return getSchemaOperations(collectionName).getSchemaName();
 	}
 
 	/*
@@ -779,7 +799,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			@Override
 			public Collection<T> doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
 
-				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient);
+				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient,
+						getSolrCoreOrBeanCollection(clazz));
 				return convertSolrDocumentListToBeans(response.getResults(), clazz);
 			}
 
@@ -800,6 +821,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			return null;
 		}
 		return result.iterator().next();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#getSchemaOperations(java.lang.String)
+	 */
+	@Override
+	public SchemaOperations getSchemaOperations(String collection) {
+		return new DefaultSchemaOperations(collection, this);
 	}
 
 	private Collection<SolrInputDocument> convertBeansToSolrInputDocuments(Iterable<?> beans) {
@@ -862,6 +892,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public static PersistenceExceptionTranslator getExceptionTranslator() {
 		return EXCEPTION_TRANSLATOR;
+	}
+
+	private String getSolrCoreOrBeanCollection(Class<?> clazz) {
+		return StringUtils.hasText(solrCore) ? solrCore : mappingContext.getPersistentEntity(clazz).getSolrCoreName();
 	}
 
 	/*
@@ -968,5 +1002,4 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public RequestMethod getDefaultRequestMethod() {
 		return defaultRequestMethod;
 	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 /**
  * @author Christoph Strobl
  */
+@SolrDocument(solrCoreName = "collection1")
 public class ExampleSolrBean {
 
 	@Field private String id;

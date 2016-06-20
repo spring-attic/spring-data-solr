@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import org.apache.solr.client.solrj.response.SolrResponseBase;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,14 +32,35 @@ public class SolrJsonResponse extends SolrResponseBase {
 
 	private static final long serialVersionUID = 5727953031460362404L;
 	private JsonNode root;
+	private ObjectMapper mapper;
+
+	public SolrJsonResponse() {
+		mapper = new ObjectMapper();
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+	}
 
 	@Override
 	public void setResponse(NamedList<Object> response) {
 
 		super.setResponse(response);
+
 		try {
-			root = new ObjectMapper().readTree((String) getResponse().get("json"));
-		} catch (Exception e) {
+
+			String json = getJsonResponse();
+
+			if (json == null) {
+				if (response.get("version") != null) {
+					root = mapper.readTree(response.toString().replace('=', ':'));
+				} else {
+					root = mapper.createObjectNode();
+				}
+				return;
+			}
+			root = mapper.readTree(json);
+		} catch (
+
+		Exception e) {
 			throw new InvalidDataAccessResourceUsageException("Unable to parse json from response.", e);
 		}
 	}

@@ -21,15 +21,15 @@ import static org.junit.Assert.*;
 import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
 import org.springframework.data.solr.server.SolrClientFactory;
-import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
-import org.springframework.data.solr.test.util.ExternalServerWithManagedSchemaRule;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.data.solr.test.util.EmbeddedSolrServer;
 import org.springframework.util.Assert;
 
 /**
@@ -37,8 +37,8 @@ import org.springframework.util.Assert;
  */
 public class ITestSolrSchemaWriter {
 
-	public @Rule ExternalServerWithManagedSchemaRule requiresExternalServer = ExternalServerWithManagedSchemaRule
-			.onLocalhost();
+	public static @ClassRule EmbeddedSolrServer resource = EmbeddedSolrServer
+			.configure(new ClassPathResource("managed-schema"));
 
 	private SolrClient solrClient;
 	private SolrClientFactory factory;
@@ -46,8 +46,8 @@ public class ITestSolrSchemaWriter {
 
 	@Before
 	public void setUp() {
-		solrClient = new HttpSolrClient("http://localhost:8983/solr");
-		factory = new MulticoreSolrClientFactory(solrClient);
+		solrClient = resource.getSolrClient("collecion1");
+		factory = new HttpSolrClientFactory(solrClient);
 		schemaWriter = new SolrSchemaWriter(factory);
 	}
 

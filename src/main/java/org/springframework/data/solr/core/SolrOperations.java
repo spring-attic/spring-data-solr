@@ -38,6 +38,7 @@ import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
+import org.springframework.data.solr.core.schema.SchemaOperations;
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -402,5 +403,24 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> T execute(SolrCallback<T> action);
+
+	/**
+	 * Execute action within callback on a given collection.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param action must not be {@literal null}.
+	 * @return
+	 * @since 2.1
+	 */
+	<T> T execute(String collection, CollectionCallback<T> action);
+
+	/**
+	 * Get the {@link SchemaOperations} executable.
+	 *
+	 * @param collection
+	 * @return never {@literal null}.
+	 * @since 2.1
+	 */
+	SchemaOperations getSchemaOperations(String collection);
 
 }

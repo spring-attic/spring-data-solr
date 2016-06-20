@@ -27,6 +27,8 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.schema.SchemaRequest;
+import org.apache.solr.client.solrj.request.schema.SchemaRequest.SchemaVersion;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -65,7 +67,6 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
-import org.springframework.data.solr.core.schema.SolrSchemaRequest;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.solr.server.SolrClientFactory;
 
@@ -107,8 +108,8 @@ public class SolrTemplateTests {
 
 	@Test(expected = DataAccessException.class)
 	public void testPingThrowsException() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.ping()).thenThrow(
-				new SolrServerException("error", new SolrException(ErrorCode.NOT_FOUND, "not found")));
+		Mockito.when(solrClientMock.ping())
+				.thenThrow(new SolrServerException("error", new SolrException(ErrorCode.NOT_FOUND, "not found")));
 		solrTemplate.ping();
 	}
 
@@ -128,8 +129,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveBean() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1)))
+				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_OBJECT);
 		Assert.assertNotNull(updateResponse);
 
@@ -142,8 +143,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveBeanCommitWithin() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(10000))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(10000)))
+				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveBean(SIMPLE_OBJECT, 10000);
 		Assert.assertNotNull(updateResponse);
 
@@ -157,8 +158,8 @@ public class SolrTemplateTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testPartialUpdate() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1)))
+				.thenReturn(new UpdateResponse());
 
 		PartialUpdate update = new PartialUpdate("id", "update-id");
 		update.add("field_1", "update");
@@ -174,8 +175,8 @@ public class SolrTemplateTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSaveBeans() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(-1)))
+				.thenReturn(new UpdateResponse());
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
 		UpdateResponse updateResponse = solrTemplate.saveBeans(collection);
@@ -191,8 +192,8 @@ public class SolrTemplateTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSaveBeansCommitWithin() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(10000))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(10000)))
+				.thenReturn(new UpdateResponse());
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
 		UpdateResponse updateResponse = solrTemplate.saveBeans(collection, 10000);
@@ -207,8 +208,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveDocument() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(-1)))
+				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveDocument(SIMPLE_DOCUMENT);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrClientMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT), Mockito.eq(-1));
@@ -216,8 +217,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveDocumentCommitWithin() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(10000))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.any(SolrInputDocument.class), Mockito.eq(10000)))
+				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveDocument(SIMPLE_DOCUMENT, 10000);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrClientMock, Mockito.times(1)).add(Mockito.eq(SIMPLE_DOCUMENT), Mockito.eq(10000));
@@ -225,8 +226,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveDocuments() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(-1))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(-1)))
+				.thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection);
 		Assert.assertNotNull(updateResponse);
@@ -235,8 +236,8 @@ public class SolrTemplateTests {
 
 	@Test
 	public void testSaveDocumentsCommitWithin() throws IOException, SolrServerException {
-		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(10000))).thenReturn(
-				new UpdateResponse());
+		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(10000)))
+				.thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection, 10000);
 		Assert.assertNotNull(updateResponse);
@@ -364,8 +365,8 @@ public class SolrTemplateTests {
 	 * @see DATASOLR-88
 	 */
 	@Test
-	public void testSaveBoostedShouldUseDocumentBoost() throws IOException, SolrServerException, SecurityException,
-			NoSuchFieldException {
+	public void testSaveBoostedShouldUseDocumentBoost()
+			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
 		solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
 
@@ -383,8 +384,8 @@ public class SolrTemplateTests {
 	 * @see DATASOLR-88
 	 */
 	@Test
-	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation() throws IOException, SolrServerException,
-			SecurityException, NoSuchFieldException {
+	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation()
+			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
 		solrTemplate.saveBean(SIMPLE_BOOSTED_OBJECT);
 
@@ -394,8 +395,8 @@ public class SolrTemplateTests {
 		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
 		Assert.assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
 
-		float fieldBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"),
-				Indexed.class).boost();
+		float fieldBoost = AnnotationUtils
+				.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"), Indexed.class).boost();
 		Assert.assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
@@ -403,14 +404,26 @@ public class SolrTemplateTests {
 	 * @throws IOException
 	 * @throws SolrServerException
 	 * @see DATASOLR-72
+	 * @see DATASOLR-313
 	 */
 	@Test
 	public void schemaShouldBeUpdatedPriorToSavingEntity() throws SolrServerException, IOException {
 
 		NamedList<Object> nl = new NamedList<Object>();
-		nl.add("json", "{ \"schema\" : {\"name\" : \"core1\" }, \"version\" : 1.5 }");
-		Mockito.when(solrClientMock.request(Mockito.any(SolrSchemaRequest.class), Mockito.anyString())).thenReturn(nl);
-		Mockito.when(solrClientMock.request(Mockito.any(SolrSchemaRequest.class), Mockito.anyString())).thenReturn(nl);
+		NamedList<Object> schema = new NamedList<Object>();
+		nl.add("version", 1.5F);
+		nl.add("schema", schema);
+		schema.add("version", 1.5F);
+		schema.add("name", "mock");
+		schema.add("fields", Collections.<NamedList<Object>> emptyList());
+		schema.add("dynamicFields", Collections.<NamedList<Object>> emptyList());
+		schema.add("fieldTypes", Collections.<NamedList<Object>> emptyList());
+		schema.add("copyFields", Collections.<NamedList<Object>> emptyList());
+
+		// schema.add(name, val);
+
+		Mockito.when(solrClientMock.request(Mockito.any(SchemaVersion.class), Mockito.anyString())).thenReturn(nl);
+		Mockito.when(solrClientMock.request(Mockito.any(SchemaRequest.class), Mockito.anyString())).thenReturn(nl);
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1");
 		solrTemplate.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
@@ -418,12 +431,12 @@ public class SolrTemplateTests {
 		solrTemplate.saveBean(new DocumentWithIndexAnnotations());
 
 		ArgumentCaptor<SolrRequest> requestCaptor = ArgumentCaptor.forClass(SolrRequest.class);
-		Mockito.verify(solrClientMock, Mockito.times(3)).request(requestCaptor.capture(), Mockito.anyString());
+		Mockito.verify(solrClientMock, Mockito.times(4)).request(requestCaptor.capture(), Mockito.anyString());
 
 		SolrRequest capturedRequest = requestCaptor.getValue();
 
 		Assert.assertThat(capturedRequest.getMethod(), IsEqual.equalTo(SolrRequest.METHOD.POST));
-		Assert.assertThat(capturedRequest.getPath(), IsEqual.equalTo("/schema/fields"));
+		Assert.assertThat(capturedRequest.getPath(), IsEqual.equalTo("/schema"));
 		Assert.assertThat(capturedRequest.getContentStreams(), IsNull.notNullValue());
 	}
 
@@ -473,8 +486,8 @@ public class SolrTemplateTests {
 	 * @see DATASOLR-160
 	 */
 	@Test
-	public void testSaveShouldNotSaveScoreField() throws IOException, SolrServerException, SecurityException,
-			NoSuchFieldException {
+	public void testSaveShouldNotSaveScoreField()
+			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
 		solrTemplate.saveBean(new DocumentWithScoreAnnotation());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,11 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 
 	@Override
 	public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+
+		if (ex instanceof DataAccessException) {
+			return (DataAccessException) ex;
+		}
+
 		if (ex.getCause() instanceof SolrServerException) {
 			SolrServerException solrServerException = (SolrServerException) ex.getCause();
 			if (solrServerException.getCause() instanceof SolrException) {

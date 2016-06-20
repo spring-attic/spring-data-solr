@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-	<solr:embedded-solr-server id="solrClient" solrHome="classpath:org/springframework/data/solr" /> 
+	<solr:embedded-solr-server id="solrClient" solrHome="classpath:static-schema" />
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrClient" />
