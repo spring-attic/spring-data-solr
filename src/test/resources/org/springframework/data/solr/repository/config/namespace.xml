@@ -6,7 +6,7 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
-	<solr:embedded-solr-server id="solrClient" solrHome="classpath:org/springframework/data/solr" /> 
+	<solr:embedded-solr-server id="solrClient" solrHome="classpath:static-schema" />
 	<solr:solr-client id="httpSolrClient" url="http://localhost:8983/solr" />
 	<solr:solr-client id="lbHttpSolrClient" url="http://localhost:8983/solr,http://127.0.0.1:8983/solr" />
 	

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,18 @@
 package org.springframework.data.solr.core.schema;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Christoph Strobl
@@ -30,6 +37,7 @@ public class SchemaDefinition {
 
 	private String collectionName;
 	private List<FieldDefinition> fields;
+	private List<CopyFieldDefinition> copyFields;
 	private String name;
 	private Double version;
 	private String uniqueKey;
@@ -104,6 +112,18 @@ public class SchemaDefinition {
 		this.fields.add(fieldDef);
 	}
 
+	public void addCopyField(CopyFieldDefinition copyField) {
+
+		if (this.copyFields == null) {
+			this.copyFields = new ArrayList<CopyFieldDefinition>();
+		}
+		this.copyFields.add(copyField);
+	}
+
+	public List<CopyFieldDefinition> getCopyFields() {
+		return this.copyFields;
+	}
+
 	public void setCollectionName(String collectionName) {
 		this.collectionName = collectionName;
 	}
@@ -118,6 +138,8 @@ public class SchemaDefinition {
 	 * @author Christoph Strobl
 	 * @since 1.3
 	 */
+	@Data
+	@NoArgsConstructor
 	public static class FieldDefinition implements SchemaField {
 
 		private String name;
@@ -131,90 +153,131 @@ public class SchemaDefinition {
 		private boolean multiValued;
 		private boolean required;
 
-		public FieldDefinition() {}
-
 		public FieldDefinition(String name) {
 			this.name = name;
-		}
-
-		public String getName() {
-			return this.name;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public boolean isStored() {
-			return stored;
-		}
-
-		public void setStored(boolean stored) {
-			this.stored = stored;
-		}
-
-		public boolean isIndexed() {
-			return indexed;
-		}
-
-		public void setIndexed(boolean indexed) {
-			this.indexed = indexed;
-		}
-
-		public Object getDefaultValue() {
-			return defaultValue;
-		}
-
-		public void setDefaultValue(Object defaultValue) {
-			this.defaultValue = defaultValue;
-		}
-
-		public List<String> getCopyFields() {
-			return copyFields;
 		}
 
 		public void setCopyFields(Collection<String> copyFields) {
 			this.copyFields = new ArrayList<String>(copyFields);
 		}
 
-		public List<Filter> getFilters() {
-			return filters;
+		/**
+		 * @return
+		 * @since 2.1
+		 */
+		public Map<String, Object> asMap() {
+
+			Map<String, Object> values = new LinkedHashMap<String, Object>();
+			addIfNotNull("name", name, values);
+			addIfNotNull("type", type, values);
+			addIfNotNull("indexed", indexed, values);
+			addIfNotNull("stored", stored, values);
+			addIfNotNull("multiValued", multiValued, values);
+			addIfNotNull("default", defaultValue, values);
+			addIfNotNull("required", required, values);
+			return values;
 		}
 
-		public void setFilters(List<Filter> filters) {
-			this.filters = filters;
+		private void addIfNotNull(String key, Object value, Map<String, Object> dest) {
+			if (value != null) {
+				dest.put(key, value);
+			}
 		}
 
-		public List<Tokenizer> getTokenizers() {
-			return tokenizers;
+		/**
+		 * @param source
+		 * @return
+		 * @since 2.1
+		 */
+		public static FieldDefinition fromMap(Map<String, Object> source) {
+
+			FieldDefinition fd = new FieldDefinition();
+			if (!CollectionUtils.isEmpty(source)) {
+
+				fd.name = valueFromMap("name", source, null);
+				fd.type = valueFromMap("type", source, null);
+				fd.indexed = valueFromMap("indexed", source, false);
+				fd.stored = valueFromMap("stored", source, false);
+				fd.multiValued = valueFromMap("multiValued", source, false);
+				fd.required = valueFromMap("required", source, false);
+				fd.defaultValue = valueFromMap("default", source, null);
+			}
+			return fd;
 		}
 
-		public void setTokenizers(List<Tokenizer> tokenizers) {
-			this.tokenizers = tokenizers;
+		private static <T> T valueFromMap(String key, Map<String, Object> source, T defaultValue) {
+
+			if (source.containsKey(key)) {
+				return (T) source.get(key);
+			} else {
+				return defaultValue;
+			}
 		}
 
-		public void setName(String name) {
-			this.name = name;
+		/**
+		 * @author Christoph Strobl
+		 * @since 2.1
+		 */
+		public static class Builder {
+
+			FieldDefinition fd;
+
+			public Builder() {
+				fd = new FieldDefinition();
+			}
+
+			public Builder named(String name) {
+				fd.setName(name);
+				return this;
+			}
+
+			public Builder stored() {
+				fd.setStored(true);
+				return this;
+			}
+
+			public Builder indexed() {
+				fd.setIndexed(true);
+				return this;
+			}
+
+			public Builder muliValued() {
+				fd.setMultiValued(true);
+				return this;
+			}
+
+			public Builder copyTo(String... fields) {
+				fd.setCopyFields(Arrays.asList(fields));
+				return this;
+			}
+
+			public Builder required() {
+				fd.setRequired(true);
+				return this;
+			}
+
+			public Builder typedAs(String type) {
+				fd.setType(type);
+				return this;
+			}
+
+			public Builder defaultedTo(Object value) {
+				fd.setDefaultValue(value);
+				return this;
+			}
+
+			public FieldDefinition create() {
+				return fd;
+			}
+
 		}
 
-		public boolean isMultiValued() {
-			return multiValued;
-		}
-
-		public void setMultiValued(boolean multiValued) {
-			this.multiValued = multiValued;
-		}
-
-		public boolean isRequired() {
-			return required;
-		}
-
-		public void setRequired(boolean required) {
-			this.required = required;
+		/**
+		 * @return
+		 * @since 2.1
+		 */
+		public static Builder newFieldDefinition() {
+			return new Builder();
 		}
 
 	}
@@ -223,10 +286,68 @@ public class SchemaDefinition {
 	 * @author Christoph Strobl
 	 * @since 1.3
 	 */
+	@Data
 	public static class CopyFieldDefinition implements SchemaField {
 
 		String source;
 		List<String> destination;
+
+		public static CopyFieldDefinition fromMap(Map<String, Object> fieldValueMap) {
+
+			CopyFieldDefinition cfd = new CopyFieldDefinition();
+			cfd.source = (String) fieldValueMap.get("source");
+
+			Object dest = fieldValueMap.get("dest");
+			if (dest instanceof Collection) {
+				cfd.destination = new ArrayList<String>((Collection<String>) dest);
+			} else if (fieldValueMap.get("dest") instanceof String) {
+				cfd.destination = Collections.<String> singletonList(dest.toString());
+			}
+
+			return cfd;
+		}
+
+		/**
+		 * @return
+		 * @since 2.1
+		 */
+		public static Builder newCopyFieldDefinition() {
+			return new Builder();
+		}
+
+		/**
+		 * @author Christoph Strobl
+		 * @since 2.1
+		 */
+		public static class Builder {
+
+			CopyFieldDefinition cf;
+
+			public Builder() {
+				cf = new CopyFieldDefinition();
+			}
+
+			public Builder copyFrom(String source) {
+				cf.setSource(source);
+				return this;
+			}
+
+			public Builder to(String... destinations) {
+
+				if (cf.getDestination() == null) {
+					cf.setDestination(Arrays.asList(destinations));
+				} else {
+					ArrayList<String> values = new ArrayList<String>(cf.getDestination());
+					CollectionUtils.mergeArrayIntoCollection(destinations, values);
+					cf.setDestination(values);
+				}
+				return this;
+			}
+
+			public CopyFieldDefinition create() {
+				return cf;
+			}
+		}
 	}
 
 	/**

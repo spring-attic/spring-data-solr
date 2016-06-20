@@ -15,94 +15,29 @@
  */
 package org.springframework.data.solr;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.core.CloseHook;
-import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.CoreDescriptor;
-import org.apache.solr.core.SolrCore;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.ResourceUtils;
-import org.xml.sax.SAXException;
+import org.junit.ClassRule;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.solr.test.util.EmbeddedSolrServer.ClientCache;
 
 /**
  * @author Christoph Strobl
  */
 public abstract class AbstractITestWithEmbeddedSolrServer {
 
-	protected static SolrClient solrClient;
 	protected static String DEFAULT_BEAN_ID = "1";
 
-	@BeforeClass
-	public static void initSolrServer()
-			throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+	public static @ClassRule org.springframework.data.solr.test.util.EmbeddedSolrServer server = org.springframework.data.solr.test.util.EmbeddedSolrServer
+			.configure(new ClassPathResource("static-schema"), ClientCache.ENABLED);
 
-		String solrHome = ResourceUtils.getURL("classpath:org/springframework/data/solr").getPath();
+	public void cleanDataInSolr() throws SolrServerException, IOException {
 
-		Method createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", String.class,
-				File.class);
-
-		CoreContainer coreContainer = null;
-		if (createAndLoadMethod != null) {
-			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null, solrHome,
-					new File(solrHome + "/solr.xml"));
-		} else {
-
-			createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", Path.class, Path.class);
-
-			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null,
-					FileSystems.getDefault().getPath(solrHome),
-					FileSystems.getDefault().getPath(new File(solrHome + "/solr.xml").getPath()));
-		}
-
-		for (SolrCore core : coreContainer.getCores()) {
-			core.addCloseHook(new CloseHook() {
-				@Override
-				public void preClose(SolrCore core) {}
-
-				@Override
-				public void postClose(SolrCore core) {
-					CoreDescriptor cd = core.getCoreDescriptor();
-					if (cd != null) {
-						File dataDir = new File(cd.getInstanceDir() + File.separator + "data");
-						try {
-							FileUtils.deleteDirectory(dataDir);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			});
-		}
-
-		solrClient = new EmbeddedSolrServer(coreContainer, "collection1");
-	}
-
-	public static void cleanDataInSolr() throws SolrServerException, IOException {
-
-		solrClient.deleteByQuery("*:*");
-		solrClient.commit();
-	}
-
-	@AfterClass
-	public static void shutdown() throws SolrServerException, IOException {
-		cleanDataInSolr();
-		solrClient.shutdown();
+		server.getSolrClient("collection1").deleteByQuery("*:*");
+		server.getSolrClient("collection1").commit();
 	}
 
 	public ExampleSolrBean createDefaultExampleBean() {

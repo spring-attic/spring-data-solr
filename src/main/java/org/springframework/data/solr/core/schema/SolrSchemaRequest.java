@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Christoph Strobl
  * @since 1.3
+ * @deprecated since 2.1. Use {@link org.apache.solr.client.solrj.request.schema.SchemaRequest} instead.
  */
+@Deprecated
 public class SolrSchemaRequest extends SolrJsonRequest {
 
 	private static final long serialVersionUID = 483080361035195746L;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
-		solrTemplate = new SolrTemplate(solrClient, null);
+		solrTemplate = new SolrTemplate(server, "collection1");
 		solrTemplate.afterPropertiesSet();
 	}
 
@@ -84,8 +84,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		solrTemplate.saveBeans(Arrays.asList(negative100, negative200));
 		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
-				new SimpleQuery(new Criteria("popularity").between(-150, -50)), ExampleSolrBean.class);
+		Page<ExampleSolrBean> result = solrTemplate
+				.queryForPage(new SimpleQuery(new Criteria("popularity").between(-150, -50)), ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 		Assert.assertEquals(negative100.getId(), result.getContent().get(0).getId());
 	}
@@ -100,8 +100,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		solrTemplate.saveBean(searchableBean);
 		solrTemplate.commit();
 
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
-				new SimpleQuery(new Criteria("last_modified").is(calendar.getTime())), ExampleSolrBean.class);
+		Page<ExampleSolrBean> result = solrTemplate
+				.queryForPage(new SimpleQuery(new Criteria("last_modified").is(calendar.getTime())), ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 	}
 
@@ -122,7 +122,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(
 				new SimpleQuery(new Criteria("last_modified").between(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC),
-						new DateTime(2012, 12, 31, 23, 59, 59, DateTimeZone.UTC))), ExampleSolrBean.class);
+						new DateTime(2012, 12, 31, 23, 59, 59, DateTimeZone.UTC))),
+				ExampleSolrBean.class);
 		Assert.assertEquals(1, result.getContent().size());
 
 	}

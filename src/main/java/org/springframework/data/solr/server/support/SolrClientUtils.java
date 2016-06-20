@@ -135,8 +135,8 @@ public class SolrClientUtils {
 	}
 
 	private static String getSolrClientTypeName(SolrClient solrClient) {
-		Class<?> solrClientType = ClassUtils.isCglibProxy(solrClient) ? ClassUtils.getUserClass(solrClient) : solrClient
-				.getClass();
+		Class<?> solrClientType = ClassUtils.isCglibProxy(solrClient) ? ClassUtils.getUserClass(solrClient)
+				: solrClient.getClass();
 		String shortName = ClassUtils.getShortName(solrClientType);
 		return shortName;
 	}
@@ -150,8 +150,8 @@ public class SolrClientUtils {
 					String.class);
 			return (SolrClient) BeanUtils.instantiateClass(constructor, coreContainer, core);
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
-					+ ".", e);
+			throw new BeanInstantiationException(solrClient.getClass(),
+					"Cannot create instace of " + solrClient.getClass() + ".", e);
 		}
 	}
 
@@ -184,8 +184,8 @@ public class SolrClientUtils {
 					.getConstructorIfAvailable(solrClient.getClass(), String.class);
 			return (SolrClient) BeanUtils.instantiateClass(constructor, url);
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
-					+ ". ", e);
+			throw new BeanInstantiationException(solrClient.getClass(),
+					"Cannot create instace of " + solrClient.getClass() + ". ", e);
 		}
 	}
 
@@ -202,8 +202,8 @@ public class SolrClientUtils {
 				clone = cloneSolr4LBHttpServer(solrClient, core);
 			}
 		} catch (Exception e) {
-			throw new BeanInstantiationException(solrClient.getClass(), "Cannot create instace of " + solrClient.getClass()
-					+ ". ", e);
+			throw new BeanInstantiationException(solrClient.getClass(),
+					"Cannot create instace of " + solrClient.getClass() + ". ", e);
 		}
 		Object o = readField(solrClient, "interval");
 		if (o != null) {
@@ -264,15 +264,15 @@ public class SolrClientUtils {
 		return new LBHttpSolrClient(servers);
 	}
 
-	private static HttpClient readAndCloneHttpClient(SolrClient solrClient) throws InstantiationException,
-			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static HttpClient readAndCloneHttpClient(SolrClient solrClient)
+			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
 		HttpClient sourceClient = readField(solrClient, "httpClient");
 		return cloneHttpClient(sourceClient);
 	}
 
-	private static HttpClient cloneHttpClient(HttpClient sourceClient) throws InstantiationException,
-			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static HttpClient cloneHttpClient(HttpClient sourceClient)
+			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
 		if (sourceClient == null) {
 			return null;
