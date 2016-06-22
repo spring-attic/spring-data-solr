@@ -349,14 +349,19 @@ public class ResultHelperTests {
 		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
 		{
 			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
-			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_1", 7, null));
-			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_2", 3, null));
-			vals.add(new org.apache.solr.client.solrj.response.PivotField("field_1", "value_1", 10, pivotValues));
+			pivotValues
+					.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_1", 7, null, null, null, null));
+			pivotValues
+					.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_2", 3, null, null, null, null));
+			vals.add(new org.apache.solr.client.solrj.response.PivotField("field_1", "value_1", 10, pivotValues, null, null,
+					null));
 		}
 		{
 			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
-			pivotValues.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_2_1", 2, null));
-			vals.add(new org.apache.solr.client.solrj.response.PivotField("field_1", "value_2", 2, pivotValues));
+			pivotValues
+					.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_2_1", 2, null, null, null, null));
+			vals.add(
+					new org.apache.solr.client.solrj.response.PivotField("field_1", "value_2", 2, pivotValues, null, null, null));
 		}
 		pivotData.add("field_1,field_2", vals);
 

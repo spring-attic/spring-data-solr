@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ public final class VersionUtil {
 		// hide utility class constructor
 	}
 
-	private static final boolean IS_SOLR_3_X_AVAILABLE = ClassUtils.isPresent(
-			"org.apache.solr.client.solrj.impl.CommonsHttpSolrServer", VersionUtil.class.getClassLoader());
+	private static final boolean IS_SOLR_3_X_AVAILABLE = ClassUtils
+			.isPresent("org.apache.solr.client.solrj.impl.CommonsHttpSolrServer", VersionUtil.class.getClassLoader());
 
 	private static final boolean IS_JODATIME_AVAILABLE = ClassUtils.isPresent("org.joda.time.DateTime",
 			VersionUtil.class.getClassLoader());
@@ -39,8 +39,11 @@ public final class VersionUtil {
 	private static final boolean IS_SOLR_4_2_AVAILABLE = ClassUtils.isPresent("org.apache.solr.parser.ParseException",
 			VersionUtil.class.getClassLoader());
 
-	private static final boolean IS_SOLR_4_X_AVAILABLE = ClassUtils.isPresent(
-			"org.apache.solr.client.solrj.impl.CloudSolrServer", VersionUtil.class.getClassLoader());
+	private static final boolean IS_SOLR_4_X_AVAILABLE = ClassUtils
+			.isPresent("org.apache.solr.client.solrj.impl.CloudSolrServer", VersionUtil.class.getClassLoader());
+
+	private static final boolean IS_SOLR_5_X_AVAILABLE = ClassUtils.isPresent("org.apache.solr.client.solrj.SolrClient",
+			VersionUtil.class.getClassLoader());
 
 	/**
 	 * @return true if {@code org.joda.time.DateTime} is in path
@@ -68,6 +71,13 @@ public final class VersionUtil {
 	 */
 	public static boolean isSolr420Available() {
 		return IS_SOLR_4_2_AVAILABLE;
+	}
+
+	/**
+	 * @return true if {@link org.apache.solr.client.solrj.SolrClient} (introduced in solr 5.0.0) is in path
+	 */
+	public static boolean isSolr5XAvailable() {
+		return IS_SOLR_5_X_AVAILABLE;
 	}
 
 }

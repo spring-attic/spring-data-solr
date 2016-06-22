@@ -16,6 +16,7 @@
 package org.springframework.data.solr.server.support;
 
 import java.beans.PropertyDescriptor;
+import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -40,6 +41,7 @@ import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.util.Assert;
@@ -134,6 +136,32 @@ public class SolrClientUtils {
 		return url;
 	}
 
+	/**
+	 * Close the {@link SolrClient} by calling {@link SolrClient#close()} or {@code shutdown} for the generation 5
+	 * libraries.
+	 *
+	 * @param solrClient must not be {@literal null}.
+	 * @throws DataAccessResourceFailureException
+	 * @since 2.1
+	 */
+	public static void close(SolrClient solrClient) {
+
+		Assert.notNull(solrClient, "SolrClient must not be null!");
+
+		try {
+			if (solrClient instanceof Closeable) {
+				solrClient.close();
+			} else {
+				Method shutdownMethod = ReflectionUtils.findMethod(solrClient.getClass(), "shutdown");
+				if (shutdownMethod != null) {
+					shutdownMethod.invoke(solrClient);
+				}
+			}
+		} catch (Exception e) {
+			throw new DataAccessResourceFailureException("Cannot close SolrClient", e);
+		}
+	}
+
 	private static String getSolrClientTypeName(SolrClient solrClient) {
 		Class<?> solrClientType = ClassUtils.isCglibProxy(solrClient) ? ClassUtils.getUserClass(solrClient)
 				: solrClient.getClass();
@@ -198,7 +226,7 @@ public class SolrClientUtils {
 		try {
 			if (VersionUtil.isSolr3XAvailable()) {
 				clone = cloneSolr3LBHttpServer(solrClient, core);
-			} else if (VersionUtil.isSolr4XAvailable()) {
+			} else if (VersionUtil.isSolr4XAvailable() || VersionUtil.isSolr5XAvailable()) {
 				clone = cloneSolr4LBHttpServer(solrClient, core);
 			}
 		} catch (Exception e) {

@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
@@ -146,7 +145,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		converter.write(item, doc);
 
 		SolrDocumentList docs = new SolrDocumentList();
-		docs.add(ClientUtils.toSolrDocument(doc));
+		docs.add(toSolrDocument(doc));
 		Item out = converter.read(Item.class, docs.get(0));
 
 		// make sure it came out the same
@@ -166,7 +165,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		converter.write(out, doc1);
 
 		SolrDocumentList docs1 = new SolrDocumentList();
-		docs1.add(ClientUtils.toSolrDocument(doc1));
+		docs1.add(toSolrDocument(doc1));
 		Item out1 = converter.read(Item.class, docs1.get(0));
 
 		Assert.assertEquals(item.id, out1.id);
@@ -184,30 +183,38 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		return converter.read(solDocList, Item.class);
 	}
 
+	private SolrDocument toSolrDocument(SolrInputDocument d) {
+		SolrDocument doc = new SolrDocument();
+		for (SolrInputField field : d) {
+			doc.setField(field.getName(), field.getValue());
+		}
+		return doc;
+	}
+
 	public static class Item {
 		@Field String id;
 
-		@Field("cat")//
+		@Field("cat") //
 		String[] categories;
 
-		@Field//
+		@Field //
 		List<String> features;
 
-		@Field//
+		@Field //
 		Date timestamp;
 
-		@Field("highway_mileage")//
+		@Field("highway_mileage") //
 		int mwyMileage;
 
 		boolean inStock;
 
-		@Field("supplier_*")//
+		@Field("supplier_*") //
 		Map<String, List<String>> supplier;
 
-		@Field("sup_simple_*")//
+		@Field("sup_simple_*") //
 		Map<String, String> supplier_simple;
 
-		@Indexed(readonly = true)//
+		@Indexed(readonly = true) //
 		private String[] allSuppliers;
 
 		@Field("supplier_*")

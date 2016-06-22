@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 package org.springframework.data.solr.server.support;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.server.SolrClientFactory;
 
 /**
@@ -63,17 +60,7 @@ abstract class SolrClientFactoryBase implements SolrClientFactory, DisposableBea
 	 * @param client
 	 */
 	protected void destroy(SolrClient client) {
-		if (client instanceof HttpSolrClient) {
-			((HttpSolrClient) client).shutdown();
-		} else if (client instanceof LBHttpSolrClient) {
-			((LBHttpSolrClient) client).shutdown();
-		} else {
-			if (VersionUtil.isSolr4XAvailable()) {
-				if (client instanceof CloudSolrClient) {
-					((CloudSolrClient) client).shutdown();
-				}
-			}
-		}
+		SolrClientUtils.close(client);
 	}
 
 }
