@@ -92,9 +92,9 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private <S> void initializeTypedConverter(Map<String, ?> source, Class<? extends S> rawType) {
-		getConversionService().addConverter(source.getClass(), rawType,
+		getConversionService().addConverter((Class) source.getClass(), (Class) rawType,
 				new SolrjConverters.SolrInputDocumentToObjectConverter<S>((Class<S>) rawType));
 	}
 
