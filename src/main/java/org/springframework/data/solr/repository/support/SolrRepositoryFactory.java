@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.repository.query.RepositoryQuery;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.repository.SolrRepository;
 import org.springframework.data.solr.repository.query.PartTreeSolrQuery;
@@ -75,7 +76,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	public SolrRepositoryFactory(SolrClient solrClient) {
 		Assert.notNull(solrClient);
 
-		this.solrOperations = createTemplate(solrClient);
+		this.solrOperations = createTemplate(solrClient, null);
 
 		factory = new MulticoreSolrClientFactory(solrClient);
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
@@ -83,9 +84,24 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	}
 
-	private SolrTemplate createTemplate(SolrClient solrClient) {
+	public SolrRepositoryFactory(SolrClient solrClient, SolrConverter converter) {
+		Assert.notNull(solrClient);
+
+		this.solrOperations = createTemplate(solrClient, converter);
+
+		factory = new MulticoreSolrClientFactory(solrClient);
+		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
+				this.solrOperations.getConverter().getMappingContext());
+
+	}
+
+	private SolrTemplate createTemplate(SolrClient solrClient, SolrConverter converter) {
 
 		SolrTemplate template = new SolrTemplate(solrClient);
+
+		if (converter != null) {
+			template.setSolrConverter(converter);
+		}
 		addSchemaCreationFeaturesIfEnabled(template);
 		template.afterPropertiesSet();
 		return template;
@@ -104,7 +120,9 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 		if (factory != null) {
 			SolrTemplate template = new SolrTemplate(factory);
 			if (this.solrOperations.getConverter() != null) {
+
 				template.setMappingContext(this.solrOperations.getConverter().getMappingContext());
+				template.setSolrConverter(this.solrOperations.getConverter());
 			}
 			template.setSolrCore(SolrClientUtils.resolveSolrCoreName(metadata.getDomainType()));
 			addSchemaCreationFeaturesIfEnabled(template);

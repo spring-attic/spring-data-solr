@@ -23,6 +23,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.core.support.TransactionalRepositoryFactoryBeanSupport;
 import org.springframework.data.solr.core.SolrOperations;
+import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.util.Assert;
 
@@ -32,13 +33,14 @@ import org.springframework.util.Assert;
  * @author Oliver Gierke
  * @author Christoph Strobl
  */
-public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable> extends
-		TransactionalRepositoryFactoryBeanSupport<T, S, ID> {
+public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
+		extends TransactionalRepositoryFactoryBeanSupport<T, S, ID> {
 
 	private SolrClient solrClient;
 	private SolrOperations operations;
 	private boolean schemaCreationSupport;
 	private SimpleSolrMappingContext solrMappingContext;
+	private SolrConverter solrConverter;
 
 	/**
 	 * Configures the {@link SolrOperations} to be used to create Solr repositories.
@@ -55,6 +57,14 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	public void setSchemaCreationSupport(boolean schemaCreationSupport) {
 		this.schemaCreationSupport = schemaCreationSupport;
+	}
+
+	/**
+	 * @param solrConverter
+	 * @since 2.1
+	 */
+	public void setSolrConverter(SolrConverter solrConverter) {
+		this.solrConverter = solrConverter;
 	}
 
 	/**
@@ -96,7 +106,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	protected RepositoryFactorySupport doCreateRepositoryFactory() {
 
 		SolrRepositoryFactory factory = operations != null ? new SolrRepositoryFactory(this.operations)
-				: new SolrRepositoryFactory(this.solrClient);
+				: new SolrRepositoryFactory(this.solrClient, solrConverter);
 		factory.setSchemaCreationSupport(schemaCreationSupport);
 		return factory;
 	}
