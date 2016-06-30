@@ -235,4 +235,6 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	)
 	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
 
+	Page<ProductBean> findByName(String name, Pageable page);
+
 }
