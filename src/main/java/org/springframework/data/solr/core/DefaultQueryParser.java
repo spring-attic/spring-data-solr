@@ -27,6 +27,7 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.StatsParams;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -67,6 +68,7 @@ import org.springframework.util.CollectionUtils;
  * @author Philipp Jardas
  * @author Francisco Spaeth
  * @author Joachim Uhrlaß
+ * @author Petar Tahchiev
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -92,6 +94,17 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (query instanceof HighlightQuery) {
 			processHighlightOptions(solrQuery, (HighlightQuery) query);
 		}
+
+		ModifiableSolrParams params = new ModifiableSolrParams() {
+			{
+				add("spellcheck.build", "true");
+				add("spellcheck", "true");
+			}
+		};
+		solrQuery.add(CommonParams.QT, "/spell");
+
+		solrQuery.add(params);
+
 		return solrQuery;
 	}
 

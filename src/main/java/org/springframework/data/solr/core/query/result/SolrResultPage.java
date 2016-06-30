@@ -43,7 +43,7 @@ import org.springframework.util.ObjectUtils;
  * @author David Webb
  */
 public class SolrResultPage<T> extends PageImpl<T>
-		implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>, ScoredPage<T>, GroupPage<T>, StatsPage<T> {
+		implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>, ScoredPage<T>, GroupPage<T>, StatsPage<T>, SuggestionPage {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -56,6 +56,7 @@ public class SolrResultPage<T> extends PageImpl<T>
 	private Float maxScore;
 	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
 	private Map<String, FieldStatsResult> fieldStatsResults;
+	private Map<String, List<String>> suggestions = new LinkedHashMap<String, List<String>>();
 
 	public SolrResultPage(List<T> content) {
 		super(content);
@@ -281,6 +282,26 @@ public class SolrResultPage<T> extends PageImpl<T>
 	@Override
 	public Map<String, FieldStatsResult> getFieldStatsResults() {
 		return this.fieldStatsResults;
+	}
+
+
+	@Override
+	public void addSuggestions(String term, List<String> suggestions) {
+		this.suggestions.put(term, suggestions);
+	}
+
+	@Override
+	public Collection<String> getSuggestions(String term) {
+		return this.suggestions.get(term);
+	}
+
+	@Override
+	public Collection<String> getSuggestions() {
+		List<String> allSuggestions = new ArrayList<String>();
+		for (List<String> suggestions : this.suggestions.values()) {
+			allSuggestions.addAll(suggestions);
+		}
+		return allSuggestions;
 	}
 
 }
