@@ -1,3 +1,6 @@
+[![Spring Data Solr](https://spring.io/badges/spring-data-solr/ga.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
+[![Spring Data Solr](https://spring.io/badges/spring-data-solr/snapshot.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
+
 Spring Data Solr
 ======================
 
