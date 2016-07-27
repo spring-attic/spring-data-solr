@@ -1,6 +1,23 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.0.M1 (2016-07-27)
+----------------------------------------
+* DATASOLR-318 - Integrate version badge from spring.io.
+* DATASOLR-316 - Fix compilation error on Java8 > b25 and Spring 4.3.
+* DATASOLR-315 - Enable travis-ci build.
+* DATASOLR-313 - Make use of native SolrSchema request class.
+* DATASOLR-312 - Assert compatibility with Solr 6.
+* DATASOLR-310 - Limit Parameter on GroupOptions is not included in Query when -1.
+* DATASOLR-308 - Auto pre/suffix map values does not work for trailing wildcards.
+* DATASOLR-307 - GeoConverters bug when no digits behind decimal point.
+* DATASOLR-305 - FacetLimit -1 on FacetOptions throws Exception.
+* DATASOLR-294 - Release 2.1 M1 (Ingalls).
+* DATASOLR-248 - Solr documents with multiValued fields are not parsed correctly by spring-data-solr.
+* DATASOLR-244 - Framework does not allow a solr operation that includes faceting and highlighting combined.
+* DATASOLR-173 - Allow registration of custom converters with multicore support enabled.
+
+
 Changes in version 2.0.2.RELEASE (2016-06-15)
 ---------------------------------------------
 * DATASOLR-310 - Limit Parameter on GroupOptions is not included in Query when -1.
