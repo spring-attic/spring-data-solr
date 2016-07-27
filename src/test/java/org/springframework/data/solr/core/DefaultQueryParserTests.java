@@ -887,7 +887,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		assertNull(solrQuery.get("qt"));
+		assertEquals("/spell", solrQuery.get("qt"));
 	}
 
 	@Test

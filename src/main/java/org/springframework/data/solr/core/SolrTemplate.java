@@ -32,6 +32,7 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -625,6 +626,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 					ResultHelper.convertFacetQueryResponseToFacetPivotMap((FacetQuery) query, response));
 			page.addAllRangeFacetFieldResultPages(
 					ResultHelper.convertFacetQueryResponseToRangeFacetPageMap((FacetQuery) query, response));
+		}
+
+		SpellCheckResponse scr = response.getSpellCheckResponse();
+		if (scr != null && scr.getSuggestions() != null) {
+			for (SpellCheckResponse.Suggestion suggestion : scr.getSuggestions()) {
+				page.addSuggestions(suggestion.getToken(), suggestion.getAlternatives());
+			}
 		}
 
 		return page;
