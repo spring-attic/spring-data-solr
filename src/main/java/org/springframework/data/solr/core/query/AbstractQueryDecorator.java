@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
  * General purpose {@link Query} abstract decorator.
  * 
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  * @since 1.4
  */
 public abstract class AbstractQueryDecorator implements Query {
@@ -194,6 +195,24 @@ public abstract class AbstractQueryDecorator implements Query {
 	@Override
 	public StatsOptions getStatsOptions() {
 		return query.getStatsOptions();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#setSpellcheckOptions(org.springframework.data.solr.core.query.SpellcheckOptions)
+	 */
+	@Override
+	public <T extends Query> T setSpellcheckOptions(SpellcheckOptions spellcheckOptions) {
+		return query.setSpellcheckOptions(spellcheckOptions);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#getSpellcheckOptions()
+	 */
+	@Override
+	public SpellcheckOptions getSpellcheckOptions() {
+		return query.getSpellcheckOptions();
 	}
 
 }

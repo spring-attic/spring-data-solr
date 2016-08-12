@@ -53,7 +53,7 @@ import org.springframework.data.solr.core.query.result.FacetQueryEntry;
 import org.springframework.data.solr.core.query.result.FieldStatsResult;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.HighlightPage;
-import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -64,6 +64,7 @@ import org.springframework.util.StringUtils;
  * @author John Dorman
  * @author Francisco Spaeth
  * @author David Webb
+ * @author Petar Tahchiev
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -1095,10 +1096,11 @@ public class ITestSolrRepositoryOperations {
 	 */
 	@Test
 	public void testFindByNameWithSpellcheckSeggestion() {
+
 		ProductBean greenProduct = createProductBean("5", 3, true, "green");
 		repo.save(greenProduct);
 
-		SolrResultPage<ProductBean> found = (SolrResultPage<ProductBean>) repo.findByName("gren", new PageRequest(0, 20));
+		SpellcheckedPage<ProductBean> found = repo.findByName("gren", new PageRequest(0, 20));
 		Assert.assertThat(found.hasContent(), Is.is(false));
 		Assert.assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
 		Assert.assertThat(found.getSuggestions(), Matchers.contains("green"));

@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
+import org.springframework.data.solr.core.query.AnyCriteria;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.FacetOptions;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
@@ -68,6 +70,7 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.core.query.StatsOptions;
 
 /**
@@ -77,6 +80,7 @@ import org.springframework.data.solr.core.query.StatsOptions;
  * @author Andrey Paramonov
  * @author Philipp Jardas
  * @author Francisco Spaeth
+ * @author Petar Tahchiev
  */
 public class DefaultQueryParserTests {
 
@@ -887,7 +891,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
-		assertEquals("/spell", solrQuery.get("qt"));
+		assertNull(solrQuery.get("qt"));
 	}
 
 	@Test
@@ -1721,6 +1725,19 @@ public class DefaultQueryParserTests {
 		assertArrayEquals(new String[] { "field1" }, solrQuery.getFacetFields());
 		assertNull(solrQuery.getParams(FacetParams.FACET_DATE));
 		assertNull(solrQuery.getParams(FacetParams.FACET_RANGE));
+	}
+
+	/**
+	 * DATASOLR-137
+	 */
+	@Test
+	public void shouldUseSpellRequestHandlerWhenSpellcheckOptionsAvailable() {
+
+		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
+		q.setSpellcheckOptions(SpellcheckOptions.spellcheck());
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(q);
+		assertThat(solrQuery.getRequestHandler(), is(equalTo("/spell")));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {

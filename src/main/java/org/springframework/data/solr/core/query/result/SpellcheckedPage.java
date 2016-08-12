@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
  */
 package org.springframework.data.solr.core.query.result;
 
-import java.util.Collection;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * @author Petar Tahchiev
+ * @author Christoph Strobl
  */
-public interface SuggestionPage {
+public interface SpellcheckedPage<T> extends SpellcheckQueryResult, Page<T> {
 
-    void addSuggestions(String term, List<String> suggestions);
-
-    Collection<String> getSuggestions(String term);
-
-    Collection<String> getSuggestions();
 }

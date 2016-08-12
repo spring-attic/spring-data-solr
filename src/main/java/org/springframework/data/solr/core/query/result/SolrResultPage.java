@@ -41,9 +41,10 @@ import org.springframework.util.ObjectUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author David Webb
+ * @author Petar Tahchiev
  */
-public class SolrResultPage<T> extends PageImpl<T>
-		implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>, ScoredPage<T>, GroupPage<T>, StatsPage<T>, SuggestionPage {
+public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>,
+		ScoredPage<T>, GroupPage<T>, StatsPage<T>, SpellcheckedPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
@@ -56,7 +57,7 @@ public class SolrResultPage<T> extends PageImpl<T>
 	private Float maxScore;
 	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
 	private Map<String, FieldStatsResult> fieldStatsResults;
-	private Map<String, List<String>> suggestions = new LinkedHashMap<String, List<String>>();
+	private Map<String, List<Alternative>> suggestions = new LinkedHashMap<String, List<Alternative>>();
 
 	public SolrResultPage(List<T> content) {
 		super(content);
@@ -284,24 +285,65 @@ public class SolrResultPage<T> extends PageImpl<T>
 		return this.fieldStatsResults;
 	}
 
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getSuggestions(java.lang.String)
+	 */
 	@Override
-	public void addSuggestions(String term, List<String> suggestions) {
+	public Collection<String> getSuggestions(String term) {
+
+		List<String> suggestions = new ArrayList<String>();
+		for (Alternative alternative : getAlternatives(term)) {
+			suggestions.add(alternative.getSuggestion());
+		}
+		return suggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getSuggestions()
+	 */
+	@Override
+	public Collection<String> getSuggestions() {
+
+		List<String> suggestions = new ArrayList<String>();
+		for (Alternative alternative : getAlternatives()) {
+			suggestions.add(alternative.getSuggestion());
+		}
+		return suggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#addSuggestions(java.lang.String, java.util.List)
+	 */
+	@Override
+	public void addSuggestions(String term, List<Alternative> suggestions) {
 		this.suggestions.put(term, suggestions);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getAlternatives()
+	 */
 	@Override
-	public Collection<String> getSuggestions(String term) {
-		return this.suggestions.get(term);
-	}
+	public Collection<Alternative> getAlternatives() {
 
-	@Override
-	public Collection<String> getSuggestions() {
-		List<String> allSuggestions = new ArrayList<String>();
-		for (List<String> suggestions : this.suggestions.values()) {
+		List<Alternative> allSuggestions = new ArrayList<Alternative>();
+		for (List<Alternative> suggestions : this.suggestions.values()) {
 			allSuggestions.addAll(suggestions);
 		}
 		return allSuggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getAlternatives(java.lang.String)
+	 */
+	@Override
+	public Collection<Alternative> getAlternatives(String term) {
+		return suggestions.containsKey(term) ? Collections.<Alternative> unmodifiableList(this.suggestions.get(term))
+				: Collections.<Alternative> emptyList();
 	}
 
 }

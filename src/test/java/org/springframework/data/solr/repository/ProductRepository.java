@@ -29,12 +29,14 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 
 /**
  * @author Christoph Strobl
  * @author John Dorman
  * @author Andrey Paramonov
+ * @author Petar Tahchiev
  */
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
@@ -235,6 +237,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	)
 	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
 
-	Page<ProductBean> findByName(String name, Pageable page);
+	@Spellcheck
+	SpellcheckedPage<ProductBean> findByName(String name, Pageable page);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
+import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.repository.Facet;
 import org.springframework.data.solr.repository.Highlight;
 import org.springframework.data.solr.repository.Pivot;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SelectiveStats;
+import org.springframework.data.solr.repository.Spellcheck;
 import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
@@ -440,6 +443,76 @@ public class SolrQueryMethod extends QueryMethod {
 			return getQueryAnnotation().requestHandler();
 		}
 		return null;
+	}
+
+	/**
+	 * @return
+	 * @since 2.1
+	 */
+	public Spellcheck getSpellcheckAnnotation() {
+		return AnnotatedElementUtils.findMergedAnnotation(this.method, Spellcheck.class);
+	}
+
+	/**
+	 * @return
+	 * @since 2.1
+	 */
+	public boolean hasSpellcheck() {
+		return getSpellcheckAnnotation() != null;
+	}
+
+	/**
+	 * @return
+	 * @since 2.1
+	 */
+	public SpellcheckOptions getSpellcheckOptions() {
+
+		Spellcheck spellcheck = getSpellcheckAnnotation();
+		if (spellcheck == null) {
+			return null;
+		}
+
+		SpellcheckOptions sc = SpellcheckOptions.spellcheck();
+		if (spellcheck.accuracy() >= 0F) {
+			sc = sc.accuracy(spellcheck.accuracy());
+		}
+		if (spellcheck.buildDictionary()) {
+			sc = sc.buildDictionary();
+		}
+		if (spellcheck.collate()) {
+			sc = sc.collate();
+		}
+		if (spellcheck.collateExtendedResults()) {
+			sc = sc.collateExtendedResults();
+		}
+		if (spellcheck.onlyMorePopular()) {
+			sc = sc.onlyMorePopular();
+		}
+		if (spellcheck.alternativeTermCount() >= 0) {
+			sc = sc.alternativeTermCount(spellcheck.alternativeTermCount());
+		}
+		if (spellcheck.count() >= 0) {
+			sc = sc.count(spellcheck.count());
+		}
+		if (StringUtils.hasText(spellcheck.dictionary())) {
+			sc = sc.dictionary(spellcheck.dictionary());
+		}
+		if (spellcheck.maxCollationEvaluations() >= 0) {
+			sc = sc.maxCollationEvaluations(spellcheck.maxCollationEvaluations());
+		}
+		if (spellcheck.maxCollations() >= 0) {
+			sc = sc.maxCollations(spellcheck.maxCollations());
+		}
+		if (spellcheck.maxCollationsTries() >= 0) {
+			sc = sc.maxCollationTries(spellcheck.maxCollationsTries());
+		}
+		if (spellcheck.maxResultsForSuggest() >= 0) {
+			sc = sc.maxResultsForSuggest(spellcheck.maxResultsForSuggest());
+		}
+		if (spellcheck.maxCollationCollectDocs() >= 0) {
+			sc = sc.maxCollationCollectDocs(spellcheck.maxCollationCollectDocs());
+		}
+		return sc;
 	}
 
 	private String getAnnotationValueAsStringOrNullIfBlank(Annotation annotation, String attributeName) {

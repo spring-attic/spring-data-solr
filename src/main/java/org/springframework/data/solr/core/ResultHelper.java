@@ -33,6 +33,7 @@ import org.apache.solr.client.solrj.response.GroupResponse;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.RangeFacet;
+import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
@@ -67,6 +68,7 @@ import org.springframework.data.solr.core.query.result.SimpleGroupResult;
 import org.springframework.data.solr.core.query.result.SimpleStatsResult;
 import org.springframework.data.solr.core.query.result.SimpleTermsFieldEntry;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.SpellcheckQueryResult.Alternative;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.util.Assert;
@@ -424,6 +426,33 @@ final class ResultHelper {
 		}
 
 		return statsResult;
+	}
+
+	static Map<String, List<Alternative>> extreactSuggestions(QueryResponse response) {
+
+		if (response == null || response.getSpellCheckResponse() == null
+				|| response.getSpellCheckResponse().getSuggestions() == null) {
+			return Collections.emptyMap();
+		}
+
+		Map<String, List<Alternative>> alternativesMap = new LinkedHashMap<String, List<Alternative>>();
+		SpellCheckResponse scr = response.getSpellCheckResponse();
+		if (scr != null && scr.getSuggestions() != null) {
+			for (SpellCheckResponse.Suggestion suggestion : scr.getSuggestions()) {
+
+				List<Alternative> alternatives = new ArrayList<Alternative>();
+
+				if (!CollectionUtils.isEmpty(suggestion.getAlternatives())) {
+					for (int i = 0; i < suggestion.getAlternatives().size(); i++) {
+						alternatives.add(new Alternative(suggestion.getToken(), suggestion.getOriginalFrequency(),
+								suggestion.getAlternatives().get(i), suggestion.getAlternativeFrequencies().get(i)));
+					}
+				}
+				alternativesMap.put(suggestion.getToken(), alternatives);
+			}
+		}
+
+		return alternativesMap;
 	}
 
 }

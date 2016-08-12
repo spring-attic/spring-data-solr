@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	private GroupOptions groupOptions;
 	private StatsOptions statsOptions;
+	private SpellcheckOptions spellcheckOptions;
 
 	public SimpleQuery() {}
 
@@ -364,4 +365,24 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.defType = defType;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#setSpellcheckOptions(org.springframework.data.solr.core.query.SpellcheckOptions)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Query> T setSpellcheckOptions(SpellcheckOptions spellcheckOptions) {
+
+		this.spellcheckOptions = spellcheckOptions;
+		return (T) this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#getSpellcheckOptions()
+	 */
+	@Override
+	public SpellcheckOptions getSpellcheckOptions() {
+		return this.spellcheckOptions;
+	}
 }

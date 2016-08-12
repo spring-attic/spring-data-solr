@@ -125,6 +125,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		setAllowedQueryExeutionTime(query);
 		setDefTypeIfDefined(query);
 		setRequestHandlerIfDefined(query);
+		setSpellecheckOptionsWhenDefined(query);
 
 		if (solrQueryMethod.hasStatsDefinition()) {
 			query.setStatsOptions(extractStatsOptions(solrQueryMethod, accessor));
@@ -197,6 +198,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		String requestHandler = solrQueryMethod.getRequestHandler();
 		if (StringUtils.hasText(requestHandler)) {
 			query.setRequestHandler(requestHandler);
+		}
+	}
+
+	private void setSpellecheckOptionsWhenDefined(Query query) {
+
+		if (solrQueryMethod.hasSpellcheck()) {
+			query.setSpellcheckOptions(solrQueryMethod.getSpellcheckOptions());
 		}
 	}
 

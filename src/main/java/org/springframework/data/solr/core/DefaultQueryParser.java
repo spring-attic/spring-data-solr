@@ -28,6 +28,7 @@ import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
+import org.apache.solr.common.params.SpellingParams;
 import org.apache.solr.common.params.StatsParams;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -51,6 +52,7 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.QueryParameter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -95,16 +97,6 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			processHighlightOptions(solrQuery, (HighlightQuery) query);
 		}
 
-		ModifiableSolrParams params = new ModifiableSolrParams() {
-			{
-				add("spellcheck.build", "true");
-				add("spellcheck", "true");
-			}
-		};
-		solrQuery.add(CommonParams.QT, "/spell");
-
-		solrQuery.add(params);
-
 		return solrQuery;
 	}
 
@@ -120,6 +112,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		processGroupOptions(solrQuery, query);
 		processStatsOptions(solrQuery, query);
+		processSpellcheckOptions(solrQuery, query);
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -239,6 +232,27 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		solrQuery.set(GroupParams.GROUP_TOTAL_COUNT, groupOptions.isTotalCount());
 		solrQuery.set(GroupParams.GROUP_FACET, groupOptions.isGroupFacets());
 		solrQuery.set(GroupParams.GROUP_TRUNCATE, groupOptions.isTruncateFacets());
+	}
+
+	private void processSpellcheckOptions(SolrQuery solrQuery, Query query) {
+
+		if (query.getSpellcheckOptions() == null) {
+			return;
+		}
+
+		SpellcheckOptions options = query.getSpellcheckOptions();
+
+		if (options.getQuery() != null) {
+			solrQuery.set(SpellingParams.SPELLCHECK_Q, createQueryStringFromCriteria(options.getQuery().getCriteria()));
+		}
+
+		ModifiableSolrParams params = new ModifiableSolrParams();
+		params.add("spellcheck", "true");
+		for (Entry<String, Object> entry : options.getParams().entrySet()) {
+			params.add(entry.getKey(), entry.getValue().toString());
+		}
+		solrQuery.add(params);
+		solrQuery.add(CommonParams.QT, options.getQt());
 	}
 
 	/**

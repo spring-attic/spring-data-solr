@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -32,7 +33,6 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.client.solrj.response.SpellCheckResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -74,6 +74,7 @@ import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.SpellcheckQueryResult.Alternative;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.query.result.TermsResultPage;
@@ -95,6 +96,7 @@ import org.springframework.util.StringUtils;
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
  * @author David Webb
+ * @author Petar Tahchiev
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -628,10 +630,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 					ResultHelper.convertFacetQueryResponseToRangeFacetPageMap((FacetQuery) query, response));
 		}
 
-		SpellCheckResponse scr = response.getSpellCheckResponse();
-		if (scr != null && scr.getSuggestions() != null) {
-			for (SpellCheckResponse.Suggestion suggestion : scr.getSuggestions()) {
-				page.addSuggestions(suggestion.getToken(), suggestion.getAlternatives());
+		if (query.getSpellcheckOptions() != null) {
+			Map<String, List<Alternative>> suggestions = ResultHelper.extreactSuggestions(response);
+			for (Entry<String, List<Alternative>> entry : suggestions.entrySet()) {
+				page.addSuggestions(entry.getKey(), entry.getValue());
 			}
 		}
 
