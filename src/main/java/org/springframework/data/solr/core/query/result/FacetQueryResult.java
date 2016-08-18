@@ -27,6 +27,7 @@ import org.springframework.data.solr.core.query.PivotField;
  *
  * @param <T>
  * @author David Webb
+ * @author masrivas
  * @since 2.1.0
  */
 public interface FacetQueryResult<T> {
@@ -55,6 +56,12 @@ public interface FacetQueryResult<T> {
 	 * @since 1.5
 	 */
 	Page<FacetFieldEntry> getRangeFacetResultPage(String fieldname);
+	
+	/**
+	 * @return Collection holding faceting result pages
+	 */
+	Collection<Page<FacetFieldEntry>> getFacetRangeResultPages();
+
 
 	/**
 	 * Get Range Facet results for a given field with given name

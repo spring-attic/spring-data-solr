@@ -41,6 +41,7 @@ import org.springframework.util.ObjectUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author David Webb
+ * @author masrivas
  */
 public class SolrResultPage<T> extends PageImpl<T>
 		implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>, ScoredPage<T>, GroupPage<T>, StatsPage<T> {
@@ -281,6 +282,11 @@ public class SolrResultPage<T> extends PageImpl<T>
 	@Override
 	public Map<String, FieldStatsResult> getFieldStatsResults() {
 		return this.fieldStatsResults;
+	}
+
+	@Override
+	public Collection<Page<FacetFieldEntry>> getFacetRangeResultPages() {
+		return Collections.unmodifiableCollection(this.facetRangeResultPages.values());
 	}
 
 }
