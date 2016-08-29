@@ -11,6 +11,7 @@
 	
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrClient" />
+		<constructor-arg value="collection1" />
 	</bean>
 	
 	<bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean">

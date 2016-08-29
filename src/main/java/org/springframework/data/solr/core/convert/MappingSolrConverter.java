@@ -141,7 +141,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	@Override
 	public <S, R> List<R> read(SolrDocumentList source, Class<R> type) {
-		if (source == null) {
+		if (CollectionUtils.isEmpty(source)) {
 			return Collections.emptyList();
 		}
 

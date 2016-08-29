@@ -20,6 +20,7 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * General purpose {@link Query} abstract decorator.
@@ -213,6 +214,16 @@ public abstract class AbstractQueryDecorator implements Query {
 	@Override
 	public SpellcheckOptions getSpellcheckOptions() {
 		return query.getSpellcheckOptions();
+	}
+
+	/**
+	 * Get the {@link Class} of the originally decorated query.
+	 *
+	 * @return never {@literal null}.
+	 * @since 2.1
+	 */
+	public Class<?> getQueryType() {
+		return ClassUtils.getUserClass(query.getClass());
 	}
 
 }
