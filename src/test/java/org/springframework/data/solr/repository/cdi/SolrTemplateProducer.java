@@ -43,6 +43,7 @@ class SolrTemplateProducer {
 				ResourceUtils.getURL("classpath:static-schema").getPath());
 
 		SolrTemplate template = new SolrTemplate(factory);
+		template.setSolrCore("collection1");
 		template.afterPropertiesSet();
 		return template;
 	}
