@@ -437,6 +437,52 @@ HighlightPage<Product> findByName(String name, Pageable page);
 ----
 ====
 
+[[solr.misc.spellcheck]]
+== Spellchecking
+
+Spellchecking offers search term suggestions based on the actual query. Please see the https://cwiki.apache.org/confluence/display/solr/Spell+Checking[Solr Reference] for more details.
+
+=== Spellecheck Options
+
+Spellcheck query parameters are added to request when `SpellcheckOptions` are set.
+
+====
+[source,java]
+----
+SimpleQuery q = new SimpleQuery("name:gren");
+q.setSpellcheckOptions(SpellcheckOptions.spellcheck()               <1>
+  .dictionaries("dict1", "dict2")                                   <2>
+  .count(5)                                                         <3>
+  .extendedResults());                                              <4>
+q.setRequestHandler("/spell");                                      <5>
+
+SpellcheckedPage<Product> found = template.query(q, Product.class); <6>
+----
+<1> Enable spellcheck by setting `SpellcheckOptions`. Sets `spellcheck=on` request parameter.
+<2> Set up the dictionaries to use for lookup.
+<3> Set the max number of suggestions to return.
+<4> Enable extended results including term frequency etc.
+<5> Set the request handler capable of processing suggestions.
+<6> Execute the query.
+====
+
+=== @Spellcheck
+
+The `@Spellcheck` annotations allows usage of the spellcheck feature on `Repository` level.
+
+====
+[source,java]
+----
+public interface ProductRepository extends Repository<Product, String> {
+
+  @Query(requestHandler = "/spell")
+  @Spellcheck(dictionaries = { "dict1", "dic2" }, count=5, extendedResults = true)
+  SpellcheckedPage<Product> findByName(String name, Pageable page);
+
+}
+----
+====
+
 [[solr.misc.functions]]
 == Using Functions
 

@@ -544,7 +544,6 @@ public class SolrQueryMethodTests {
 		assertThat(options.getMaxCollations(), is(nullValue()));
 		assertThat(options.getMaxResultsForSuggest(), is(nullValue()));
 		assertThat(options.getOnlyMorePopular(), is(false));
-		assertThat(options.getQt(), is("/spell"));
 		assertThat(options.getQuery(), is(nullValue()));
 	}
 
@@ -566,13 +565,13 @@ public class SolrQueryMethodTests {
 		assertThat(options.getMaxCollationCollectDocs(), is(10L));
 		assertThat(options.getCollateParams().size(), is(0));
 		assertThat(options.getCount(), is(100L));
-		assertThat(options.getDictionary(), is(equalTo("myDict")));
+		assertThat(options.getDictionary(), is(equalTo(new String[] { "myDict" })));
 		assertThat(options.getMaxCollationEvaluations(), is(5L));
 		assertThat(options.getMaxCollations(), is(3L));
 		assertThat(options.getMaxResultsForSuggest(), is(7L));
 		assertThat(options.getOnlyMorePopular(), is(true));
-		assertThat(options.getQt(), is("/spell"));
 		assertThat(options.getQuery(), is(nullValue()));
+		assertThat(options.getExtendedResults(), is(true));
 	}
 
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
@@ -720,9 +719,9 @@ public class SolrQueryMethodTests {
 		List<ProductBean> findByNameWithDefaultSpellcheck(String name);
 
 		@Spellcheck(accuracy = 0.5F, alternativeTermCount = 10, buildDictionary = true, collate = true,
-				collateExtendedResults = true, count = 100, dictionary = "myDict", maxCollationEvaluations = 5,
+				collateExtendedResults = true, count = 100, dictionaries = "myDict", maxCollationEvaluations = 5,
 				maxCollationCollectDocs = 10, maxCollations = 3, maxCollationsTries = 9, maxResultsForSuggest = 7,
-				onlyMorePopular = true)
+				onlyMorePopular = true, extendedResults = true)
 		List<ProductBean> findByNameWithSpellcheckOptions(String name);
 	}
 

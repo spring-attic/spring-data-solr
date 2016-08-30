@@ -237,7 +237,10 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	)
 	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
 
-	@Spellcheck
+	@Query(requestHandler = "/spell")
+	@Spellcheck(dictionaries = { "default", "wordbreak" }, extendedResults = true, collateExtendedResults = true,
+			count = 10, alternativeTermCount = 5, maxResultsForSuggest = 5, collate = true, maxCollationsTries = 10,
+			maxCollations = 5)
 	SpellcheckedPage<ProductBean> findByName(String name, Pageable page);
 
 }

@@ -41,6 +41,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
+import org.hamcrest.Matchers;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -85,6 +87,7 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SimpleTermsQuery;
 import org.springframework.data.solr.core.query.SimpleUpdateField;
+import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.data.solr.core.query.Update;
@@ -98,6 +101,7 @@ import org.springframework.data.solr.core.query.result.GroupEntry;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.GroupResult;
 import org.springframework.data.solr.core.query.result.HighlightQueryResult;
+import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
@@ -1284,6 +1288,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		SomeDoc document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
 		assertThat(document.title, is(nullValue()));
+	}
+
+	/**
+	 * @see DATASOLR-137
+	 */
+	@Test
+	public void testFindByNameWithSpellcheckSeggestion() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "green", null);
+		solrTemplate.saveBean(bean1);
+		solrTemplate.commit();
+
+		SimpleQuery q = new SimpleQuery("name:gren");
+		q.setSpellcheckOptions(SpellcheckOptions.spellcheck());
+		q.setRequestHandler("/spell");
+
+		SpellcheckedPage<ExampleSolrBean> found = solrTemplate.query(q, ExampleSolrBean.class);
+		Assert.assertThat(found.hasContent(), Is.is(false));
+		Assert.assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
+		Assert.assertThat(found.getSuggestions(), Matchers.contains("green"));
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {

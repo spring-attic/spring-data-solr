@@ -48,7 +48,16 @@ public @interface Spellcheck {
 	 *
 	 * @return
 	 */
-	String dictionary() default "";
+	String[] dictionaries() default {};
+
+	/**
+	 * This parameter enables/disables the extended response format. The default values is {@literal false}. If enabled
+	 * the response returns the document frequency for each suggestion and returns one suggestion block for each term in
+	 * the query string.
+	 *
+	 * @return
+	 */
+	boolean extendedResults() default false;
 
 	/**
 	 * The maximum number of hits the request can return in order to both generate spelling suggestions and set the

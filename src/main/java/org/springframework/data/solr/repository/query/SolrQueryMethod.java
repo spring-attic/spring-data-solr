@@ -41,6 +41,7 @@ import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -494,8 +495,8 @@ public class SolrQueryMethod extends QueryMethod {
 		if (spellcheck.count() >= 0) {
 			sc = sc.count(spellcheck.count());
 		}
-		if (StringUtils.hasText(spellcheck.dictionary())) {
-			sc = sc.dictionary(spellcheck.dictionary());
+		if (!ObjectUtils.isEmpty(spellcheck.dictionaries())) {
+			sc = sc.dictionaries(spellcheck.dictionaries());
 		}
 		if (spellcheck.maxCollationEvaluations() >= 0) {
 			sc = sc.maxCollationEvaluations(spellcheck.maxCollationEvaluations());
@@ -511,6 +512,9 @@ public class SolrQueryMethod extends QueryMethod {
 		}
 		if (spellcheck.maxCollationCollectDocs() >= 0) {
 			sc = sc.maxCollationCollectDocs(spellcheck.maxCollationCollectDocs());
+		}
+		if (spellcheck.extendedResults()) {
+			sc = sc.extendedResults();
 		}
 		return sc;
 	}
