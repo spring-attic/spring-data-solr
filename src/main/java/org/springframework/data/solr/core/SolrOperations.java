@@ -349,6 +349,27 @@ public interface SolrOperations {
 	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
+	 * Execute the query against Solr and return result as page.
+	 *
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 2.1
+	 */
+	<T, S extends Page<T>> S query(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against Solr and return result as page.
+	 *
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 2.1
+	 */
+	<T, S extends Page<T>> S query(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Executes a realtime get using given id.
 	 * 
 	 * @param id must not be {@literal null}.

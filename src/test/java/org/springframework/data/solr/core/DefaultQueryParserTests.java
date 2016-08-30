@@ -33,6 +33,7 @@ import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
+import org.apache.solr.common.params.SpellingParams;
 import org.apache.solr.common.params.StatsParams;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -1728,16 +1729,43 @@ public class DefaultQueryParserTests {
 	}
 
 	/**
-	 * DATASOLR-137
+	 * @see DATASOLR-324
 	 */
 	@Test
-	public void shouldUseSpellRequestHandlerWhenSpellcheckOptionsAvailable() {
+	public void shouldNotEnableSpellcheckWennNoSpellcheckOptionsPresent() {
+
+		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(q);
+		assertThat(solrQuery.get("spellcheck"), is(nullValue()));
+	}
+
+	/**
+	 * @see DATASOLR-324
+	 */
+	@Test
+	public void shouldEnableSpellcheckWennSpellcheckOptionsPresent() {
 
 		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
 		q.setSpellcheckOptions(SpellcheckOptions.spellcheck());
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(q);
-		assertThat(solrQuery.getRequestHandler(), is(equalTo("/spell")));
+		assertThat(solrQuery.get("spellcheck"), is(equalTo("on")));
+	}
+
+	/**
+	 * @see DATASOLR-324
+	 */
+	@Test
+	public void shouldApplySpellcheckOptionsCorrectly() {
+
+		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
+		q.setSpellcheckOptions(SpellcheckOptions.spellcheck().dictionaries("dict1", "dict2").count(5).extendedResults());
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(q);
+		assertThat(solrQuery.get("spellcheck"), is(equalTo("on")));
+		assertThat(solrQuery.getParams(SpellingParams.SPELLCHECK_DICT), is(new String[] { "dict1", "dict2" }));
+		assertThat(solrQuery.get(SpellingParams.SPELLCHECK_EXTENDED_RESULTS), is(equalTo("true")));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {

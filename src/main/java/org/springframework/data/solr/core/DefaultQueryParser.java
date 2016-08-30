@@ -17,6 +17,7 @@ package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -30,6 +31,8 @@ import org.apache.solr.common.params.HighlightParams;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SpellingParams;
 import org.apache.solr.common.params.StatsParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.solr.VersionUtil;
@@ -56,6 +59,7 @@ import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Implementation of {@link QueryParser}. <br/>
@@ -73,6 +77,8 @@ import org.springframework.util.CollectionUtils;
  * @author Petar Tahchiev
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultQueryParser.class);
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrClient}
@@ -113,6 +119,10 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		processGroupOptions(solrQuery, query);
 		processStatsOptions(solrQuery, query);
 		processSpellcheckOptions(solrQuery, query);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Constructed SolrQuery:\r\n %s", solrQuery);
+		}
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
@@ -247,12 +257,23 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 
 		ModifiableSolrParams params = new ModifiableSolrParams();
-		params.add("spellcheck", "true");
+		params.add("spellcheck", "on");
 		for (Entry<String, Object> entry : options.getParams().entrySet()) {
-			params.add(entry.getKey(), entry.getValue().toString());
+
+			if (entry.getValue() instanceof Iterable<?>) {
+				Iterator<?> it = ((Iterable<?>) entry.getValue()).iterator();
+				while (it.hasNext()) {
+					params.add(entry.getKey(), it.next().toString());
+				}
+			} else if (ObjectUtils.isArray(entry.getValue())) {
+				for (Object o : ObjectUtils.toObjectArray(entry.getValue())) {
+					params.add(entry.getKey(), o.toString());
+				}
+			} else {
+				params.add(entry.getKey(), entry.getValue().toString());
+			}
 		}
 		solrQuery.add(params);
-		solrQuery.add(CommonParams.QT, options.getQt());
 	}
 
 	/**

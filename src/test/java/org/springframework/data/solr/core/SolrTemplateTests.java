@@ -353,7 +353,7 @@ public class SolrTemplateTests {
 		};
 
 		solrTemplate.registerQueryParser(SimpleQuery.class, parser);
-		solrTemplate.query(new SimpleQuery(new SimpleStringCriteria("my:criteria")), null);
+		solrTemplate.querySolr(new SimpleQuery(new SimpleStringCriteria("my:criteria")), null);
 
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
 
@@ -508,7 +508,7 @@ public class SolrTemplateTests {
 
 		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.POST)))
 				.thenReturn(new QueryResponse());
-		solrTemplate.query(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class);
+		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class);
 
 		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
 				Mockito.eq(SolrRequest.METHOD.POST));
@@ -525,7 +525,7 @@ public class SolrTemplateTests {
 
 		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.PUT)))
 				.thenReturn(new QueryResponse());
-		solrTemplate.query(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, RequestMethod.PUT);
+		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, RequestMethod.PUT);
 
 		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
 				Mockito.eq(SolrRequest.METHOD.PUT));

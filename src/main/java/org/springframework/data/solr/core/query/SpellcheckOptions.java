@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.solr.common.params.SpellingParams;
-import org.springframework.util.StringUtils;
 
 /**
  * {@link SpellcheckOptions} allows modification of query parameters targeting the SpellCheck component is designed to
@@ -32,13 +31,10 @@ import org.springframework.util.StringUtils;
  */
 public class SpellcheckOptions {
 
-	private static final String QT = "/spell";
-
-	private String qt;
 	private Query query;
 	private Map<String, Object> params;
 
-	private SpellcheckOptions(Query query, String qt, Map<String, Object> params) {
+	private SpellcheckOptions(Query query, Map<String, Object> params) {
 
 		this.query = query;
 		this.params = new LinkedHashMap<String, Object>(params);
@@ -50,7 +46,7 @@ public class SpellcheckOptions {
 	 * @return
 	 */
 	public static SpellcheckOptions spellcheck() {
-		return new SpellcheckOptions(null, QT, new LinkedHashMap<String, Object>());
+		return new SpellcheckOptions(null, new LinkedHashMap<String, Object>());
 	}
 
 	/**
@@ -60,7 +56,7 @@ public class SpellcheckOptions {
 	 * @return
 	 */
 	public static SpellcheckOptions spellcheck(Query q) {
-		return new SpellcheckOptions(q, QT, new LinkedHashMap<String, Object>());
+		return new SpellcheckOptions(q, new LinkedHashMap<String, Object>());
 	}
 
 	/**
@@ -70,15 +66,6 @@ public class SpellcheckOptions {
 	 */
 	public Query getQuery() {
 		return query;
-	}
-
-	/**
-	 * Get the request handler endpoint.
-	 *
-	 * @return never {@literal null}.
-	 */
-	public String getQt() {
-		return StringUtils.hasText(qt) ? qt : QT;
 	}
 
 	/**
@@ -176,6 +163,23 @@ public class SpellcheckOptions {
 	}
 
 	/**
+	 * Enable the extended response format, which is more complicated but richer. Returns the document frequency for each
+	 * suggestion and returns one suggestion block for each term in the query string.
+	 *
+	 * @return
+	 */
+	public SpellcheckOptions extendedResults() {
+		return createNewAndAppend(SpellingParams.SPELLCHECK_EXTENDED_RESULTS, true);
+	}
+
+	/**
+	 * @return can be {@literal null}.
+	 */
+	public Boolean getExtendedResults() {
+		return (Boolean) params.get(SpellingParams.SPELLCHECK_EXTENDED_RESULTS);
+	}
+
+	/**
 	 * Instructs Solr to return an expanded response format detailing the collations found.
 	 *
 	 * @return
@@ -261,15 +265,15 @@ public class SpellcheckOptions {
 	 * @param name
 	 * @return
 	 */
-	public SpellcheckOptions dictionary(String name) {
-		return createNewAndAppend(SpellingParams.SPELLCHECK_DICT, name);
+	public SpellcheckOptions dictionaries(String... names) {
+		return createNewAndAppend(SpellingParams.SPELLCHECK_DICT, names);
 	}
 
 	/**
 	 * @return can be {@literal null}.
 	 */
-	public String getDictionary() {
-		return (String) params.get(SpellingParams.SPELLCHECK_DICT);
+	public String[] getDictionary() {
+		return (String[]) params.get(SpellingParams.SPELLCHECK_DICT);
 	}
 
 	/**
@@ -342,16 +346,6 @@ public class SpellcheckOptions {
 		return (Float) params.get(SpellingParams.SPELLCHECK_ACCURACY);
 	}
 
-	/**
-	 * Set the query endpoint
-	 *
-	 * @param qt
-	 * @return
-	 */
-	public SpellcheckOptions qt(String qt) {
-		return new SpellcheckOptions(query, qt, params);
-	}
-
 	private SpellcheckOptions potentiallySetCollate() {
 
 		if (params.containsKey(SpellingParams.SPELLCHECK_COLLATE)) {
@@ -363,7 +357,7 @@ public class SpellcheckOptions {
 
 	private SpellcheckOptions createNewAndAppend(String key, Object value) {
 
-		SpellcheckOptions so = new SpellcheckOptions(query, qt, params);
+		SpellcheckOptions so = new SpellcheckOptions(query, params);
 		so.params.put(key, value);
 		return so;
 	}
