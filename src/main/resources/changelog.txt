@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.0.3.RELEASE (2016-09-20)
+---------------------------------------------
+* DATASOLR-316 - Fix compilation error on Java8 > b25 and Spring 4.3.
+* DATASOLR-314 - Release 2.0.3 (Hopper SR3).
+
+
 Changes in version 2.1.0.M1 (2016-07-27)
 ----------------------------------------
 * DATASOLR-318 - Integrate version badge from spring.io.
