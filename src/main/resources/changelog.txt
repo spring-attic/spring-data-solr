@@ -1,6 +1,15 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 1.5.5.RELEASE (2016-09-20)
+---------------------------------------------
+* DATASOLR-326 - Release 1.5.5 (Gosling SR5).
+* DATASOLR-310 - Limit Parameter on GroupOptions is not included in Query when -1.
+* DATASOLR-308 - Auto pre/suffix map values does not work for trailing wildcards.
+* DATASOLR-305 - FacetLimit -1 on FacetOptions throws Exception.
+* DATASOLR-248 - Solr documents with multiValued fields are not parsed correctly by spring-data-solr.
+
+
 Changes in version 2.0.3.RELEASE (2016-09-20)
 ---------------------------------------------
 * DATASOLR-316 - Fix compilation error on Java8 > b25 and Spring 4.3.
