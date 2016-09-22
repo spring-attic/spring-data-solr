@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,14 +38,14 @@ import org.springframework.data.solr.core.SolrOperations;
  */
 public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 
-	private final Map<String, Bean<SolrOperations>> solrOperationsMap = new HashMap<String, Bean<SolrOperations>>();
+	private final Map<Set<Annotation>, Bean<SolrOperations>> solrOperationsMap = new HashMap<Set<Annotation>, Bean<SolrOperations>>();
 
 	@SuppressWarnings("unchecked")
 	<T> void processBean(@Observes ProcessBean<T> processBean) {
 		Bean<T> bean = processBean.getBean();
 		for (Type type : bean.getTypes()) {
 			if (type instanceof Class<?> && SolrOperations.class.isAssignableFrom((Class<?>) type)) {
-				solrOperationsMap.put(bean.getQualifiers().toString(), ((Bean<SolrOperations>) bean));
+				solrOperationsMap.put(bean.getQualifiers(), ((Bean<SolrOperations>) bean));
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 	}
 
 	private <T> Bean<T> createRepositoryBean(Class<T> repositoryType, Set<Annotation> qualifiers, BeanManager beanManager) {
-		Bean<SolrOperations> solrOperationBeans = this.solrOperationsMap.get(qualifiers.toString());
+		Bean<SolrOperations> solrOperationBeans = this.solrOperationsMap.get(qualifiers);
 
 		if (solrOperationBeans == null) {
 			throw new UnsatisfiedResolutionException(String.format("Unable to resolve a bean for '%s' with qualifiers %s.",
