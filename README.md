@@ -1,14 +1,14 @@
-[![Spring Data Solr](https://spring.io/badges/spring-data-solr/ga.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
-[![Spring Data Solr](https://spring.io/badges/spring-data-solr/snapshot.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
+[![Spring Data for Apache Solr](https://spring.io/badges/spring-data-solr/ga.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
+[![Spring Data for Apache Solr](https://spring.io/badges/spring-data-solr/snapshot.svg)](http://projects.spring.io/spring-data-solr/#quick-start)
 
-Spring Data Solr
-======================
+Spring Data for Apache Solr
+===========================
 
 The primary goal of the [Spring Data](http://projects.spring.io/spring-data) project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
 
-The Spring Data Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine 
+The Spring Data for Apache Solr project provides integration with the [Apache Solr](http://lucene.apache.org/solr/) search engine 
 
-Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data Solr handles inheritance as well as usage of custom Types such as  ```Point``` or ```DateTime```.
+Providing its own extensible ```MappingSolrConverter``` as alternative to ```DocumentObjectBinder``` Spring Data for Apache Solr handles inheritance as well as usage of custom Types such as  ```Point``` or ```DateTime```.
 
 Getting Help
 ------------
