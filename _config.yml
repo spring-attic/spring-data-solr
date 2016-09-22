@@ -14,7 +14,7 @@ kramdown:
 baseurl: /spring-data-solr
 
 # Name of the project for display in places like page titles
-name: Spring Data Solr
+name: Spring Data for Apache Solr
 
 # ID of the project in the metadata API at spring.io (if this is not a
 # valid project ID the javascript widgets in the home page will not work)
