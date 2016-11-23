@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.0.0.BUILD-SNAPSHOT</version>
+		<version>2.0.0.M1</version>
 		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
 	</parent>
 
@@ -23,7 +23,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
 		<solr>5.5.0</solr>
-		<springdata.commons>2.0.0.BUILD-SNAPSHOT</springdata.commons>
+		<springdata.commons>2.0.0.M1</springdata.commons>
 	</properties>
 
 	<developers>
@@ -268,8 +268,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>https://repo.spring.io/libs-snapshot</url>
+			<id>spring-libs-milestone</id>
+			<url>https://repo.spring.io/libs-milestone</url>
 		</repository>
 	</repositories>
 
