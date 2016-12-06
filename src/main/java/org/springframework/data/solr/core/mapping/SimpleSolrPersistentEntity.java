@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@ package org.springframework.data.solr.core.mapping;
 
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.data.annotation.Reference;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
@@ -38,8 +41,10 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements
-		SolrPersistentEntity<T>, ApplicationContextAware {
+public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty>
+		implements SolrPersistentEntity<T>, ApplicationContextAware {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSolrPersistentEntity.class);
 
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
@@ -143,6 +148,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		super.verify();
 		verifyScoreFieldUniqueness();
 		verifyDynamicPropertyMapping();
+		verifyAssociations();
 	}
 
 	private void verifyScoreFieldUniqueness() {
@@ -151,6 +157,10 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	private void verifyDynamicPropertyMapping() {
 		doWithProperties(DynamicFieldMappingHandler.INSTANCE);
+	}
+
+	private void verifyAssociations() {
+		doWithProperties(AssociationFieldMappingHandler.INSTANCE);
 	}
 
 	/**
@@ -178,8 +188,8 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isScoreProperty()) {
 
 				if (scoreProperty != null) {
-					throw new MappingException(String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(),
-							scoreProperty.getFieldName()));
+					throw new MappingException(
+							String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(), scoreProperty.getFieldName()));
 				}
 
 				scoreProperty = property;
@@ -206,14 +216,36 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isDynamicProperty()) {
 
 				if (!property.isMap()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(), property.getFieldName()));
 				}
 
 				if (!property.containsWildcard()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(), property.getFieldName()));
 				}
+			}
+		}
+	}
+
+	/**
+	 * Handler to inspect {@link SolrPersistentProperty} instances and check usage of {@link Dynamic}.
+	 *
+	 * @author Christoph Strobl
+	 * @since 2.1
+	 */
+	private static enum AssociationFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
+
+		INSTANCE;
+
+		@Override
+		public void doWithPersistentProperty(SolrPersistentProperty property) {
+
+			if (property.isAnnotationPresent(Reference.class)) {
+
+				LOGGER.warn(
+						"Associations via @Reference are not supported and will be ignored by Spring Data for Apache Solr. Please check property '%s' in %s",
+						property.getName(), property.getOwner().getName());
 			}
 		}
 	}

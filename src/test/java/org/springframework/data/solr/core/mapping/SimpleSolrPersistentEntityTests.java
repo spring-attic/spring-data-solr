@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.solr.core.mapping.SimpleSolrPersistentPropertyTest.BeanWithScore;
 import org.springframework.data.solr.repository.Score;
@@ -227,6 +229,27 @@ public class SimpleSolrPersistentEntityTests {
 		entity.verify();
 	}
 
+	/**
+	 * @see DATASOLR-341
+	 */
+	@Test
+	public void verifyShouldNotFailOnAssociations() {
+
+		when(typeInfo.getType()).thenReturn(DocumentWithAssociation.class);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+
+		SolrPersistentProperty property = mock(SolrPersistentProperty.class);
+
+		when(property.isDynamicProperty()).thenReturn(false);
+		when(property.isAnnotationPresent(eq(Reference.class))).thenReturn(true);
+		when(property.getName()).thenReturn("refDoc");
+		when(property.getOwner()).thenReturn((PersistentEntity) entity);
+
+		entity.addPersistentProperty(property);
+
+		entity.verify();
+	}
+
 	@SolrDocument(solrCoreName = CORE_NAME)
 	static class SearchableBeanWithSolrDocumentAnnotation {}
 
@@ -244,5 +267,10 @@ public class SimpleSolrPersistentEntityTests {
 	static class DocumentWithBoost {}
 
 	static class DocumentWithScore {}
+
+	static class DocumentWithAssociation {
+
+		@Reference DocumentWithScore refDoc;
+	}
 
 }

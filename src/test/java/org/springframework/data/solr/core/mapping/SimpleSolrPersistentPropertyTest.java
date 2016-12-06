@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.annotation.Reference;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.repository.Score;
@@ -64,13 +65,38 @@ public class SimpleSolrPersistentPropertyTest {
 		assertFalse(property.isWritable());
 	}
 
+	/**
+	 * @see DATASOLR-341
+	 */
+	@Test
+	public void propertyWithReferenceAnnotationShouldNotBeTreatedAsAssociation() throws NoSuchFieldException, IntrospectionException {
+
+		Field field = BeanWithScore.class.getDeclaredField("reference");
+		PropertyDescriptor propertyDescriptor = new PropertyDescriptor("reference", BeanWithScore.class, null, null);
+
+		when(owner.getType()).thenReturn((Class) BeanWithScore.class);
+		when(owner.getTypeInformation()).thenReturn(typeInformation);
+		when(typeInformation.getProperty("reference")).thenReturn((TypeInformation) typeInformation);
+
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(field, propertyDescriptor, owner,
+				simpleTypeHolder);
+
+		assertFalse(property.isAssociation());
+	}
+
 	static class BeanWithScore {
 
 		@Score Float myScoreProperty;
+		@Reference BeanWithScore reference;
 
 		public Float getMyScoreProperty() {
 			return myScoreProperty;
 		}
+
+		public BeanWithScore getReference() {
+			return reference;
+		}
+
 	}
 
 }
