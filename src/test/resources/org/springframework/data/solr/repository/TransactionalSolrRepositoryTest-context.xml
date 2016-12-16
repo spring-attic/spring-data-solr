@@ -8,18 +8,18 @@
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
-	
+
 	<bean id="solrClient" class="org.springframework.data.solr.test.util.GenericMockFactory">
 		<property name="type" value="org.apache.solr.client.solrj.SolrClient" />
 	</bean>
-	
+
 	<bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
 		<constructor-arg ref="solrClient" />
 	</bean>
-	
+
 	<bean class="org.springframework.data.solr.repository.support.SolrRepositoryFactoryBean">
+		<constructor-arg value="org.springframework.data.solr.repository.ProductRepository" />
 		<property name="solrOperations" ref="solrTemplate"/>
-		<property name="repositoryInterface" value="org.springframework.data.solr.repository.ProductRepository"/>
 		<property name="namedQueries">
 			<bean class="org.springframework.data.repository.core.support.PropertiesBasedNamedQueries">
 				<constructor-arg>
@@ -28,11 +28,11 @@
 			</bean>
 		</property>
 	</bean>
-	
+
 	<jdbc:embedded-database id="dataSource" type="H2" />
-	 	
+
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    	<property name="dataSource" ref="dataSource"/>
+	<property name="dataSource" ref="dataSource"/>
 	</bean>	
 
 </beans>
