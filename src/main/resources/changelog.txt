@@ -1,6 +1,19 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.0.RC1 (2016-12-21)
+-----------------------------------------
+* DATASOLR-345 - Upgrade to a newer JDK version on TravisCI.
+* DATASOLR-344 - Adapt API in RepositoryFactoryBeanSupport implementation.
+* DATASOLR-342 - Register repository factory in spring.factories for multi-store support.
+* DATASOLR-341 - SolrBasicPersistentProperty.isAssociation() should return false.
+* DATASOLR-324 - SpellcheckOptions should not default to /spell.
+* DATASOLR-321 - SolrTemplate should autoselect the core to use brefore requesting the solr client.
+* DATASOLR-320 - Release 2.1 RC1 (Ingalls).
+* DATASOLR-306 - Windows shows java.nio.file.InvalidPathException: Illegal char <:>.
+* DATASOLR-137 - Add support for spellcheck.
+
+
 Changes in version 3.0.0.M1 (2016-11-23)
 ----------------------------------------
 * DATASOLR-336 - Set up 3.0 development.
