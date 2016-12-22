@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 @ApplicationScoped
 class SolrTemplateProducer {
@@ -46,6 +47,14 @@ class SolrTemplateProducer {
 		template.setSolrCore("collection1");
 		template.afterPropertiesSet();
 		return template;
+	}
+
+	@UserDB
+	@OtherQualifier
+	@Produces
+	@ApplicationScoped
+	public SolrOperations createQualifiedSolrTemplate(SolrOperations solrOperations) {
+		return solrOperations;
 	}
 
 	@PreDestroy
@@ -67,7 +76,5 @@ class SolrTemplateProducer {
 		} catch (SAXException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
-
 }

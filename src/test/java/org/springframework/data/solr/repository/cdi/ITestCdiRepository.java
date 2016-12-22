@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import org.apache.webbeans.cditest.CdiTestContainer;
 import org.apache.webbeans.cditest.CdiTestContainerLoader;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,9 +35,11 @@ public class ITestCdiRepository {
 	private static CdiTestContainer cdiContainer;
 	private CdiProductRepository repository;
 	private SamplePersonRepository samplePersonRepository;
+	private QualifiedProductRepository qualifiedProductRepository;
 
 	@BeforeClass
 	public static void init() throws Exception {
+
 		cdiContainer = CdiTestContainerLoader.getCdiContainer();
 		cdiContainer.startApplicationScope();
 		cdiContainer.bootContainer();
@@ -46,20 +47,24 @@ public class ITestCdiRepository {
 
 	@AfterClass
 	public static void shutdown() throws Exception {
+
 		cdiContainer.stopContexts();
 		cdiContainer.shutdownContainer();
 	}
 
 	@Before
 	public void setUp() {
+
 		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
 		repository = client.getRepository();
 		samplePersonRepository = client.getSamplePersonRepository();
+		qualifiedProductRepository = client.getQualifiedProductRepository();
 	}
 
 	@Test
 	public void testCdiRepository() {
-		Assert.assertNotNull(repository);
+
+		assertNotNull(repository);
 
 		ProductBean bean = new ProductBean();
 		bean.setId("id-1");
@@ -67,22 +72,22 @@ public class ITestCdiRepository {
 
 		repository.save(bean);
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		assertTrue(repository.exists(bean.getId()));
 
 		ProductBean retrieved = repository.findOne(bean.getId());
-		Assert.assertNotNull(retrieved);
-		Assert.assertEquals(bean.getId(), retrieved.getId());
-		Assert.assertEquals(bean.getName(), retrieved.getName());
+		assertNotNull(retrieved);
+		assertEquals(bean.getId(), retrieved.getId());
+		assertEquals(bean.getName(), retrieved.getName());
 
-		Assert.assertEquals(1, repository.count());
+		assertEquals(1, repository.count());
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		assertTrue(repository.exists(bean.getId()));
 
 		repository.delete(bean);
 
-		Assert.assertEquals(0, repository.count());
+		assertEquals(0, repository.count());
 		retrieved = repository.findOne(bean.getId());
-		Assert.assertNull(retrieved);
+		assertNull(retrieved);
 	}
 
 	/**
@@ -94,4 +99,20 @@ public class ITestCdiRepository {
 		assertThat(samplePersonRepository.returnOne(), is(1));
 	}
 
+	/**
+	 * @see DATASOLR-276
+	 */
+	@Test
+	public void testQualifiedCdiRepository() {
+
+		ProductBean bean = new ProductBean();
+		bean.setId("id-1");
+		bean.setName("cidContainerTest-1");
+
+		qualifiedProductRepository.save(bean);
+
+		qualifiedProductRepository.delete(bean);
+
+		assertEquals(0, qualifiedProductRepository.count());
+	}
 }
