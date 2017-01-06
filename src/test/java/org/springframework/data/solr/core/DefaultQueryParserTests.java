@@ -1347,6 +1347,28 @@ public class DefaultQueryParserTests {
 	}
 
 	/**
+	 * @see DATASOLR-310
+	 */
+	@Test
+	public void testConstructGroupQueryWithLimitSetToNegative1() {
+		GroupOptions groupOptions = new GroupOptions();
+
+		SimpleQuery query = new SimpleQuery();
+		query.addCriteria(new SimpleStringCriteria("*:*"));
+		query.setGroupOptions(groupOptions);
+		groupOptions.setLimit(-1);
+		groupOptions.addGroupByField("field_1");
+		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		groupOptions.setTotalCount(true);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query);
+
+		assertGroupFormatPresent(solrQuery, true);
+		Assert.assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
+		Assert.assertEquals("-1", solrQuery.get(GroupParams.GROUP_LIMIT));
+	}
+
+	/**
 	 * @see DATASOLR-121
 	 */
 	@Test
