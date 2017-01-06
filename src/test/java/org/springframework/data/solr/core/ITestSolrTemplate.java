@@ -790,6 +790,25 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
+	public void testQueryWithJoinFromIndexOperation() {
+		ExampleSolrBean belkin = new ExampleSolrBean("belkin", "Belkin", null);
+		ExampleSolrBean apple = new ExampleSolrBean("apple", "Apple", null);
+
+		ExampleSolrBean ipod = new ExampleSolrBean("F8V7067-APL-KIT", "Belkin Mobile Power Cord for iPod", null);
+		ipod.setManufacturerId(belkin.getId());
+
+		solrTemplate.saveBeans(Arrays.asList(belkin, apple, ipod));
+		solrTemplate.commit();
+
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
+		query.setJoin(Join.from("manu_id_s").fromIndex("collection1").to("id"));
+
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Assert.assertEquals(1, page.getContent().size());
+		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
+	}
+
+	@Test
 	public void testQueryWithHighlights() {
 		ExampleSolrBean belkin = new ExampleSolrBean("GB18030TEST", "Test with some GB18030TEST", null);
 		ExampleSolrBean apple = new ExampleSolrBean("UTF8TEST", "Test with some UTF8TEST", null);
