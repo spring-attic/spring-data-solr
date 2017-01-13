@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,7 @@ import org.junit.Test;
  */
 public class SimpleStatsResultTests {
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testGetMinDouble() {
 
 		SimpleStatsResult stats = new SimpleStatsResult();
@@ -40,10 +37,7 @@ public class SimpleStatsResultTests {
 		Assert.assertNull(null, stats.getMinAsDate());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testGetMinDate() {
 
 		SimpleStatsResult stats = new SimpleStatsResult();
@@ -55,10 +49,7 @@ public class SimpleStatsResultTests {
 		Assert.assertEquals(date, stats.getMinAsDate());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testGetMaxDouble() {
 
 		SimpleStatsResult stats = new SimpleStatsResult();
@@ -69,10 +60,7 @@ public class SimpleStatsResultTests {
 		Assert.assertNull(null, stats.getMaxAsDate());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testGetMaxDate() {
 
 		SimpleStatsResult stats = new SimpleStatsResult();

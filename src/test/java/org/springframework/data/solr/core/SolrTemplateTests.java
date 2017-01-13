@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -361,10 +361,7 @@ public class SolrTemplateTests {
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
-	@Test
+	@Test // DATASOLR-88
 	public void testSaveBoostedShouldUseDocumentBoost()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -380,10 +377,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(captor.getValue().getDocumentBoost(), Is.is(entityBoost));
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
-	@Test
+	@Test // DATASOLR-88
 	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -400,13 +394,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
-	/**
-	 * @throws IOException
-	 * @throws SolrServerException
-	 * @see DATASOLR-72
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-72, DATASOLR-313
 	public void schemaShouldBeUpdatedPriorToSavingEntity() throws SolrServerException, IOException {
 
 		NamedList<Object> nl = new NamedList<Object>();
@@ -440,10 +428,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(capturedRequest.getContentStreams(), IsNull.notNullValue());
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 */
-	@Test
+	@Test // DATASOLR-83
 	public void testGetById() throws SolrServerException, IOException {
 
 		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
@@ -460,10 +445,7 @@ public class SolrTemplateTests {
 		Assert.assertEquals("/get", captor.getValue().getPath());
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 */
-	@Test
+	@Test // DATASOLR-83
 	public void testGetByIds() throws SolrServerException, IOException {
 
 		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
@@ -482,10 +464,7 @@ public class SolrTemplateTests {
 		Assert.assertEquals("/get", captor.getValue().getPath());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testSaveShouldNotSaveScoreField()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -497,10 +476,7 @@ public class SolrTemplateTests {
 		Assert.assertNull(captor.getValue().getFieldValue("score"));
 	}
 
-	/**
-	 * @see DATASOLR-215
-	 */
-	@Test
+	@Test // DATASOLR-215
 	public void usesTemplateDefaultRequestMethodForQuery() throws SolrServerException, IOException {
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
@@ -514,10 +490,7 @@ public class SolrTemplateTests {
 				Mockito.eq(SolrRequest.METHOD.POST));
 	}
 
-	/**
-	 * @see DATASOLR-215
-	 */
-	@Test
+	@Test // DATASOLR-215
 	public void usesTemplateMethodRequetsParameterForQuery() throws SolrServerException, IOException {
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);

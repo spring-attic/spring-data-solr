@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@ import org.springframework.data.solr.core.query.Query;
  */
 public class SolrGroupResultPageTest {
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testGetGroupResultField() {
 		@SuppressWarnings("unchecked")
 		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
@@ -52,10 +49,7 @@ public class SolrGroupResultPageTest {
 		Assert.assertEquals(gr, result.getGroupResult(field));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testGetGroupResultFunction() {
 		@SuppressWarnings("unchecked")
 		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
@@ -71,10 +65,7 @@ public class SolrGroupResultPageTest {
 		Assert.assertEquals(gr, result.getGroupResult(func));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testGetGroupResultQuery() {
 		@SuppressWarnings("unchecked")
 		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
@@ -90,10 +81,7 @@ public class SolrGroupResultPageTest {
 		Assert.assertEquals(gr, result.getGroupResult(query));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testGetGroupResultString() {
 		@SuppressWarnings("unchecked")
 		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
@@ -107,10 +95,7 @@ public class SolrGroupResultPageTest {
 		Assert.assertEquals(gr, result.getGroupResult("name"));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testInexistentGroupResult() {
 		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
 

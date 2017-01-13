@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,10 +209,7 @@ public class CriteriaTests {
 		assertPredicate(criteria.getPredicates(), 3, OperationKey.EQUALS, "is");
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testAndShouldProduceCrotch() {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
@@ -220,10 +217,7 @@ public class CriteriaTests {
 		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testCirteriasJoindWihtAndShouldBeSiblingsOfCreatedCrotch() {
 
 		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
@@ -233,19 +227,13 @@ public class CriteriaTests {
 		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testOrShouldProduceCrotch() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
 		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testCirteriasJoindWithOrShouldBeSiblingsOfCreatedCrotch() {
 
 		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
@@ -255,10 +243,7 @@ public class CriteriaTests {
 		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testCrotchShouldReturnFieldNameOfMostRecentSibling() {
 
 		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");

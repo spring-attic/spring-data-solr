@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -652,10 +652,7 @@ public class MappingSolrConverterTests {
 								Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testWriteDynamicMappedPropertyWithLeadingWildcard() {
 
 		Map<String, String> values = new HashMap<String, String>(2);
@@ -674,10 +671,7 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard"));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testWriteDynamicMappedListPropertyWithLeadingWildcard() {
 
 		Map<String, List<String>> values = new HashMap<String, List<String>>(2);
@@ -698,10 +692,7 @@ public class MappingSolrConverterTests {
 				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testWriteDynamicMappedArrayPropertyWithLeadingWildcard() {
 
 		Map<String, String[]> values = new HashMap<String, String[]>(2);
@@ -722,10 +713,7 @@ public class MappingSolrConverterTests {
 				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
 	}
 
-	/**
-	 * @see DATASOLR-308
-	 */
-	@Test
+	@Test // DATASOLR-308
 	public void testWriteDynamicMappedPropertyWithTrailingWildcard() {
 
 		Map<String, String> values = new HashMap<String, String>(2);
@@ -744,10 +732,7 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2"));
 	}
 
-	/**
-	 * @see DATASOLR-308
-	 */
-	@Test
+	@Test // DATASOLR-308
 	public void testWriteDynamicMappedListPropertyWithTrailingWildcard() {
 
 		Map<String, List<String>> values = new HashMap<String, List<String>>(2);
@@ -768,10 +753,7 @@ public class MappingSolrConverterTests {
 				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
 	}
 
-	/**
-	 * @see DATASOLR-308
-	 */
-	@Test
+	@Test // DATASOLR-308
 	public void testWriteDynamicMappedArrayPropertyWithTrailingWildcard() {
 
 		Map<String, String[]> values = new HashMap<String, String[]>(2);
@@ -792,10 +774,7 @@ public class MappingSolrConverterTests {
 				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testReadFieldWithLeadingWildcardToDynamicMap() {
 		SolrDocument document = new SolrDocument();
 		document.addField("1_flatMapWithLeadingWildcard", "leading-map-value-1");
@@ -808,10 +787,7 @@ public class MappingSolrConverterTests {
 				Matchers.allOf(Matchers.hasEntry("1", "leading-map-value-1"), Matchers.hasEntry("2", "leading-map-value-2")));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATASOLR-202
 	public void testReadMultivaluedFieldWithLeadingWildcardToDynamicMapWithSingleEntry() {
 
 		SolrDocument document = new SolrDocument();
@@ -819,10 +795,7 @@ public class MappingSolrConverterTests {
 		converter.read(BeanWithDynamicMapsWildcards.class, document);
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testReadFieldWithTrailingWildcardToDynamicMap() {
 
 		SolrDocument document = new SolrDocument();
@@ -836,10 +809,7 @@ public class MappingSolrConverterTests {
 				Matchers.allOf(Matchers.hasEntry("1", "trailing-map-value-1"), Matchers.hasEntry("2", "trailing-map-value-2")));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATASOLR-202
 	public void testReadMultivaluedFieldWithTrailingWildcardToDynamicMapWithSingleEntry() {
 
 		SolrDocument document = new SolrDocument();
@@ -863,10 +833,7 @@ public class MappingSolrConverterTests {
 						Matchers.hasEntry("2", new String[] { "leading-map-value-2", "leading-map-value-3" })));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testReadMultivaluedFieldWithLeadingWildcardToListInDynamicMap() {
 
 		SolrDocument document = new SolrDocument();
@@ -882,10 +849,7 @@ public class MappingSolrConverterTests {
 						Matchers.hasEntry("2", Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testReadMultivaluedFieldWithTrailingWildcardToArrayInDynamicMap() {
 
 		SolrDocument document = new SolrDocument();
@@ -901,10 +865,7 @@ public class MappingSolrConverterTests {
 						Matchers.hasEntry("2", new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testReadMultivaluedFieldWithTrailingWildcardToListInDynamicMap() {
 
 		SolrDocument document = new SolrDocument();
@@ -1032,11 +993,8 @@ public class MappingSolrConverterTests {
 				IsInstanceOf.instanceOf(DateTime.class));
 	}
 
-	/**
-	 * @see DATASOLR-171
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-171
 	public void shouldUseConstructorCorrectlyWhenMultivaluedConvertedToArray() {
 
 		SolrDocument document = new SolrDocument();
@@ -1046,10 +1004,7 @@ public class MappingSolrConverterTests {
 		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
 	}
 
-	/**
-	 * @see DATASOLR-235
-	 */
-	@Test
+	@Test // DATASOLR-235
 	public void testRegularFieldBoosting() {
 
 		BeanWithBoost bean = new BeanWithBoost();
@@ -1065,10 +1020,7 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(1, target.get("regularField").getBoost(), 0);
 	}
 
-	/**
-	 * @see DATASOLR-235
-	 */
-	@Test
+	@Test // DATASOLR-235
 	public void testMapWildcardFieldBoosting() {
 
 		BeanWithBoost bean = new BeanWithBoost();
@@ -1092,10 +1044,7 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(1, target.get("val2_mapWildcardField").getBoost(), 0);
 	}
 
-	/**
-	 * @see DATASOLR-235
-	 */
-	@Test
+	@Test // DATASOLR-235
 	public void testDocumentBoosting() {
 		SolrInputDocument boostedDocument = new SolrInputDocument();
 		SolrInputDocument regularDocument = new SolrInputDocument();

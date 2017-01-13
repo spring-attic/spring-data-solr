@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,10 +186,7 @@ public class SolrQueryMethodTests {
 		assertFalse(method.hasFilterQuery());
 	}
 
-	/**
-	 * @see DATSOLR-155
-	 */
-	@Test
+	@Test // DATSOLR-155
 	public void testWithMultipleFieldPivotUsingPivotAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName(
 				"findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation");
@@ -203,10 +200,7 @@ public class SolrQueryMethodTests {
 		assertFalse(method.hasFilterQuery());
 	}
 
-	/**
-	 * @see DATASOLR-155
-	 */
-	@Test
+	@Test // DATASOLR-155
 	public void testWithMultipleFieldPivotUsingOnlyPivotAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName(
 				"findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation");
@@ -436,40 +430,28 @@ public class SolrQueryMethodTests {
 		assertEquals("{postfix}", method.getHighlightPostfix());
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testDeleteAttrbiteOfAnnotatedQueryIsDiscoveredCorrectlty() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("removeByAnnotatedQuery");
 		assertTrue(method.isDeleteQuery());
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testDeleteAttrbiteOfAnnotatedQueryIsFalseByDefault() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
 		assertFalse(method.isDeleteQuery());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testStatsForField() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStats", String.class);
 		assertEquals(Arrays.asList("field1"), method.getFieldStats());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testStatsForFieldAndFacets() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class);
@@ -477,10 +459,7 @@ public class SolrQueryMethodTests {
 		assertEquals(Arrays.asList("field2"), method.getStatsFacets());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testStatsForSelectiveFacets() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class);
@@ -490,10 +469,7 @@ public class SolrQueryMethodTests {
 		assertArrayEquals(new String[] { "field2_1", "field2_2" }, statsSelectiveFacets.get("field2"));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testStatsForFieldAndFacetsAndSelectiveFacets() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats",
@@ -505,10 +481,7 @@ public class SolrQueryMethodTests {
 		assertArrayEquals(new String[] { "field4_1", "field4_2" }, statsSelectiveFacets.get("field4"));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testHasStatsDefinition() throws Exception {
 
 		assertFalse(getQueryMethodByName("findByNameWithEmptyStats", String.class).hasStatsDefinition());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -263,10 +263,7 @@ public class FacetOptionsTests {
 		Assert.assertFalse(options.hasFacetPrefix());
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testFacetQueryWithFacetRangeFields() {
 
 		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters( //
@@ -294,10 +291,7 @@ public class FacetOptionsTests {
 				IsIterableContainingInOrder.<Object> contains(lastModifiedField, popularityField));
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testDateRangeFacetAccessors() {
 		Date start = new Date(100);
 		Date end = new Date(10000000);
@@ -332,10 +326,7 @@ public class FacetOptionsTests {
 		Assert.assertEquals(other, dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER).getValue());
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testNumericRangeFacetAccessors() {
 		int start = 100;
 		int end = 10000000;
@@ -370,10 +361,7 @@ public class FacetOptionsTests {
 		Assert.assertEquals(other, numRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER).getValue());
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testDateRangeFacetAccessorsAfterNullSet() {
 		FieldWithDateRangeParameters dateRangeField = new FieldWithDateRangeParameters( //
 				"name", //
@@ -394,10 +382,7 @@ public class FacetOptionsTests {
 		Assert.assertNull(dateRangeField.getQueryParameter(FacetParams.FACET_RANGE_OTHER));
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testNumericRangeFacetAccessorsAfterNullSet() {
 		FieldWithNumericRangeParameters numRangeField = new FieldWithNumericRangeParameters( //
 				"name", //

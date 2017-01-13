@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,18 +52,12 @@ public class DefaultSchemaOperationsTests {
 		schemaOps = new DefaultSchemaOperations(COLLECTION_NAME, new SolrTemplate(resource));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void readsSchemaNameCorrectly() {
 		assertThat(schemaOps.getSchemaName(), is(equalTo("example-data-driven-schema")));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void readsSchemaFieldsCorrectly() {
 
 		SchemaDefinition schema = schemaOps.readSchema();
@@ -74,10 +68,7 @@ public class DefaultSchemaOperationsTests {
 				FieldDefinition.newFieldDefinition().named("id").typedAs("string").stored().indexed().required().create())));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void addsFieldCorrectly() {
 
 		FieldDefinition fd = newFieldDefinition().named("singleStringValue").typedAs("string").indexed().stored()
@@ -89,10 +80,7 @@ public class DefaultSchemaOperationsTests {
 		assertThat(schema.getFieldDefinition(fd.getName()), is(equalTo(fd)));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void addsCopyFieldCorrectly() {
 
 		CopyFieldDefinition cf = newCopyFieldDefinition().copyFrom("some_field_s").to("dest1_s").create();
@@ -103,10 +91,7 @@ public class DefaultSchemaOperationsTests {
 		assertThat(schema.getCopyFields(), hasItem(cf));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void addsCopyFieldAsPartOfFieldDefinitionCorrectly() {
 
 		FieldDefinition field = newFieldDefinition().named("singleStringValue").typedAs("string").indexed().stored()
@@ -120,10 +105,7 @@ public class DefaultSchemaOperationsTests {
 				hasItem(newCopyFieldDefinition().copyFrom("singleStringValue").to("dest1_s").create()));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void removesFieldCorrectly() {
 
 		addsFieldCorrectly();
@@ -135,18 +117,12 @@ public class DefaultSchemaOperationsTests {
 		assertThat(schema.getFieldDefinition("singleStringValue"), is(nullValue()));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void readsSchemaVersionCorrectly() {
 		assertThat(schemaOps.getSchemaVersion(), is(closeTo(1.5D, 0.0D)));
 	}
 
-	/**
-	 * @see DATASOLR-313
-	 */
-	@Test(expected = SchemaModificationException.class)
+	@Test(expected = SchemaModificationException.class) // DATASOLR-313
 	public void throwsExceptionOnBadSchemaModification() {
 		schemaOps.removeField("xxx");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,13 +69,7 @@ public class ITestSolrSchemaCreation {
 		template.commit();
 	}
 
-	/**
-	 * @throws IOException
-	 * @throws SolrServerException
-	 * @see DATASOLR-72
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-72, DATASOLR-313
 	public void beanShouldBeSavedCorrectly() throws SolrServerException, IOException {
 
 		Foo foo = new Foo();
@@ -126,12 +120,7 @@ public class ITestSolrSchemaCreation {
 		assertThat(requestCopyFields(), hasItem(hm));
 	}
 
-	/**
-	 * @throws IOException
-	 * @throws SolrServerException
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-313
 	public void existingFieldsShouldNotBeTouched() throws SolrServerException, IOException, InterruptedException {
 
 		Map<String, Object> field = new LinkedHashMap<String, Object>();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,42 +27,27 @@ import org.junit.Test;
  */
 public class StatsOptionsTests {
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATSOLR-160
 	public void shouldThrowExceptionWhenAddingNullField() {
 		new StatsOptions().addField((Field) null);
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATSOLR-160
 	public void shouldThrowExceptionWhenAddingNullFieldName() {
 		new StatsOptions().addField((String) null);
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATSOLR-160
 	public void shouldThrowExceptionWhenAddingNullFacetField() {
 		new StatsOptions().addFacet((Field) null);
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATSOLR-160
 	public void shouldThrowExceptionWhenAddingNullFacetFieldName() {
 		new StatsOptions().addFacet((String) null);
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test
+	@Test // DATSOLR-160
 	public void testFluency() {
 
 		StatsOptions statsOptions = new StatsOptions();
@@ -79,10 +64,7 @@ public class StatsOptionsTests {
 		Assert.assertTrue(statsOptions.isCalcDistinct());
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test
+	@Test // DATSOLR-160
 	public void testMultipleSelectiveFacet() {
 
 		StatsOptions configured = new StatsOptions().addField("fieldName1") //
@@ -98,10 +80,7 @@ public class StatsOptionsTests {
 		Assert.assertEquals(3, selectiveFacets.get(new SimpleField("fieldName2")).size());
 	}
 
-	/**
-	 * @see DATSOLR-160
-	 */
-	@Test
+	@Test // DATSOLR-160
 	public void testSelectiveFacetAndSelectiveCountDistinct() {
 
 		StatsOptions configured = new StatsOptions().setCalcDistinct(true)//

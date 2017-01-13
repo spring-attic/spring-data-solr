@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,34 +40,22 @@ import org.springframework.util.CollectionUtils;
  */
 public class DelegatingCursorUnitTests {
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test(expected = InvalidDataAccessApiUsageException.class) // DATASOLR-162
 	public void shouldThrowExceptionWhenOpeningMultipleTimes() {
 		new DelegatingCursorFake<Object>(null).open().open();
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldNotHaveNextWhenNoElementsAvailable() {
 		assertThat(new DelegatingCursorFake<Object>(null).open().hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = NoSuchElementException.class) // DATASOLR-162
 	public void nextShouldThrowExceptionWhenNoMoreElementsAvailable() {
 		new DelegatingCursorFake<Object>(null).open().next();
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldReturnElementsInValidOrder() {
 
 		PartialResult<String> result = new PartialResult<String>("*", Arrays.asList("spring", "data", "solr"));
@@ -78,10 +66,7 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.next(), equalTo("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldStopWhenNoMoreElementsAvailableAndAlreadyFinished() {
 
 		PartialResult<String> result = new PartialResult<String>("*", Arrays.asList("spring", "data", "solr"));
@@ -93,10 +78,7 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldFetchNextSetOfElementsWhenNotFinishedAndCurrentResultsEndReached() {
 
 		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring", "data"));
@@ -110,10 +92,7 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.next(), equalTo("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldDetermineEndOfResultsCorrectly() {
 
 		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring", "data"));
@@ -128,10 +107,7 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldFinishLoopingWhenCursorMarkEqualsPreviousOne() {
 
 		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring"));
@@ -154,10 +130,7 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.next(), is("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldNotModifyInitialQueryWhenRequestingResults() {
 
 		SolrQuery initialQuery = new SolrQuery("*:*");

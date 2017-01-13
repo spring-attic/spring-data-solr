@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2015 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,39 +51,27 @@ public class ITestSolrSchemaWriter {
 		schemaWriter = new SolrSchemaWriter(factory);
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void getSchemaVersionShouldReturnVersionNumberCorrectly() {
 
 		Double version = schemaWriter.retrieveSchemaVersion("collection1");
 		assertThat(version, equalTo(1.5D));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	@Ignore("creating new schema on the fly does not work")
 	public void createSchema() {
 		SchemaDefinition def = new SchemaDefinition("foobar");
 		schemaWriter.writeSchema(def);
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
 		Assert.notNull(def);
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void writeSchemaDefintion() {
 
 		SchemaDefinition def = new SchemaDefinition("collection1");

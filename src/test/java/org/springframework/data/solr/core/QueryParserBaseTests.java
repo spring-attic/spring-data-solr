@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,10 +226,7 @@ public class QueryParserBaseTests {
 		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:{!func}foo()"));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testNamedObjectsGroupQuery() {
 		List<Function> functionList = Arrays.asList(Mockito.mock(Function.class), Mockito.mock(Function.class));
 		List<Query> queriesList = Arrays.asList(Mockito.mock(Query.class), Mockito.mock(Query.class));

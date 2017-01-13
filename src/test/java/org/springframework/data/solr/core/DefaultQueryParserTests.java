@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -359,10 +359,7 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATASOLR-142
 	public void testCircleForNearMustNotBeNull() {
 		new Criteria("field_1").near((Circle) null);
 	}
@@ -410,18 +407,12 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class) // DATASOLR-142
 	public void testCircleForWithinMustNotBeNull() {
 		new Criteria("field_1").within((Circle) null);
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
+	@Test // DATASOLR-142
 	public void testWithinCircleWorksCorrectly() {
 
 		Criteria criteria = new Criteria("field_1")
@@ -905,10 +896,7 @@ public class DefaultQueryParserTests {
 		assertEquals("{!join from=inner_id to=outer_id}field_1:value_1", solrQuery.getQuery());
 	}
 
-	/**
-	 * @see DATASOLR-176
-	 */
-	@Test
+	@Test // DATASOLR-176
 	public void testWithJoinTwoCoresOperator() {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
@@ -1021,10 +1009,7 @@ public class DefaultQueryParserTests {
 				solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0]);
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testNestedOrPartWithAnd() {
 
 		Criteria criteria = Criteria.where("field_1").is("foo")
@@ -1035,10 +1020,7 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testNestedOrPartWithAndSomeOtherThings() {
 
 		Criteria criteria = Criteria.where("field_1").is("foo").is("bar")
@@ -1049,30 +1031,21 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testMultipleAnd() {
 		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").is("bar").and("field_3").is("roo");
 
 		assertEquals("field_1:foo AND field_2:bar AND field_3:roo", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testMultipleOr() {
 		Criteria criteria = Criteria.where("field_1").is("foo").or("field_2").is("bar").or("field_3").is("roo");
 
 		assertEquals("field_1:foo OR field_2:bar OR field_3:roo", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testEmptyCriteriaShouldBeDefaultedToNotNUll() {
 		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").or("field_3");
 
@@ -1080,10 +1053,7 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-105
-	 */
-	@Test
+	@Test // DATASOLR-105
 	public void testDeepNesting() {
 
 		Criteria criteria = Criteria.where("field_1").is("foo")
@@ -1094,40 +1064,28 @@ public class DefaultQueryParserTests {
 				queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-168
-	 */
-	@Test
+	@Test // DATASOLR-168
 	public void testNotCritieraCarriedOnPorperlyForNullAndNotNull() {
 
 		Criteria criteria = new Criteria("param1").isNotNull().and("param2").isNull();
 		assertEquals("param1:[* TO *] AND -param2:[* TO *]", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-112
-	 */
-	@Test
+	@Test // DATASOLR-112
 	public void pageableUsingZeroShouldBeParsedCorrectlyWhenSetUsingPageable() {
 
 		SimpleQuery query = new SimpleQuery("*:*").setPageRequest(new SolrPageRequest(0, 0));
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
 
-	/**
-	 * @see DATASOLR-112
-	 */
-	@Test
+	@Test // DATASOLR-112
 	public void pageableUsingZeroShouldBeParsedCorrectlyWhenSetUsingExplititMethods() {
 
 		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithStatField() {
 
 		StatsOptions statsOptions = new StatsOptions().addField(new SimpleField("field_1"));
@@ -1140,10 +1098,7 @@ public class DefaultQueryParserTests {
 		assertEquals("field_1", solrQuery.get(StatsParams.STATS_FIELD));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithStatFields() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1161,10 +1116,7 @@ public class DefaultQueryParserTests {
 		assertEquals(Arrays.asList("field_1", "field_2"), fields);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithStatFacets() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1182,10 +1134,7 @@ public class DefaultQueryParserTests {
 		assertEquals(Arrays.asList("field_1", "field_2"), facets);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithStatFieldsAndFacets() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1206,10 +1155,7 @@ public class DefaultQueryParserTests {
 		assertEquals("field_2", facets[0]);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithSelectiveStatsFacet() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1230,10 +1176,7 @@ public class DefaultQueryParserTests {
 		assertEquals("field_2", facets[0]);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithSelectiveStatsCountDistinct() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1260,10 +1203,7 @@ public class DefaultQueryParserTests {
 		assertNull(calc3);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConstructSolrQueryWithStatsConfig() {
 
 		StatsOptions statsOptions = new StatsOptions()//
@@ -1293,10 +1233,7 @@ public class DefaultQueryParserTests {
 		assertEquals("field_3", facets[0]);
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConstructGroupQueryWithAllPossibleParameters() {
 
 		GroupOptions groupOptions = new GroupOptions();
@@ -1323,10 +1260,7 @@ public class DefaultQueryParserTests {
 		assertEquals("2", solrQuery.get(GroupParams.GROUP_LIMIT));
 	}
 
-	/**
-	 * @see DATASOLR-310
-	 */
-	@Test
+	@Test // DATASOLR-310
 	public void testConstructGroupQueryWithLimitSetToNegative1() {
 
 		GroupOptions groupOptions = new GroupOptions();
@@ -1346,10 +1280,7 @@ public class DefaultQueryParserTests {
 		assertEquals("-1", solrQuery.get(GroupParams.GROUP_LIMIT));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConstructGroupQueryWithoutPagingParameters() {
 
 		SimpleQuery query = new SimpleQuery();
@@ -1364,10 +1295,7 @@ public class DefaultQueryParserTests {
 		assertNull(solrQuery.get(GroupParams.GROUP_LIMIT));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConstructGroupQueryWithMultipleFunctions() {
 
 		SimpleQuery query = new SimpleQuery();
@@ -1385,10 +1313,7 @@ public class DefaultQueryParserTests {
 		assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConstructGroupQueryWithMultipleQueries() {
 
 		SimpleQuery query = new SimpleQuery();
@@ -1405,10 +1330,7 @@ public class DefaultQueryParserTests {
 		assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void connectShouldAllowConcatinationOfCriteriaWithAndPreservingDesiredBracketing() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1418,10 +1340,7 @@ public class DefaultQueryParserTests {
 		assertEquals("z:roo AND (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void connectShouldAllowConcatinationOfCriteriaWithAndPreservingDesiredBracketingReverse() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1431,10 +1350,7 @@ public class DefaultQueryParserTests {
 		assertEquals("(x:foo OR y:bar) AND z:roo", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void connectShouldAllowConcatinationOfCriteriaWithOrPreservingDesiredBracketing() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1444,10 +1360,7 @@ public class DefaultQueryParserTests {
 		assertEquals("z:roo OR (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void connectShouldAllowConcatinationOfCriteriaWithOrPreservingDesiredBracketingReverse() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1457,10 +1370,7 @@ public class DefaultQueryParserTests {
 		assertEquals("(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void notOperatorShouldWrapWholeExpression() {
 
 		Criteria part1 = Criteria.where("text").startsWith("fx").or("product_code").startsWith("fx");
@@ -1471,10 +1381,7 @@ public class DefaultQueryParserTests {
 		assertEquals(expected, queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void notOperatorShouldWrapNestedExpressionCorrectly() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1485,10 +1392,7 @@ public class DefaultQueryParserTests {
 		assertEquals("z:roo OR -(x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void notOperatorShouldWrapNestedExpressionCorrectlyReverse() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1499,10 +1403,7 @@ public class DefaultQueryParserTests {
 		assertEquals("-(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-196
-	 */
-	@Test
+	@Test // DATASOLR-196
 	public void notOperatorShouldWrapNestedExpressionCorrectlyReverseWithDoubleNegation() {
 
 		Criteria part1 = Criteria.where("z").is("roo");
@@ -1513,10 +1414,7 @@ public class DefaultQueryParserTests {
 		assertEquals("-(-(x:foo OR y:bar) AND z:roo)", queryParser.createQueryStringFromNode(criteria));
 	}
 
-	/**
-	 * @see DATASOLR-236
-	 */
-	@Test
+	@Test // DATASOLR-236
 	public void testNegativeFacetLimitUsingFacetOptions_setFacetLimit() {
 
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
@@ -1530,10 +1428,7 @@ public class DefaultQueryParserTests {
 		assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
 	}
 
-	/**
-	 * @see DATASOLR-236
-	 */
-	@Test
+	@Test // DATASOLR-236
 	public void testNegativeFacetLimitUsingFacetOptions_setPageable() {
 
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
@@ -1547,10 +1442,7 @@ public class DefaultQueryParserTests {
 		assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
 	}
 
-	/**
-	 * @see DATASOLR-236
-	 */
-	@Test
+	@Test // DATASOLR-236
 	public void testNegativeFacetOffsetAndFacetLimitUsingFacetOptions_setPageable() {
 
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"));
@@ -1564,10 +1456,7 @@ public class DefaultQueryParserTests {
 		assertEquals(Integer.valueOf(0), solrQuery.getInt(FacetParams.FACET_OFFSET));
 	}
 
-	/**
-	 * @see DATASOLR-86
-	 */
-	@Test
+	@Test // DATASOLR-86
 	public void testRegularNumericRangeFacets() {
 
 		FacetOptions facetOptions = new FacetOptions() //
@@ -1637,10 +1526,7 @@ public class DefaultQueryParserTests {
 		assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
 	}
 
-	/**
-	 * @see DATASOLR-86
-	 */
-	@Test
+	@Test // DATASOLR-86
 	public void testRegularDateRangeFacets() {
 
 		FacetOptions facetOptions = new FacetOptions() //
@@ -1711,10 +1597,7 @@ public class DefaultQueryParserTests {
 		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
 	}
 
-	/**
-	 * @see DATASOLR-86
-	 */
-	@Test
+	@Test // DATASOLR-86
 	public void testNoRangeFacetAssignmentWhenNoRangeFacetsPresent() {
 
 		FacetOptions facetOptions = new FacetOptions("field1");
@@ -1728,10 +1611,7 @@ public class DefaultQueryParserTests {
 		assertNull(solrQuery.getParams(FacetParams.FACET_RANGE));
 	}
 
-	/**
-	 * @see DATASOLR-324
-	 */
-	@Test
+	@Test // DATASOLR-324
 	public void shouldNotEnableSpellcheckWennNoSpellcheckOptionsPresent() {
 
 		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
@@ -1740,10 +1620,7 @@ public class DefaultQueryParserTests {
 		assertThat(solrQuery.get("spellcheck"), is(nullValue()));
 	}
 
-	/**
-	 * @see DATASOLR-324
-	 */
-	@Test
+	@Test // DATASOLR-324
 	public void shouldEnableSpellcheckWennSpellcheckOptionsPresent() {
 
 		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
@@ -1753,10 +1630,7 @@ public class DefaultQueryParserTests {
 		assertThat(solrQuery.get("spellcheck"), is(equalTo("on")));
 	}
 
-	/**
-	 * @see DATASOLR-324
-	 */
-	@Test
+	@Test // DATASOLR-324
 	public void shouldApplySpellcheckOptionsCorrectly() {
 
 		SimpleQuery q = new SimpleQuery(AnyCriteria.any());

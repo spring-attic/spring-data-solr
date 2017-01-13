@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -594,10 +594,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(1, page.getContent().get(0).getValueCount());
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testQueryWithFacetAndHighlight() {
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAll("na", new PageRequest(0, 10));
@@ -618,10 +615,7 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testFacetAndHighlightWithPrefixPostfix() {
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnInStockHighlightAllWithPreAndPostfix("na",
@@ -642,10 +636,7 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testFacetAndHighlightWithFields() {
 
 		ProductBean beanWithText = createProductBean("withName", 5, true);
@@ -674,10 +665,7 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testFacetAndHighlightWithFieldsAndFacetResult() {
 
 		ProductBean beanWithText = createProductBean("withName", 5, true);
@@ -710,10 +698,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertEquals(1, page.getFacetResultPage("name").getContent().get(0).getValueCount());
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testFacetAndHighlightWithQueryOverride() {
 
 		ProductBean beanWithText = createProductBean("withName", 5, true);
@@ -911,20 +896,14 @@ public class ITestSolrRepositoryOperations {
 		}
 	}
 
-	/**
-	 * @see DATASOLR-143
-	 */
-	@Test
+	@Test // DATASOLR-143
 	public void testCountByWorksCorrectly() {
 
 		Assert.assertThat(repo.countProductBeanByName(NAMED_PRODUCT.getName()), Is.is(1L));
 		Assert.assertThat(repo.countByName(NAMED_PRODUCT.getName()), Is.is(1L));
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testDereivedDeleteQueryRemovesDocumentsCorrectly() {
 
 		long referenceCount = repo.count();
@@ -933,10 +912,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testDerivedDeleteByQueryRemovesDocumentAndReturnsNumberDeletedCorrectly() {
 
 		long referenceCount = repo.count();
@@ -945,10 +921,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(repo.count(), Is.is(referenceCount - nrDeleted));
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testDerivedDeleteByQueryRemovesDocumentAndReturnsListOfDeletedDocumentsCorrectly() {
 
 		List<ProductBean> result = repo.removeByName(NAMED_PRODUCT.getName());
@@ -957,10 +930,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(result.get(0).getId(), IsEqual.equalTo(NAMED_PRODUCT.getId()));
 	}
 
-	/**
-	 * @see DATASOLR-144
-	 */
-	@Test
+	@Test // DATASOLR-144
 	public void testAnnotatedDeleteByQueryRemovesDocumensCorrectly() {
 
 		long referenceCount = repo.count();
@@ -969,20 +939,14 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void findTopNResultAppliesLimitationCorrectly() {
 
 		List<ProductBean> result = repo.findTop2ByNameStartingWith("na");
 		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void findTopNResultAppliesLimitationForPageableCorrectly() {
 
 		List<ProductBean> beans = createProductBeans(10, "top");
@@ -993,10 +957,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(0), beans.get(1)));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void findTopNResultAppliesLimitationForPageableCorrectlyForPage1() {
 
 		List<ProductBean> beans = createProductBeans(10, "top");
@@ -1007,10 +968,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(2)));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void findTopNResultReturnsEmptyListIfOusideOfRange() {
 
 		repo.save(createProductBeans(10, "top"));
@@ -1020,10 +978,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(result.hasNext(), IsEqual.equalTo(false));
 	}
 
-	/**
-	 * @see DATASOLR-186
-	 */
-	@Test
+	@Test // DATASOLR-186
 	public void sliceShouldReturnCorrectly() {
 
 		repo.save(createProductBeans(10, "slice"));
@@ -1032,10 +987,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(slice.getNumberOfElements(), Is.is(2));
 	}
 
-	/**
-	 * @see DATASOLR-186
-	 */
-	@Test
+	@Test // DATASOLR-186
 	public void sliceShouldReturnAllElementsWhenPageableIsBigEnoughCorrectly() {
 
 		repo.save(createProductBeans(10, "slice"));
@@ -1044,10 +996,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(slice.getNumberOfElements(), Is.is(10));
 	}
 
-	/**
-	 * @see DATASOLR-186
-	 */
-	@Test
+	@Test // DATASOLR-186
 	public void sliceShouldBeEmptyWhenPageableOutOfRange() {
 
 		repo.save(createProductBeans(10, "slice"));
@@ -1056,10 +1005,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertThat(slice.hasContent(), Is.is(false));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testStatsAnnotatedMethod() {
 
 		ProductBean created = createProductBean("1", 1, true);
@@ -1091,10 +1037,7 @@ public class ITestSolrRepositoryOperations {
 		Assert.assertNull(weight.getFacetStatsResult("id"));
 	}
 
-	/**
-	 * @see DATASOLR-137
-	 */
-	@Test
+	@Test // DATASOLR-137
 	public void testFindByNameWithSpellcheckSeggestion() {
 
 		ProductBean greenProduct = createProductBean("5", 3, true, "green");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,10 +203,7 @@ public class SolrClientUtilTests {
 		Assert.assertThat(SolrClientUtils.resolveSolrCoreName(ClassWithSolrDocumentAnnotation.class), equalTo("core1"));
 	}
 
-	/**
-	 * @see DATASOLR-189
-	 */
-	@Test
+	@Test // DATASOLR-189
 	public void cloningLBHttpSolrClientShouldCopyHttpParamsCorrectly() throws MalformedURLException {
 
 		HttpParams params = new BasicHttpParams();
@@ -220,10 +217,7 @@ public class SolrClientUtilTests {
 
 	}
 
-	/**
-	 * @see DATASOLR-189
-	 */
-	@Test
+	@Test // DATASOLR-189
 	public void cloningLBHttpSolrClientShouldCopyCredentialsProviderCorrectly() {
 
 		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -239,10 +233,7 @@ public class SolrClientUtilTests {
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
 	}
 
-	/**
-	 * @see DATASOLR-189
-	 */
-	@Test
+	@Test // DATASOLR-189
 	public void cloningHttpSolrClientShouldCopyHttpParamsCorrectly() {
 
 		HttpParams params = new BasicHttpParams();
@@ -255,10 +246,7 @@ public class SolrClientUtilTests {
 		Assert.assertThat(cloned.getHttpClient().getParams(), IsEqual.equalTo(params));
 	}
 
-	/**
-	 * @see DATASOLR-189
-	 */
-	@Test
+	@Test // DATASOLR-189
 	public void cloningHttpSolrClientShouldCopyCredentialsProviderCorrectly() {
 
 		BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -274,10 +262,7 @@ public class SolrClientUtilTests {
 				IsEqual.<CredentialsProvider> equalTo(credentialsProvider));
 	}
 
-	/**
-	 * @see DATASOLR-227
-	 */
-	@Test
+	@Test // DATASOLR-227
 	public void cloningHttpSolrClientShouldCopyConnectionManager() {
 
 		ClientConnectionManager conncetionManager = new SingleClientConnManager();
@@ -291,10 +276,7 @@ public class SolrClientUtilTests {
 				IsEqual.<ClientConnectionManager> equalTo(conncetionManager));
 	}
 
-	/**
-	 * @see DATASOLR-203
-	 */
-	@Test
+	@Test // DATASOLR-203
 	public void cloningEmbeddedSolrServerShouldReuseCoreContainer() {
 
 		CoreContainer coreContainer = Mockito.mock(CoreContainer.class);
