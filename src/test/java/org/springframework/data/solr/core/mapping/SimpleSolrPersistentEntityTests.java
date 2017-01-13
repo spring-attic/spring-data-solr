@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,11 +93,8 @@ public class SimpleSolrPersistentEntityTests {
 		assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getSolrCoreName());
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-88
 	public void testPersistentEntityShouldReadDocumentBoostFromSolrDocumentAnnotation() {
 
 		when(typeInfo.getType()).thenReturn(DocumentWithBoost.class);
@@ -107,11 +104,8 @@ public class SimpleSolrPersistentEntityTests {
 		assertThat(pe.getBoost(), is(100f));
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-88
 	public void testPersistentEntityShouldNotBeBoostenWhenSolrDocumentAnnotationHasDefaultBoostValue() {
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
@@ -122,11 +116,8 @@ public class SimpleSolrPersistentEntityTests {
 		assertThat(pe.getBoost(), nullValue());
 	}
 
-	/**
-	 * @see DATASOLR-210
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-210
 	public void testPersistentEntityWithScoreProperty() {
 
 		when(typeInfo.getType()).thenReturn(BeanWithScore.class);
@@ -143,11 +134,8 @@ public class SimpleSolrPersistentEntityTests {
 		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
 	}
 
-	/**
-	 * @see DATASOLR-210
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-210
 	public void verifyShouldThrowExceptionWhenMoreThanOneScorePropertyDefined() {
 
 		expectedException.expect(MappingException.class);
@@ -173,11 +161,8 @@ public class SimpleSolrPersistentEntityTests {
 		entity.verify();
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-202
 	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonMapPropety() {
 
 		expectedException.expect(MappingException.class);
@@ -201,11 +186,8 @@ public class SimpleSolrPersistentEntityTests {
 		entity.verify();
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-202
 	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonWildcardPropety() {
 
 		expectedException.expect(MappingException.class);
@@ -229,10 +211,7 @@ public class SimpleSolrPersistentEntityTests {
 		entity.verify();
 	}
 
-	/**
-	 * @see DATASOLR-341
-	 */
-	@Test
+	@Test // DATASOLR-341
 	public void verifyShouldNotFailOnAssociations() {
 
 		when(typeInfo.getType()).thenReturn(DocumentWithAssociation.class);

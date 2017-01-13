@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -378,10 +378,7 @@ public class SolrTemplateTests {
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
-	@Test
+	@Test // DATASOLR-88
 	public void testSaveBoostedShouldUseDocumentBoost()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -397,10 +394,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(captor.getValue().getDocumentBoost(), Is.is(entityBoost));
 	}
 
-	/**
-	 * @see DATASOLR-88
-	 */
-	@Test
+	@Test // DATASOLR-88
 	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -417,13 +411,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
-	/**
-	 * @throws IOException
-	 * @throws SolrServerException
-	 * @see DATASOLR-72
-	 * @see DATASOLR-313
-	 */
-	@Test
+	@Test // DATASOLR-72, DATASOLR-313
 	public void schemaShouldBeUpdatedPriorToSavingEntity() throws SolrServerException, IOException {
 
 		NamedList<Object> nl = new NamedList<Object>();
@@ -457,11 +445,7 @@ public class SolrTemplateTests {
 		Assert.assertThat(capturedRequest.getContentStreams(), IsNull.notNullValue());
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-83, DATASOLR-321
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testGetById() throws SolrServerException, IOException {
 
@@ -473,11 +457,7 @@ public class SolrTemplateTests {
 		Assert.assertThat((List<String>) captor.getValue(), IsCollectionContaining.hasItems("myId"));
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-83, DATASOLR-321
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testGetByIds() throws SolrServerException, IOException {
 
@@ -490,10 +470,7 @@ public class SolrTemplateTests {
 		Assert.assertThat((List<String>) captor.getValue(), IsCollectionContaining.hasItems("myId1", "myId2"));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testSaveShouldNotSaveScoreField()
 			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
 
@@ -505,10 +482,7 @@ public class SolrTemplateTests {
 		Assert.assertNull(captor.getValue().getFieldValue("score"));
 	}
 
-	/**
-	 * @see DATASOLR-215
-	 */
-	@Test
+	@Test // DATASOLR-215
 	public void usesTemplateDefaultRequestMethodForQuery() throws SolrServerException, IOException {
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
@@ -523,10 +497,7 @@ public class SolrTemplateTests {
 				Mockito.eq(SolrRequest.METHOD.POST));
 	}
 
-	/**
-	 * @see DATASOLR-215
-	 */
-	@Test
+	@Test // DATASOLR-215
 	public void usesTemplateMethodRequetsParameterForQuery() throws SolrServerException, IOException {
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
@@ -541,10 +512,7 @@ public class SolrTemplateTests {
 				Mockito.eq(SolrRequest.METHOD.PUT));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void countUsesDedicatedCollectionName() throws SolrServerException, IOException {
 
 		SolrDocumentList sdl = Mockito.mock(SolrDocumentList.class);
@@ -561,10 +529,7 @@ public class SolrTemplateTests {
 				Mockito.any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void countUsesDedicatedCollectionNameAndRequestMethod() throws SolrServerException, IOException {
 
 		SolrDocumentList sdl = Mockito.mock(SolrDocumentList.class);
@@ -581,10 +546,7 @@ public class SolrTemplateTests {
 				Mockito.eq(METHOD.POST));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void saveBeanShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.saveBean("foo", new ProductBean());
@@ -592,10 +554,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).add(Mockito.eq("foo"), Mockito.any(SolrInputDocument.class), anyInt());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void saveBeansShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.saveBeans("foo", Arrays.asList(new ProductBean(), new ProductBean()));
@@ -603,10 +562,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).add(Mockito.eq("foo"), Mockito.anyCollectionOf(SolrInputDocument.class), anyInt());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void saveDocumentShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.saveDocument("foo", new SolrInputDocument());
@@ -614,10 +570,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).add(Mockito.eq("foo"), any(SolrInputDocument.class), anyInt());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void saveDocumentsShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.saveDocuments("foo", Arrays.asList(new SolrInputDocument(), new SolrInputDocument()));
@@ -625,10 +578,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).add(Mockito.eq("foo"), anyCollectionOf(SolrInputDocument.class), anyInt());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void deleteShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.delete("foo", new SimpleQuery(AnyCriteria.any()));
@@ -636,10 +586,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).deleteByQuery(Mockito.eq("foo"), anyString());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void deleteByIdShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.deleteById("foo", "one");
@@ -647,10 +594,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).deleteById(Mockito.eq("foo"), anyString());
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void deleteByIdsShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.deleteById("foo", Arrays.asList("one"));
@@ -658,10 +602,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).deleteById(Mockito.eq("foo"), anyListOf(String.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForObjectShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -672,10 +613,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForPageShouldUseDerivedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate = new SolrTemplate(solrClientMock);
@@ -689,10 +627,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("collection1"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -704,10 +639,7 @@ public class SolrTemplateTests {
 	}
 
 	// TODO: go on with query for group page here!
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForGroupPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -718,10 +650,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForStatsPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -732,10 +661,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForFacetPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -746,10 +672,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForHighlightPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -760,10 +683,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForFacetAndHighlightPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -775,10 +695,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void queryForTermsPageShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		QueryResponse response = createAndInitEmptySolrQueryReponseMock();
@@ -789,10 +706,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).query(eq("foo"), any(SolrParams.class), any(METHOD.class));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void commitShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.commit("foo");
@@ -800,10 +714,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).commit(eq("foo"));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void softCommitShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.softCommit("foo");
@@ -811,10 +722,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).commit(eq("foo"), eq(true), eq(true), eq(true));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void rollbackShouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		solrTemplate.rollback("foo");
@@ -822,10 +730,7 @@ public class SolrTemplateTests {
 		Mockito.verify(solrClientMock).rollback(eq("foo"));
 	}
 
-	/**
-	 * @see DATASOLR-321
-	 */
-	@Test
+	@Test // DATASOLR-321
 	public void getByIdhouldUseDedicatedCollectionName() throws SolrServerException, IOException {
 
 		Mockito.when(solrClientMock.getById(anyString(), anyCollectionOf(String.class)))

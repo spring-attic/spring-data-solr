@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -477,10 +477,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testFacetQueryWithDateFacetRangeField() {
 		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
 		for (int i = 0; i < 10; i++) {
@@ -522,10 +519,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testFacetQueryWithNumericFacetRangeField() {
 		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
 		for (int i = 0; i < 10; i++) {
@@ -679,10 +673,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 	}
 
-	/**
-	 * @see DATASOLR-244
-	 */
-	@Test
+	@Test // DATASOLR-244
 	public void testFacetAndHighlightQueryWithFacetFields() {
 
 		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
@@ -846,10 +837,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
 
-	/**
-	 * @see DATASOLR-176
-	 */
-	@Test
+	@Test // DATASOLR-176
 	public void testQueryWithJoinFromIndexOperation() {
 		ExampleSolrBean belkin = new ExampleSolrBean("belkin", "Belkin", null);
 		ExampleSolrBean apple = new ExampleSolrBean("apple", "Apple", null);
@@ -957,10 +945,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void testDelegatingCursorLoadsAllElements() throws IOException {
 
 		solrTemplate.saveBeans(createBeansWithId(100));
@@ -979,10 +964,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertThat(i, is(100));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testRegularGroupQuery() {
 		solrTemplate.saveBean(new ExampleSolrBean("id_1", "name1", "category1", 2, true));
 		solrTemplate.saveBean(new ExampleSolrBean("id_2", "name1", "category2"));
@@ -1041,10 +1023,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		assertFalse(query2GroupEntry.getResult().hasNext());
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	@Ignore("Seems to be broken on solr side")
 	public void testGroupQueryWithFacets() {
 		solrTemplate.saveBean(new ExampleSolrBean("id_1", "name1", "category1", 2, true));
@@ -1088,10 +1067,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		assertGroupEntryContentIds(entry, ids);
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 */
-	@Test
+	@Test // DATASOLR-83
 	public void testGetById() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
@@ -1103,10 +1079,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(bean1.getId(), beanReturned.getId());
 	}
 
-	/**
-	 * @see DATASOLR-83
-	 */
-	@Test
+	@Test // DATASOLR-83
 	public void testGetByIds() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
@@ -1122,29 +1095,20 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testQueryWithFieldsStatsAndFaceting() {
 		StatsOptions statsOptions = new StatsOptions().addField("price").addFacet("name");
 		executeAndCheckStatsRequest(statsOptions);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testQueryWithFieldsStatsAndSelectiveFaceting() {
 
 		StatsOptions statsOptions = new StatsOptions().addField("price").addSelectiveFacet("name");
 		executeAndCheckStatsRequest(statsOptions);
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testDistinctStatsRequest() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
@@ -1178,10 +1142,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
 	}
 
-	/**
-	 * @see DATASOLR-86
-	 */
-	@Test
+	@Test // DATASOLR-86
 	public void testRangeFacetRequest() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
@@ -1219,10 +1180,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals("15.0", content.get(2).getValue());
 	}
 
-	/**
-	 * @see DATASOLR-248
-	 */
-	@Test
+	@Test // DATASOLR-248
 	public void shouldAllowReadingMultivaluedFieldWithOnlyOneEntryIntoSingleValuedProperty() {
 
 		solrTemplate.execute(new SolrCallback<Object>() {
@@ -1242,10 +1200,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		assertThat(document.title, is(equalTo("title")));
 	}
 
-	/**
-	 * @see DATASOLR-248
-	 */
-	@Test
+	@Test // DATASOLR-248
 	public void shouldThrowExceptionReadingMultivaluedFieldWithManyEntriesIntoSingleValuedProperty() {
 
 		solrTemplate.execute(new SolrCallback<Object>() {
@@ -1268,10 +1223,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
 	}
 
-	/**
-	 * @see DATASOLR-248
-	 */
-	@Test
+	@Test // DATASOLR-248
 	public void shouldAllowReadingMultivaluedFieldWithNoEntriesIntoSingleValuedProperty() {
 
 		solrTemplate.execute(new SolrCallback<Object>() {
@@ -1290,10 +1242,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		assertThat(document.title, is(nullValue()));
 	}
 
-	/**
-	 * @see DATASOLR-137
-	 */
-	@Test
+	@Test // DATASOLR-137
 	public void testFindByNameWithSpellcheckSeggestion() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "green", null);

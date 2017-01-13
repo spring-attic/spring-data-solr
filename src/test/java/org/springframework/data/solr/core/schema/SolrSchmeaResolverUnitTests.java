@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,8 @@ public class SolrSchmeaResolverUnitTests {
 		this.context = new SimpleSolrMappingContext();
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-72
 	public void idPropertyShouldBeResolvedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("id", Foo.class));
@@ -68,10 +65,7 @@ public class SolrSchmeaResolverUnitTests {
 						hasProperty("type", equalTo("string")), hasProperty("defaultValue", equalTo(null))));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void transientPropertyShouldNotBeMapped() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("transientProperty",
@@ -79,10 +73,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, nullValue());
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void namedPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("namedStringProperty",
@@ -90,10 +81,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("name", equalTo("customName")));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void untypedPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("someStringProperty",
@@ -101,10 +89,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("type", equalTo("string")));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void typedPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("solrTypedProperty",
@@ -112,10 +97,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("type", equalTo("tdouble")));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void defaultValueShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("stringWithDefaultValue",
@@ -123,10 +105,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("defaultValue", equalTo("foo")));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void readonlyPropertyShouldNotBeMapped() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("readonlyProperty",
@@ -134,10 +113,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, nullValue());
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void requiredPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("requiredProperty",
@@ -145,10 +121,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("required", equalTo(true)));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void searchablePropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("nonSearchableProperty",
@@ -156,10 +129,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("indexed", equalTo(false)));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void storedPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("nonStoredProperty",
@@ -167,10 +137,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("stored", equalTo(false)));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void copyToPropertyShouldBeMappedCorrectly() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor(
@@ -178,10 +145,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("copyFields", equalTo(Arrays.asList("foo", "bar"))));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void collectionPropertyShouldBeMappedAsMultivalued() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("collectionProperty",
@@ -189,11 +153,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("multiValued", equalTo(true)));
 	}
 
-	/**
-	 * @throws JsonProcessingException
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void collectionPropertyTypeShouldBeResolvedCorrectly() throws JsonProcessingException {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("collectionProperty",
@@ -201,10 +161,7 @@ public class SolrSchmeaResolverUnitTests {
 		assertThat(fieldDef, hasProperty("type", equalTo("string")));
 	}
 
-	/**
-	 * @see DATASOLR-210
-	 */
-	@Test
+	@Test // DATASOLR-210
 	public void scorePropertyShouldNotBeMapped() {
 
 		FieldDefinition fieldDef = schemaResolver.createFieldDefinitionForProperty(getPropertyFor("scoreProperty",

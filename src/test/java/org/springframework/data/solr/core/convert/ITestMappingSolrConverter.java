@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,10 +72,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.commit();
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
+	@Test // DATASOLR-142
 	public void convertsPointCorrectly() {
 		BeanWithPoint bean = new BeanWithPoint();
 		bean.id = DEFAULT_BEAN_ID;
@@ -150,10 +147,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
 
-	/**
-	 * @see DATASOLR-210
-	 */
-	@Test
+	@Test // DATASOLR-210
 	public void testProcessesScoreCorrectly() {
 
 		Collection<BeanWithScore> beans = new ArrayList<BeanWithScore>();
@@ -178,10 +172,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		assertEquals("apache solr", content.get(2).description);
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-202
 	public void testDynamicMap() {
 
 		Map<String, String> map = new HashMap<String, String>();
@@ -198,10 +189,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	}
 
-	/**
-	 * @see DATASOLR-308
-	 */
-	@Test
+	@Test // DATASOLR-308
 	public void testDynamicMapList() {
 
 		Map<String, List<String>> map = new HashMap<String, List<String>>();

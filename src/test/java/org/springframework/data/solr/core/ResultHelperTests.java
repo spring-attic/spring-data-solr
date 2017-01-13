@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -466,10 +466,7 @@ public class ResultHelperTests {
 				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConvertGroupQueryResponseToGroupResultList() {
 		GroupResponse groupResponse = Mockito.mock(GroupResponse.class);
 		Query query = Mockito.mock(Query.class);
@@ -530,10 +527,7 @@ public class ResultHelperTests {
 		Assert.assertEquals(true, group1result.hasNext());
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testConvertGroupQueryResponseToGroupResultListWhenNoCountOfGroups() {
 		GroupResponse groupResponse = Mockito.mock(GroupResponse.class);
 		Query query = Mockito.mock(Query.class);
@@ -595,10 +589,7 @@ public class ResultHelperTests {
 		Assert.assertEquals(true, group1result.hasNext());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertSingleFieldStatsInfoToStatsResultMap() {
 
 		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
@@ -621,10 +612,7 @@ public class ResultHelperTests {
 		Assert.assertEquals(Double.valueOf(1D), fieldStatsResult.getSumOfSquares());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertNullFieldStatsInfoToStatsResultMap() {
 
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(null);
@@ -633,10 +621,7 @@ public class ResultHelperTests {
 		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertEmptyFieldStatsInfoMapToStatsResultMap() {
 
 		Map<String, FieldStatsResult> converted = ResultHelper
@@ -646,10 +631,7 @@ public class ResultHelperTests {
 		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoMapWithNullToStatsResultMap() {
 
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
@@ -659,10 +641,7 @@ public class ResultHelperTests {
 		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoMapWithEmptyNamedListToStatsResultMap() {
 
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
@@ -672,10 +651,7 @@ public class ResultHelperTests {
 		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
-	@Test
+	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoToStatsResultMap() {
 
 		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
@@ -731,10 +707,7 @@ public class ResultHelperTests {
 		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testConvertEmptyFacetRangeQueryResponseToFacetPageMap() {
 		SimpleFacetQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"))
 				.setFacetOptions(new FacetOptions("field1"));
@@ -744,10 +717,7 @@ public class ResultHelperTests {
 		Assert.assertTrue(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(emptyQuery, response).isEmpty());
 	}
 
-	/**
-	 * @see DATSOLR-86
-	 */
-	@Test
+	@Test // DATSOLR-86
 	public void testConvertFacetRangeQueryResponseToFacetPageMap() {
 		SimpleFacetQuery facetQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"))
 				.setFacetOptions(new FacetOptions("field1"));
@@ -780,10 +750,7 @@ public class ResultHelperTests {
 		Assert.assertEquals("count2", content.get(1).getValue());
 	}
 
-	/**
-	 * @see DATASOLR-305
-	 */
-	@Test
+	@Test // DATASOLR-305
 	public void testConvertFacetQueryResponseForNegativeFacetLimit() {
 
 		List<FacetField> fieldList = new ArrayList<FacetField>(1);

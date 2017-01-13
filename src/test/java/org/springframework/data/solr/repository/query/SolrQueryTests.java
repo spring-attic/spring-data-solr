@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,10 +175,7 @@ public class SolrQueryTests {
 		Assert.assertEquals("{post}", capturedOptions.getHighlightParameterValue(HighlightParams.TAG_POST));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void shouldApplyLimitCorrectlyWhenPageSizeToBig() throws NoSuchMethodException, SecurityException {
 
 		Method method = Repo1.class.getMethod("findTop5ByName", String.class, Pageable.class);
@@ -196,10 +193,7 @@ public class SolrQueryTests {
 		Assert.assertThat(captor.getValue().getPageRequest().getPageSize(), IsEqual.equalTo(5));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void shouldApplyLimitCorrectlyToPageWhenPageInsideLimit() throws NoSuchMethodException, SecurityException {
 
 		Method method = Repo1.class.getMethod("findTop5ByName", String.class, Pageable.class);
@@ -217,10 +211,7 @@ public class SolrQueryTests {
 		Assert.assertThat(captor.getValue().getPageRequest().getPageSize(), IsEqual.equalTo(2));
 	}
 
-	/**
-	 * @see DATASOLR-170
-	 */
-	@Test
+	@Test // DATASOLR-170
 	public void shouldNotCallServerIfPageOutsideLimit() throws NoSuchMethodException, SecurityException {
 
 		Method method = Repo1.class.getMethod("findTop5ByName", String.class, Pageable.class);
@@ -234,10 +225,7 @@ public class SolrQueryTests {
 				(Class<?>) Matchers.any());
 	}
 
-	/**
-	 * @see DATASOLR-186
-	 */
-	@Test
+	@Test // DATASOLR-186
 	public void sliceShouldTriggerPagedExecution() {
 
 		createQueryForMethod("findByName", String.class, Pageable.class)
@@ -247,11 +235,8 @@ public class SolrQueryTests {
 				Matchers.<Class<ProductBean>> any());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-160
 	public void testQueryWithStats() {
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 
@@ -276,11 +261,8 @@ public class SolrQueryTests {
 		Assert.assertTrue(selectiveFacetsField.containsAll(selectiveFacetsFields));
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-160
 	public void testQueryWithStatsNonSelective() {
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 
@@ -302,11 +284,8 @@ public class SolrQueryTests {
 		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
 	}
 
-	/**
-	 * @see DATASOLR-160
-	 */
 	@SuppressWarnings("unchecked")
-	@Test
+	@Test // DATASOLR-160
 	public void testQueryWithStatsNoFacets() {
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 

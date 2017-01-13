@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,13 +68,7 @@ public class EnableSolrRepositoriesWithPredefinedConvertersUnitTests extends Abs
 
 	@Autowired ProductRepository repo;
 
-	/**
-	 * @throws Exception
-	 * @throws IllegalArgumentException
-	 * @throws BeansException
-	 * @see DATASOLR-163
-	 */
-	@Test
+	@Test // DATASOLR-163
 	public void shouldUseExistingMappingContextWhenPresent() throws BeansException, IllegalArgumentException, Exception {
 
 		SimpleSolrRepository target = (SimpleSolrRepository) ((org.springframework.aop.framework.AdvisedSupport) new org.springframework.beans.DirectFieldAccessor(
