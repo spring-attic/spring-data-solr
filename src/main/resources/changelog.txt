@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.0.7.RELEASE (2017-01-26)
+---------------------------------------------
+* DATASOLR-346 - Release 2.0.7 (Hopper SR7).
+
+
 Changes in version 2.1.0.RELEASE (2017-01-26)
 ---------------------------------------------
 * DATASOLR-357 - Remove woodstox dependency.
