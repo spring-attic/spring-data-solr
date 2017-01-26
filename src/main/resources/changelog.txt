@@ -1,6 +1,15 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.0.RELEASE (2017-01-26)
+---------------------------------------------
+* DATASOLR-357 - Remove woodstox dependency.
+* DATASOLR-355 - Update "what’s new" section in reference documentation.
+* DATASOLR-354 - Update project documentation with the CLA tool integration.
+* DATASOLR-352 - Migrate ticket references in test code to Spring Framework style.
+* DATASOLR-347 - Release 2.1 GA (Ingalls).
+
+
 Changes in version 2.0.6.RELEASE (2016-12-21)
 ---------------------------------------------
 * DATASOLR-334 - Release 2.0.6 (Hopper SR6).
