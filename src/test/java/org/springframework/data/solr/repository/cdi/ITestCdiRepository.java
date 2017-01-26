@@ -18,6 +18,8 @@ package org.springframework.data.solr.repository.cdi;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.util.Optional;
+
 import org.apache.webbeans.cditest.CdiTestContainer;
 import org.apache.webbeans.cditest.CdiTestContainerLoader;
 import org.junit.AfterClass;
@@ -69,10 +71,10 @@ public class ITestCdiRepository {
 
 		Assert.assertTrue(repository.exists(bean.getId()));
 
-		ProductBean retrieved = repository.findOne(bean.getId());
-		Assert.assertNotNull(retrieved);
-		Assert.assertEquals(bean.getId(), retrieved.getId());
-		Assert.assertEquals(bean.getName(), retrieved.getName());
+		Optional<ProductBean> retrieved = repository.findOne(bean.getId());
+		Assert.assertTrue(retrieved.isPresent());
+		Assert.assertEquals(bean.getId(), retrieved.get().getId());
+		Assert.assertEquals(bean.getName(), retrieved.get().getName());
 
 		Assert.assertEquals(1, repository.count());
 
@@ -82,7 +84,7 @@ public class ITestCdiRepository {
 
 		Assert.assertEquals(0, repository.count());
 		retrieved = repository.findOne(bean.getId());
-		Assert.assertNull(retrieved);
+		Assert.assertFalse(retrieved.isPresent());
 	}
 
 	@Test // DATASOLR-187

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -142,7 +143,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		Query query = new SimpleQuery(new Criteria("enumProperty_s").is(LiteralNumberEnum.TWO));
 
-		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(query, BeanWithEnum.class);
+		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(query, BeanWithEnum.class).get();
 		assertEquals(bean.id, loadedViaProperty.id);
 		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
@@ -211,7 +212,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.saveBean(o);
 		solrTemplate.commit();
 
-		return (T) solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, o.getClass());
+		return (T) solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, o.getClass()).orElse(null);
 	}
 
 	private static class BeanWithPoint {

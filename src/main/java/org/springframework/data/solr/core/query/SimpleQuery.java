@@ -37,7 +37,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private List<Field> projectionOnFields = new ArrayList<Field>(0);
 	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
 
-	private Integer offset = null;
+	private Long offset = null;
 	private Integer rows = null;
 
 	private Sort sort;
@@ -183,7 +183,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Query> T setOffset(Integer offset) {
+	public <T extends Query> T setOffset(Long offset) {
 		this.offset = offset;
 		return (T) this;
 	}
@@ -252,13 +252,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		}
 
 		int rows = this.rows != null ? this.rows : DEFAULT_PAGE_SIZE;
-		int offset = this.offset != null ? this.offset : 0;
+		long offset = this.offset != null ? this.offset : 0;
 
-		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, this.sort);
+		return new SolrPageRequest(rows != 0 ? (int)(offset / rows) : 0, rows, this.sort);
 	}
 
 	@Override
-	public Integer getOffset() {
+	public Long getOffset() {
 		return this.offset;
 	}
 

@@ -64,7 +64,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	}
 
 	public SolrResultPage(List<T> content, Pageable pageable, long total, Float maxScore) {
-		super(content, pageable, total);
+		super(content, pageable== null ? Pageable.NONE : pageable, total);
 		this.maxScore = maxScore;
 	}
 

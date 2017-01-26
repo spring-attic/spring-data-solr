@@ -21,6 +21,8 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Optional;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -128,8 +130,8 @@ public class SimpleSolrPersistentEntityTests {
 		entity.addPersistentProperty(property);
 
 		assertTrue(entity.hasScoreProperty());
-		assertEquals(property, entity.getScoreProperty());
-		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
+		assertEquals(Optional.of(property), entity.getScoreProperty());
+		assertEquals("myScoreProperty", entity.getScoreProperty().get().getFieldName());
 	}
 
 	@SuppressWarnings("unchecked")

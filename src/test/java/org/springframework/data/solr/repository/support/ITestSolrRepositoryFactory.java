@@ -70,19 +70,19 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.save(initial);
 		Assert.assertEquals(1, repository.count());
 
-		ProductBean loaded = repository.findOne(initial.getId());
+		ProductBean loaded = repository.findOne(initial.getId()).get();
 		Assert.assertEquals(initial.getName(), loaded.getName());
 
 		loaded.setName("name changed");
 		repository.save(loaded);
 		Assert.assertEquals(1, repository.count());
 
-		loaded = repository.findOne(initial.getId());
+		loaded = repository.findOne(initial.getId()).get();
 		Assert.assertEquals("name changed", loaded.getName());
 
 		repository.delete(loaded);
 
-		Thread.sleep(100);
+		Thread.sleep(200);
 		Assert.assertEquals(0, repository.count());
 	}
 

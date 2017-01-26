@@ -19,6 +19,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.junit.Assert;
@@ -28,7 +29,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mockito.Mockito;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
@@ -38,7 +41,7 @@ import org.springframework.data.util.TypeInformation;
 public class SimpleSolrPersitentPropertyFieldNameTests {
 
 	@SuppressWarnings("rawtypes")//
-	private TypeInformation typeInfoMock;
+	private TypeInformation typeInformation;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
 
@@ -53,10 +56,9 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		typeInfoMock = Mockito.mock(TypeInformation.class);
 
-		Mockito.when(typeInfoMock.getType()).thenReturn(BeanWithSolrFieldAnnotation.class);
-		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInfoMock);
+		typeInformation = ClassTypeInformation.from(BeanWithSolrFieldAnnotation.class);
+		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInformation);
 	}
 
 	@Parameters
@@ -79,7 +81,7 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(field, descriptor, persistentEntity, new SimpleTypeHolder());
+		return new SimpleSolrPersistentProperty(Property.of(field, Optional.of(descriptor)), persistentEntity, new SimpleTypeHolder());
 	}
 
 	static class BeanWithSolrFieldAnnotation {

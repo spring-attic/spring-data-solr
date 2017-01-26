@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import java.util.Optional;
+
 import org.springframework.data.mapping.PersistentEntity;
 
 /**
@@ -57,6 +59,6 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	 * @return the score {@link SolrPersistentProperty} of the {@link PersistentEntity} or {@literal null} if not defined.
 	 * @since 1.4
 	 */
-	SolrPersistentProperty getScoreProperty();
+	Optional<SolrPersistentProperty> getScoreProperty();
 
 }

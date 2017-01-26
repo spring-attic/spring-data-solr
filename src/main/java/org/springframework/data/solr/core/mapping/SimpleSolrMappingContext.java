@@ -19,6 +19,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 
 import org.springframework.data.mapping.context.AbstractMappingContext;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.util.TypeInformation;
@@ -47,9 +48,9 @@ public class SimpleSolrMappingContext extends
 	}
 
 	@Override
-	protected SolrPersistentProperty createPersistentProperty(Field field, PropertyDescriptor descriptor,
+	protected SolrPersistentProperty createPersistentProperty(Property property,
 			SimpleSolrPersistentEntity<?> owner, SimpleTypeHolder simpleTypeHolder) {
-		return new SimpleSolrPersistentProperty(field, descriptor, owner, simpleTypeHolder);
+		return new SimpleSolrPersistentProperty(property, owner, simpleTypeHolder);
 	}
 
 }

@@ -17,6 +17,7 @@ package org.springframework.data.solr.core;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -182,7 +183,7 @@ public interface SolrOperations {
 	 * @param clazz must not be {@literal null}.
 	 * @return the first matching object
 	 */
-	<T> T queryForObject(Query query, Class<T> clazz);
+	<T> Optional<T> queryForObject(Query query, Class<T> clazz);
 
 	/**
 	 * Execute the query against solr and return the first returned object
@@ -193,7 +194,7 @@ public interface SolrOperations {
 	 * @return the first matching object
 	 * @since 2.0
 	 */
-	<T> T queryForObject(Query query, Class<T> clazz, RequestMethod method);
+	<T> Optional<T> queryForObject(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
 	 * Execute the query against solr and retrun result as {@link Page}

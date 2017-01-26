@@ -20,11 +20,13 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.repository.Score;
@@ -53,9 +55,9 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		SUPPORTED_ID_PROPERTY_NAMES.add("id");
 	}
 
-	public SimpleSolrPersistentProperty(Field field, PropertyDescriptor propertyDescriptor,
+	public SimpleSolrPersistentProperty(Property property,
 			PersistentEntity<?, SolrPersistentProperty> owner, SimpleTypeHolder simpleTypeHolder) {
-		super(field, propertyDescriptor, owner, simpleTypeHolder);
+		super(property, owner, simpleTypeHolder);
 	}
 
 	@Override
@@ -71,12 +73,15 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	private String readAnnotatedFieldName() {
 		String fieldName = null;
 		if (isAnnotationPresent(org.apache.solr.client.solrj.beans.Field.class)) {
-			fieldName = findAnnotation(org.apache.solr.client.solrj.beans.Field.class).value();
+			fieldName = findAnnotation(org.apache.solr.client.solrj.beans.Field.class).get().value();
 		} else if (isAnnotationPresent(Indexed.class)) {
-			Indexed indexedAnnotation = findAnnotation(Indexed.class);
-			fieldName = indexedAnnotation.value();
-			if (!StringUtils.hasText(fieldName)) {
-				fieldName = indexedAnnotation.name();
+			Optional<Indexed> indexedAnnotation = findAnnotation(Indexed.class);
+
+			if(indexedAnnotation.isPresent()) {
+				fieldName = indexedAnnotation.get().value();
+				if (!StringUtils.hasText(fieldName)) {
+					fieldName = indexedAnnotation.get().name();
+				}
 			}
 		}
 		return fieldName;
@@ -93,11 +98,11 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 			return false;
 		}
 
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null && indexedAnnotation.readonly()) {
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation.isPresent() && indexedAnnotation.get().readonly()) {
 			return true;
 		}
-		if (indexedAnnotation == null && getFieldAnnotation() == null) {
+		if (!indexedAnnotation.isPresent() && !getFieldAnnotation().isPresent()) {
 			return true;
 		}
 		return false;
@@ -136,11 +141,11 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 				: false;
 	}
 
-	private org.apache.solr.client.solrj.beans.Field getFieldAnnotation() {
+	private Optional<org.apache.solr.client.solrj.beans.Field> getFieldAnnotation() {
 		return findAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 	}
 
-	private Indexed getIndexAnnotation() {
+	private Optional<Indexed> getIndexAnnotation() {
 		return findAnnotation(Indexed.class);
 	}
 
@@ -163,9 +168,9 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	public Float getBoost() {
 
 		Float boost = Float.NaN;
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null) {
-			boost = indexedAnnotation.boost();
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation.isPresent()) {
+			boost = indexedAnnotation.get().boost();
 		}
 		return Float.isNaN(boost) ? null : boost;
 	}
@@ -181,8 +186,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 			return true;
 		}
 
-		Indexed indexedAnnotation = getIndexAnnotation();
-		return indexedAnnotation != null && indexedAnnotation.searchable();
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		return indexedAnnotation.isPresent() && indexedAnnotation.get().searchable();
 	}
 
 	/*
@@ -196,8 +201,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 			return true;
 		}
 
-		Indexed indexedAnnotation = getIndexAnnotation();
-		return indexedAnnotation != null && indexedAnnotation.stored();
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		return indexedAnnotation.isPresent() && indexedAnnotation.get().stored();
 	}
 
 	/*
@@ -215,10 +220,11 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 */
 	@Override
 	public String getSolrTypeName() {
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null) {
-			if (StringUtils.hasText(indexedAnnotation.type())) {
-				return indexedAnnotation.type();
+
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation.isPresent()) {
+			if (StringUtils.hasText(indexedAnnotation.get().type())) {
+				return indexedAnnotation.get().type();
 			}
 		}
 		return getActualType().getSimpleName().toLowerCase();
@@ -231,10 +237,10 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	@Override
 	public Object getDefaultValue() {
 
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null) {
-			if (StringUtils.hasText(indexedAnnotation.defaultValue())) {
-				return indexedAnnotation.defaultValue();
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation.isPresent()) {
+			if (StringUtils.hasText(indexedAnnotation.get().defaultValue())) {
+				return indexedAnnotation.get().defaultValue();
 			}
 		}
 		return null;
@@ -247,10 +253,11 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<String> getCopyFields() {
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null) {
-			if (indexedAnnotation.copyTo().length > 0) {
-				return CollectionUtils.arrayToList(indexedAnnotation.copyTo());
+
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		if (indexedAnnotation.isPresent()) {
+			if (indexedAnnotation.get().copyTo().length > 0) {
+				return CollectionUtils.arrayToList(indexedAnnotation.get().copyTo());
 			}
 		}
 		return Collections.emptyList();
@@ -272,8 +279,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	@Override
 	public boolean isRequired() {
 
-		Indexed indexedAnnotation = getIndexAnnotation();
-		return indexedAnnotation != null && indexedAnnotation.required();
+		Optional<Indexed> indexedAnnotation = getIndexAnnotation();
+		return indexedAnnotation.isPresent() && indexedAnnotation.get().required();
 	}
 
 	/*
@@ -282,7 +289,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 */
 	@Override
 	public boolean isScoreProperty() {
-		return findAnnotation(Score.class) != null;
+		return findAnnotation(Score.class).isPresent();
 	}
 
 	/* (non-Javadoc)
@@ -290,7 +297,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 */
 	@Override
 	public boolean isDynamicProperty() {
-		return findAnnotation(Dynamic.class) != null;
+		return findAnnotation(Dynamic.class).isPresent();
 	}
 
 }

@@ -170,13 +170,13 @@ public class SolrSchmeaResolverUnitTests {
 	}
 
 	SolrPersistentEntity<?> createEntity(Class<?> type) {
-		return context.getPersistentEntity(type);
+		return context.getPersistentEntity(type).get();
 	}
 
 	SolrPersistentProperty getPropertyFor(String property, Class<?> type) {
 
 		SolrPersistentEntity<?> entity = createEntity(type);
-		return entity.getPersistentProperty(property);
+		return entity.getPersistentProperty(property).orElse(null);
 	}
 
 	private static class Foo {

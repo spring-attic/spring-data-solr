@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -410,7 +411,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class)
 	 */
 	@Override
-	public <T> T queryForObject(Query query, Class<T> clazz) {
+	public <T> Optional<T> queryForObject(Query query, Class<T> clazz) {
 		return queryForObject(query, clazz, getDefaultRequestMethod());
 	}
 
@@ -419,7 +420,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
 	 */
 	@Override
-	public <T> T queryForObject(Query query, Class<T> clazz, RequestMethod method) {
+	public <T> Optional<T> queryForObject(Query query, Class<T> clazz, RequestMethod method) {
 
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(clazz, "Target class must not be 'null'.");
@@ -431,9 +432,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			if (response.getResults().size() > 1) {
 				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
 			}
-			return convertSolrDocumentListToBeans(response.getResults(), clazz).get(0);
+			return Optional.ofNullable(convertSolrDocumentListToBeans(response.getResults(), clazz).get(0));
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
@@ -701,7 +702,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 
 		if (clazz != null) {
-			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz);
+			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz).orElseThrow(() -> new IllegalArgumentException("No persistent entity found."));
 			if (persistedEntity.hasScoreProperty()) {
 				solrQuery.setIncludeScore(true);
 			}
@@ -928,7 +929,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	private String getSolrCoreOrBeanCollection(Class<?> clazz) {
-		return StringUtils.hasText(solrCore) ? solrCore : mappingContext.getPersistentEntity(clazz).getSolrCoreName();
+		return StringUtils.hasText(solrCore) ? solrCore : mappingContext.getPersistentEntity(clazz).orElseThrow(() -> new IllegalArgumentException("No entity found for type.")).getSolrCoreName();
 	}
 
 	/*

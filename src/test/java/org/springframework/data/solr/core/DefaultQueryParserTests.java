@@ -1081,7 +1081,7 @@ public class DefaultQueryParserTests {
 	@Test // DATASOLR-112
 	public void pageableUsingZeroShouldBeParsedCorrectlyWhenSetUsingExplititMethods() {
 
-		SimpleQuery query = new SimpleQuery("*:*").setOffset(0).setRows(0);
+		SimpleQuery query = new SimpleQuery("*:*").setOffset(0L).setRows(0);
 		assertPaginationPresent(queryParser.constructSolrQuery(query), 0, 0);
 	}
 

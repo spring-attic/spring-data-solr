@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -93,7 +94,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	@Override
-	public T findOne(ID id) {
+	public Optional<T> findOne(ID id) {
 		return getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
@@ -167,7 +168,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public boolean exists(ID id) {
-		return findOne(id) != null;
+		return findOne(id).isPresent();
 	}
 
 	@Override
@@ -268,7 +269,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	private Object extractIdFromBean(T entity) {
 		if (entityInformation != null) {
-			return entityInformation.getId(entity);
+			return entityInformation.getId(entity).orElseThrow(() -> new IllegalArgumentException("Id must not be null"));
 		}
 
 		SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);

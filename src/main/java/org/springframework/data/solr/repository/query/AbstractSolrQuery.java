@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository.query;
 
 import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -416,7 +417,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			private static final long serialVersionUID = 8100166028148948968L;
 
 			@Override
-			public int getOffset() {
+			public long getOffset() {
 				return source.getOffset();
 			}
 
@@ -466,11 +467,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			if (!isLimiting()) {
 
-				query.setPageRequest(pageable != null ? pageable : new SolrPageRequest(0, (int) count(query)));
+				query.setPageRequest((pageable != null && !Pageable.NONE.equals(pageable)) ? pageable : new SolrPageRequest(0, (int) count(query)));
 				return executeFind(query).getContent();
 			}
 
-			if (pageable == null && isLimiting()) {
+			if ((pageable == null || Pageable.NONE.equals(pageable)) && isLimiting()) {
 				return executeFind(query.setPageRequest(new SolrPageRequest(0, getLimit()))).getContent();
 			}
 
@@ -479,7 +480,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 					return new PageImpl(java.util.Collections.emptyList(), pageable, getLimit());
 				}
 				if (pageable.getOffset() + pageable.getPageSize() > getLimit()) {
-					query.setPageRequest(getLimitingPageable(pageable, getLimit() - pageable.getOffset()));
+					query.setPageRequest(getLimitingPageable(pageable, getLimit() - (int)pageable.getOffset()));
 				}
 			}
 			return executeFind(query).getContent();
@@ -521,7 +522,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 						return new PageImpl(java.util.Collections.emptyList(), pageToUse, limit);
 					}
 					if (pageToUse.getOffset() + pageToUse.getPageSize() > limit) {
-						pageToUse = getLimitingPageable(pageToUse, limit - pageToUse.getOffset());
+						pageToUse = getLimitingPageable(pageToUse, limit - (int)pageToUse.getOffset());
 					}
 				}
 			}
@@ -609,6 +610,12 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		@Override
 		public Object execute(Query query) {
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
+
+			if(!ClassUtils.isAssignable(Optional.class, solrQueryMethod.getReturnedObjectType())) {
+				return solrOperations.queryForObject(query, metadata.getJavaType()).orElse(null);
+			}
+
+
 			return solrOperations.queryForObject(query, metadata.getJavaType());
 		}
 	}

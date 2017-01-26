@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.cdi;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -50,7 +51,7 @@ public class SolrRepositoryBean<T> extends CdiRepositoryBean<T> {
 	 *          {@link CustomRepositoryImplementationDetector}, can be {@literal null}.
 	 */
 	public SolrRepositoryBean(Bean<SolrOperations> operations, Set<Annotation> qualifiers, Class<T> repositoryType,
-			BeanManager beanManager, CustomRepositoryImplementationDetector detector) {
+			BeanManager beanManager, Optional<CustomRepositoryImplementationDetector> detector) {
 		super(qualifiers, repositoryType, beanManager, detector);
 
 		Assert.notNull(operations, "Cannot create repository with 'null' for SolrOperations.");
@@ -58,13 +59,17 @@ public class SolrRepositoryBean<T> extends CdiRepositoryBean<T> {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.repository.cdi.CdiRepositoryBean#create(javax.enterprise.context.spi.CreationalContext, java.lang.Class, java.lang.Object)
-	 */
+		 * (non-Javadoc)
+		 * @see org.springframework.data.repository.cdi.CdiRepositoryBean#create(javax.enterprise.context.spi.CreationalContext, java.lang.Class, java.lang.Object)
+		 */
 	@Override
-	protected T create(CreationalContext<T> creationalContext, Class<T> repositoryType, Object customImplementation) {
+	protected T create(CreationalContext<T> creationalContext, Class<T> repositoryType,
+			Optional<Object> customImplementation) {
 		SolrOperations solrOperations = getDependencyInstance(solrOperationsBean, SolrOperations.class);
-		return new SolrRepositoryFactory(solrOperations).getRepository(repositoryType, customImplementation);
+
+		return customImplementation.isPresent()
+				? new SolrRepositoryFactory(solrOperations).getRepository(repositoryType, customImplementation.get())
+				: new SolrRepositoryFactory(solrOperations).getRepository(repositoryType);
 	}
 
 	/*

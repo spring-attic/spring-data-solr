@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.common.SolrDocumentList;
@@ -172,7 +173,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return convert(source, rawType);
 		}
 
-		SolrPersistentEntity<S> entity = (SolrPersistentEntity<S>) mappingContext.getPersistentEntity(rawType);
+		SolrPersistentEntity<S> entity = (SolrPersistentEntity<S>) mappingContext.getPersistentEntity(rawType).get();
 		return read(entity, source, null);
 	}
 
@@ -193,17 +194,17 @@ public class MappingSolrConverter extends SolrConverterBase
 					return;
 				}
 
-				Object o = getValue(persistentProperty, source, instance);
-				if (o != null) {
+				Optional<Object> o = getValue(persistentProperty, source, instance);
+				if (o.isPresent()) {
 
-					if (o instanceof Collection && !persistentProperty.isCollectionLike()) {
+					if (o.get() instanceof Collection && !persistentProperty.isCollectionLike()) {
 
-						Collection<?> c = (Collection<?>) o;
+						Collection<?> c = (Collection<?>) o.get();
 
 						if (!c.isEmpty()) {
 
 							if (c.size() == 1) {
-								accessor.setProperty(persistentProperty, c.iterator().next());
+								accessor.setProperty(persistentProperty, Optional.ofNullable(c.iterator().next()));
 							} else {
 								throw new MappingException(String.format(
 										"Cannot set multiple values %s read from '%s' to non collection property '%s'. Please check your mapping / schema defintion!",
@@ -222,7 +223,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return instance;
 	}
 
-	protected Object getValue(SolrPersistentProperty property, Object source, Object parent) {
+	protected Optional<Object> getValue(SolrPersistentProperty property, Object source, Object parent) {
 		SolrPropertyValueProvider provider = new SolrPropertyValueProvider(source, parent);
 		return provider.getPropertyValue(property);
 	}
@@ -232,7 +233,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		SolrPropertyValueProvider provider = new SolrPropertyValueProvider(source, parent);
 		PersistentEntityParameterValueProvider<SolrPersistentProperty> parameterProvider = new PersistentEntityParameterValueProvider<SolrPersistentProperty>(
-				entity, provider, parent);
+				entity, provider, Optional.ofNullable(parent));
 
 		return parameterProvider;
 	}
@@ -254,7 +255,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			target.putAll(convertedDocument);
 		} else {
 
-			SolrPersistentEntity<?> entity = mappingContext.getPersistentEntity(sourceClass);
+			SolrPersistentEntity<?> entity = mappingContext.getPersistentEntity(sourceClass).get();
 			write(source, target, entity);
 		}
 
@@ -272,8 +273,8 @@ public class MappingSolrConverter extends SolrConverterBase
 			@Override
 			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
 
-				Object value = accessor.getProperty(persistentProperty);
-				if (value == null || persistentProperty.isReadonly()) {
+				Optional<Object> value = accessor.getProperty(persistentProperty);
+				if (!value.isPresent() || persistentProperty.isReadonly()) {
 					return;
 				}
 
@@ -284,9 +285,9 @@ public class MappingSolrConverter extends SolrConverterBase
 
 				Collection<SolrInputField> fields;
 				if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
-					fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value);
+					fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value.get());
 				} else {
-					fields = writeRegularPropertyToTarget(target, persistentProperty, value);
+					fields = writeRegularPropertyToTarget(target, persistentProperty, value.get());
 				}
 
 				if (persistentProperty.isBoosted()) {
@@ -306,7 +307,7 @@ public class MappingSolrConverter extends SolrConverterBase
 	private Collection<SolrInputField> writeWildcardMapPropertyToTarget(Map<? super Object, ? super Object> target,
 			SolrPersistentProperty persistentProperty, Map<?, ?> fieldValue) {
 
-		TypeInformation<?> mapTypeInformation = persistentProperty.getTypeInformation().getMapValueType();
+		TypeInformation<?> mapTypeInformation = persistentProperty.getTypeInformation().getMapValueType().get();
 		Class<?> rawMapType = mapTypeInformation.getType();
 		String fieldName = persistentProperty.getFieldName();
 
@@ -412,12 +413,12 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public <T> T getPropertyValue(SolrPersistentProperty property) {
+		public <T> Optional<T> getPropertyValue(SolrPersistentProperty property) {
 			if (source instanceof Map<?, ?>) {
-				return (T) readValue((Map<String, ?>) source, property, parent);
+				return Optional.ofNullable(readValue((Map<String, ?>) source, property, parent));
 			}
 
-			return readValue(source, property.getTypeInformation(), this.parent);
+			return Optional.ofNullable(readValue(source, property.getTypeInformation(), this.parent));
 		}
 
 		@SuppressWarnings("unchecked")
@@ -481,7 +482,8 @@ public class MappingSolrConverter extends SolrConverterBase
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 
 					if (wildcardPosition.match(property.getFieldName(), potentialMatch.getKey())) {
-						return getValue(property, potentialMatch.getValue(), parent);
+						Optional<Object> op =  getValue(property, potentialMatch.getValue(), parent);
+						return  op.isPresent() ? op.get() : null;
 					}
 				}
 			}
@@ -526,12 +528,12 @@ public class MappingSolrConverter extends SolrConverterBase
 		private Object readWildcardMap(Map<String, ?> source, SolrPersistentProperty property, Object parent,
 				WildcardPosition wildcardPosition) {
 
-			TypeInformation<?> mapTypeInformation = property.getTypeInformation().getMapValueType();
-			Class<?> rawMapType = mapTypeInformation.getType();
+			Optional<TypeInformation<?>> mapTypeInformation = property.getTypeInformation().getMapValueType();
+			Class<?> rawMapType = mapTypeInformation.get().getType();
 
 			Class<?> genericTargetType;
-			if (mapTypeInformation.getTypeArguments() != null && !mapTypeInformation.getTypeArguments().isEmpty()) {
-				genericTargetType = mapTypeInformation.getTypeArguments().get(0).getType();
+			if (mapTypeInformation.get().getTypeArguments() != null && !mapTypeInformation.get().getTypeArguments().isEmpty()) {
+				genericTargetType = mapTypeInformation.get().getTypeArguments().get(0).getType();
 			} else {
 				genericTargetType = Object.class;
 			}
@@ -577,7 +579,9 @@ public class MappingSolrConverter extends SolrConverterBase
 						values.put(key, (rawMapType.isArray() ? singletonArrayList.toArray() : singletonArrayList));
 
 					} else {
-						values.put(key, getValue(property, value, parent));
+
+						Optional<Object> o = getValue(property, value, parent);
+						values.put(key, o.isPresent() ? o.get() : null);
 					}
 				}
 			}
@@ -587,16 +591,20 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		private Object readValue(SolrPersistentProperty property, Object o, Object parent, Class<?> target) {
 
-			Object value = getValue(property, o, parent);
-			if (value == null || target == null || target.equals(Object.class)) {
-				return value;
+			Optional<Object> value = getValue(property, o, parent);
+			if(!value.isPresent()) {
+				return null;
 			}
 
-			if (canConvert(value.getClass(), target)) {
-				return convert(value, target);
+			if (target == null || target.equals(Object.class)) {
+				return value.get();
 			}
 
-			return value;
+			if (canConvert(value.get().getClass(), target)) {
+				return convert(value.get(), target);
+			}
+
+			return value.get();
 		}
 
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
@@ -616,7 +624,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				items = CollectionFactory.createCollection(collectionType, source.size());
 			}
 
-			TypeInformation<?> componentType = type.isCollectionLike() ? type.getComponentType() : type;
+			TypeInformation<?> componentType = type.isCollectionLike() ? type.getComponentType().get() : type;
 
 			Iterator<?> it = source.iterator();
 			while (it.hasNext()) {

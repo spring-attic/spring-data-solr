@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.mapping;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -70,10 +71,10 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private String derivateSolrCoreName() {
 
 		String derivativeSolrCoreName = this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
-		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument != null) {
-			if (StringUtils.hasText(solrDocument.solrCoreName())) {
-				derivativeSolrCoreName = solrDocument.solrCoreName();
+		Optional<SolrDocument> solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument.isPresent()) {
+			if (StringUtils.hasText(solrDocument.get().solrCoreName())) {
+				derivativeSolrCoreName = solrDocument.get().solrCoreName();
 			}
 		}
 		return derivativeSolrCoreName;
@@ -81,9 +82,9 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	private Float derivateDocumentBoost() {
 
-		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument != null && !Float.isNaN(solrDocument.boost())) {
-			return solrDocument.boost();
+		Optional<SolrDocument> solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument.isPresent() && !Float.isNaN(solrDocument.get().boost())) {
+			return solrDocument.get().boost();
 		}
 		return null;
 	}
@@ -129,7 +130,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getScoreProperty()
 	 */
 	@Override
-	public SolrPersistentProperty getScoreProperty() {
+	public Optional<SolrPersistentProperty> getScoreProperty() {
 		return getPersistentProperty(Score.class);
 	}
 

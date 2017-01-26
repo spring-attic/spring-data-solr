@@ -19,6 +19,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -28,8 +29,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mockito;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
@@ -38,7 +40,7 @@ import org.springframework.data.util.TypeInformation;
 @RunWith(Parameterized.class)
 public class SimpleSolrPersistentPropertyBoostTests {
 
-	@SuppressWarnings("rawtypes")//
+	@SuppressWarnings("rawtypes") //
 	private TypeInformation typeInfoMock;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
@@ -49,9 +51,8 @@ public class SimpleSolrPersistentPropertyBoostTests {
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		typeInfoMock = Mockito.mock(TypeInformation.class);
 
-		Mockito.when(typeInfoMock.getType()).thenReturn(BeanWithSolrFieldAnnotation.class);
+		typeInfoMock = ClassTypeInformation.from(BeanWithSolrFieldAnnotation.class);
 		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInfoMock);
 	}
 
@@ -70,21 +71,24 @@ public class SimpleSolrPersistentPropertyBoostTests {
 
 	private SimpleSolrPersistentProperty getPersistentProperty(Class<?> clazz, String propertyName)
 			throws IntrospectionException {
+
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(field, descriptor, persistentEntity, new SimpleTypeHolder());
+		Property p = Property.of(field, Optional.of(descriptor));
+
+		return new SimpleSolrPersistentProperty(p, persistentEntity, new SimpleTypeHolder());
 	}
 
 	static class BeanWithSolrFieldAnnotation {
 
-		@Indexed//
+		@Indexed //
 		private String fieldWithEmptyBoostAnnotation;
 
-		@Indexed(boost = 100)//
+		@Indexed(boost = 100) //
 		private String fieldWithBoostViaIndexedAnnotation;
 
-		@Indexed(boost = Float.NaN)//
+		@Indexed(boost = Float.NaN) //
 		private String fieldWithInvalidBoostViaIndexedAnnotation;
 
 		public String getFieldWithEmptyBoostAnnotation() {

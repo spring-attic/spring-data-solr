@@ -91,13 +91,13 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFindOne() {
-		ProductBean found = repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId());
+		ProductBean found = repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId()).get();
 		Assert.assertEquals(POPULAR_AVAILABLE_PRODUCT.getId(), found.getId());
 	}
 
 	@Test
 	public void testFindOneThatDoesNotExist() {
-		Assert.assertNull(repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId().concat("XX-XX-XX")));
+		Assert.assertFalse(repo.findOne(POPULAR_AVAILABLE_PRODUCT.getId().concat("XX-XX-XX")).isPresent());
 	}
 
 	@Test

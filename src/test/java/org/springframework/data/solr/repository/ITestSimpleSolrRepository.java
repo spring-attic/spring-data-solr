@@ -50,7 +50,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		Assert.assertTrue(repository.exists(savedBean.getId()));
 
-		ExampleSolrBean retrieved = repository.findOne(savedBean.getId());
+		ExampleSolrBean retrieved = repository.findOne(savedBean.getId()).get();
 		Assert.assertNotNull(retrieved);
 		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
 
@@ -61,8 +61,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 		repository.delete(savedBean);
 
 		Assert.assertEquals(0, repository.count());
-		retrieved = repository.findOne(savedBean.getId());
-		Assert.assertNull(retrieved);
+		Assert.assertFalse(repository.findOne(savedBean.getId()).isPresent());
 	}
 
 	@Test

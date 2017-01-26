@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.query;
 
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -67,7 +68,7 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 	}
 
 	@Override
-	public Class<?> getDynamicProjection() {
+	public Optional<Class<?>> getDynamicProjection() {
 		return parametersParameterAccessorDelegate.getDynamicProjection();
 	}
 

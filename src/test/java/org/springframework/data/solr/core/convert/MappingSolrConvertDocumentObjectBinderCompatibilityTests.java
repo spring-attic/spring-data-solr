@@ -212,7 +212,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Map<String, List<String>> supplier;
 
 		@Field("sup_simple_*") //
-		Map<String, String> supplier_simple;
+		Map<String, String> supplier_simple; // XXX: damn what do we have here - mapping gets confused and deliminates on underscore failing proeprty resolution :/
 
 		@Indexed(readonly = true) //
 		private String[] allSuppliers;

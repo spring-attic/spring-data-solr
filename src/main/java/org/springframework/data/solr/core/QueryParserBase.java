@@ -312,10 +312,10 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @param offset
 	 * @param rows
 	 */
-	protected void appendPagination(SolrQuery query, Integer offset, Integer rows) {
+	protected void appendPagination(SolrQuery query, Long offset, Integer rows) {
 
 		if (offset != null && offset.intValue() >= 0) {
-			query.setStart(offset);
+			query.setStart(offset.intValue());
 		}
 		if (rows != null && rows.intValue() >= 0) {
 			query.setRows(rows);

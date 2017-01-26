@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.event.Observes;
@@ -70,7 +71,7 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 		}
 
 		return new SolrRepositoryBean<T>(solrOperationBeans, qualifiers, repositoryType, beanManager,
-				getCustomImplementationDetector());
+				Optional.ofNullable(getCustomImplementationDetector()));
 	}
 
 }

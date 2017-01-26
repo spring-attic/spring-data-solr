@@ -21,12 +21,14 @@ import static org.mockito.Mockito.*;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
@@ -52,9 +54,9 @@ public class SimpleSolrPersistentPropertyTest {
 
 		when(owner.getType()).thenReturn((Class) BeanWithScore.class);
 		when(owner.getTypeInformation()).thenReturn(typeInformation);
-		when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
+		when(typeInformation.getProperty("myScoreProperty")).thenReturn(Optional.of(typeInformation));
 
-		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(field, propertyDescriptor, owner,
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(field, Optional.of(propertyDescriptor)), owner,
 				simpleTypeHolder);
 
 		assertTrue(property.isScoreProperty());

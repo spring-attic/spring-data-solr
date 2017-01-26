@@ -48,7 +48,8 @@ public class MappingSolrEntityInformation<T, ID extends Serializable> extends Pe
 
 	@Override
 	public String getIdAttribute() {
-		return entityMetadata.getIdProperty().getFieldName();
+		return entityMetadata.getIdProperty().orElseThrow(() -> new IllegalArgumentException("No ID property found."))
+				.getFieldName();
 	}
 
 	public String getSolrCoreName() {

@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository.support;
 
+import java.util.Optional;
+
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,7 +56,7 @@ public class SolrRepositoryFactoryTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		Mockito.when(solrEntityMock.getIdProperty()).thenReturn(solrPersistentPropertyMock);
+		Mockito.when(solrEntityMock.getIdProperty()).thenReturn(Optional.of(solrPersistentPropertyMock));
 		Mockito.when(solrPersistentPropertyMock.getFieldName()).thenReturn("id");
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
 		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContextMock);
@@ -88,7 +90,7 @@ public class SolrRepositoryFactoryTests {
 
 	@SuppressWarnings("unchecked")
 	private void initMappingContext() {
-		Mockito.when(mappingContextMock.getPersistentEntity(ProductBean.class)).thenReturn(solrEntityMock);
+		Mockito.when(mappingContextMock.getPersistentEntity(ProductBean.class)).thenReturn(Optional.of(solrEntityMock));
 		Mockito.when(solrEntityMock.getType()).thenReturn(ProductBean.class);
 	}
 

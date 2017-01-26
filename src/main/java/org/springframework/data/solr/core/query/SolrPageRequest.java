@@ -89,7 +89,7 @@ public class SolrPageRequest implements Pageable {
 	 * @see org.springframework.data.domain.Pageable#getOffset()
 	 */
 	@Override
-	public int getOffset() {
+	public long getOffset() {
 		return page * size;
 	}
 
@@ -149,12 +149,9 @@ public class SolrPageRequest implements Pageable {
 
 	@Override
 	public int hashCode() {
-
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + page;
-		result = prime * result + size;
-		result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+		int result = sort.hashCode();
+		result = 31 * result + page;
+		result = 31 * result + (int) (size ^ (size >>> 32));
 		return result;
 	}
 

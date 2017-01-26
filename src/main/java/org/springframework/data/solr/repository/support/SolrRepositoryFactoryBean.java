@@ -43,7 +43,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	private SolrConverter solrConverter;
 
 	/**
-	 * Creates a new {@link MongoRepositoryFactoryBean} for the given repository interface.
+	 * Creates a new {@link SolrRepositoryFactoryBean} for the given repository interface.
 	 * 
 	 * @param repositoryInterface must not be {@literal null}.
 	 */

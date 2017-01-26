@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
+import java.util.Optional;
+
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 
@@ -23,6 +25,6 @@ import org.springframework.data.solr.repository.SolrCrudRepository;
  */
 public interface CdiProductRepository extends SolrCrudRepository<ProductBean, String> {
 
-	ProductBean findOne(String id);
+	Optional<ProductBean> findOne(String id);
 
 }

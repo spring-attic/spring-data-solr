@@ -40,10 +40,8 @@ public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCr
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T, ID extends Serializable> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-		SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext
-				.getPersistentEntity(domainClass);
-
-		Assert.notNull(persistentEntity, "not an managed type: " + domainClass);
+		SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext.getPersistentEntity(domainClass)
+				.orElseThrow(() -> new IllegalArgumentException("not an managed type: " + domainClass));
 
 		return new MappingSolrEntityInformation<T, ID>(persistentEntity);
 	}

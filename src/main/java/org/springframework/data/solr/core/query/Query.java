@@ -78,7 +78,7 @@ public interface Query extends SolrDataQuery {
 	 * @return
 	 * @since 1.3
 	 */
-	<T extends Query> T setOffset(Integer offset);
+	<T extends Query> T setOffset(Long offset);
 
 	/**
 	 * Set the number of rows to fetch.
@@ -134,7 +134,7 @@ public interface Query extends SolrDataQuery {
 	 * 
 	 * @since 1.3
 	 */
-	Integer getOffset();
+	Long getOffset();
 
 	/**
 	 * Get number of rows to fetch.
