@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.springframework.data.solr.repository.support.SolrRepositoryFactoryBea
 /**
  * Annotation to enable Solr repositories. Will scan the package of the annotated configuration class for Spring Data
  * repositories by default.
- * 
+ *
  * @author Oliver Gierke
  */
 @Target(ElementType.TYPE)
@@ -78,7 +78,7 @@ public @interface EnableSolrRepositories {
 	 * Returns the postfix to be used when looking up custom repository implementations. Defaults to {@literal Impl}. So
 	 * for a repository named {@code PersonRepository} the corresponding implementation class will be looked up scanning
 	 * for {@code PersonRepositoryImpl}.
-	 * 
+	 *
 	 * @return
 	 */
 	String repositoryImplementationPostfix() default "Impl";
@@ -86,7 +86,7 @@ public @interface EnableSolrRepositories {
 	/**
 	 * Configures the location of where to find the Spring Data named queries properties file. Will default to
 	 * {@code META-INFO/solr-named-queries.properties}.
-	 * 
+	 *
 	 * @return
 	 */
 	String namedQueriesLocation() default "";
@@ -94,7 +94,7 @@ public @interface EnableSolrRepositories {
 	/**
 	 * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
 	 * {@link Key#CREATE_IF_NOT_FOUND}.
-	 * 
+	 *
 	 * @return
 	 */
 	Key queryLookupStrategy() default Key.CREATE_IF_NOT_FOUND;
@@ -102,14 +102,14 @@ public @interface EnableSolrRepositories {
 	/**
 	 * Returns the {@link FactoryBean} class to be used for each repository instance. Defaults to
 	 * {@link SolrRepositoryFactoryBean}.
-	 * 
+	 *
 	 * @return
 	 */
 	Class<?> repositoryFactoryBeanClass() default SolrRepositoryFactoryBean.class;
 
 	/**
 	 * Configure the repository base class to be used to create repository proxies for this particular configuration.
-	 * 
+	 *
 	 * @return
 	 * @since 1.5
 	 */
@@ -120,21 +120,21 @@ public @interface EnableSolrRepositories {
 	/**
 	 * Configures the name of the {@link SolrTemplate} bean definition to be used to create repositories discovered
 	 * through this annotation. Defaults to {@code solrTemplate}.
-	 * 
+	 *
 	 * @return
 	 */
 	String solrTemplateRef() default "solrTemplate";
 
 	/**
 	 * Configures the name of the {@link org.apache.solr.client.solrj} bean definition to be used for creating templates
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	String solrClientRef() default "solrClient";
 
 	/**
 	 * Configure schema creation support using the solr schema api.
-	 * 
+	 *
 	 * @since 1.3
 	 */
 	boolean schemaCreationSupport() default false;

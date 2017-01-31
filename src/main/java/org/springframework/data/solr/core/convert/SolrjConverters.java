@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * Offers classes that can convert from SolrDocument to any Object and vice versa using the solrj DocumentObjectBinder
- * 
+ *
  * @author Christoph Strobl
  */
 final class SolrjConverters {
@@ -53,7 +53,7 @@ final class SolrjConverters {
 
 	/**
 	 * Converts any {@link Object} to {@link SolrInputDocument}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -76,7 +76,7 @@ final class SolrjConverters {
 
 	/**
 	 * Converts any {@link Update} to {@link SolrInputDocument} for atomic update.
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -128,7 +128,7 @@ final class SolrjConverters {
 
 	/**
 	 * Convert any {@link SolrDocument} to object of given {@link Class} using {@link DocumentObjectBinder}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 * @param <T>
 	 */

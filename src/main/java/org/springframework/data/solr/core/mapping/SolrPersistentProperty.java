@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 
 	/**
 	 * Get name of field under attention to {@link org.apache.solr.client.solrj.beans.Field} annotation
-	 * 
+	 *
 	 * @return
 	 */
 	String getFieldName();
@@ -113,7 +113,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * method is mainly used by {@link PersistentEntity} implementation to discover score property candidates on
 	 * {@link PersistentEntity} creation you should rather call to determine whether the current property is the score
 	 * property of that {@link PersistentEntity} under consideration.
-	 * 
+	 *
 	 * @return
 	 * @since 1.4
 	 */
@@ -121,7 +121,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 
 	/**
 	 * Returns whether the property should be handled as dynamic property.
-	 * 
+	 *
 	 * @return
 	 * @see {@link org.springframework.data.solr.core.mapping.Dynamic}
 	 * @since 1.5

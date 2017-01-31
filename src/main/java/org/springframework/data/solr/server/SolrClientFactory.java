@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.apache.solr.client.solrj.SolrClient;
 /**
  * {@link SolrClientFactory} replaces SolrServerFactory from version 1.x and provides access to the solrj
  * {@link SolrClient}.
- * 
+ *
  * @author Christoph Strobl
  * @since 2.0
  */
@@ -29,7 +29,7 @@ public interface SolrClientFactory {
 
 	/**
 	 * Get base {@link SolrClient} instance
-	 * 
+	 *
 	 * @return a reusable SolrClient instance
 	 */
 	SolrClient getSolrClient();

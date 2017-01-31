@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 
 /**
  * Full implementation of {@link Query} that allows multiple options like pagination, grouping,...
- * 
+ *
  * @author Christoph Strobl
  * @author Rosty Kerei
  * @author Luke Corpe
@@ -215,7 +215,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	/**
 	 * add grouping on field name
-	 * 
+	 *
 	 * @param fieldname must not be null
 	 * @return
 	 * @deprecated in favor of {@link GroupOptions}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * The EmbeddedSolrServerFactory allows hosting of an SolrServer instance in embedded mode. Configuration files are
  * loaded via {@link ResourceUtils}, therefore it is possible to place them in classpath. Use this class for Testing. It
  * is not recommended for production.
- * 
+ *
  * @author Christoph Strobl
  */
 public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableBean {
@@ -119,7 +119,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 
 	/**
 	 * Create {@link CoreContainer} via its constructor (Solr 3.6.0 - 4.3.1)
-	 * 
+	 *
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
 	 * @return
@@ -132,7 +132,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 
 	/**
 	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in .
-	 * 
+	 *
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
 	 * @return

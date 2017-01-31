@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.data.solr.repository.query;
 /**
  * Used to provide additional information on parameters used in query definition. This allows to access per parameter
  * metadata such as Boost values.
- * 
+ *
  * @author Christoph Strobl
  */
 public class BindableSolrParameter {

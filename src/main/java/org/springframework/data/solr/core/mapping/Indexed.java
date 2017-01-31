@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public @interface Indexed {
 
 	/**
 	 * if set to false, field will not be transfered to solr, but can be read from there
-	 * 
+	 *
 	 * @return
 	 */
 	boolean readonly() default false;
@@ -76,7 +76,7 @@ public @interface Indexed {
 
 	/**
 	 * If not set the fields name or the one defined via {@link Field} will be used.
-	 * 
+	 *
 	 * @return
 	 * @since 1.3
 	 * @see Indexed#value()
@@ -85,14 +85,14 @@ public @interface Indexed {
 
 	/**
 	 * if not set the fields name or the one defined via {@link Field} will be used
-	 * 
+	 *
 	 * @return
 	 */
 	String value() default "";
 
 	/**
 	 * Boost Field by value. Default is {@code Float.NaN}.
-	 * 
+	 *
 	 * @return
 	 * @since 1.2
 	 */

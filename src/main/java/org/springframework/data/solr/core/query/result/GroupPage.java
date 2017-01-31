@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.springframework.data.solr.core.query.Query;
 /**
  * Representation of a Group result page, holding one {@link GroupResult} for each grouping requested on a
  * {@link org.springframework.data.solr.core.query.GroupQuery}.
- * 
+ *
  * @author Francisco Spaeth
  * @param <T>
  * @since 1.4
@@ -32,7 +32,7 @@ public interface GroupPage<T> extends Page<T> {
 
 	/**
 	 * Get a group result done for the given {@link Field}.
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -40,7 +40,7 @@ public interface GroupPage<T> extends Page<T> {
 
 	/**
 	 * Get a group result done for the given {@link Function}.
-	 * 
+	 *
 	 * @param function
 	 * @return
 	 */
@@ -48,7 +48,7 @@ public interface GroupPage<T> extends Page<T> {
 
 	/**
 	 * Get a group result done for the given {@link Query}.
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -56,7 +56,7 @@ public interface GroupPage<T> extends Page<T> {
 
 	/**
 	 * Get a group result with the given name.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */

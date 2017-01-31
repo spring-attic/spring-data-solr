@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 /**
  * Base QueryImplementation <br />
  * Construct Query by adding {@link Criteria}.
- * 
+ *
  * @author Christoph Strobl
  */
 class AbstractQuery {
@@ -38,7 +38,7 @@ class AbstractQuery {
 
 	/**
 	 * Add an criteria to the query. The criteria will be connected using 'AND'.
-	 * 
+	 *
 	 * @param criteria must not be {@literal null}.
 	 * @return
 	 */

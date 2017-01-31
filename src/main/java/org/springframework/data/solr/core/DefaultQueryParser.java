@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ import org.springframework.util.ObjectUtils;
  * Implementation of {@link QueryParser}. <br/>
  * Creates executable {@link SolrQuery} from {@link Query} by traversing {@link Criteria}. Reserved characters like
  * {@code +} or {@code -} will be escaped to form a valid query.
- * 
+ *
  * @author Christoph Strobl
  * @author John Dorman
  * @author Rosty Kerei
@@ -81,7 +81,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrClient}
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -276,7 +276,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Append highlighting parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param query
 	 */
@@ -441,7 +441,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Set filter filter queries for {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param filterQueries
 	 */
@@ -458,7 +458,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Append sorting parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param sort
 	 */

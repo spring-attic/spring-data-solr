@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,49 +31,49 @@ public @interface Highlight {
 
 	/**
 	 * Fieldnames to be used for {@code hl.fl}.
-	 * 
+	 *
 	 * @return
 	 */
 	String[] fields() default {};
 
 	/**
 	 * Query to be used for {@code hl.q}
-	 * 
+	 *
 	 * @return
 	 */
 	String query() default "";
 
 	/**
 	 * sets {@code hl.fragsize}
-	 * 
+	 *
 	 * @return
 	 */
 	int fragsize() default -1;
 
 	/**
 	 * set {@code hl.snipplets}
-	 * 
+	 *
 	 * @return
 	 */
 	int snipplets() default -1;
 
 	/**
 	 * set {@code hl.formatter}
-	 * 
+	 *
 	 * @return
 	 */
 	String formatter() default "";
 
 	/**
 	 * set {@code hl.simple.pre} in case formatter not set or 'simple' otherwise {@code hl.tag.pre}
-	 * 
+	 *
 	 * @return
 	 */
 	String prefix() default "";
 
 	/**
 	 * set {@code hl.simple.post} in case formatter not set or 'simple' otherwise {@code hl.tag.post}
-	 * 
+	 *
 	 * @return
 	 */
 	String postfix() default "";

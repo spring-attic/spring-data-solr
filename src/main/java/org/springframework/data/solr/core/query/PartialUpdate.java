@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.lang.Nullable;
 /**
  * Implementation of {@link Update} to be used when performing atomic updates against solr. <br />
  * Update can directly be saved via {@link org.springframework.data.solr.core.SolrOperations#saveBean(Object)}
- * 
+ *
  * @author Christoph Strobl
  */
 public class PartialUpdate implements Update {
@@ -53,7 +53,7 @@ public class PartialUpdate implements Update {
 	/**
 	 * Add field with given name and value to the fields to be updated. Default {@link UpdateAction} will be
 	 * {@link UpdateAction.SET}.
-	 * 
+	 *
 	 * @param fieldName
 	 * @param value
 	 */
@@ -63,7 +63,7 @@ public class PartialUpdate implements Update {
 
 	/**
 	 * Add {@link UpdateField} to the list of fields to be updated
-	 * 
+	 *
 	 * @param field
 	 */
 	public void add(UpdateField field) {
@@ -72,7 +72,7 @@ public class PartialUpdate implements Update {
 
 	/**
 	 * Add field with given name and value using {@link UpdateAction#ADD} to the fields to be updated.
-	 * 
+	 *
 	 * @param fieldName
 	 * @param value
 	 */
@@ -82,7 +82,7 @@ public class PartialUpdate implements Update {
 
 	/**
 	 * Add field with given name and value using {@link UpdateAction#SET} to the fields to be updated.
-	 * 
+	 *
 	 * @param fieldName
 	 * @param value
 	 */
@@ -92,7 +92,7 @@ public class PartialUpdate implements Update {
 
 	/**
 	 * Add field with given name and value using {@link UpdateAction#INC} to the fields to be updated.
-	 * 
+	 *
 	 * @param fieldName
 	 * @param value
 	 */
@@ -113,7 +113,7 @@ public class PartialUpdate implements Update {
 
 	/**
 	 * set {@code _version_} of document to apply update to. Use null to skip version check in solr.
-	 * 
+	 *
 	 * @param documentVersion
 	 */
 	public void setVersion(Object documentVersion) {

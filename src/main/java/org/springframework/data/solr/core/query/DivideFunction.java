@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 
 /**
  * Implementation of {@code div(x,y)}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -35,7 +35,7 @@ public class DivideFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for dividing value in field with given name
-	 * 
+	 *
 	 * @param field must not be null
 	 * @return
 	 */
@@ -47,7 +47,7 @@ public class DivideFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for dividing value in field with given name
-	 * 
+	 *
 	 * @param fieldname must not be empty
 	 * @return
 	 */
@@ -59,7 +59,7 @@ public class DivideFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for dividing given value
-	 * 
+	 *
 	 * @param dividend
 	 * @return
 	 */
@@ -69,7 +69,7 @@ public class DivideFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for dividing value calculated by given {@link Function}
-	 * 
+	 *
 	 * @param dividend
 	 * @return
 	 */

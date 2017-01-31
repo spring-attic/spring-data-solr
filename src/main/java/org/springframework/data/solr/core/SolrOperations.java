@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import org.springframework.data.solr.core.schema.SchemaOperations;
 
 /**
  * Interface that specifies a basic set of Solr operations.
- * 
+ *
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
@@ -462,28 +462,28 @@ public interface SolrOperations {
 
 	/**
 	 * Send commit command {@link SolrClient#commit()}
-	 * 
+	 *
 	 * @since 3.0
 	 */
 	void commit(String collection);
 
 	/**
 	 * Send soft commmit command {@link SolrClient#commit(boolean, boolean, boolean)}
-	 * 
+	 *
 	 * @since 3.9
 	 */
 	void softCommit(String collection);
 
 	/**
 	 * send rollback command {@link SolrClient#rollback()}
-	 * 
+	 *
 	 * @since 3.0
 	 */
 	void rollback(String collection);
 
 	/**
 	 * Convert given bean into a solrj InputDocument
-	 * 
+	 *
 	 * @param bean
 	 * @return
 	 */
@@ -496,7 +496,7 @@ public interface SolrOperations {
 
 	/**
 	 * Execute action within callback
-	 * 
+	 *
 	 * @param action
 	 * @return
 	 */

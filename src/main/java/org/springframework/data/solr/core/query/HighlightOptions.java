@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * Empty Options indicate to set {@code hl=true}. As long as there are no fields defined {@code *} will be used. Some
  * options like {@see HighlightOptions#setFormatter(String)} can be set directly. Any option can be set via
  * {@see HighlightOptions#addHighlightParameter(HighlightParameter)}.
- * 
+ *
  * @author Christoph Strobl
  */
 public class HighlightOptions {
@@ -41,7 +41,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add field to highlight
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -53,7 +53,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add name of field to highlight on
-	 * 
+	 *
 	 * @param fieldname
 	 * @return
 	 */
@@ -64,7 +64,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add names of fields to highlight on
-	 * 
+	 *
 	 * @param fieldnames
 	 * @return
 	 */
@@ -79,7 +79,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add names of fields to highlight on
-	 * 
+	 *
 	 * @param fieldnames
 	 * @return
 	 */
@@ -102,7 +102,7 @@ public class HighlightOptions {
 
 	/**
 	 * Set {@see FilterQuery} to be used for {@code hl.q}
-	 * 
+	 *
 	 * @param query
 	 */
 	public HighlightOptions setQuery(FilterQuery query) {
@@ -120,7 +120,7 @@ public class HighlightOptions {
 
 	/**
 	 * set fragsize {@code hl.fragsize}.
-	 * 
+	 *
 	 * @param fragsize
 	 */
 	public HighlightOptions setFragsize(Integer fragsize) {
@@ -138,7 +138,7 @@ public class HighlightOptions {
 
 	/**
 	 * set formatter {@code hl.formatter}
-	 * 
+	 *
 	 * @param formatter
 	 */
 	public HighlightOptions setFormatter(String formatter) {
@@ -156,7 +156,7 @@ public class HighlightOptions {
 
 	/**
 	 * set {@code hl.snippets}
-	 * 
+	 *
 	 * @param nrSnipplets
 	 */
 	public HighlightOptions setNrSnipplets(Integer nrSnipplets) {
@@ -166,7 +166,7 @@ public class HighlightOptions {
 
 	/**
 	 * set {@code hl.simple.pre}
-	 * 
+	 *
 	 * @param prefix
 	 */
 	public HighlightOptions setSimplePrefix(String prefix) {
@@ -184,7 +184,7 @@ public class HighlightOptions {
 
 	/**
 	 * set {@code hl.simple.post}
-	 * 
+	 *
 	 * @param postfix
 	 */
 	public HighlightOptions setSimplePostfix(String postfix) {
@@ -216,7 +216,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add parameter by name
-	 * 
+	 *
 	 * @param parameterName must not be null
 	 * @param value
 	 * @return
@@ -227,7 +227,7 @@ public class HighlightOptions {
 
 	/**
 	 * Add parameter
-	 * 
+	 *
 	 * @param parameter must not be null
 	 * @return
 	 */
@@ -239,7 +239,7 @@ public class HighlightOptions {
 
 	/**
 	 * Get value of parameter with given type
-	 * 
+	 *
 	 * @param parameterName
 	 * @return null if not present
 	 */
@@ -250,7 +250,7 @@ public class HighlightOptions {
 
 	/**
 	 * Get Collection of fields that have field specific highlight options.
-	 * 
+	 *
 	 * @return
 	 */
 	public Collection<FieldWithHighlightParameters> getFieldsWithHighlightParameters() {
@@ -282,7 +282,7 @@ public class HighlightOptions {
 
 	/**
 	 * Query Parameter to be used for highlighting
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	public static class HighlightParameter extends QueryParameterImpl {
@@ -295,7 +295,7 @@ public class HighlightOptions {
 
 	/**
 	 * Field with hightlight query parameters
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	public static class FieldWithHighlightParameters extends FieldWithQueryParameters<HighlightParameter> {
@@ -333,7 +333,7 @@ public class HighlightOptions {
 
 		/**
 		 * set fragsize {@code f.&lt;fieldname&gt;.hl.fragsize}.
-		 * 
+		 *
 		 * @param fragsize
 		 */
 		public FieldWithHighlightParameters setFragsize(Integer fragsize) {
@@ -375,7 +375,7 @@ public class HighlightOptions {
 
 		/**
 		 * Add field specific parameter by name
-		 * 
+		 *
 		 * @param parameterName
 		 * @param value
 		 */
@@ -385,7 +385,7 @@ public class HighlightOptions {
 
 		/**
 		 * Add field specific highlight parameter
-		 * 
+		 *
 		 * @param parameter
 		 * @return
 		 */

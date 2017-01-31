@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public final class GeoConverters {
 
 	/**
 	 * Converts comma separated string to {@link org.springframework.data.geo.Point}.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	@ReadingConverter
@@ -91,7 +91,7 @@ public final class GeoConverters {
 
 	/**
 	 * Converts a {@link Point} to a solrReadable request parameter.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public enum Point3DToStringConverter implements Converter<org.springframework.data.geo.Point, String> {

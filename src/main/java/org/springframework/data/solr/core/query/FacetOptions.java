@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Set of options that can be set on a {@link FacetQuery}
- * 
+ *
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
@@ -61,7 +61,7 @@ public class FacetOptions {
 
 	/**
 	 * Creates new instance faceting on fields with given name
-	 * 
+	 *
 	 * @param fieldnames
 	 */
 	public FacetOptions(String... fieldnames) {
@@ -87,7 +87,7 @@ public class FacetOptions {
 
 	/**
 	 * Creates new instance faceting on given queries
-	 * 
+	 *
 	 * @param facetQueries
 	 */
 	public FacetOptions(SolrDataQuery... facetQueries) {
@@ -99,7 +99,7 @@ public class FacetOptions {
 
 	/**
 	 * Append additional field for faceting
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -113,7 +113,7 @@ public class FacetOptions {
 
 	/**
 	 * Append additional field with given name for faceting
-	 * 
+	 *
 	 * @param fieldname
 	 * @return
 	 */
@@ -124,7 +124,7 @@ public class FacetOptions {
 
 	/**
 	 * Append additional field for range faceting
-	 * 
+	 *
 	 * @param field the {@link Field} to be appended to range faceting fields
 	 * @return this
 	 * @since 1.5
@@ -139,7 +139,7 @@ public class FacetOptions {
 
 	/**
 	 * Add pivot facet on given {@link Field}s.
-	 * 
+	 *
 	 * @param fields
 	 * @return
 	 */
@@ -171,7 +171,7 @@ public class FacetOptions {
 
 	/**
 	 * Append all fieldnames for faceting
-	 * 
+	 *
 	 * @param fieldnames
 	 * @return
 	 */
@@ -186,7 +186,7 @@ public class FacetOptions {
 
 	/**
 	 * Append {@code facet.query}
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -199,7 +199,7 @@ public class FacetOptions {
 
 	/**
 	 * Get the list of facetQueries
-	 * 
+	 *
 	 * @return
 	 */
 	public List<SolrDataQuery> getFacetQueries() {
@@ -208,7 +208,7 @@ public class FacetOptions {
 
 	/**
 	 * Set minimum number of hits {@code facet.mincount} for result to be included in response
-	 * 
+	 *
 	 * @param minCount Default is 1
 	 * @return
 	 */
@@ -219,7 +219,7 @@ public class FacetOptions {
 
 	/**
 	 * Set {@code facet.limit}
-	 * 
+	 *
 	 * @param rowsToReturn Default is 10
 	 * @return
 	 */
@@ -230,7 +230,7 @@ public class FacetOptions {
 
 	/**
 	 * Set {@code facet.sort} ({@code INDEX} or {@code COUNT})
-	 * 
+	 *
 	 * @param facetSort Default is {@code COUNT}
 	 * @return
 	 */
@@ -243,7 +243,7 @@ public class FacetOptions {
 
 	/**
 	 * Get the list of Fields to facet on
-	 * 
+	 *
 	 * @return
 	 */
 	public final List<Field> getFacetOnFields() {
@@ -252,7 +252,7 @@ public class FacetOptions {
 
 	/**
 	 * Get the list of pivot Fields to face on
-	 * 
+	 *
 	 * @return
 	 */
 	public final List<PivotField> getFacetOnPivots() {
@@ -261,7 +261,7 @@ public class FacetOptions {
 
 	/**
 	 * get the min number of hits a result has to have to get listed in result. Default is 1. Zero is not recommended.
-	 * 
+	 *
 	 * @return
 	 */
 	public int getFacetMinCount() {
@@ -270,7 +270,7 @@ public class FacetOptions {
 
 	/**
 	 * Get the max number of results per facet field.
-	 * 
+	 *
 	 * @return
 	 */
 	public int getFacetLimit() {
@@ -279,7 +279,7 @@ public class FacetOptions {
 
 	/**
 	 * Get sorting of facet results. Default is COUNT
-	 * 
+	 *
 	 * @return
 	 */
 	public FacetSort getFacetSort() {
@@ -288,7 +288,7 @@ public class FacetOptions {
 
 	/**
 	 * Get the facet page requested.
-	 * 
+	 *
 	 * @return
 	 */
 	public Pageable getPageable() {
@@ -297,7 +297,7 @@ public class FacetOptions {
 
 	/**
 	 * Set {@code facet.offet} and {@code facet.limit}
-	 * 
+	 *
 	 * @param pageable
 	 * @return
 	 */
@@ -308,7 +308,7 @@ public class FacetOptions {
 
 	/**
 	 * get value used for {@code facet.prefix}
-	 * 
+	 *
 	 * @return
 	 */
 	@Nullable
@@ -318,7 +318,7 @@ public class FacetOptions {
 
 	/**
 	 * Set {@code facet.prefix}
-	 * 
+	 *
 	 * @param facetPrefix
 	 * @return
 	 */
@@ -511,7 +511,7 @@ public class FacetOptions {
 
 		/**
 		 * Add field specific parameter by name
-		 * 
+		 *
 		 * @param parameterName
 		 * @param value
 		 */
@@ -530,7 +530,7 @@ public class FacetOptions {
 
 		/**
 		 * Add field specific facet parameter
-		 * 
+		 *
 		 * @param parameter
 		 * @return
 		 */
@@ -551,7 +551,7 @@ public class FacetOptions {
 
 	/**
 	 * Class representing common facet range parameters.
-	 * 
+	 *
 	 * @author Francisco Spaeth
 	 * @param <T> range field implementation type
 	 * @param <R> type of range
@@ -582,7 +582,7 @@ public class FacetOptions {
 
 		/**
 		 * Defines if the last range should be abruptly ended even if the end doesn't satisfies: (start - end) % gap = 0.
-		 * 
+		 *
 		 * @param rangeHardEnd whenever <code>false</code> will expect to have the last range with the same size as the
 		 *          other ranges entries for the query, otherwise (<code>true</code>), may present the last range smaller
 		 *          than the other range entries.
@@ -597,7 +597,7 @@ public class FacetOptions {
 
 		/**
 		 * If the last range should be abruptly ended even if the end doesn't satisfies: (start - end) % gap = 0.
-		 * 
+		 *
 		 * @return if hard end should be used, <code>null</code> will be returned if not set
 		 * @see FacetParams#FACET_RANGE_HARD_END
 		 */
@@ -609,7 +609,7 @@ public class FacetOptions {
 		/**
 		 * Defines the additional (other) counts for the range facet, i.e. count of documents that are before start of the
 		 * range facet, end of range facet or even between start and end.
-		 * 
+		 *
 		 * @param rangeOther which other counts shall be added to the facet result
 		 * @return this
 		 * @see FacetParams.FACET_RANGE_OTHER
@@ -622,7 +622,7 @@ public class FacetOptions {
 
 		/**
 		 * The definition of additional (other) counts for the range facet.
-		 * 
+		 *
 		 * @return null which other counts shall be added to the facet result
 		 * @see FacetParams.FACET_RANGE_OTHER
 		 */
@@ -633,7 +633,7 @@ public class FacetOptions {
 
 		/**
 		 * Defines how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet requests.
-		 * 
+		 *
 		 * @param rangeInclude include option for range
 		 * @return this
 		 * @see FacetParams.FACET_RANGE_INCLUDE
@@ -647,7 +647,7 @@ public class FacetOptions {
 		/**
 		 * The definition of how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet
 		 * requests.
-		 * 
+		 *
 		 * @return null if not set
 		 * @see FacetParams.FACET_RANGE_INCLUDE
 		 */
@@ -668,7 +668,7 @@ public class FacetOptions {
 
 		/**
 		 * The size of the range to be added to the lower bound.
-		 * 
+		 *
 		 * @return size of each range.
 		 * @see FacetParams#FACET_RANGE_GAP
 		 */
@@ -678,7 +678,7 @@ public class FacetOptions {
 
 		/**
 		 * Start value configured for this field range facet.
-		 * 
+		 *
 		 * @return upper bound for the ranges.
 		 * @see FacetParams#FACET_RANGE_START
 		 */
@@ -698,7 +698,7 @@ public class FacetOptions {
 
 	/**
 	 * Class representing date field specific facet range parameters
-	 * 
+	 *
 	 * @author Francisco Spaeth
 	 * @since 1.5
 	 */
@@ -713,7 +713,7 @@ public class FacetOptions {
 
 	/**
 	 * Class representing numeric field specific facet range parameters
-	 * 
+	 *
 	 * @author Francisco Spaeth
 	 * @since 1.5
 	 */

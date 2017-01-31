@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
 
 /**
  * The most trivial implementation of {@link PivotField}.
- * 
+ *
  * @author Francisco Spaeth
  * @author Christoph Strobl
  */
@@ -36,7 +36,7 @@ public class SimplePivotField implements PivotField {
 
 	/**
 	 * Create new {@link SimplePivotField}
-	 * 
+	 *
 	 * @param fieldnames must consist of at least 2 fieldname eg. {@code "field_1", "field_2"} or a single String with
 	 *          comma separated fieldnames like {@code "field_1,field_2"}
 	 */

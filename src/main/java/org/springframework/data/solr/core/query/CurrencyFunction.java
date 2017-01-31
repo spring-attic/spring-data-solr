@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Implementation of {@code currency(field_name,[CODE])}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -37,7 +37,7 @@ public class CurrencyFunction extends AbstractFunction {
 
 	/**
 	 * Create new {@link CurrencyFunction} representing {@code currency(fieldname)}
-	 * 
+	 *
 	 * @param fieldname
 	 * @return
 	 */
@@ -47,7 +47,7 @@ public class CurrencyFunction extends AbstractFunction {
 
 	/**
 	 * Create new {@link CurrencyFunction} representing {@code currency(field.getName())}
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -58,7 +58,7 @@ public class CurrencyFunction extends AbstractFunction {
 	/**
 	 * Create new {@link CurrencyFunction} using ISO-4217 currencyCode representing
 	 * {@code currency(fiel.getName(),currencyCode)}
-	 * 
+	 *
 	 * @param field
 	 * @param currencyCode
 	 * @return
@@ -73,7 +73,7 @@ public class CurrencyFunction extends AbstractFunction {
 	/**
 	 * Create new {@link CurrencyFunction} using ISO-4217 currencyCode representing
 	 * {@code currency(fieldname,currencyCode)}
-	 * 
+	 *
 	 * @param fieldname
 	 * @param currencyCode
 	 * @return

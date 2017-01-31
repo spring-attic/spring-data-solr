@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 /**
  * Implementation of {@code dist(power, pointA, pointB)}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -51,7 +51,7 @@ public class DistanceFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for sparseness distance {@link Power#SPARSENESS_CALCULATION}
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder sparsenessDistance() {
@@ -60,7 +60,7 @@ public class DistanceFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for Manhattan (taxicab) Distance {@link Power#MANHATTAN_DISTANCE}
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder manhattanDistance() {
@@ -69,7 +69,7 @@ public class DistanceFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for Euclidean Distance {@link Power#EUCLIDEAN_DISTANCE}
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder euclideanDistance() {
@@ -78,7 +78,7 @@ public class DistanceFunction extends AbstractFunction {
 
 	/**
 	 * creates new {@link Builder} for Infinite norm distance - maximum value in the vector {@link Power#INFINITE_NORM}
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder infiniteNormDistance() {

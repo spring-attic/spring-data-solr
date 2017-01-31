@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,63 +32,63 @@ public @interface Query {
 
 	/**
 	 * Solr QueryString to be used when executing query. May contain placeholders eg. {@code ?1}
-	 * 
+	 *
 	 * @return
 	 */
 	String value() default "";
 
 	/**
 	 * Named Query Named looked up by repository.
-	 * 
+	 *
 	 * @return
 	 */
 	String name() default "";
 
 	/**
 	 * The fields that should be returned from the store.
-	 * 
+	 *
 	 * @return
 	 */
 	String[] fields() default {};
 
 	/**
 	 * add query to filter results Corresponds to {@code fq}
-	 * 
+	 *
 	 * @return
 	 */
 	String[] filters() default {};
 
 	/**
 	 * Specifies the default operator {@code q.op}
-	 * 
+	 *
 	 * @return
 	 */
 	org.springframework.data.solr.core.query.Query.Operator defaultOperator() default org.springframework.data.solr.core.query.Query.Operator.NONE;
 
 	/**
 	 * Specify the default type of the query. E.g. "lucene", "edismax"
-	 * 
+	 *
 	 * @return
 	 */
 	String defType() default "";
 
 	/**
 	 * Specifies the request handler {@code qt}
-	 * 
+	 *
 	 * @return
 	 */
 	String requestHandler() default "";
 
 	/**
 	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.
-	 * 
+	 *
 	 * @return
 	 */
 	int timeAllowed() default -1;
 
 	/**
 	 * If set to {@code true} matching documents will be removed from index.
-	 * 
+	 *
 	 * @return
 	 * @since 1.2
 	 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, SolrDoc
 
 	/**
 	 * Read {@link SolrDocumentList} and convert to {@link List} of given type
-	 * 
+	 *
 	 * @param source
 	 * @param type
 	 * @return empty list if {@code source == null || source.isEmpty()}
@@ -47,7 +47,7 @@ EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, SolrDoc
 
 	/**
 	 * Write values to {@link List} of {@link SolrInputDocument}
-	 * 
+	 *
 	 * @param values
 	 * @return empty list if values is {@code null}-
 	 */

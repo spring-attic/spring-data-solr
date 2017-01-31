@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 /**
  * Field that holds additional parameters to provide query hints to solr.
- * 
+ *
  * @author Christoph Strobl
  * @param <T>
  */
@@ -40,7 +40,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 
 	/**
 	 * Get the parameter for given name.
-	 * 
+	 *
 	 * @param parameterName
 	 * @return null if parameter does not exist
 	 */
@@ -58,7 +58,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 
 	/**
 	 * remove parameter with given name
-	 * 
+	 *
 	 * @param parameterName
 	 */
 	public T removeQueryParameter(String parameterName) {
@@ -67,7 +67,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 
 	/**
 	 * Get Collection of all parameters
-	 * 
+	 *
 	 * @return
 	 */
 	public Collection<T> getQueryParameters() {
@@ -83,7 +83,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 
 	/**
 	 * Get value of given parameter
-	 * 
+	 *
 	 * @param parameterName
 	 * @return null if no parameter with given name present
 	 */

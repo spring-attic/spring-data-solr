@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 /**
  * Implementation of {@link FactoryBean} for registration of an EmbeddedSolrServer as a Spring bean. Implements
  * {@link DisposableBean} to shut down the core container when the enclosing Spring container is destroyed.
- * 
+ *
  * @author Christoph Strobl
  */
 public class EmbeddedSolrServerFactoryBean extends EmbeddedSolrServerFactory

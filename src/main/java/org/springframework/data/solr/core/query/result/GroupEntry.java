@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 
 /**
  * Representation of a group in a {@link GroupResult}.
- * 
+ *
  * @author Francisco Spaeth
  * @param <T> result content type
  * @since 1.4
@@ -28,14 +28,14 @@ public interface GroupEntry<T> {
 
 	/**
 	 * Group name, the value on which the results were grouped by.
-	 * 
+	 *
 	 * @return
 	 */
 	String getGroupValue();
 
 	/**
 	 * Results for the current group.
-	 * 
+	 *
 	 * @return
 	 */
 	Page<T> getResult();

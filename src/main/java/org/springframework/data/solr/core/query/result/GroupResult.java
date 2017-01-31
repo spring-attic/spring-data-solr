@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 
 /**
  * Representation of a group in response to group request (i.e. , , ) will have a {@link GroupResult} representation.
- * 
+ *
  * @author Francisco Spaeth
  * @param <T> grouped content type
  * @since 1.4
@@ -28,28 +28,28 @@ public interface GroupResult<T> {
 
 	/**
 	 * Matched documents for this group.
-	 * 
+	 *
 	 * @return
 	 */
 	int getMatches();
 
 	/**
 	 * Groups count.
-	 * 
+	 *
 	 * @return
 	 */
 	Integer getGroupsCount();
 
 	/**
 	 * Grouping result name.
-	 * 
+	 *
 	 * @return
 	 */
 	String getName();
 
 	/**
 	 * Group entries.
-	 * 
+	 *
 	 * @see GroupEntry
 	 * @return
 	 */

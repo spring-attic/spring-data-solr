@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 
 /**
  * Spring {@link FactoryBean} implementation to ease container based configuration for XML namespace and JavaConfig.
- * 
+ *
  * @author Oliver Gierke
  * @author Christoph Strobl
  */
@@ -45,7 +45,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	/**
 	 * Creates a new {@link SolrRepositoryFactoryBean} for the given repository interface.
-	 * 
+	 *
 	 * @param repositoryInterface must not be {@literal null}.
 	 */
 	public SolrRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
@@ -54,7 +54,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 
 	/**
 	 * Configures the {@link SolrOperations} to be used to create Solr repositories.
-	 * 
+	 *
 	 * @param operations the operations to set
 	 */
 	public void setSolrOperations(SolrOperations operations) {
@@ -103,7 +103,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 		return this.operations;
 	}
 
-	/* 
+	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport#afterPropertiesSet()
 	 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 /**
  * Generic holder of additional parameters that can be added to a query. eg. per field overrides. <br />
  * The order in which elements are added will be preserved.
- * 
+ *
  * @author Christoph Strobl
  */
 class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
@@ -46,7 +46,7 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 
 	/**
 	 * add a query parameter
-	 * 
+	 *
 	 * @param queryParameter must not be null
 	 */
 	public void add(T queryParameter) {
@@ -65,7 +65,7 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 
 	/**
 	 * remove parameter with given name
-	 * 
+	 *
 	 * @param parameterName
 	 */
 	public T remove(String parameterName) {

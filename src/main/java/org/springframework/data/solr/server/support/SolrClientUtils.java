@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * {@link SolrClientUtils} replaces SolrServerUtils from version 1.x
- * 
+ *
  * @author Christoph Strobl
  * @since 2.0
  */
@@ -43,7 +43,7 @@ public class SolrClientUtils {
 
 	/**
 	 * Resolve solr core/collection name for given type.
-	 * 
+	 *
 	 * @param type
 	 * @return empty string if {@link SolrDocument} not present or {@link SolrDocument#solrCoreName()} is blank.
 	 * @since 1.1

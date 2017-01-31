@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.springframework.util.ClassUtils;
  * Version util uses {@link org.springframework.util.ClassUtils#isPresent(String, ClassLoader)} to determine presence of
  * certain classes that are unique to some libraries, which allows to en-/disable some of the features in eg.
  * {@link org.springframework.data.solr.core.DefaultQueryParser}.
- * 
+ *
  * @author Christoph Strobl
  */
 public final class VersionUtil {

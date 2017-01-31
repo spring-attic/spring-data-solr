@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ import org.springframework.util.Assert;
  *   Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
  *   calendar.set(2012, 7, 23, 6, 10, 0);
  * </code> will be formatted as
- * 
+ *
  * <pre>
  * 2012-08-23T06:10:00.000Z
  * </pre>
- * 
+ *
  * @author Christoph Strobl
  */
 public final class DateTimeConverters {
@@ -51,7 +51,7 @@ public final class DateTimeConverters {
 	/**
 	 * Converter used to parse {@link DateTime} to {@link String} used for setting
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -83,7 +83,7 @@ public final class DateTimeConverters {
 
 	/**
 	 * Reading {@link Converter} parses {@link Date} from {@link org.apache.solr.common.SolrDocument} to {@link DateTime}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@ReadingConverter
@@ -102,7 +102,7 @@ public final class DateTimeConverters {
 	/**
 	 * Writing {@link Converter} converts {@link DateTime} to {@link Date} so it can be used within
 	 * {@link org.apache.solr.common.SolrInputDocument}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -122,7 +122,7 @@ public final class DateTimeConverters {
 	/**
 	 * Converter used to parse {@link LocalDateTime} to {@link String} used for setting
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -142,7 +142,7 @@ public final class DateTimeConverters {
 	/**
 	 * Writing {@link Converter} converts {@link LocalDateTime} to {@link Date} so it can be used within
 	 * {@link org.apache.solr.common.SolrInputDocument}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
@@ -162,7 +162,7 @@ public final class DateTimeConverters {
 	/**
 	 * Reading {@link Converter} parses {@link Date} from {@link org.apache.solr.common.SolrDocument} to
 	 * {@link LocalDateTime}
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@ReadingConverter
@@ -182,7 +182,7 @@ public final class DateTimeConverters {
 	/**
 	 * Converter used to parse {@link Date} to {@link String} used for setting
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter

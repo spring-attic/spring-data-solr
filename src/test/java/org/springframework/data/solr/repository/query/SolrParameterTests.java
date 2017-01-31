@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,44 +29,44 @@ import org.springframework.data.solr.repository.ProductBean;
  * @author Christoph Strobl
  */
 public class SolrParameterTests {
-	
+
 	@Test
 	public void testGetBoost() throws Exception {
 		Method method = getQueryMethodByName("findByNameWithBoost", String.class);
 		MethodParameter methodParam = new MethodParameter(method, 0);
 		SolrParameter parameter = new SolrParameter(methodParam);
-		
+
 		Assert.assertEquals(3.0f, parameter.getBoost(), 0.0f);
 	}
-	
+
 	@Test
 	public void testGetBoostWhereBoostIsNotDefined() throws Exception {
 		Method method = getQueryMethodByName("findByNameWithoutBoost", String.class);
 		MethodParameter methodParam = new MethodParameter(method, 0);
 		SolrParameter parameter = new SolrParameter(methodParam);
-		
+
 		Assert.assertEquals(Float.NaN, parameter.getBoost(), 0.0f);
 	}
-	
+
 	@Test
 	public void testGetBoostWhereBoostIsDefaulted() throws Exception {
 		Method method = getQueryMethodByName("findByNameWithDefaultBoost", String.class);
 		MethodParameter methodParam = new MethodParameter(method, 0);
 		SolrParameter parameter = new SolrParameter(methodParam);
-		
+
 		Assert.assertEquals(Float.NaN, parameter.getBoost(), 0.0f);
 	}
-	
+
 	private Method getQueryMethodByName(String name, Class<?>... parameters) throws Exception {
 		return Repo1.class.getMethod(name, parameters);
 	}
-	
+
 	interface Repo1 extends Repository<ProductBean, String> {
-		
+
 		List<ProductBean> findByNameWithBoost(@Boost(3) String name);
-		
+
 		List<ProductBean> findByNameWithoutBoost(String name);
-		
+
 		List<ProductBean> findByNameWithDefaultBoost(@Boost String name);
 	}
 
