@@ -16,11 +16,13 @@
 package org.springframework.data.solr.core.schema;
 
 import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -68,7 +70,7 @@ public class ITestSolrSchemaWriter {
 	@Test // DATASOLR-72
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
-		Assert.notNull(def);
+		assertThat(def, notNullValue());
 	}
 
 	@Test // DATASOLR-72
