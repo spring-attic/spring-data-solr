@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ public class CustomConversions {
 	 * @param conversionService must not be null
 	 */
 	public void registerConvertersIn(GenericConversionService conversionService) {
-		Assert.notNull(conversionService);
+		Assert.notNull(conversionService, "ConversionService must not be null!");
 
 		for (Object converter : converters) {
 			if (converter instanceof Converter) {
@@ -140,13 +140,13 @@ public class CustomConversions {
 	 * @return
 	 */
 	public Class<?> getCustomWriteTarget(Class<?> sourceType, Class<?> targetType) {
-		Assert.notNull(sourceType);
+		Assert.notNull(sourceType, "SourceType must not be null!");
 		return getCustomTarget(sourceType, targetType, writingPairs);
 	}
 
 	Class<?> getCustomTarget(Class<?> sourceType, Class<?> expectedTargetType, Iterable<ConvertiblePair> pairs) {
-		Assert.notNull(sourceType);
-		Assert.notNull(pairs);
+		Assert.notNull(sourceType, "SourceType must not be null!");
+		Assert.notNull(pairs, "Pairs of ConvertiblePairs must not be null!");
 
 		ConvertiblePair expectedTypePair = new ConvertiblePair(sourceType, expectedTargetType != null ? expectedTargetType
 				: Any.class);
@@ -178,8 +178,8 @@ public class CustomConversions {
 	 * @return true if custom converter registered for source/target type
 	 */
 	public boolean hasCustomReadTarget(Class<?> sourceType, Class<?> targetType) {
-		Assert.notNull(sourceType);
-		Assert.notNull(targetType);
+		Assert.notNull(sourceType, "SourceType must not be null!");
+		Assert.notNull(targetType, "TargetType must not be null!");
 
 		return getCustomReadTarget(sourceType, targetType) != null;
 	}
@@ -252,7 +252,7 @@ public class CustomConversions {
 		 * @param isWriting
 		 */
 		public ConvertibleContext(ConvertiblePair convertible, boolean isReading, boolean isWriting) {
-			Assert.notNull(convertible);
+			Assert.notNull(convertible, "ConvertiblePair must not be null!");
 			this.convertible = convertible;
 			this.reading = isReading;
 			this.writing = isWriting;

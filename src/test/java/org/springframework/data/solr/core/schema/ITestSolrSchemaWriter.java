@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2015 the original author or authors.
+ * Copyright 2014 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 package org.springframework.data.solr.core.schema;
 
 import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -77,7 +79,7 @@ public class ITestSolrSchemaWriter {
 	@Test
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
-		Assert.notNull(def);
+		assertThat(def, notNullValue());
 	}
 
 	/**

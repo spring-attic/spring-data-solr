@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class HighlightEntry<T> {
 	 * @param entity must not be null
 	 */
 	public HighlightEntry(T entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity must not be null!");
 		this.entity = entity;
 	}
 
@@ -88,7 +88,7 @@ public class HighlightEntry<T> {
 		 * @param snipplets
 		 */
 		Highlight(Field field, List<String> snipplets) {
-			Assert.notNull(field);
+			Assert.notNull(field, "Field must not be null!");
 
 			this.field = field;
 			this.snipplets = snipplets;

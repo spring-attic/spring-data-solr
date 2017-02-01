@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	 * @throws SAXException
 	 */
 	public EmbeddedSolrServerFactory(String solrHome) throws ParserConfigurationException, IOException, SAXException {
-		Assert.hasText(solrHome);
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
 		this.solrHome = solrHome;
 	}
 
@@ -168,7 +168,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	public void setSolrHome(String solrHome) {
-		Assert.hasText(solrHome);
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
 		this.solrHome = solrHome;
 	}
 

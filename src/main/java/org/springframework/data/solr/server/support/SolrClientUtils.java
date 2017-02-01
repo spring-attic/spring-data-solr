@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class SolrClientUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T extends SolrClient> T clone(T solrClient, String core) {
-		Assert.notNull(solrClient);
+		Assert.notNull(solrClient, "SolrClient must not be null!");
 		String shortName = getSolrClientTypeName(solrClient);
 		if (shortName.equals("SolrClient")) { // cannot create instance of abstract class,
 			return solrClient;
@@ -121,7 +121,7 @@ public class SolrClientUtils {
 	 * @return
 	 */
 	public static String appendCoreToBaseUrl(String baseUrl, String core) {
-		Assert.notNull(baseUrl);
+		Assert.notNull(baseUrl, "Solr baseUrl must not be null!");
 
 		if (!org.springframework.util.StringUtils.hasText(core)) {
 			return baseUrl;

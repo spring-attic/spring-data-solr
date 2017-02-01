@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -497,7 +497,7 @@ public class Criteria extends Node {
 	 * @return
 	 */
 	public Criteria within(Point location, Distance distance) {
-		Assert.notNull(location);
+		Assert.notNull(location, "Location must not be null!");
 		assertPositiveDistanceValue(distance);
 		predicates.add(new Predicate(OperationKey.WITHIN, new Object[] { location,
 				distance != null ? distance : new Distance(0) }));
