@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 */
 	public FieldWithQueryParameters(String fieldname) {
 		super(fieldname);
-		Assert.hasText(fieldname);
+		Assert.hasText(fieldname, "Fieldname must not be null nor empty!");
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 * @param parameter must not be null
 	 */
 	public void addQueryParameter(T parameter) {
-		Assert.notNull(parameter);
+		Assert.notNull(parameter, "Parameter must not be null!");
 		this.parameterHolder.add(parameter);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Implementation of {@link SolrConverter} to read/write {@link org.apache.solr.common.SolrDocumen}/
+ * Implementation of {@link SolrConverter} to read/write {@link org.apache.solr.common.SolrDocument}/
  * {@link SolrInputDocument}. <br/>
  * 
  * @author Christoph Strobl
@@ -129,7 +129,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	public MappingSolrConverter(
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
-		Assert.notNull(mappingContext);
+		Assert.notNull(mappingContext, "MappingContext must not be null!");
 
 		this.mappingContext = mappingContext;
 	}
@@ -164,7 +164,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		if (source == null) {
 			return null;
 		}
-		Assert.notNull(targetTypeInformation);
+		Assert.notNull(targetTypeInformation, "TargetTypeInformation must not be null!");
 		Class<S> rawType = targetTypeInformation.getType();
 
 		// in case there's a custom conversion for the document
@@ -445,7 +445,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				return null;
 			}
 
-			Assert.notNull(type);
+			Assert.notNull(type, "TypeInformation must not be null!");
 			Class<?> rawType = type.getType();
 			if (hasCustomReadTarget(value.getClass(), rawType)) {
 				return (T) convert(value, rawType);
@@ -600,7 +600,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		}
 
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
-			Assert.notNull(type);
+			Assert.notNull(type, "Type must not be null!");
 
 			Class<?> collectionType = type.getType();
 			if (CollectionUtils.isEmpty(source)) {

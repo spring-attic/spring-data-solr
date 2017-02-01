@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ public class MulticoreSolrClientFactory extends SolrClientFactoryBase {
 	 * @return
 	 */
 	public SolrClient getSolrClient(Class<?> clazz) {
-		Assert.notNull(clazz);
+		Assert.notNull(clazz, "Clazz must not be null!");
 
 		String coreName = SolrClientUtils.resolveSolrCoreName(clazz);
 		return getSolrClient(StringUtils.hasText(coreName) ? coreName : getShortClassName(clazz));

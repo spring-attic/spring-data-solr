@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 		Assert.notNull(solrClient, "SolrServer must not be null");
 
 		if (authPolicy != null) {
-			Assert.hasText(authPolicy);
+			Assert.hasText(authPolicy, "AuthPolicy must not be null nor empty!");
 		}
 
 		this.core = core;
