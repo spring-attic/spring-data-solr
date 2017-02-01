@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,8 +109,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 * @param solrQueryMethod must not be null
 	 */
 	protected AbstractSolrQuery(SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
-		Assert.notNull(solrOperations);
-		Assert.notNull(solrQueryMethod);
+		Assert.notNull(solrOperations, "SolrOperations must not be null!");
+		Assert.notNull(solrQueryMethod, "SolrQueryMethod must not be null!");
 		this.solrOperations = solrOperations;
 		this.solrQueryMethod = solrQueryMethod;
 	}
@@ -500,7 +500,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		private final Pageable pageable;
 
 		public PagedExecution(Pageable pageable) {
-			Assert.notNull(pageable);
+			Assert.notNull(pageable, "Pageable must not be null!");
 			this.pageable = pageable;
 		}
 
@@ -548,7 +548,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		protected FacetPage<?> executeFind(Query query) {
-			Assert.isInstanceOf(FacetQuery.class, query);
+			Assert.isInstanceOf(FacetQuery.class, query, "Query must be instance of FacetQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetPage((FacetQuery) query, metadata.getJavaType());
@@ -569,7 +569,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		protected HighlightPage<?> executeFind(Query query) {
-			Assert.isInstanceOf(HighlightQuery.class, query);
+			Assert.isInstanceOf(HighlightQuery.class, query, "Query must be instanceof HighlightQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
@@ -592,7 +592,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		@Override
 		protected FacetAndHighlightPage<?> executeFind(Query query) {
 
-			Assert.isInstanceOf(FacetAndHighlightQuery.class, query);
+			Assert.isInstanceOf(FacetAndHighlightQuery.class, query, "Query must be instance of FacetAndHighlightQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetAndHighlightPage((FacetAndHighlightQuery) query, metadata.getJavaType());

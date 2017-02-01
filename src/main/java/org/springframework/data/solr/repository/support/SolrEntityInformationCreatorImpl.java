@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-207 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCr
 
 	public SolrEntityInformationCreatorImpl(
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
-		Assert.notNull(mappingContext);
+		Assert.notNull(mappingContext, "MappingContext must not be null!");
 		this.mappingContext = mappingContext;
 	}
 

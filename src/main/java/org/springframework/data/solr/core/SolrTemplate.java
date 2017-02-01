@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -183,7 +183,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public <T> T execute(SolrCallback<T> action) {
-		Assert.notNull(action);
+		Assert.notNull(action, "SolrCallback must not be null!");
 
 		try {
 			SolrClient solrClient = this.getSolrClient();
@@ -202,7 +202,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> T execute(String collection, CollectionCallback<T> action) {
 
-		Assert.notNull(action);
+		Assert.notNull(action, "Action must not be null!");
 
 		try {
 
