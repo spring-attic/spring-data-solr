@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
@@ -109,6 +110,7 @@ import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.data.solr.core.query.result.TermsPage;
+import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
@@ -1263,6 +1265,23 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertThat(found.hasContent(), Is.is(false));
 		Assert.assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
 		Assert.assertThat(found.getSuggestions(), Matchers.contains("green"));
+	}
+
+	@Test // DATSOLR-364
+	public void shouldUseBaseUrlInCollectionCallbackWhenExecutingCommands() {
+
+		final HttpSolrClient client = new HttpSolrClient("http://127.0.0.1/solr/");
+
+		SolrTemplate solrTemplate = new SolrTemplate(new MulticoreSolrClientFactory(client), "collection-1");
+
+		solrTemplate.execute("collection-1", new CollectionCallback<Object>() {
+			@Override
+			public Object doInSolr(SolrClient solrClient, String collection) throws SolrServerException, IOException {
+
+				Assert.assertThat(((HttpSolrClient)solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
+				return null;
+			}
+		});
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {
