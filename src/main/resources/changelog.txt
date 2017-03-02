@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.1.RELEASE (2017-03-02)
+---------------------------------------------
+* DATASOLR-361 - Remove references to single-argument assertion methods.
+* DATASOLR-360 - Release 2.1.1 (Ingalls SR1).
+
+
 Changes in version 2.0.7.RELEASE (2017-01-26)
 ---------------------------------------------
 * DATASOLR-346 - Release 2.0.7 (Hopper SR7).
