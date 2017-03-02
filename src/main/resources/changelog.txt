@@ -18,6 +18,12 @@ Changes in version 3.0.0.M2 (2017-04-04)
 * DATASOLR-309 - Upgrade to Solr 6.
 
 
+Changes in version 2.0.8.RELEASE (2017-03-02)
+---------------------------------------------
+* DATASOLR-361 - Remove references to single-argument assertion methods.
+* DATASOLR-359 - Release 2.0.8 (Hopper SR8).
+
+
 Changes in version 2.1.1.RELEASE (2017-03-02)
 ---------------------------------------------
 * DATASOLR-361 - Remove references to single-argument assertion methods.
