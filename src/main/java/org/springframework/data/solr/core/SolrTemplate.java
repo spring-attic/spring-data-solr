@@ -84,6 +84,7 @@ import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreat
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
@@ -206,8 +207,16 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		try {
 
-			SolrClient solrClient = StringUtils.hasText(collection) ? this.solrClientFactory.getSolrClient(collection)
-					: this.getSolrClient();
+			SolrClient solrClient = null;
+			if(StringUtils.hasText(collection)) {
+				if(this.solrClientFactory instanceof MulticoreSolrClientFactory) {
+					solrClient = this.solrClientFactory.getSolrClient();
+				} else {
+					solrClient = this.solrClientFactory.getSolrClient(collection);
+				}
+			} else {
+				solrClient = this.getSolrClient();
+			}
 			return action.doInSolr(solrClient, collection);
 		} catch (Exception e) {
 			DataAccessException resolved = getExceptionTranslator().translateExceptionIfPossible(
