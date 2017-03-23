@@ -22,6 +22,8 @@ import static org.hamcrest.core.IsEqual.*;
 import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
 
+import lombok.Data;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,8 +112,6 @@ import org.springframework.data.solr.core.query.result.TermsPage;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
-
-import lombok.Data;
 
 /**
  * @author Christoph Strobl
