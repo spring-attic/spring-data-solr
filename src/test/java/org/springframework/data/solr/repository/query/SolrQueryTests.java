@@ -70,7 +70,7 @@ import org.springframework.data.solr.repository.support.MappingSolrEntityInforma
  * @author Francisco Spaeth
  * @author Oliver Gierke
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class SolrQueryTests {
 
 	private @Mock SolrOperations solrOperationsMock;
@@ -345,7 +345,7 @@ public class SolrQueryTests {
 		Slice<ProductBean> findByName(String name, Pageable page);
 
 		@Stats(value = "field1", facets = { "field2", "field3" }, //
-				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }) )
+				selective = @SelectiveStats(field = "field4", facets = { "field4_1", "field4_2" }))
 		Page<ProductBean> findAndApplyStats(Pageable page);
 
 		@Stats(value = "field1", facets = { "field2", "field3" })

@@ -19,7 +19,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -75,9 +74,7 @@ public class SimpleSolrPersistentPropertyBoostTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		Property p = Property.of(field, Optional.of(descriptor));
-
-		return new SimpleSolrPersistentProperty(p, persistentEntity, new SimpleTypeHolder());
+		return new SimpleSolrPersistentProperty(Property.of(field, descriptor), persistentEntity, new SimpleTypeHolder());
 	}
 
 	static class BeanWithSolrFieldAnnotation {

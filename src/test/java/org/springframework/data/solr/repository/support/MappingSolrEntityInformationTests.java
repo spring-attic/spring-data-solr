@@ -38,27 +38,22 @@ import org.springframework.data.util.ClassTypeInformation;
 /**
  * @author Christoph Strobl
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class MappingSolrEntityInformationTests {
 
 	private static final String PRODUCT_BEAN_SIMPLE_NAME = "productbean";
 
-	@Mock
-	private SolrPersistentEntity<ProductBean> persistentEntity;
-
-	@Mock
-	private SolrPersistentEntity<ProductBeanWithAlternateFieldNameForId> persistentEntityWithAlternateFieldNameForId;
-
-	@Mock
-	private SolrPersistentEntity<ProductBeanWithLongIdFieldType> persistentEntityWithLongIdFieldType;
+	@Mock SolrPersistentEntity<ProductBean> persistentEntity;
+	@Mock SolrPersistentEntity<ProductBeanWithAlternateFieldNameForId> persistentEntityWithAlternateFieldNameForId;
+	@Mock SolrPersistentEntity<ProductBeanWithLongIdFieldType> persistentEntityWithLongIdFieldType;
 
 	@Before
 	public void setUp() {
 		Mockito.when(persistentEntity.getType()).thenReturn(ProductBean.class);
 		Mockito.when(persistentEntity.getSolrCoreName()).thenReturn(PRODUCT_BEAN_SIMPLE_NAME);
 
-		Mockito.when(persistentEntityWithAlternateFieldNameForId.getType()).thenReturn(
-				ProductBeanWithAlternateFieldNameForId.class);
+		Mockito.when(persistentEntityWithAlternateFieldNameForId.getType())
+				.thenReturn(ProductBeanWithAlternateFieldNameForId.class);
 		Mockito.when(persistentEntityWithAlternateFieldNameForId.getSolrCoreName()).thenReturn(PRODUCT_BEAN_SIMPLE_NAME);
 
 		Mockito.when(persistentEntityWithLongIdFieldType.getType()).thenReturn(ProductBeanWithLongIdFieldType.class);
@@ -85,8 +80,8 @@ public class MappingSolrEntityInformationTests {
 		Mockito.when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
 		Mockito.when(persistentEntity.findAnnotation(Mockito.eq(AccessType.class))).thenReturn(Optional.empty());
 
-		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(ProductBean.class.getDeclaredField("id")),
-				persistentEntity, new SimpleTypeHolder());
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
+				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, new SimpleTypeHolder());
 		Mockito.when(persistentEntity.getIdProperty()).thenReturn(Optional.of(property));
 
 		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
@@ -96,9 +91,10 @@ public class MappingSolrEntityInformationTests {
 
 	@Test
 	public void testIdTypeWithLongIdFieldType() throws NoSuchFieldException, SecurityException {
-		Mockito.when(persistentEntityWithLongIdFieldType.getTypeInformation()).thenReturn(
-				ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class));
-		Mockito.when(persistentEntityWithLongIdFieldType.findAnnotation(Mockito.eq(AccessType.class))).thenReturn(Optional.empty());
+		Mockito.when(persistentEntityWithLongIdFieldType.getTypeInformation())
+				.thenReturn(ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class));
+		Mockito.when(persistentEntityWithLongIdFieldType.findAnnotation(Mockito.eq(AccessType.class)))
+				.thenReturn(Optional.empty());
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
 				Property.of(ProductBeanWithLongIdFieldType.class.getDeclaredField("id")), persistentEntityWithLongIdFieldType,
@@ -114,8 +110,8 @@ public class MappingSolrEntityInformationTests {
 	public void testGetIdAttribute() throws NoSuchFieldException, SecurityException {
 		Mockito.when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
 		Mockito.when(persistentEntity.findAnnotation(Mockito.eq(AccessType.class))).thenReturn(Optional.empty());
-		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(ProductBean.class.getDeclaredField("id")),
-				persistentEntity, new SimpleTypeHolder());
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
+				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, new SimpleTypeHolder());
 		Mockito.when(persistentEntity.getIdProperty()).thenReturn(Optional.of(property));
 
 		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
@@ -125,9 +121,10 @@ public class MappingSolrEntityInformationTests {
 
 	@Test
 	public void testGetIdAttributeForAlternateFieldName() throws NoSuchFieldException, SecurityException {
-		Mockito.when(persistentEntityWithAlternateFieldNameForId.getTypeInformation()).thenReturn(
-				ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class));
-		Mockito.when(persistentEntityWithAlternateFieldNameForId.findAnnotation(Mockito.eq(AccessType.class))).thenReturn(Optional.empty());
+		Mockito.when(persistentEntityWithAlternateFieldNameForId.getTypeInformation())
+				.thenReturn(ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class));
+		Mockito.when(persistentEntityWithAlternateFieldNameForId.findAnnotation(Mockito.eq(AccessType.class)))
+				.thenReturn(Optional.empty());
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
 				Property.of(ProductBeanWithAlternateFieldNameForId.class.getDeclaredField("productId")),
@@ -141,9 +138,7 @@ public class MappingSolrEntityInformationTests {
 
 	class ProductBeanWithAlternateFieldNameForId {
 
-		@Id
-		@Field("product_id")
-		private String productId;
+		@Id @Field("product_id") private String productId;
 
 		public String getProductId() {
 			return productId;
@@ -157,8 +152,7 @@ public class MappingSolrEntityInformationTests {
 
 	class ProductBeanWithLongIdFieldType {
 
-		@Id
-		private Long id;
+		@Id private Long id;
 
 		public Long getId() {
 			return id;

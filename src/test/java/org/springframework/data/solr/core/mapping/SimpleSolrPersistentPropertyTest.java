@@ -46,8 +46,8 @@ public class SimpleSolrPersistentPropertyTest {
 
 	@Test // DATASOLR-210
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void scoredPropertyShouldBeReadOnlyAndNotWritable() throws NoSuchFieldException, SecurityException,
-			IntrospectionException {
+	public void scoredPropertyShouldBeReadOnlyAndNotWritable()
+			throws NoSuchFieldException, SecurityException, IntrospectionException {
 
 		Field field = BeanWithScore.class.getDeclaredField("myScoreProperty");
 		PropertyDescriptor propertyDescriptor = new PropertyDescriptor("myScoreProperty", BeanWithScore.class, null, null);
@@ -56,8 +56,8 @@ public class SimpleSolrPersistentPropertyTest {
 		when(owner.getTypeInformation()).thenReturn(typeInformation);
 		when(typeInformation.getProperty("myScoreProperty")).thenReturn(Optional.of(typeInformation));
 
-		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(field, Optional.of(propertyDescriptor)), owner,
-				simpleTypeHolder);
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(field, propertyDescriptor),
+				owner, simpleTypeHolder);
 
 		assertTrue(property.isScoreProperty());
 		assertFalse(property.isWritable());

@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -75,7 +78,7 @@ import org.springframework.data.solr.server.SolrClientFactory;
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class SolrTemplateTests {
 
 	private SolrTemplate solrTemplate;
@@ -410,8 +413,8 @@ public class SolrTemplateTests {
 
 		// schema.add(name, val);
 
-		Mockito.when(solrClientMock.request(Mockito.any(SchemaVersion.class), Mockito.anyString())).thenReturn(nl);
-		Mockito.when(solrClientMock.request(Mockito.any(SchemaRequest.class), Mockito.anyString())).thenReturn(nl);
+		when(solrClientMock.request((SchemaVersion) any(), anyString())).thenReturn(nl);
+		when(solrClientMock.request((SchemaRequest) any(), anyString())).thenReturn(nl);
 
 		solrTemplate = new SolrTemplate(solrClientMock, "core1");
 		solrTemplate.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));

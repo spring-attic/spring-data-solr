@@ -77,15 +77,15 @@ import org.springframework.data.solr.core.query.result.TermsFieldEntry;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class ResultHelperTests {
 
 	@Mock private QueryResponse response;
 
 	@Test
 	public void testConvertFacetQueryResponseForNullQueryResponse() {
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				createFacetQuery("field_1"), null);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), null);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -97,8 +97,8 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetQueryResponseForQueryWithoutFacetOptions() {
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				new SimpleFacetQuery(new Criteria("field_1")), null);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(new SimpleFacetQuery(new Criteria("field_1")), null);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -106,8 +106,8 @@ public class ResultHelperTests {
 	@Test
 	public void testConvertFacetQueryResponseForQueryResultWithNullFacetFields() {
 		Mockito.when(response.getFacetFields()).thenReturn(null);
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -115,8 +115,8 @@ public class ResultHelperTests {
 	@Test
 	public void testConvertFacetQueryResponseForQueryResultWithEmptyFacetFields() {
 		Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -129,8 +129,8 @@ public class ResultHelperTests {
 
 		Mockito.when(response.getFacetFields()).thenReturn(fieldList);
 
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(1, result.size());
 		Entry<Field, Page<FacetFieldEntry>> resultEntry = result.entrySet().iterator().next();
@@ -147,8 +147,8 @@ public class ResultHelperTests {
 
 		Mockito.when(response.getFacetFields()).thenReturn(fieldList);
 
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(1, result.size());
 		Entry<Field, Page<FacetFieldEntry>> resultEntry = result.entrySet().iterator().next();
@@ -183,8 +183,9 @@ public class ResultHelperTests {
 
 		Mockito.when(response.getFacetQuery()).thenReturn(resultMap);
 		List<FacetQueryEntry> result = ResultHelper.convertFacetQueryResponseToFacetQueryResult(
-				createFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")), new SimpleQuery(
-						new SimpleStringCriteria("field_1:[6 TO *]"))), response);
+				createFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")),
+						new SimpleQuery(new SimpleStringCriteria("field_1:[6 TO *]"))),
+				response);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(2, result.size());
 
@@ -215,8 +216,9 @@ public class ResultHelperTests {
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithNullResponse() {
-		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(null,
-				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+		Assert.assertTrue(ResultHelper
+				.convertAndAddHighlightQueryResponseToResultPage(null, new SolrResultPage<Object>(Arrays.asList(new Object())))
+				.isEmpty());
 	}
 
 	@Test
@@ -306,8 +308,8 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetRangeQueryResponseToFacetPageMapForNullQueryResponse() {
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
-				this.createFacetQuery("field_1"), null);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToRangeFacetPageMap(this.createFacetQuery("field_1"), null);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -319,8 +321,8 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetRangeQueryResponseForQueryWithoutFacetOptions() {
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
-				new SimpleFacetQuery(new SimpleStringCriteria("*:*")), null);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToRangeFacetPageMap(new SimpleFacetQuery(new SimpleStringCriteria("*:*")), null);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -328,8 +330,8 @@ public class ResultHelperTests {
 	@Test
 	public void testConvertFacetRangeQueryResponseForQueryResultWithNullFacetFields() {
 		Mockito.when(response.getFacetFields()).thenReturn(null);
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToRangeFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -337,8 +339,8 @@ public class ResultHelperTests {
 	@Test
 	public void testConvertFacetRangeQueryResponseForQueryResultWithEmptyFacetFields() {
 		Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(
-				createFacetQuery("field_1"), response);
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToRangeFacetPageMap(createFacetQuery("field_1"), response);
 		Assert.assertNotNull(result);
 		Assert.assertTrue(result.isEmpty());
 	}
@@ -367,8 +369,8 @@ public class ResultHelperTests {
 
 		Mockito.when(response.getFacetPivot()).thenReturn(pivotData);
 
-		Map<PivotField, List<FacetPivotFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPivotMap(
-				createFacetPivotQuery("field_1", "field_2"), response);
+		Map<PivotField, List<FacetPivotFieldEntry>> result = ResultHelper
+				.convertFacetQueryResponseToFacetPivotMap(createFacetPivotQuery("field_1", "field_2"), response);
 
 		List<FacetPivotFieldEntry> resultPivot = result.get(new SimplePivotField("field_1", "field_2"));
 		Assert.assertNotNull(result);
@@ -482,8 +484,8 @@ public class ResultHelperTests {
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
-		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(
-				documents1_1);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class))
+				.thenReturn(documents1_1);
 		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
 		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(2);
@@ -498,8 +500,8 @@ public class ResultHelperTests {
 		Map<String, Object> objectNames = new HashMap<String, Object>();
 		objectNames.put("group1_name", group1Key);
 
-		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query,
-				objectNames, response, solrTemplate, Object.class);
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
+				response, solrTemplate, Object.class);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(2, result.size());
 
@@ -543,8 +545,8 @@ public class ResultHelperTests {
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
-		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class)).thenReturn(
-				documents1_1);
+		Mockito.when(solrTemplate.convertSolrDocumentListToBeans(group1_1DocumentList, Object.class))
+				.thenReturn(documents1_1);
 		Mockito.when(groupCommand1.getMatches()).thenReturn(1);
 		Mockito.when(groupCommand1.getName()).thenReturn("group1_name");
 		Mockito.when(groupCommand1.getNGroups()).thenReturn(null);
@@ -559,8 +561,8 @@ public class ResultHelperTests {
 		Map<String, Object> objectNames = new HashMap<String, Object>();
 		objectNames.put("group1_name", group1Key);
 
-		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query,
-				objectNames, response, solrTemplate, Object.class);
+		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
+				response, solrTemplate, Object.class);
 
 		Assert.assertNotNull(result);
 		Assert.assertEquals(2, result.size());
@@ -634,8 +636,8 @@ public class ResultHelperTests {
 	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoMapWithNullToStatsResultMap() {
 
-		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
-				.<String, FieldStatsInfo> singletonMap("field", null));
+		Map<String, FieldStatsResult> converted = ResultHelper
+				.convertFieldStatsInfoToFieldStatsResultMap(Collections.<String, FieldStatsInfo> singletonMap("field", null));
 
 		Assert.assertThat(converted, IsNull.notNullValue());
 		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
@@ -809,7 +811,7 @@ public class ResultHelperTests {
 
 	private static class SolrBeanWithIdNamedField {
 
-		@SuppressWarnings("unused")//
+		@SuppressWarnings("unused") //
 		private String id;
 
 		public SolrBeanWithIdNamedField(String id) {

@@ -19,7 +19,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.junit.Assert;
@@ -39,7 +38,7 @@ import org.springframework.data.util.TypeInformation;
 @RunWith(Parameterized.class)
 public class SimpleSolrPersitentPropertyFieldNameTests {
 
-	@SuppressWarnings("rawtypes")//
+	@SuppressWarnings("rawtypes") //
 	private TypeInformation typeInformation;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
@@ -80,25 +79,25 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(Property.of(field, Optional.of(descriptor)), persistentEntity, new SimpleTypeHolder());
+		return new SimpleSolrPersistentProperty(Property.of(field, descriptor), persistentEntity, new SimpleTypeHolder());
 	}
 
 	static class BeanWithSolrFieldAnnotation {
 
-		@Field//
+		@Field //
 		private String fieldWithSolrjFieldAnnotation;
 
-		@Field("solrj")//
+		@Field("solrj") //
 		private String fieldWithSolrjFieldAnnotationAndValue;
 
-		@Indexed//
+		@Indexed //
 		private String fieldWithIndexedAnnotation;
 
-		@Indexed("indexed")//
+		@Indexed("indexed") //
 		private String fieldWithIndexedAnnotationAndValue;
 
-		@Field("solrj")//
-		@Indexed("indexed")//
+		@Field("solrj") //
+		@Indexed("indexed") //
 		private String fieldWithBothAnnotations;
 
 		public String getFieldWithSolrjFieldAnnotation() {

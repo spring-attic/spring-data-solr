@@ -38,14 +38,14 @@ import org.springframework.data.util.TypeInformation;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class SimpleSolrPersistentEntityTests {
 
 	private static final String CORE_NAME = "core1";
 
 	public @Rule ExpectedException expectedException = ExpectedException.none();
 
-	@SuppressWarnings("rawtypes")//
+	@SuppressWarnings("rawtypes") //
 	@Mock TypeInformation typeInfo;
 
 	@Mock SolrPersistentProperty property;
