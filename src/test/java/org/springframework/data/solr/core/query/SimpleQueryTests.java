@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
+import static org.hamcrest.CoreMatchers.*;
+
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -67,15 +69,15 @@ public class SimpleQueryTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testAddProjection() {
-		Query query = new SimpleQuery().addProjectionOnField(new SimpleField("field_1")).addProjectionOnField(
-				new SimpleField("field_2"));
+		Query query = new SimpleQuery().addProjectionOnField(new SimpleField("field_1"))
+				.addProjectionOnField(new SimpleField("field_2"));
 		Assert.assertEquals(2, ((List) query.getProjectionOnFields()).size());
 	}
 
 	@Test
 	public void testSetPageRequest() {
 		SimpleQuery query = new SimpleQuery();
-		Assert.assertNull(query.getPageRequest());
+		Assert.assertThat(query.getPageRequest().isUnpaged(), is(true));
 		Assert.assertNull(query.getOffset());
 		Assert.assertNull(query.getRows());
 
@@ -105,8 +107,8 @@ public class SimpleQueryTests {
 
 	@Test
 	public void testCreateQueryWithSortedPageRequest() {
-		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("*:*"), new PageRequest(0, 20, Sort.Direction.DESC,
-				"value_1", "value_2"));
+		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("*:*"),
+				new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2"));
 		Assert.assertNotNull(query.getPageRequest());
 		Assert.assertNotNull(query.getSort());
 
@@ -154,8 +156,8 @@ public class SimpleQueryTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void testAddGroupBy() {
-		Query query = new SimpleQuery().addGroupByField(new SimpleField("field_1")).addGroupByField(
-				new SimpleField("field_2"));
+		Query query = new SimpleQuery().addGroupByField(new SimpleField("field_1"))
+				.addGroupByField(new SimpleField("field_2"));
 		Assert.assertEquals(2, ((List) query.getGroupByFields()).size());
 	}
 

@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository;
 
+import static org.hamcrest.CoreMatchers.*;
+
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -57,14 +59,14 @@ public class SimpleSolrRepositoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullEntityClass() {
-		new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(
-				new HttpSolrClient("http://localhost:8080/solr"), null), null);
+		new SimpleSolrRepository<ExampleSolrBean, String>(
+				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), null);
 	}
 
 	@Test
 	public void testInitRepository() {
-		repository = new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(new HttpSolrClient(
-				"http://localhost:8080/solr"), null), ExampleSolrBean.class);
+		repository = new SimpleSolrRepository<ExampleSolrBean, String>(
+				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), ExampleSolrBean.class);
 		Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
 	}
 
@@ -79,7 +81,7 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
 				Mockito.eq(ExampleSolrBean.class));
 
-		Assert.assertNull(captor.getAllValues().get(0).getPageRequest());
+		Assert.assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged(), is(true));
 		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
 	}
 
@@ -96,7 +98,7 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(captor.capture(),
 				Mockito.eq(BeanWithLongIdType.class));
 
-		Assert.assertNull(captor.getAllValues().get(0).getPageRequest());
+		Assert.assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged(), is(true));
 		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
 	}
 

@@ -482,8 +482,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 
 					if (wildcardPosition.match(property.getFieldName(), potentialMatch.getKey())) {
-						Optional<Object> op =  getValue(property, potentialMatch.getValue(), parent);
-						return  op.isPresent() ? op.get() : null;
+						return getValue(property, potentialMatch.getValue(), parent).orElse(null);
 					}
 				}
 			}
@@ -494,7 +493,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		private Object readWildcardCollectionLike(Map<String, ?> source, SolrPersistentProperty property, Object parent,
 				WildcardPosition wildcardPosition) {
 
-			Class<?> genericTargetType = property.getComponentType() != null ? property.getComponentType() : Object.class;
+			Class<?> genericTargetType = property.getComponentType().orElse(Object.class);
 
 			List<Object> values = new ArrayList<Object>();
 
@@ -532,7 +531,8 @@ public class MappingSolrConverter extends SolrConverterBase
 			Class<?> rawMapType = mapTypeInformation.get().getType();
 
 			Class<?> genericTargetType;
-			if (mapTypeInformation.get().getTypeArguments() != null && !mapTypeInformation.get().getTypeArguments().isEmpty()) {
+			if (mapTypeInformation.get().getTypeArguments() != null
+					&& !mapTypeInformation.get().getTypeArguments().isEmpty()) {
 				genericTargetType = mapTypeInformation.get().getTypeArguments().get(0).getType();
 			} else {
 				genericTargetType = Object.class;
@@ -592,7 +592,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		private Object readValue(SolrPersistentProperty property, Object o, Object parent, Class<?> target) {
 
 			Optional<Object> value = getValue(property, o, parent);
-			if(!value.isPresent()) {
+			if (!value.isPresent()) {
 				return null;
 			}
 

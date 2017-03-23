@@ -248,13 +248,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public Pageable getPageRequest() {
 
 		if (this.rows == null && this.offset == null) {
-			return null;
+			return Pageable.unpaged();
 		}
 
 		int rows = this.rows != null ? this.rows : DEFAULT_PAGE_SIZE;
 		long offset = this.offset != null ? this.offset : 0;
 
-		return new SolrPageRequest(rows != 0 ? (int)(offset / rows) : 0, rows, this.sort);
+		return new SolrPageRequest(rows != 0 ? (int) (offset / rows) : 0, rows, this.sort);
 	}
 
 	@Override

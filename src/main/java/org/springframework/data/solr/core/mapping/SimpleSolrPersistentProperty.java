@@ -40,8 +40,8 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty> implements
-		SolrPersistentProperty {
+public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentProperty<SolrPersistentProperty>
+		implements SolrPersistentProperty {
 
 	private static final String SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE = "#default";
 	private static final Set<Class<?>> SUPPORTED_ID_TYPES = new HashSet<Class<?>>(3);
@@ -67,7 +67,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		if (StringUtils.hasText(fieldName) && !SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE.equals(fieldName)) {
 			return fieldName;
 		}
-		return this.name;
+		return getName();
 	}
 
 	private String readAnnotatedFieldName() {

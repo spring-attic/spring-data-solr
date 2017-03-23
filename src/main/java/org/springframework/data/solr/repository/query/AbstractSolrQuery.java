@@ -467,11 +467,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			if (!isLimiting()) {
 
-				query.setPageRequest((pageable != null && !Pageable.NONE.equals(pageable)) ? pageable : new SolrPageRequest(0, (int) count(query)));
+				query.setPageRequest(pageable.isPaged() ? pageable : new SolrPageRequest(0, (int) count(query)));
 				return executeFind(query).getContent();
 			}
 
-			if ((pageable == null || Pageable.NONE.equals(pageable)) && isLimiting()) {
+			if (pageable.isUnpaged() && isLimiting()) {
 				return executeFind(query.setPageRequest(new SolrPageRequest(0, getLimit()))).getContent();
 			}
 
@@ -480,7 +480,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 					return new PageImpl(java.util.Collections.emptyList(), pageable, getLimit());
 				}
 				if (pageable.getOffset() + pageable.getPageSize() > getLimit()) {
-					query.setPageRequest(getLimitingPageable(pageable, getLimit() - (int)pageable.getOffset()));
+					query.setPageRequest(getLimitingPageable(pageable, getLimit() - (int) pageable.getOffset()));
 				}
 			}
 			return executeFind(query).getContent();
@@ -522,7 +522,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 						return new PageImpl(java.util.Collections.emptyList(), pageToUse, limit);
 					}
 					if (pageToUse.getOffset() + pageToUse.getPageSize() > limit) {
-						pageToUse = getLimitingPageable(pageToUse, limit - (int)pageToUse.getOffset());
+						pageToUse = getLimitingPageable(pageToUse, limit - (int) pageToUse.getOffset());
 					}
 				}
 			}
@@ -611,10 +611,9 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		public Object execute(Query query) {
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 
-			if(!ClassUtils.isAssignable(Optional.class, solrQueryMethod.getReturnedObjectType())) {
+			if (!ClassUtils.isAssignable(Optional.class, solrQueryMethod.getReturnedObjectType())) {
 				return solrOperations.queryForObject(query, metadata.getJavaType()).orElse(null);
 			}
-
 
 			return solrOperations.queryForObject(query, metadata.getJavaType());
 		}
