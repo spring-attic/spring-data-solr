@@ -47,7 +47,7 @@ import org.w3c.dom.Element;
 /**
  * {@link RepositoryConfigurationExtension} implementation to configure Solr repository configuration support,
  * evaluating the {@link EnableSolrRepositories} annotation or the equivalent XML element.
- * 
+ *
  * @author Oliver Gierke
  * @author Christoph Strobl
  */
@@ -72,7 +72,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtension#getRepositoryFactoryClassName()
 	 */
 	@Override
-	public String getRepositoryFactoryClassName() {
+	public String getRepositoryFactoryBeanClassName() {
 		return SolrRepositoryFactoryBean.class.getName();
 	}
 
@@ -85,7 +85,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		return "solr";
 	}
 
-	/* 
+	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport#postProcess(org.springframework.beans.factory.support.BeanDefinitionBuilder, org.springframework.data.repository.config.AnnotationRepositoryConfigurationSource)
 	 */
@@ -120,7 +120,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 
 	}
 
-	/* 
+	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport#postProcess(org.springframework.beans.factory.support.BeanDefinitionBuilder, org.springframework.data.repository.config.XmlRepositoryConfigurationSource)
 	 */
