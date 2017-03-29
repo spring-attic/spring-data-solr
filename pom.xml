@@ -20,7 +20,7 @@
 
 	<properties>
 		<dist.key>DATASOLR</dist.key>
-		<commons.collections>3.2.1</commons.collections>
+		<commons.collections>3.2.2</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
 		<solr>5.5.0</solr>
