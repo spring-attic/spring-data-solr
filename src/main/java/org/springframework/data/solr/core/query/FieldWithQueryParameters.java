@@ -24,12 +24,11 @@ import org.springframework.util.Assert;
  * Field that holds additional parameters to provide query hints to solr.
  * 
  * @author Christoph Strobl
- * 
  * @param <T>
  */
 public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleField implements Iterable<T> {
 
-	private final ParameterHolder<T> parameterHolder = new ParameterHolder<T>();
+	private final ParameterHolder<T> parameterHolder = new ParameterHolder<>();
 
 	/**
 	 * @param fieldname must not be null

@@ -1,3 +1,4 @@
 http\://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd=org/springframework/data/solr/config/spring-solr-1.0.xsd
 http\://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd=org/springframework/data/solr/config/spring-solr-2.0.xsd
-http\://www.springframework.org/schema/data/solr/spring-solr.xsd=org/springframework/data/solr/config/spring-solr-2.0.xsd
+http\://www.springframework.org/schema/data/solr/spring-solr-3.0.xsd=org/springframework/data/solr/config/spring-solr-3.0.xsd
+http\://www.springframework.org/schema/data/solr/spring-solr.xsd=org/springframework/data/solr/config/spring-solr-3.0.xsd

@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanUtils;
@@ -56,8 +55,8 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
 	private String solrHome;
-	private AtomicReference<CoreContainer> coreContainer = new AtomicReference<CoreContainer>(null);
-	private ConcurrentHashMap<String, EmbeddedSolrServer> servers = new ConcurrentHashMap<String, EmbeddedSolrServer>();
+	private AtomicReference<CoreContainer> coreContainer = new AtomicReference<>(null);
+	private ConcurrentHashMap<String, EmbeddedSolrServer> servers = new ConcurrentHashMap<>();
 
 	protected EmbeddedSolrServerFactory() {
 
@@ -83,9 +82,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	protected void initCoreContainer() {
 		try {
 			this.coreContainer.compareAndSet(null, createCoreContainer(this.solrHome));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 	}
@@ -133,7 +130,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	/**
-	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in {@link CoreContainer#createAndLoad()}.
+	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in .
 	 * 
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
@@ -161,7 +158,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 
 	@Override
 	public List<String> getCores() {
-		return new ArrayList<String>(getCoreContainer().getCoreNames());
+		return new ArrayList<>(getCoreContainer().getCoreNames());
 	}
 
 	public void setSolrHome(String solrHome) {
@@ -172,19 +169,6 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	@Override
 	public void destroy() throws Exception {
 		shutdownSolrServer();
-	}
-
-	@Override
-	public SolrClient getSolrClient(String core) {
-
-		String coreName = core != null ? core : "collection1";
-		if (servers.get(coreName) != null) {
-			return servers.get(coreName);
-		}
-
-		EmbeddedSolrServer server = new EmbeddedSolrServer(getCoreContainer(), coreName);
-		servers.put(coreName, server);
-		return server;
 	}
 
 	private CoreContainer getCoreContainer() {

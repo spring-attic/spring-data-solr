@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class SolrTransactionSynchronizationAdapter extends TransactionSynchronizationAdapter {
 
-	private Map<Integer, CompletionDelegate> delegates = new HashMap<Integer, CompletionDelegate>(2);
+	private Map<Integer, CompletionDelegate> delegates = new HashMap<>(2);
 	private final SolrOperations solrOperations;
 
 	SolrTransactionSynchronizationAdapter(SolrOperations solrOperations) {
@@ -42,7 +42,7 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 	@Override
 	public void afterCompletion(int status) {
 
-		CompletionDelegate delegate = this.delegates.get(Integer.valueOf(status));
+		CompletionDelegate delegate = this.delegates.get(status);
 		if (delegate != null) {
 			delegate.execute(this.solrOperations);
 		}
@@ -53,10 +53,10 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 	}
 
 	public void registerCompletionDelegate(int transactionStatus, CompletionDelegate completionDelegate) {
-		this.delegates.put(Integer.valueOf(transactionStatus), completionDelegate);
+		this.delegates.put(transactionStatus, completionDelegate);
 	}
 
-	public static interface CompletionDelegate {
+	public interface CompletionDelegate {
 
 		void execute(SolrOperations solrOperations);
 

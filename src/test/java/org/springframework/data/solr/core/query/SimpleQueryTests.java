@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,7 +237,7 @@ public class SimpleQueryTests {
 	@Test
 	public void testCloneWithTimeAllowed() {
 		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
-		source.setTimeAllowed(Integer.valueOf(10));
+		source.setTimeAllowed(10);
 
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertEquals(source.getTimeAllowed(), destination.getTimeAllowed());

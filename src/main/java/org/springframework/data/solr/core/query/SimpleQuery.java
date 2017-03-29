@@ -34,8 +34,8 @@ import org.springframework.util.Assert;
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
-	private List<Field> projectionOnFields = new ArrayList<Field>(0);
-	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
+	private List<Field> projectionOnFields = new ArrayList<>(0);
+	private List<FilterQuery> filterQueries = new ArrayList<>(0);
 
 	private Long offset = null;
 	private Integer rows = null;

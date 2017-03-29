@@ -19,7 +19,6 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -102,7 +101,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	public Iterable<T> findAll() {
 		int itemCount = (int) this.count();
 		if (itemCount == 0) {
-			return new PageImpl<T>(Collections.<T> emptyList());
+			return new PageImpl<>(Collections.<T> emptyList());
 		}
 		return this.findAll(new SolrPageRequest(0, itemCount));
 	}
@@ -118,11 +117,11 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	public Iterable<T> findAll(Sort sort) {
 		int itemCount = (int) this.count();
 		if (itemCount == 0) {
-			return new PageImpl<T>(Collections.<T> emptyList());
+			return new PageImpl<>(Collections.<T> emptyList());
 		}
-		return getSolrOperations().queryForPage(
-				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(
-						new SolrPageRequest(0, itemCount)).addSort(sort), getEntityClass());
+		return getSolrOperations()
+				.queryForPage(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+						.setPageRequest(new SolrPageRequest(0, itemCount)).addSort(sort), getEntityClass());
 	}
 
 	@Override
@@ -184,14 +183,14 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	public void delete(T entity) {
 		Assert.notNull(entity, "Cannot delete 'null' entity.");
 
-		delete(Arrays.asList(entity));
+		delete(Collections.singletonList(entity));
 	}
 
 	@Override
 	public void delete(Iterable<? extends T> entities) {
 		Assert.notNull(entities, "Cannot delete 'null' list.");
 
-		ArrayList<String> idsToDelete = new ArrayList<String>();
+		ArrayList<String> idsToDelete = new ArrayList<>();
 		for (T entity : entities) {
 			idsToDelete.add(extractIdFromBean(entity).toString());
 		}
@@ -277,8 +276,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	private String extractIdFromSolrInputDocument(SolrInputDocument solrInputDocument) {
-		Assert.notNull(solrInputDocument.getField(idFieldName), "Unable to find field '" + idFieldName
-				+ "' in SolrDocument.");
+		Assert.notNull(solrInputDocument.getField(idFieldName),
+				"Unable to find field '" + idFieldName + "' in SolrDocument.");
 		Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
 
 		return solrInputDocument.getField(idFieldName).getValue().toString();
@@ -291,8 +290,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	private void registerTransactionSynchronisationAdapter() {
-		TransactionSynchronizationManager.registerSynchronization(SolrTransactionSynchronizationAdapterBuilder
-				.forOperations(this.solrOperations).withDefaultBehaviour());
+		TransactionSynchronizationManager.registerSynchronization(
+				SolrTransactionSynchronizationAdapterBuilder.forOperations(this.solrOperations).withDefaultBehaviour());
 	}
 
 	private void commitIfTransactionSynchronisationIsInactive() {

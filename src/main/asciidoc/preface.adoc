@@ -1,6 +1,6 @@
 = Preface
 
-The Spring Data Solr project applies core Spring concepts to the development of solutions using the Apache Solr Search Engine. We provide a "template" as a high-level abstraction for storing and querying documents. You will notice similarities to the mongodb support in the Spring Framework.
+The Spring Data for Apache Solr project applies core Spring concepts to the development of solutions using the Apache Solr Search Engine. We provide a "template" as a high-level abstraction for storing and querying documents. You will notice similarities to the mongodb support in the Spring Framework.
 
 [[project]]
 [preface]
@@ -16,13 +16,13 @@ The Spring Data Solr project applies core Spring concepts to the development of 
 [preface]
 == Requirements
 
-Requires http://lucene.apache.org/solr/[Apache Solr] 5. Preferably the latest 5.x version.
+Requires Java 8 runtime and http://lucene.apache.org/solr/[Apache Solr] 6.5. Preferably the latest 6.5.x version.
 
 [source,xml]
 ----
 <dependency>
   <groupId>org.apache.solr</groupId>
-  <artifactId>solr-core</artifactId>
+  <artifactId>solr-solrj</artifactId>
   <version>${solr.version}</version>
 </dependency>
 ----

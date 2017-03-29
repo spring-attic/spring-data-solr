@@ -90,7 +90,7 @@ public class SolrQueryTests {
 		entityInformationCreator = new SolrEntityInformationCreatorImpl();
 		Mockito.when(persitentEntityMock.getType()).thenReturn(ProductBean.class);
 		Mockito.when(solrOperationsMock.execute(Matchers.any(SolrCallback.class)))
-				.thenReturn(new PageImpl<ProductBean>(Collections.<ProductBean> emptyList()));
+				.thenReturn(new PageImpl<>(Collections.<ProductBean> emptyList()));
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverter);
 	}
 
@@ -275,7 +275,7 @@ public class SolrQueryTests {
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
 
 		Assert.assertEquals(1, capturedOptions.getFields().size());
-		Assert.assertTrue(capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"))));
+		Assert.assertTrue(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1"))));
 
 		Assert.assertEquals(2, capturedOptions.getFacets().size());
 		Assert.assertTrue(
@@ -297,7 +297,7 @@ public class SolrQueryTests {
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
 
 		Assert.assertEquals(1, capturedOptions.getFields().size());
-		Assert.assertTrue(capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"))));
+		Assert.assertTrue(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1"))));
 
 		Assert.assertThat(capturedOptions.getFacets(), IsEmptyIterable.emptyIterable());
 		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
@@ -306,9 +306,7 @@ public class SolrQueryTests {
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
-		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException(e.getMessage(), e);
-		} catch (SecurityException e) {
+		} catch (NoSuchMethodException | SecurityException e) {
 			throw new IllegalArgumentException(e.getMessage(), e);
 		}
 	}

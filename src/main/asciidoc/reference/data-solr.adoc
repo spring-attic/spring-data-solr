@@ -116,33 +116,6 @@ class ApplicationConfig {
 
 The configuration above sets up an `EmbeddedSolrServer` which is used by the `SolrTemplate` . Spring Data Solr Repositories are activated using the `@EnableSolrRepositories` annotation, which essentially carries the same attributes as the XML namespace does. If no base package is configured, it will use the one the configuration class resides in.
 
-[[solr.multicore]]
-=== Multicore Support
-
-Solr handles different collections within one core. Use `MulticoreSolrClientFactory` to create separate `SolrClient` for each core.
-
-.Multicore Configuration
-====
-[source,java]
-----
-@Configuration
-@EnableSolrRepositories(multicoreSupport = true)
-class ApplicationConfig {
-
-  private static final String PROPERTY_NAME_SOLR_SERVER_URL = "solr.host";
-
-  @Resource
-  private Environment environment;
-  
-  @Bean
-  public SolrClient solrClient() {
-    return new HttpSolrClient(environment.getRequiredProperty(PROPERTY_NAME_SOLR_SERVER_URL));
-  }
-  
-}
-----
-====
-
 [[solr.cdi]]
 === Solr Repositores using CDI
 

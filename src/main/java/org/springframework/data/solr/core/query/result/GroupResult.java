@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,7 @@ package org.springframework.data.solr.core.query.result;
 import org.springframework.data.domain.Page;
 
 /**
- * Representation of a group in response to group request (i.e.
- * {@link org.springframework.data.solr.core.query.GroupQuery#addGroupByField(org.springframework.data.solr.core.query.Field)}
- * ,
- * {@link org.springframework.data.solr.core.query.GroupQuery#addGroupByFunction(org.springframework.data.solr.core.query.Function)}
- * ,
- * {@link org.springframework.data.solr.core.query.GroupQuery#addGroupByQuery(org.springframework.data.solr.core.query.Query)}
- * ) will have a {@link GroupResult} representation.
+ * Representation of a group in response to group request (i.e. , , ) will have a {@link GroupResult} representation.
  * 
  * @author Francisco Spaeth
  * @param <T> grouped content type

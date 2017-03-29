@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,6 @@ public class StatsOptions {
 	/**
 	 * Adds a facet on field to the statistics to be requested.
 	 * 
-	 * @param fieldName
 	 * @return
 	 */
 	public StatsOptions addFacet(Field field) {
@@ -174,7 +173,7 @@ public class StatsOptions {
 		 */
 		public FieldStatsOptions addSelectiveFacet(Field field) {
 			if (!state.selectiveFacets.containsKey(fieldContext)) {
-				state.selectiveFacets.put(fieldContext, new ArrayList<Field>());
+				state.selectiveFacets.put(fieldContext, new ArrayList<>());
 			}
 			state.selectiveFacets.get(fieldContext).add(field);
 			return this;
@@ -197,10 +196,10 @@ public class StatsOptions {
 	 */
 	private static class StatsOptionsState {
 
-		private Set<Field> fields = new LinkedHashSet<Field>(1);
-		private Set<Field> facets = new LinkedHashSet<Field>(0);
+		private Set<Field> fields = new LinkedHashSet<>(1);
+		private Set<Field> facets = new LinkedHashSet<>(0);
 		private boolean calcDistinct = false;
-		private Map<Field, Collection<Field>> selectiveFacets = new LinkedHashMap<Field, Collection<Field>>();
-		private Map<Field, Boolean> selectiveCalcDistinct = new LinkedHashMap<Field, Boolean>();
+		private Map<Field, Collection<Field>> selectiveFacets = new LinkedHashMap<>();
+		private Map<Field, Boolean> selectiveCalcDistinct = new LinkedHashMap<>();
 	}
 }

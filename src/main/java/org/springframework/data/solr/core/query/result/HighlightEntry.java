@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 public class HighlightEntry<T> {
 
 	private final T entity;
-	private final List<Highlight> highlights = new ArrayList<Highlight>(1);
+	private final List<Highlight> highlights = new ArrayList<>(1);
 
 	/**
 	 * @param entity must not be null

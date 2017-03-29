@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2015 the original author or authors.
+ * Copyright 2014 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class SolrRealtimeGetRequest extends SolrRequest<QueryResponse> {
 
 	private void toStringIds(Collection<? extends Serializable> ids) {
 
-		this.ids = new ArrayList<String>(ids.size());
+		this.ids = new ArrayList<>(ids.size());
 		for (Serializable id : ids) {
 			this.ids.add(id.toString());
 		}

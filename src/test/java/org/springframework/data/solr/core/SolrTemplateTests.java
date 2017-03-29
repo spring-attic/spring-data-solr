@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -232,7 +231,7 @@ public class SolrTemplateTests {
 	public void testSaveDocuments() throws IOException, SolrServerException {
 		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(-1)))
 				.thenReturn(new UpdateResponse());
-		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
+		List<SolrInputDocument> collection = Collections.singletonList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrClientMock, Mockito.times(1)).add(Mockito.eq(collection), Mockito.eq(-1));
@@ -242,7 +241,7 @@ public class SolrTemplateTests {
 	public void testSaveDocumentsCommitWithin() throws IOException, SolrServerException {
 		Mockito.when(solrClientMock.add(Mockito.anyCollectionOf(SolrInputDocument.class), Mockito.eq(10000)))
 				.thenReturn(new UpdateResponse());
-		List<SolrInputDocument> collection = Arrays.asList(SIMPLE_DOCUMENT);
+		List<SolrInputDocument> collection = Collections.singletonList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(collection, 10000);
 		Assert.assertNotNull(updateResponse);
 		Mockito.verify(solrClientMock, Mockito.times(1)).add(Mockito.eq(collection), Mockito.eq(10000));
@@ -401,7 +400,7 @@ public class SolrTemplateTests {
 	@Test // DATASOLR-72, DATASOLR-313, DATASOLR-309
 	public void schemaShouldBeUpdatedPriorToSavingEntity() throws SolrServerException, IOException {
 
-		NamedList<Object> nl = new NamedList<Object>();
+		NamedList<Object> nl = new NamedList<>();
 		Map<String, Object> schema = new LinkedHashMap<>();
 		nl.add("version", 1.5F);
 		nl.add("schema", schema);
@@ -439,7 +438,7 @@ public class SolrTemplateTests {
 		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
 		SolrDocumentList resultList = new SolrDocumentList();
 		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<Object>());
+		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<>());
 
 		DocumentWithIndexAnnotations result = solrTemplate.getById("myId", DocumentWithIndexAnnotations.class);
 
@@ -457,7 +456,7 @@ public class SolrTemplateTests {
 		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
 		SolrDocumentList resultList = new SolrDocumentList();
 		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<Object>());
+		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<>());
 
 		List<String> ids = Arrays.asList("myId1", "myId2");
 		Collection<DocumentWithIndexAnnotations> result = solrTemplate.getById(ids, DocumentWithIndexAnnotations.class);

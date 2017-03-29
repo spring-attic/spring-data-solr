@@ -79,7 +79,7 @@ public class EnableSolrRepositoriesWithPredefinedConvertersUnitTests extends Abs
 				sameInstance(CUSTOM_CONVERSIONS));
 	}
 
-	static interface ProductRepository extends CrudRepository<ProductBean, String> {
+	interface ProductRepository extends CrudRepository<ProductBean, String> {
 
 	}
 }

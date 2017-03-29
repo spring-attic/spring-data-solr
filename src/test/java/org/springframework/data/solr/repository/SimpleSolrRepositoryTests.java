@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class SimpleSolrRepositoryTests {
 
 	@Before
 	public void setUp() {
-		repository = new SimpleSolrRepository<ExampleSolrBean, String>(solrOperationsMock, ExampleSolrBean.class);
+		repository = new SimpleSolrRepository<>(solrOperationsMock, ExampleSolrBean.class);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -65,8 +65,8 @@ public class SimpleSolrRepositoryTests {
 
 	@Test
 	public void testInitRepository() {
-		repository = new SimpleSolrRepository<ExampleSolrBean, String>(
-				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), ExampleSolrBean.class);
+		repository = new SimpleSolrRepository<>(new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null),
+				ExampleSolrBean.class);
 		Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
 	}
 
@@ -88,7 +88,7 @@ public class SimpleSolrRepositoryTests {
 	@Test
 	public void testFindAllByIdQueryForBeanWithLongIdType() {
 		Mockito.when(solrOperationsMock.count(Mockito.any(SolrDataQuery.class))).thenReturn(12345l);
-		SimpleSolrRepository<BeanWithLongIdType, Long> repoWithNonStringIdType = new SimpleSolrRepository<BeanWithLongIdType, Long>(
+		SimpleSolrRepository<BeanWithLongIdType, Long> repoWithNonStringIdType = new SimpleSolrRepository<>(
 				solrOperationsMock, BeanWithLongIdType.class);
 
 		repoWithNonStringIdType.findAll(Arrays.asList(1L, 2L, 3L));

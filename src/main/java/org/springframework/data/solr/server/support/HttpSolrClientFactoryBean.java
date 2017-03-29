@@ -32,8 +32,8 @@ import org.springframework.util.Assert;
  * @author Christoph Strobl
  * @since 2.0
  */
-public class HttpSolrClientFactoryBean extends HttpSolrClientFactory implements FactoryBean<SolrClient>,
-		InitializingBean, DisposableBean {
+public class HttpSolrClientFactoryBean extends HttpSolrClientFactory
+		implements FactoryBean<SolrClient>, InitializingBean, DisposableBean {
 
 	private static final String SERVER_URL_SEPARATOR = ",";
 	private String url;
@@ -57,7 +57,7 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory implements 
 	private void createHttpSolrClient() {
 		HttpSolrClient httpSolrClient = new HttpSolrClient(this.url);
 		if (timeout != null) {
-			httpSolrClient.setConnectionTimeout(timeout.intValue());
+			httpSolrClient.setConnectionTimeout(timeout);
 		}
 		if (maxConnections != null) {
 			httpSolrClient.setMaxTotalConnections(maxConnections);
@@ -69,7 +69,7 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory implements 
 		try {
 			LBHttpSolrClient lbHttpSolrClient = new LBHttpSolrClient(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
 			if (timeout != null) {
-				lbHttpSolrClient.setConnectionTimeout(timeout.intValue());
+				lbHttpSolrClient.setConnectionTimeout(timeout);
 			}
 			this.setSolrClient(lbHttpSolrClient);
 		} catch (MalformedURLException e) {

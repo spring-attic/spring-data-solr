@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,11 @@ public class SolrSchemaResolver {
 
 		final SchemaDefinition schemaDefinition = new SchemaDefinition(entity.getSolrCoreName());
 
-		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
+		entity.doWithProperties((PropertyHandler<SolrPersistentProperty>) persistentProperty -> {
 
-			@Override
-			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
-
-				FieldDefinition fieldDefinition = createFieldDefinitionForProperty(persistentProperty);
-				if (fieldDefinition != null) {
-					schemaDefinition.addFieldDefinition(fieldDefinition);
-				}
+			FieldDefinition fieldDefinition = createFieldDefinitionForProperty(persistentProperty);
+			if (fieldDefinition != null) {
+				schemaDefinition.addFieldDefinition(fieldDefinition);
 			}
 		});
 

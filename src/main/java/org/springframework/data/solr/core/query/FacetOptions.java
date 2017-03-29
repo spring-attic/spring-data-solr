@@ -45,11 +45,10 @@ public class FacetOptions {
 		COUNT, INDEX
 	}
 
-	private List<Field> facetOnFields = new ArrayList<Field>(1);
-	private List<PivotField> facetOnPivotFields = new ArrayList<PivotField>(0);
-	private List<FieldWithRangeParameters<?, ?, ?>> facetRangeOnFields = new ArrayList<FieldWithRangeParameters<?, ?, ?>>(
-			1);
-	private List<SolrDataQuery> facetQueries = new ArrayList<SolrDataQuery>(0);
+	private List<Field> facetOnFields = new ArrayList<>(1);
+	private List<PivotField> facetOnPivotFields = new ArrayList<>(0);
+	private List<FieldWithRangeParameters<?, ?, ?>> facetRangeOnFields = new ArrayList<>(1);
+	private List<SolrDataQuery> facetQueries = new ArrayList<>(0);
 
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
@@ -75,8 +74,6 @@ public class FacetOptions {
 
 	/**
 	 * Creates new instance faceting on given fields
-	 * 
-	 * @param fieldnames
 	 */
 	public FacetOptions(Field... fields) {
 		Assert.notNull(fields, "Fields must not be null.");
@@ -159,7 +156,6 @@ public class FacetOptions {
 	}
 
 	/**
-	 * @param fieldName
 	 * @return
 	 */
 	public final FacetOptions addFacetOnPivot(String... fieldnames) {
@@ -371,7 +367,7 @@ public class FacetOptions {
 	@SuppressWarnings("unchecked")
 	public Collection<FieldWithFacetParameters> getFieldsWithParameters() {
 
-		List<FieldWithFacetParameters> result = new ArrayList<FieldWithFacetParameters>();
+		List<FieldWithFacetParameters> result = new ArrayList<>();
 
 		for (Field candidate : facetOnFields) {
 			if (candidate instanceof FieldWithFacetParameters) {

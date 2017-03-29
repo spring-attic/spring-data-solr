@@ -574,8 +574,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
-		};
-
+		}
 	}
 
 	/**
@@ -626,7 +625,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			return Long.valueOf(solrOperations.count(query));
+			return solrOperations.count(query);
 		}
 
 	}

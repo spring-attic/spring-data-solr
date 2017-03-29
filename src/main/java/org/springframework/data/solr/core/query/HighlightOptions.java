@@ -32,17 +32,11 @@ import org.springframework.util.Assert;
  */
 public class HighlightOptions {
 
-	public static final Field ALL_FIELDS = new Field() {
+	public static final Field ALL_FIELDS = () -> Criteria.WILDCARD;
 
-		@Override
-		public String getName() {
-			return Criteria.WILDCARD;
-		}
-	};
-
-	private final ParameterHolder<HighlightParameter> parameterHolder = new ParameterHolder<HighlightParameter>();
+	private final ParameterHolder<HighlightParameter> parameterHolder = new ParameterHolder<>();
 	private FilterQuery query;
-	private final List<Field> fields = new ArrayList<Field>(1);
+	private final List<Field> fields = new ArrayList<>(1);
 
 	/**
 	 * Add field to highlight
@@ -253,7 +247,7 @@ public class HighlightOptions {
 	 */
 	public Collection<FieldWithHighlightParameters> getFieldsWithHighlightParameters() {
 
-		List<FieldWithHighlightParameters> result = new ArrayList<FieldWithHighlightParameters>();
+		List<FieldWithHighlightParameters> result = new ArrayList<>();
 		for (Field candidate : fields) {
 
 			if (candidate instanceof FieldWithHighlightParameters) {
@@ -314,8 +308,6 @@ public class HighlightOptions {
 
 		/**
 		 * set fragsize {@code hl.fragsize}.
-		 * 
-		 * @param fragsize
 		 */
 		public FieldWithHighlightParameters setNrSnipplets(Integer nrSnipplets) {
 			addHighlightParameter(HighlightParams.SNIPPETS, nrSnipplets);
@@ -348,8 +340,6 @@ public class HighlightOptions {
 
 		/**
 		 * set fragsize {@code f.&lt;fieldname&gt;.hl.fragsize}.
-		 * 
-		 * @param fragsize
 		 */
 		public FieldWithHighlightParameters setMergeContigous(Boolean mergeContigous) {
 			addHighlightParameter(HighlightParams.MERGE_CONTIGUOUS_FRAGMENTS, mergeContigous);
@@ -365,8 +355,6 @@ public class HighlightOptions {
 
 		/**
 		 * set fragsize {@code f.&lt;formatter&gt;.hl.fragsize}.
-		 * 
-		 * @param fragsize
 		 */
 		public FieldWithHighlightParameters setFormatter(String formatter) {
 			addHighlightParameter(HighlightParams.FORMATTER, formatter);

@@ -45,7 +45,7 @@ public class Criteria extends Node {
 	private Field field;
 	private float boost = Float.NaN;
 
-	private Set<Predicate> predicates = new LinkedHashSet<Predicate>();
+	private Set<Predicate> predicates = new LinkedHashSet<>();
 
 	public Criteria() {}
 
@@ -411,8 +411,8 @@ public class Criteria extends Node {
 	 * @return
 	 */
 	public Criteria between(Object lowerBound, Object upperBound, boolean includeLowerBound, boolean includeUppderBound) {
-		predicates.add(new Predicate(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound, includeLowerBound,
-				includeUppderBound }));
+		predicates.add(new Predicate(OperationKey.BETWEEN,
+				new Object[] { lowerBound, upperBound, includeLowerBound, includeUppderBound }));
 		return this;
 	}
 
@@ -499,8 +499,8 @@ public class Criteria extends Node {
 	public Criteria within(Point location, Distance distance) {
 		Assert.notNull(location, "Location must not be null!");
 		assertPositiveDistanceValue(distance);
-		predicates.add(new Predicate(OperationKey.WITHIN, new Object[] { location,
-				distance != null ? distance : new Distance(0) }));
+		predicates.add(
+				new Predicate(OperationKey.WITHIN, new Object[] { location, distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
@@ -542,8 +542,8 @@ public class Criteria extends Node {
 		Assert.notNull(location, "Location must not be 'null' for near criteria.");
 		assertPositiveDistanceValue(distance);
 
-		predicates.add(new Predicate(OperationKey.NEAR, new Object[] { location,
-				distance != null ? distance : new Distance(0) }));
+		predicates.add(
+				new Predicate(OperationKey.NEAR, new Object[] { location, distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
@@ -622,9 +622,9 @@ public class Criteria extends Node {
 
 	private void assertValuesPresent(Object... values) {
 		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
-			throw new InvalidDataAccessApiUsageException("At least one element "
-					+ (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
-					+ " has to be present.");
+			throw new InvalidDataAccessApiUsageException(
+					"At least one element " + (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
+							+ " has to be present.");
 		}
 	}
 
@@ -652,12 +652,12 @@ public class Criteria extends Node {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy"), FUNCTION(
-				"$function");
+				"$expression"), BETWEEN(
+						"$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy"), FUNCTION("$function");
 
 		private final String key;
 
-		private OperationKey(String key) {
+		OperationKey(String key) {
 			this.key = key;
 		}
 

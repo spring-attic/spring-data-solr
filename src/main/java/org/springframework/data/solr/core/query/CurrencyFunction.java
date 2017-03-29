@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -31,7 +31,7 @@ public class CurrencyFunction extends AbstractFunction {
 	private static final String OPERATION = "currency";
 
 	private CurrencyFunction(String fieldname) {
-		super(Arrays.asList(fieldname));
+		super(Collections.singletonList(fieldname));
 	}
 
 	/**

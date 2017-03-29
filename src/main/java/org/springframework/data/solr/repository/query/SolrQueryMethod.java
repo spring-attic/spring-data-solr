@@ -103,10 +103,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return true if {@link Query#fields()} is not empty
 	 */
 	public boolean hasProjectionFields() {
-		if (hasQueryAnnotation()) {
-			return !CollectionUtils.isEmpty(getProjectionFields());
-		}
-		return false;
+		return hasQueryAnnotation() && !CollectionUtils.isEmpty(getProjectionFields());
 	}
 
 	/**
@@ -137,20 +134,14 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return true if {@link Facet#fields()} is not empty
 	 */
 	public boolean hasFacetFields() {
-		if (hasFacetAnnotation()) {
-			return !CollectionUtils.isEmpty(getFacetFields());
-		}
-		return false;
+		return hasFacetAnnotation() && !CollectionUtils.isEmpty(getFacetFields());
 	}
 
 	/**
-	 * @return true if {@link Facet#pivotFields()} is not empty
+	 * @return true if  is not empty
 	 */
 	public boolean hasPivotFields() {
-		if (hasFacetAnnotation()) {
-			return !CollectionUtils.isEmpty(getPivotFields());
-		}
-		return false;
+		return hasFacetAnnotation() && !CollectionUtils.isEmpty(getPivotFields());
 	}
 
 	private boolean hasFacetAnnotation() {
@@ -173,7 +164,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 	public List<String[]> getPivotFields() {
 		List<Pivot> pivotFields = getAnnotationValuesList(getFacetAnnotation(), "pivots", Pivot.class);
-		ArrayList<String[]> result = new ArrayList<String[]>();
+		ArrayList<String[]> result = new ArrayList<>();
 
 		for (Pivot pivot : pivotFields) {
 			result.add(pivot.value());
@@ -186,10 +177,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return true if {@link Facet#queries()} is not empty
 	 */
 	public boolean hasFacetQueries() {
-		if (hasFacetAnnotation()) {
-			return !CollectionUtils.isEmpty(getFacetQueries());
-		}
-		return false;
+		return hasFacetAnnotation() && !CollectionUtils.isEmpty(getFacetQueries());
 	}
 
 	private Facet getFacetAnnotation() {
@@ -272,7 +260,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
 
-		Map<String, String[]> result = new LinkedHashMap<String, String[]>();
+		Map<String, String[]> result = new LinkedHashMap<>();
 		for (SelectiveStats selectiveFacet : selective) {
 			result.put(selectiveFacet.field(), selectiveFacet.facets());
 		}
@@ -288,7 +276,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 		List<SelectiveStats> selective = getAnnotationValuesList(getStatsAnnotation(), "selective", SelectiveStats.class);
 
-		Collection<String> result = new LinkedHashSet<String>();
+		Collection<String> result = new LinkedHashSet<>();
 		for (SelectiveStats selectiveFacet : selective) {
 			if (selectiveFacet.distinct()) {
 				result.add(selectiveFacet.field());
@@ -302,10 +290,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return true if {@link Query#filters()} is not empty
 	 */
 	public boolean hasFilterQuery() {
-		if (hasQueryAnnotation()) {
-			return !CollectionUtils.isEmpty(getFilterQueries());
-		}
-		return false;
+		return hasQueryAnnotation() && !CollectionUtils.isEmpty(getFilterQueries());
 	}
 
 	/**
@@ -313,10 +298,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @since 1.2
 	 */
 	public boolean isDeleteQuery() {
-		if (hasQueryAnnotation()) {
-			return ((Boolean) AnnotationUtils.getValue(getQueryAnnotation(), "delete")).booleanValue();
-		}
-		return false;
+		return hasQueryAnnotation() && (Boolean) AnnotationUtils.getValue(getQueryAnnotation(), "delete");
 	}
 
 	private Annotation getHighlightAnnotation() {
@@ -526,7 +508,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 	private Integer getAnnotationValueAsIntOrNullIfNegative(Annotation annotation, String attributeName) {
 		Integer timeAllowed = (Integer) AnnotationUtils.getValue(annotation, attributeName);
-		if (timeAllowed != null && timeAllowed.intValue() > 0) {
+		if (timeAllowed != null && timeAllowed > 0) {
 			return timeAllowed;
 		}
 		return null;

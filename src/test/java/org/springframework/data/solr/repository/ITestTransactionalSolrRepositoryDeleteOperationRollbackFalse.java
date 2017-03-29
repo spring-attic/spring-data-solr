@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -74,7 +74,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 	public void testDeleteMultipleObjects() {
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
-		repo.delete(Arrays.asList(bean));
+		repo.delete(Collections.singletonList(bean));
 	}
 
 	@Test

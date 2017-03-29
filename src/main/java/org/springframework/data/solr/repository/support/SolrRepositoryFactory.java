@@ -46,7 +46,7 @@ import org.springframework.data.solr.repository.query.SolrEntityInformationCreat
 import org.springframework.data.solr.repository.query.SolrQueryMethod;
 import org.springframework.data.solr.repository.query.StringBasedSolrQuery;
 import org.springframework.data.solr.server.SolrClientFactory;
-import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 import org.springframework.data.solr.server.support.SolrClientUtils;
 import org.springframework.util.Assert;
 
@@ -80,7 +80,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 		this.solrOperations = createTemplate(solrClient, null);
 
-		factory = new MulticoreSolrClientFactory(solrClient);
+		factory = new HttpSolrClientFactory(solrClient);
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
 				this.solrOperations.getConverter().getMappingContext());
 
@@ -91,7 +91,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 		this.solrOperations = createTemplate(solrClient, converter);
 
-		factory = new MulticoreSolrClientFactory(solrClient);
+		factory = new HttpSolrClientFactory(solrClient);
 		this.entityInformationCreator = new SolrEntityInformationCreatorImpl(
 				this.solrOperations.getConverter().getMappingContext());
 
@@ -214,7 +214,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	private static class SolrTemplateHolder {
 
-		private Map<Class<?>, SolrOperations> operationsMap = new WeakHashMap<Class<?>, SolrOperations>();
+		private Map<Class<?>, SolrOperations> operationsMap = new WeakHashMap<>();
 
 		void add(Class<?> domainType, SolrOperations repository) {
 			operationsMap.put(domainType, repository);

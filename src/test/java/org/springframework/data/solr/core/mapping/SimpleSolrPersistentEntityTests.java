@@ -18,7 +18,6 @@ package org.springframework.data.solr.core.mapping;
 import static org.hamcrest.core.Is.*;
 import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -56,7 +55,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithSolrDocumentAnnotation.class);
 
-		SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation>(
+		SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
 		assertEquals(CORE_NAME, pe.getSolrCoreName());
 	}
@@ -67,7 +66,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(InheritingClass.class);
 
-		SimpleSolrPersistentEntity<InheritingClass> pe = new SimpleSolrPersistentEntity<InheritingClass>(typeInfo);
+		SimpleSolrPersistentEntity<InheritingClass> pe = new SimpleSolrPersistentEntity<>(typeInfo);
 		assertEquals(CORE_NAME, pe.getSolrCoreName());
 	}
 
@@ -77,7 +76,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
 
-		SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation>(
+		SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
 		assertEquals("searchablebeanwithoutsolrdocumentannotation", pe.getSolrCoreName());
 	}
@@ -88,7 +87,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
 
-		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation>(
+		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
 		assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getSolrCoreName());
 	}
@@ -99,7 +98,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(DocumentWithBoost.class);
 
-		SimpleSolrPersistentEntity<DocumentWithBoost> pe = new SimpleSolrPersistentEntity<DocumentWithBoost>(typeInfo);
+		SimpleSolrPersistentEntity<DocumentWithBoost> pe = new SimpleSolrPersistentEntity<>(typeInfo);
 		assertThat(pe.isBoosted(), is(true));
 		assertThat(pe.getBoost(), is(100f));
 	}
@@ -110,7 +109,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
 
-		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation>(
+		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
 		assertThat(pe.isBoosted(), is(false));
 		assertThat(pe.getBoost(), nullValue());
@@ -125,7 +124,7 @@ public class SimpleSolrPersistentEntityTests {
 		when(property.isAnnotationPresent(eq(Score.class))).thenReturn(true);
 		when(property.getFieldName()).thenReturn("myScoreProperty");
 
-		SimpleSolrPersistentEntity<BeanWithScore> entity = new SimpleSolrPersistentEntity<BeanWithScore>(typeInfo);
+		SimpleSolrPersistentEntity<BeanWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
 
 		entity.addPersistentProperty(property);
 
@@ -142,7 +141,7 @@ public class SimpleSolrPersistentEntityTests {
 		expectedException.expectMessage("Ambiguous score field mapping detected!");
 
 		when(typeInfo.getType()).thenReturn(DocumentWithScore.class);
-		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
 
 		SolrPersistentProperty score = mock(SolrPersistentProperty.class);
 		SolrPersistentProperty anotherScore = mock(SolrPersistentProperty.class);
@@ -170,7 +169,7 @@ public class SimpleSolrPersistentEntityTests {
 		expectedException.expectMessage("Map");
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
-		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
 
 		SolrPersistentProperty property = mock(SolrPersistentProperty.class);
 
@@ -195,7 +194,7 @@ public class SimpleSolrPersistentEntityTests {
 		expectedException.expectMessage("wildcard");
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
-		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<DocumentWithScore>(typeInfo);
+		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
 
 		SolrPersistentProperty property = mock(SolrPersistentProperty.class);
 

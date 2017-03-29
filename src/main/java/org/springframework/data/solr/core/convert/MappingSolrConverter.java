@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return Collections.emptyList();
 		}
 
-		List<R> resultList = new ArrayList<R>(source.size());
+		List<R> resultList = new ArrayList<>(source.size());
 		TypeInformation<R> typeInformation = ClassTypeInformation.from(type);
 		for (Map<String, ?> item : source) {
 			resultList.add(read(typeInformation, item));
@@ -161,7 +160,7 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <S extends Object> S read(TypeInformation<S> targetTypeInformation, Map<String, ?> source) {
+	protected <S> S read(TypeInformation<S> targetTypeInformation, Map<String, ?> source) {
 		if (source == null) {
 			return null;
 		}
@@ -177,7 +176,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return read(entity, source, null);
 	}
 
-	private <S extends Object> S read(final SolrPersistentEntity<S> entity, final Map<String, ?> source, Object parent) {
+	private <S> S read(final SolrPersistentEntity<S> entity, final Map<String, ?> source, Object parent) {
 		ParameterValueProvider<SolrPersistentProperty> parameterValueProvider = getParameterValueProvider(entity, source,
 				parent);
 
@@ -186,37 +185,33 @@ public class MappingSolrConverter extends SolrConverterBase
 		final PersistentPropertyAccessor accessor = new ConvertingPropertyAccessor(entity.getPropertyAccessor(instance),
 				getConversionService());
 
-		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
+		entity.doWithProperties((PropertyHandler<SolrPersistentProperty>) persistentProperty -> {
+			if (entity.isConstructorArgument(persistentProperty)) {
+				return;
+			}
 
-			@Override
-			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
-				if (entity.isConstructorArgument(persistentProperty)) {
-					return;
-				}
+			Optional<Object> o = getValue(persistentProperty, source, instance);
+			if (o.isPresent()) {
 
-				Optional<Object> o = getValue(persistentProperty, source, instance);
-				if (o.isPresent()) {
+				if (o.get() instanceof Collection && !persistentProperty.isCollectionLike()) {
 
-					if (o.get() instanceof Collection && !persistentProperty.isCollectionLike()) {
+					Collection<?> c = (Collection<?>) o.get();
 
-						Collection<?> c = (Collection<?>) o.get();
+					if (!c.isEmpty()) {
 
-						if (!c.isEmpty()) {
-
-							if (c.size() == 1) {
-								accessor.setProperty(persistentProperty, Optional.ofNullable(c.iterator().next()));
-							} else {
-								throw new MappingException(String.format(
-										"Cannot set multiple values %s read from '%s' to non collection property '%s'. Please check your mapping / schema defintion!",
-										c, persistentProperty.getFieldName(), persistentProperty.getName()));
-							}
+						if (c.size() == 1) {
+							accessor.setProperty(persistentProperty, Optional.ofNullable(c.iterator().next()));
+						} else {
+							throw new MappingException(String.format(
+									"Cannot set multiple values %s read from '%s' to non collection property '%s'. Please check your mapping / schema defintion!",
+									c, persistentProperty.getFieldName(), persistentProperty.getName()));
 						}
-
-					} else {
-						accessor.setProperty(persistentProperty, o);
 					}
 
+				} else {
+					accessor.setProperty(persistentProperty, o);
 				}
+
 			}
 		});
 
@@ -232,7 +227,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			Map<String, ?> source, Object parent) {
 
 		SolrPropertyValueProvider provider = new SolrPropertyValueProvider(source, parent);
-		PersistentEntityParameterValueProvider<SolrPersistentProperty> parameterProvider = new PersistentEntityParameterValueProvider<SolrPersistentProperty>(
+		PersistentEntityParameterValueProvider<SolrPersistentProperty> parameterProvider = new PersistentEntityParameterValueProvider<>(
 				entity, provider, Optional.ofNullable(parent));
 
 		return parameterProvider;
@@ -246,7 +241,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return;
 		}
 
-		Class<? extends Object> sourceClass = source.getClass();
+		Class<?> sourceClass = source.getClass();
 
 		if (hasCustomWriteTarget(sourceClass, SolrInputDocument.class)
 				&& canConvert(sourceClass, SolrInputDocument.class)) {
@@ -267,33 +262,28 @@ public class MappingSolrConverter extends SolrConverterBase
 		final PersistentPropertyAccessor accessor = new ConvertingPropertyAccessor(entity.getPropertyAccessor(source),
 				getConversionService());
 
-		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
+		entity.doWithProperties((PropertyHandler<SolrPersistentProperty>) persistentProperty -> {
 
-			@SuppressWarnings("unchecked")
-			@Override
-			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
+			Optional<Object> value = accessor.getProperty(persistentProperty);
+			if (!value.isPresent() || persistentProperty.isReadonly()) {
+				return;
+			}
 
-				Optional<Object> value = accessor.getProperty(persistentProperty);
-				if (!value.isPresent() || persistentProperty.isReadonly()) {
-					return;
-				}
+			if (persistentProperty.containsWildcard() && !persistentProperty.isMap()) {
+				throw new IllegalArgumentException("Field '" + persistentProperty.getFieldName()
+						+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
+			}
 
-				if (persistentProperty.containsWildcard() && !persistentProperty.isMap()) {
-					throw new IllegalArgumentException("Field '" + persistentProperty.getFieldName()
-							+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
-				}
+			Collection<SolrInputField> fields;
+			if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
+				fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value.get());
+			} else {
+				fields = writeRegularPropertyToTarget(target, persistentProperty, value.get());
+			}
 
-				Collection<SolrInputField> fields;
-				if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
-					fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value.get());
-				} else {
-					fields = writeRegularPropertyToTarget(target, persistentProperty, value.get());
-				}
-
-				if (persistentProperty.isBoosted()) {
-					for (SolrInputField field : fields) {
-						field.setBoost(persistentProperty.getBoost());
-					}
+			if (persistentProperty.isBoosted()) {
+				for (SolrInputField field : fields) {
+					field.setBoost(persistentProperty.getBoost());
 				}
 			}
 		});
@@ -311,7 +301,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		Class<?> rawMapType = mapTypeInformation.getType();
 		String fieldName = persistentProperty.getFieldName();
 
-		Collection<SolrInputField> fields = new ArrayList<SolrInputField>();
+		Collection<SolrInputField> fields = new ArrayList<>();
 
 		for (Map.Entry<?, ?> entry : fieldValue.entrySet()) {
 
@@ -495,7 +485,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 			Class<?> genericTargetType = property.getComponentType().orElse(Object.class);
 
-			List<Object> values = new ArrayList<Object>();
+			List<Object> values = new ArrayList<>();
 
 			for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
 
@@ -540,9 +530,9 @@ public class MappingSolrConverter extends SolrConverterBase
 
 			Map<String, Object> values;
 			if (LinkedHashMap.class.isAssignableFrom(property.getActualType())) {
-				values = new LinkedHashMap<String, Object>();
+				values = new LinkedHashMap<>();
 			} else {
-				values = new HashMap<String, Object>();
+				values = new HashMap<>();
 			}
 
 			for (Map.Entry<String, ?> potentialMatch : source.entrySet()) {
@@ -561,7 +551,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				if (value instanceof Iterable) {
 
 					if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, value.getClass())) {
-						List<Object> nestedValues = new ArrayList<Object>();
+						List<Object> nestedValues = new ArrayList<>();
 						for (Object o : (Iterable<?>) value) {
 							nestedValues.add(readValue(property, o, parent, genericTargetType));
 						}
@@ -573,7 +563,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				} else {
 
 					if (rawMapType.isArray() || ClassUtils.isAssignable(rawMapType, List.class)) {
-						ArrayList<Object> singletonArrayList = new ArrayList<Object>(1);
+						ArrayList<Object> singletonArrayList = new ArrayList<>(1);
 						Object read = readValue(property, value, parent, genericTargetType);
 						singletonArrayList.add(read);
 						values.put(key, (rawMapType.isArray() ? singletonArrayList.toArray() : singletonArrayList));
@@ -619,16 +609,15 @@ public class MappingSolrConverter extends SolrConverterBase
 
 			Collection<Object> items;
 			if (type.getType().isArray()) {
-				items = new ArrayList<Object>();
+				items = new ArrayList<>();
 			} else {
 				items = CollectionFactory.createCollection(collectionType, source.size());
 			}
 
 			TypeInformation<?> componentType = type.isCollectionLike() ? type.getComponentType().get() : type;
 
-			Iterator<?> it = source.iterator();
-			while (it.hasNext()) {
-				items.add(readValue(it.next(), componentType, parent));
+			for (Object aSource : source) {
+				items.add(readValue(aSource, componentType, parent));
 			}
 
 			return type.getType().isArray() ? convertItemsToArrayOfType(type, items) : items;
@@ -638,9 +627,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 			Object[] newArray = (Object[]) java.lang.reflect.Array.newInstance(type.getActualType().getType(), items.size());
 			Object[] itemsArray = items.toArray();
-			for (int i = 0; i < itemsArray.length; i++) {
-				newArray[i] = itemsArray[i];
-			}
+			System.arraycopy(itemsArray, 0, newArray, 0, itemsArray.length);
 			return newArray;
 		}
 	}

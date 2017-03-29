@@ -52,7 +52,7 @@ public class SolrRealtimeGetRequestUnitTests {
 	public void testCreationOfRealtimeGet() throws SolrServerException, IOException {
 
 		// given
-		NamedList<Object> value = new NamedList<Object>();
+		NamedList<Object> value = new NamedList<>();
 		SolrRealtimeGetRequest request = new SolrRealtimeGetRequest(1L, 2F, 3, "4");
 		when(solrClientMock.request(request)).thenReturn(value);
 

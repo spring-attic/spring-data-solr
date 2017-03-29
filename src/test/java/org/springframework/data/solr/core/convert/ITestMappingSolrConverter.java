@@ -150,7 +150,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	@Test // DATASOLR-210, DATASOLR-309
 	public void testProcessesScoreCorrectly() {
 
-		Collection<BeanWithScore> beans = new ArrayList<BeanWithScore>();
+		Collection<BeanWithScore> beans = new ArrayList<>();
 		beans.add(new BeanWithScore("1", "spring"));
 		beans.add(new BeanWithScore("2", "spring data solr"));
 		beans.add(new BeanWithScore("3", "apache solr"));
@@ -176,7 +176,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	@Test // DATASOLR-202
 	public void testDynamicMap() {
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("key_1", "value 1");
 		map.put("key_2", "value 2");
 		BeanWithDynamicMap bean = new BeanWithDynamicMap("bean-id", map);
@@ -193,7 +193,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	@Test // DATASOLR-308
 	public void testDynamicMapList() {
 
-		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		Map<String, List<String>> map = new HashMap<>();
 		map.put("key_1", Arrays.asList("value 11", "value 12"));
 		map.put("key_2", Arrays.asList("value 21", "value 22"));
 		BeanWithDynamicMapList bean = new BeanWithDynamicMapList("bean-id", map);
@@ -273,7 +273,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	}
 
 	private enum LiteralNumberEnum {
-		ONE, TWO, THREE;
+		ONE, TWO, THREE
 	}
 
 	private static class BeanWithEnum {

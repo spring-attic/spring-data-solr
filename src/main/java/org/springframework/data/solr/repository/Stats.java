@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,21 +35,21 @@ public @interface Stats {
 	/**
 	 * @return fields that shall have its statistics returned.
 	 */
-	public String[] value() default {};
+	String[] value() default {};
 
 	/**
 	 * @return faceting that shall be returned within statistics result.
 	 */
-	public String[] facets() default {};
+	String[] facets() default {};
 
 	/**
 	 * @return if distinct elements shall be calculated
 	 */
-	public boolean distinct() default false;
+	boolean distinct() default false;
 
 	/**
 	 * @return field selective stats parameters.
 	 */
-	public SelectiveStats[] selective() default {};
+	SelectiveStats[] selective() default {};
 
 }

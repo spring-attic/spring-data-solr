@@ -113,7 +113,7 @@ public class ITestSolrSchemaCreation {
 		assertThat((Boolean) fields.get("copySource").get("stored"), is(true));
 		assertThat((Boolean) fields.get("copySource").get("required"), is(false));
 
-		Map<String, Object> hm = new HashMap<String, Object>();
+		Map<String, Object> hm = new HashMap<>();
 		hm.put("source", "copySource");
 		hm.put("dest", "_text_");
 
@@ -123,7 +123,7 @@ public class ITestSolrSchemaCreation {
 	@Test // DATASOLR-313
 	public void existingFieldsShouldNotBeTouched() throws SolrServerException, IOException, InterruptedException {
 
-		Map<String, Object> field = new LinkedHashMap<String, Object>();
+		Map<String, Object> field = new LinkedHashMap<>();
 		field.put("name", "indexedStringWithoutType");
 		field.put("type", "string");
 		field.put("multiValued", true);
@@ -172,7 +172,7 @@ public class ITestSolrSchemaCreation {
 		SchemaRepresentation schema = new SchemaRequest().process(resource.getSolrClient(COLLECTION_NAME), COLLECTION_NAME)
 				.getSchemaRepresentation();
 
-		Map<String, Map<String, Object>> fields = new LinkedHashMap<String, Map<String, Object>>();
+		Map<String, Map<String, Object>> fields = new LinkedHashMap<>();
 
 		for (Map<String, Object> field : schema.getFields()) {
 			fields.put(field.get("name").toString(), field);

@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -90,8 +91,8 @@ public class CriteriaTests {
 
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -105,8 +106,8 @@ public class CriteriaTests {
 		Assert.assertTrue(criteria.isNegating());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -120,8 +121,8 @@ public class CriteriaTests {
 		Assert.assertFalse(criteria.isNegating());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -317,8 +318,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -328,8 +329,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -339,8 +340,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -350,8 +351,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -361,8 +362,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -372,8 +373,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -383,8 +384,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -394,8 +395,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -405,8 +406,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -416,8 +417,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertFalse(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -427,8 +428,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 	}
 
 	@Test
@@ -438,8 +439,8 @@ public class CriteriaTests {
 		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
 		Assert.assertNull(((Object[]) entry.getValue())[0]);
 		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[2]).booleanValue());
-		Assert.assertTrue(((Boolean) ((Object[]) entry.getValue())[3]).booleanValue());
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
+		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
 
 	}
 
@@ -458,9 +459,9 @@ public class CriteriaTests {
 
 	@Test
 	public void testInWithNestedCollection() {
-		List<List<String>> enclosingList = new ArrayList<List<String>>();
+		List<List<String>> enclosingList = new ArrayList<>();
 		enclosingList.add(Arrays.asList("spring", "data"));
-		enclosingList.add(Arrays.asList("solr"));
+		enclosingList.add(Collections.singletonList("solr"));
 		Criteria criteria = new Criteria("field_1").in(enclosingList);
 
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "spring");

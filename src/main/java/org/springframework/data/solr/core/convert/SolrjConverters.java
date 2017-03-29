@@ -56,7 +56,8 @@ final class SolrjConverters {
 	 * @author Christoph Strobl
 	 */
 	@WritingConverter
-	public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter implements Converter<Object, SolrInputDocument> {
+	public static class ObjectToSolrInputDocumentConverter extends DocumentBinderConverter
+			implements Converter<Object, SolrInputDocument> {
 
 		public ObjectToSolrInputDocumentConverter(DocumentObjectBinder binder) {
 			super(binder);
@@ -76,7 +77,6 @@ final class SolrjConverters {
 	 * Converts any {@link Update} to {@link SolrInputDocument} for atomic update.
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public static class UpdateToSolrInputDocumentConverter implements Converter<Update, SolrInputDocument> {
@@ -102,7 +102,7 @@ final class SolrjConverters {
 			}
 
 			for (UpdateField field : source.getUpdates()) {
-				HashMap<String, Object> mapValue = new HashMap<String, Object>(1);
+				HashMap<String, Object> mapValue = new HashMap<>(1);
 				mapValue.put(field.getAction().getSolrOperation(), getUpdateValue(field));
 				solrInputDocument.addField(field.getName(), mapValue);
 			}
@@ -111,8 +111,8 @@ final class SolrjConverters {
 		}
 
 		private Object getUpdateValue(ValueHoldingField field) {
-			//Solr removes all values from document in case of empty colleciton
-			//therefore those values have to be set to null.
+			// Solr removes all values from document in case of empty colleciton
+			// therefore those values have to be set to null.
 			if (field.getValue() instanceof Collection) {
 				if (((Collection<?>) field.getValue()).isEmpty()) {
 					return null;
@@ -128,11 +128,11 @@ final class SolrjConverters {
 	 * Convert any {@link SolrDocument} to object of given {@link Class} using {@link DocumentObjectBinder}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 * @param <T>
 	 */
 	@ReadingConverter
-	public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter implements Converter<Map<String, ?>, T> {
+	public static class SolrInputDocumentToObjectConverter<T> extends DocumentBinderConverter
+			implements Converter<Map<String, ?>, T> {
 
 		private Class<T> clazz;
 

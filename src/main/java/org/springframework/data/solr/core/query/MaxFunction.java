@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ public class MaxFunction extends AbstractFunction {
 
 	/**
 	 * @param fieldName
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Number value) {
@@ -51,7 +50,6 @@ public class MaxFunction extends AbstractFunction {
 
 	/**
 	 * @param fieldName
-	 * @param compareFieldName
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Function function) {
@@ -59,8 +57,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, Number value) {
@@ -68,8 +64,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, String fieldname) {
@@ -77,8 +71,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, Function compareFunction) {
@@ -86,8 +78,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Number value, Number compareValue) {
@@ -95,8 +85,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Number value, String fieldname) {
@@ -104,8 +92,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Number value, Function compareFunction) {

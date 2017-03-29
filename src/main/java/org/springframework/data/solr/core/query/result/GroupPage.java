@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public interface GroupPage<T> extends Page<T> {
 	 * @param field
 	 * @return
 	 */
-	public GroupResult<T> getGroupResult(Field field);
+	GroupResult<T> getGroupResult(Field field);
 
 	/**
 	 * Get a group result done for the given {@link Function}.
@@ -44,7 +44,7 @@ public interface GroupPage<T> extends Page<T> {
 	 * @param function
 	 * @return
 	 */
-	public GroupResult<T> getGroupResult(Function function);
+	GroupResult<T> getGroupResult(Function function);
 
 	/**
 	 * Get a group result done for the given {@link Query}.
@@ -52,7 +52,7 @@ public interface GroupPage<T> extends Page<T> {
 	 * @param query
 	 * @return
 	 */
-	public GroupResult<T> getGroupResult(Query query);
+	GroupResult<T> getGroupResult(Query query);
 
 	/**
 	 * Get a group result with the given name.
@@ -60,6 +60,6 @@ public interface GroupPage<T> extends Page<T> {
 	 * @param name
 	 * @return
 	 */
-	public GroupResult<T> getGroupResult(String name);
+	GroupResult<T> getGroupResult(String name);
 
 }

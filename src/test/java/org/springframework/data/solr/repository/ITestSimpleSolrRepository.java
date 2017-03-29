@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 	@Test
 	public void testListFunctions() {
 		int objectCount = 100;
-		List<ExampleSolrBean> toInsert = new ArrayList<ExampleSolrBean>(objectCount);
+		List<ExampleSolrBean> toInsert = new ArrayList<>(objectCount);
 		for (int i = 0; i < 100; i++) {
 			toInsert.add(createExampleBeanWithId(Integer.toString(i)));
 		}

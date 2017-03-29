@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 			return Collections.emptyList();
 		}
 
-		List<R> resultList = new ArrayList<R>(source.size());
+		List<R> resultList = new ArrayList<>(source.size());
 		for (Map<String, ?> item : source) {
 			resultList.add(read(type, item));
 		}
@@ -87,15 +87,15 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 			getConversionService().addConverter(new SolrjConverters.UpdateToSolrInputDocumentConverter());
 		}
 		if (!canConvert(Object.class, SolrInputDocument.class)) {
-			getConversionService().addConverter(
-					new SolrjConverters.ObjectToSolrInputDocumentConverter(new DocumentObjectBinder()));
+			getConversionService()
+					.addConverter(new SolrjConverters.ObjectToSolrInputDocumentConverter(new DocumentObjectBinder()));
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private <S> void initializeTypedConverter(Map<String, ?> source, Class<? extends S> rawType) {
 		getConversionService().addConverter((Class) source.getClass(), (Class) rawType,
-				new SolrjConverters.SolrInputDocumentToObjectConverter<S>((Class<S>) rawType));
+				new SolrjConverters.SolrInputDocumentToObjectConverter<>((Class<S>) rawType));
 	}
 
 }

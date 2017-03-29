@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	protected static final String BOOST = "^";
 
 	protected final GenericConversionService conversionService = new GenericConversionService();
-	private final List<PredicateProcessor> critieraEntryProcessors = new ArrayList<PredicateProcessor>();
+	private final List<PredicateProcessor> critieraEntryProcessors = new ArrayList<>();
 	private final PredicateProcessor defaultProcessor = new DefaultProcessor();
 
 	{
@@ -180,7 +180,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	/**
 	 * Creates query string representation of a single critiera
 	 * 
-	 * @param criteria
 	 * @return
 	 */
 	protected String createQueryFragmentForCriteria(Criteria part) {
@@ -222,7 +221,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			queryFragment.append(")");
 		}
 		if (!Float.isNaN(criteria.getBoost())) {
-			queryFragment.append(BOOST + criteria.getBoost());
+			queryFragment.append(BOOST).append(criteria.getBoost());
 		}
 
 		return queryFragment.toString();
@@ -265,7 +264,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		sb.append(function.getOperation());
 		sb.append('(');
 		if (function.hasArguments()) {
-			List<String> solrReadableArguments = new ArrayList<String>();
+			List<String> solrReadableArguments = new ArrayList<>();
 			for (Object arg : function.getArguments()) {
 				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
 				if (arg instanceof Function) {
@@ -317,7 +316,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (offset != null && offset.intValue() >= 0) {
 			query.setStart(offset.intValue());
 		}
-		if (rows != null && rows.intValue() >= 0) {
+		if (rows != null && rows >= 0) {
 			query.setRows(rows);
 		}
 	}
@@ -332,7 +331,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
-		List<String> solrReadableFields = new ArrayList<String>();
+		List<String> solrReadableFields = new ArrayList<>();
 		for (Field field : fields) {
 			if (field instanceof CalculatedField) {
 				solrReadableFields.add(createCalculatedFieldFragment((CalculatedField) field));
@@ -588,9 +587,9 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public Object doProcess(Predicate predicate, Field field) {
 			Object[] args = (Object[]) predicate.getValue();
-			String rangeFragment = ((Boolean) args[2]).booleanValue() ? "[" : "{";
+			String rangeFragment = (Boolean) args[2] ? "[" : "{";
 			rangeFragment += createRangeFragment(args[0], args[1]);
-			rangeFragment += ((Boolean) args[3]).booleanValue() ? "]" : "}";
+			rangeFragment += (Boolean) args[3] ? "]" : "}";
 			return rangeFragment;
 		}
 
@@ -777,7 +776,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 */
 	static class NamedObjectsQuery extends AbstractQueryDecorator implements NamedObjects {
 
-		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+		private Map<String, Object> namesAssociation = new HashMap<>();
 
 		public NamedObjectsQuery(Query query) {
 			super(query);
@@ -802,7 +801,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 */
 	static class NamedObjectsFacetQuery extends AbstractFacetQueryDecorator implements NamedObjects {
 
-		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+		private Map<String, Object> namesAssociation = new HashMap<>();
 
 		public NamedObjectsFacetQuery(FacetQuery query) {
 			super(query);
@@ -826,7 +825,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 */
 	static class NamedObjectsHighlightQuery extends AbstractHighlightQueryDecorator implements NamedObjects {
 
-		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+		private Map<String, Object> namesAssociation = new HashMap<>();
 
 		public NamedObjectsHighlightQuery(HighlightQuery query) {
 			super(query);
@@ -851,7 +850,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	static class NamedObjectsFacetAndHighlightQuery extends AbstractFacetAndHighlightQueryDecorator
 			implements NamedObjects {
 
-		private Map<String, Object> namesAssociation = new HashMap<String, Object>();
+		private Map<String, Object> namesAssociation = new HashMap<>();
 
 		public NamedObjectsFacetAndHighlightQuery(FacetAndHighlightQuery query) {
 			super(query);

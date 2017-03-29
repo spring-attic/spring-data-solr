@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.server.support;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -49,14 +47,10 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 	}
 
 	public HttpSolrClientFactory(SolrClient solrClient) {
-		this(solrClient, null);
+		this(solrClient, null, null);
 	}
 
-	public HttpSolrClientFactory(SolrClient solrClient, String core) {
-		this(solrClient, core, null, null);
-	}
-
-	public HttpSolrClientFactory(SolrClient solrClient, String core, Credentials credentials, String authPolicy) {
+	public HttpSolrClientFactory(SolrClient solrClient, Credentials credentials, String authPolicy) {
 		super(solrClient);
 		Assert.notNull(solrClient, "SolrServer must not be null");
 
@@ -68,32 +62,12 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 		this.credentials = credentials;
 		this.authPolicy = authPolicy;
 
-		appendCoreToBaseUrl(this.core, this.getSolrClient());
 		appendAuthentication(this.credentials, this.authPolicy, this.getSolrClient());
 	}
 
 	@Override
 	public List<String> getCores() {
-		return this.core != null ? Arrays.asList(this.core) : Collections.<String> emptyList();
-	}
-
-	/**
-	 * returns the reference {@link SolrClient}
-	 * 
-	 * @see SolrClientFactory#getSolrClient()
-	 */
-	@Override
-	public SolrClient getSolrClient(String core) {
-		return getSolrClient();
-	}
-
-	protected void appendCoreToBaseUrl(String core, SolrClient solrClient) {
-		if (StringUtils.isNotEmpty(core) && isHttpSolrClient(solrClient)) {
-			HttpSolrClient httpSolrClient = (HttpSolrClient) solrClient;
-
-			String url = SolrClientUtils.appendCoreToBaseUrl(httpSolrClient.getBaseURL(), core);
-			httpSolrClient.setBaseURL(url);
-		}
+		return this.core != null ? Collections.singletonList(this.core) : Collections.<String> emptyList();
 	}
 
 	private void appendAuthentication(Credentials credentials, String authPolicy, SolrClient solrClient) {
@@ -104,7 +78,7 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 					&& assertHttpClientInstance(httpSolrClient.getHttpClient())) {
 				AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrClient.getHttpClient();
 				httpClient.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), credentials);
-				httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Arrays.asList(authPolicy));
+				httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Collections.singletonList(authPolicy));
 			}
 		}
 	}

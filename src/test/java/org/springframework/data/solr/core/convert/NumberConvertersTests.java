@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,32 +25,32 @@ public class NumberConvertersTests {
 
 	@Test
 	public void testConvertPositiveLong() {
-		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(Long.valueOf(100l)));
+		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(100l));
 	}
 
 	@Test
 	public void testConvertNegativeLong() {
-		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(Long.valueOf(-100l)));
+		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(-100l));
 	}
 
 	@Test
 	public void testConvertPositiveInteger() {
-		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(Integer.valueOf(100)));
+		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(100));
 	}
 
 	@Test
 	public void testConvertNegativeInteger() {
-		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(Integer.valueOf(-100)));
+		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(-100));
 	}
 
 	@Test
 	public void testConvertPositiveFloat() {
-		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(Float.valueOf(100)));
+		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(100f));
 	}
 
 	@Test
 	public void testConvertNegativeFloat() {
-		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert(Float.valueOf(-100)));
+		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert((float) -100));
 	}
 
 	@Test
@@ -70,12 +70,12 @@ public class NumberConvertersTests {
 
 	@Test
 	public void testConvertPositiveDouble() {
-		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(Double.valueOf(100)));
+		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(100d));
 	}
 
 	@Test
 	public void testConvertNegativeDouble() {
-		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert(Double.valueOf(-100)));
+		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert((double) -100));
 	}
 
 	@Test

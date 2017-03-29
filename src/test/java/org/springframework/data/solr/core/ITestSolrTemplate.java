@@ -37,14 +37,11 @@ import java.util.Optional;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
-import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
-import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -64,38 +61,12 @@ import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.ExampleSolrBean;
 import org.springframework.data.solr.UncategorizedSolrException;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.DistanceField;
-import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
-import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.Function;
-import org.springframework.data.solr.core.query.GroupOptions;
-import org.springframework.data.solr.core.query.HighlightOptions;
-import org.springframework.data.solr.core.query.IfFunction;
-import org.springframework.data.solr.core.query.Join;
-import org.springframework.data.solr.core.query.PartialUpdate;
-import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
-import org.springframework.data.solr.core.query.QueryFunction;
-import org.springframework.data.solr.core.query.SimpleFacetAndHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleFacetQuery;
-import org.springframework.data.solr.core.query.SimpleField;
-import org.springframework.data.solr.core.query.SimpleFilterQuery;
-import org.springframework.data.solr.core.query.SimpleHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.SimpleTermsQuery;
-import org.springframework.data.solr.core.query.SimpleUpdateField;
-import org.springframework.data.solr.core.query.SpellcheckOptions;
-import org.springframework.data.solr.core.query.StatsOptions;
-import org.springframework.data.solr.core.query.TermsQuery;
-import org.springframework.data.solr.core.query.Update;
-import org.springframework.data.solr.core.query.UpdateAction;
 import org.springframework.data.solr.core.query.result.Cursor;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
@@ -110,7 +81,7 @@ import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.StatsResult;
 import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 import org.springframework.data.solr.core.query.result.TermsPage;
-import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 import org.xml.sax.SAXException;
 
 import com.google.common.collect.Lists;
@@ -190,7 +161,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	public void testPartialUpdateAddSingleValueToMultivalueField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		toInsert.setCategory(Arrays.asList("nosql"));
+		toInsert.setCategory(Collections.singletonList("nosql"));
 		solrTemplate.saveBean(toInsert);
 		solrTemplate.commit();
 
@@ -310,7 +281,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
 
 		Assert.assertEquals(4, recalled.get().getCategory().size());
-		Assert.assertEquals(Arrays.asList(toInsert.getCategory().get(0), "spring", "data", "solr"), recalled.get().getCategory());
+		Assert.assertEquals(Arrays.asList(toInsert.getCategory().get(0), "spring", "data", "solr"),
+				recalled.get().getCategory());
 
 		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
 		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
@@ -318,7 +290,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testPartialUpdateWithMultipleDocuments() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>(10);
+		List<ExampleSolrBean> values = new ArrayList<>(10);
 		for (int i = 0; i < 10; i++) {
 			ExampleSolrBean toBeInserted = createExampleBeanWithId(Integer.toString(i));
 			toBeInserted.setPopularity(10);
@@ -327,7 +299,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(values);
 		solrTemplate.commit();
 
-		List<Update> updates = new ArrayList<Update>(5);
+		List<Update> updates = new ArrayList<>(5);
 		for (int i = 0; i < 5; i++) {
 			PartialUpdate update = new PartialUpdate("id", Integer.toString(i));
 			update.add("popularity", 5);
@@ -353,7 +325,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	public void testPartialUpdateSetWithNullAtTheEnd() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		toInsert.setCategory(Arrays.asList("cat-1"));
+		toInsert.setCategory(Collections.singletonList("cat-1"));
 		solrTemplate.saveBean(toInsert);
 		solrTemplate.commit();
 
@@ -379,7 +351,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	public void testPartialUpdateSetWithNullInTheMiddle() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		toInsert.setCategory(Arrays.asList("cat-1"));
+		toInsert.setCategory(Collections.singletonList("cat-1"));
 		solrTemplate.saveBean(toInsert);
 		solrTemplate.commit();
 
@@ -453,7 +425,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testFacetQueryWithFacetFields() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
@@ -487,7 +459,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test // DATSOLR-86
 	public void testFacetQueryWithDateFacetRangeField() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			final ExampleSolrBean exampleSolrBean = createExampleBeanWithId(Integer.toString(i));
 			exampleSolrBean.setLastModified(new GregorianCalendar(2013, Calendar.DECEMBER, (i + 10) / 2).getTime());
@@ -529,7 +501,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test // DATSOLR-86
 	public void testFacetQueryWithNumericFacetRangeField() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			final ExampleSolrBean exampleSolrBean = createExampleBeanWithId(Integer.toString(i));
 			exampleSolrBean.setPopularity((i + 1) * 100);
@@ -569,7 +541,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testFacetQueryWithPivotFields() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
@@ -601,7 +573,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testFacetQueryWithFacetQueries() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
 			bean.setInStock(i % 2 == 0);
@@ -684,7 +656,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-244
 	public void testFacetAndHighlightQueryWithFacetFields() {
 
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
@@ -721,7 +693,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testQueryWithSort() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
@@ -741,7 +713,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testQueryWithMultiSort() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
 			bean.setInStock(i % 2 == 0);
@@ -773,7 +745,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Test
 	public void testQueryWithDefaultOperator() {
-		List<ExampleSolrBean> values = new ArrayList<ExampleSolrBean>();
+		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			ExampleSolrBean bean = createExampleBeanWithId(Integer.toString(i));
 			bean.setInStock(i % 2 == 0);
@@ -1097,7 +1069,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		List<String> ids = Arrays.<String> asList("id-1", "id-2");
 		Collection<ExampleSolrBean> beansReturned = solrTemplate.getById(ids, ExampleSolrBean.class);
-		List<ExampleSolrBean> listBeansReturned = new ArrayList<ExampleSolrBean>(beansReturned);
+		List<ExampleSolrBean> listBeansReturned = new ArrayList<>(beansReturned);
 
 		Assert.assertEquals(2, beansReturned.size());
 		Assert.assertEquals(bean1.getId(), listBeansReturned.get(0).getId());
@@ -1192,17 +1164,13 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-248
 	public void shouldAllowReadingMultivaluedFieldWithOnlyOneEntryIntoSingleValuedProperty() {
 
-		solrTemplate.execute(new SolrCallback<Object>() {
+		solrTemplate.execute((SolrCallback<Object>) solrClient -> {
 
-			@Override
-			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-
-				SolrInputDocument sid = new SolrInputDocument();
-				sid.addField("id", "id-1");
-				sid.addField("title", "title");
-				solrClient.add(sid).getStatus();
-				return solrClient.commit();
-			}
+			SolrInputDocument sid = new SolrInputDocument();
+			sid.addField("id", "id-1");
+			sid.addField("title", "title");
+			solrClient.add(sid).getStatus();
+			return solrClient.commit();
 		});
 
 		Optional<SomeDoc> document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
@@ -1212,17 +1180,13 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-248
 	public void shouldThrowExceptionReadingMultivaluedFieldWithManyEntriesIntoSingleValuedProperty() {
 
-		solrTemplate.execute(new SolrCallback<Object>() {
+		solrTemplate.execute((SolrCallback<Object>) solrClient -> {
 
-			@Override
-			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-
-				SolrInputDocument sid = new SolrInputDocument();
-				sid.addField("id", "id-1");
-				sid.addField("title", new String[] { "title-1", "title-2" });
-				solrClient.add(sid).getStatus();
-				return solrClient.commit();
-			}
+			SolrInputDocument sid = new SolrInputDocument();
+			sid.addField("id", "id-1");
+			sid.addField("title", new String[] { "title-1", "title-2" });
+			solrClient.add(sid).getStatus();
+			return solrClient.commit();
 		});
 
 		exception.expect(MappingException.class);
@@ -1235,16 +1199,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-248
 	public void shouldAllowReadingMultivaluedFieldWithNoEntriesIntoSingleValuedProperty() {
 
-		solrTemplate.execute(new SolrCallback<Object>() {
+		solrTemplate.execute((SolrCallback<Object>) solrClient -> {
 
-			@Override
-			public Object doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-
-				SolrInputDocument sid = new SolrInputDocument();
-				sid.addField("id", "id-1");
-				solrClient.add(sid).getStatus();
-				return solrClient.commit();
-			}
+			SolrInputDocument sid = new SolrInputDocument();
+			sid.addField("id", "id-1");
+			solrClient.add(sid).getStatus();
+			return solrClient.commit();
 		});
 
 		Optional<SomeDoc> document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
@@ -1273,15 +1233,12 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final HttpSolrClient client = new HttpSolrClient("http://127.0.0.1/solr/");
 
-		SolrTemplate solrTemplate = new SolrTemplate(new MulticoreSolrClientFactory(client), "collection-1");
+		SolrTemplate solrTemplate = new SolrTemplate(new HttpSolrClientFactory(client), "collection-1");
 
-		solrTemplate.execute("collection-1", new CollectionCallback<Object>() {
-			@Override
-			public Object doInSolr(SolrClient solrClient, String collection) throws SolrServerException, IOException {
+		solrTemplate.execute("collection-1", (solrClient, collection) -> {
 
-				Assert.assertThat(((HttpSolrClient)solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
-				return null;
-			}
+			Assert.assertThat(((HttpSolrClient) solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
+			return null;
 		});
 	}
 
@@ -1308,8 +1265,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		Assert.assertEquals("20.5", priceStats.getMaxAsString());
 		Assert.assertNull(priceStats.getMinAsDate());
 		Assert.assertNull(priceStats.getMaxAsDate());
-		Assert.assertEquals(Double.valueOf(15.25), priceStats.getMean());
-		Assert.assertEquals(Double.valueOf(30.50), priceStats.getSum());
+		Assert.assertEquals(15.25, priceStats.getMean());
+		Assert.assertEquals(30.50, priceStats.getSum());
 		Assert.assertEquals(Long.valueOf(0), priceStats.getMissing());
 		Assert.assertEquals(Double.valueOf(7.424621202458749), priceStats.getStddev());
 		Assert.assertEquals(Double.valueOf(520.25), priceStats.getSumOfSquares());

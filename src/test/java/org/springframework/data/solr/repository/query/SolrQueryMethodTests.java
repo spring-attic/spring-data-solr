@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -373,7 +374,7 @@ public class SolrQueryMethodTests {
 	@Test
 	public void testQueryWithHighlightSingleField() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightSingleField", String.class);
-		assertThat(Arrays.asList("field_1"), equalTo(method.getHighlightFieldNames()));
+		assertThat(Collections.singletonList("field_1"), equalTo(method.getHighlightFieldNames()));
 	}
 
 	@Test
@@ -448,15 +449,15 @@ public class SolrQueryMethodTests {
 	public void testStatsForField() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStats", String.class);
-		assertEquals(Arrays.asList("field1"), method.getFieldStats());
+		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
 	}
 
 	@Test // DATASOLR-160
 	public void testStatsForFieldAndFacets() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class);
-		assertEquals(Arrays.asList("field1"), method.getFieldStats());
-		assertEquals(Arrays.asList("field2"), method.getStatsFacets());
+		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
+		assertEquals(Collections.singletonList("field2"), method.getStatsFacets());
 	}
 
 	@Test // DATASOLR-160
@@ -474,7 +475,7 @@ public class SolrQueryMethodTests {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats",
 				String.class);
-		assertEquals(Arrays.asList("field1"), method.getFieldStats());
+		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
 		assertEquals(Arrays.asList("field2", "field3"), method.getStatsFacets());
 		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
 		assertEquals(1, statsSelectiveFacets.size());

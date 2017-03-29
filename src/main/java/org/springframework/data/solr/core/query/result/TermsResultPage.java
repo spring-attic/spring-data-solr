@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,10 @@ import org.springframework.util.Assert;
 
 /**
  * @author Christoph Strobl
- * 
  */
 public class TermsResultPage implements TermsPage {
 
-	private Map<StringPageKey, List<TermsFieldEntry>> termsMap = new LinkedHashMap<StringPageKey, List<TermsFieldEntry>>(
-			1);
+	private Map<StringPageKey, List<TermsFieldEntry>> termsMap = new LinkedHashMap<>(1);
 
 	public final void addTermsResult(List<TermsFieldEntry> entries, Field field) {
 		Assert.notNull(field, "Cannot add terms for 'null' field.");
@@ -68,7 +66,7 @@ public class TermsResultPage implements TermsPage {
 			return Collections.emptyList();
 		}
 
-		List<Field> fields = new ArrayList<Field>(this.termsMap.size());
+		List<Field> fields = new ArrayList<>(this.termsMap.size());
 		for (StringPageKey pageKey : this.termsMap.keySet()) {
 			fields.add(new SimpleField(pageKey.getKey()));
 		}
@@ -82,7 +80,7 @@ public class TermsResultPage implements TermsPage {
 
 	@Override
 	public List<TermsFieldEntry> getContent() {
-		List<TermsFieldEntry> values = new ArrayList<TermsFieldEntry>();
+		List<TermsFieldEntry> values = new ArrayList<>();
 		for (List<TermsFieldEntry> entries : termsMap.values()) {
 			values.addAll(entries);
 		}

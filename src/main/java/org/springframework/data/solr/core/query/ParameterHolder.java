@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  */
 class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 
-	private final Map<String, T> parameters = new LinkedHashMap<String, T>(1);
+	private final Map<String, T> parameters = new LinkedHashMap<>(1);
 
 	@SuppressWarnings("unchecked")
 	public <S> S getParameterValue(String parameterName) {

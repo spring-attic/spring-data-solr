@@ -35,15 +35,15 @@ public class SolrGroupResultPageTest {
 	@Test // DATASOLR-121
 	public void testGetGroupResultField() {
 		@SuppressWarnings("unchecked")
-		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
+		GroupResult<Object> gr = new SimpleGroupResult<>(1, null, "name", Mockito.mock(Page.class));
 
 		Field field = Mockito.mock(Field.class);
 		Mockito.when(field.getName()).thenReturn("name");
 
-		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<Object, GroupResult<Object>>();
+		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<>();
 		groupResultMap.put("name", gr);
 
-		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
+		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
 		Assert.assertEquals(gr, result.getGroupResult(field));
@@ -52,14 +52,14 @@ public class SolrGroupResultPageTest {
 	@Test // DATASOLR-121
 	public void testGetGroupResultFunction() {
 		@SuppressWarnings("unchecked")
-		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
+		GroupResult<Object> gr = new SimpleGroupResult<>(1, null, "name", Mockito.mock(Page.class));
 
 		Function func = Mockito.mock(Function.class);
 
-		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<Object, GroupResult<Object>>();
+		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<>();
 		groupResultMap.put(func, gr);
 
-		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
+		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
 		Assert.assertEquals(gr, result.getGroupResult(func));
@@ -68,14 +68,14 @@ public class SolrGroupResultPageTest {
 	@Test // DATASOLR-121
 	public void testGetGroupResultQuery() {
 		@SuppressWarnings("unchecked")
-		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
+		GroupResult<Object> gr = new SimpleGroupResult<>(1, null, "name", Mockito.mock(Page.class));
 
 		Query query = Mockito.mock(Query.class);
 
-		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<Object, GroupResult<Object>>();
+		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<>();
 		groupResultMap.put(query, gr);
 
-		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
+		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
 		Assert.assertEquals(gr, result.getGroupResult(query));
@@ -84,12 +84,12 @@ public class SolrGroupResultPageTest {
 	@Test // DATASOLR-121
 	public void testGetGroupResultString() {
 		@SuppressWarnings("unchecked")
-		GroupResult<Object> gr = new SimpleGroupResult<Object>(1, null, "name", Mockito.mock(Page.class));
+		GroupResult<Object> gr = new SimpleGroupResult<>(1, null, "name", Mockito.mock(Page.class));
 
-		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<Object, GroupResult<Object>>();
+		Map<Object, GroupResult<Object>> groupResultMap = new HashMap<>();
 		groupResultMap.put("name", gr);
 
-		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
+		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
 		Assert.assertEquals(gr, result.getGroupResult("name"));
@@ -97,7 +97,7 @@ public class SolrGroupResultPageTest {
 
 	@Test // DATASOLR-121
 	public void testInexistentGroupResult() {
-		SolrResultPage<Object> result = new SolrResultPage<Object>(Collections.emptyList());
+		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 
 		Assert.assertNull(result.getGroupResult("name"));
 		Assert.assertNull(result.getGroupResult(Mockito.mock(Query.class)));

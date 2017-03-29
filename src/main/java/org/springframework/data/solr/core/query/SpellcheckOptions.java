@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class SpellcheckOptions {
 	private SpellcheckOptions(Query query, Map<String, Object> params) {
 
 		this.query = query;
-		this.params = new LinkedHashMap<String, Object>(params);
+		this.params = new LinkedHashMap<>(params);
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class SpellcheckOptions {
 	 * @return
 	 */
 	public static SpellcheckOptions spellcheck() {
-		return new SpellcheckOptions(null, new LinkedHashMap<String, Object>());
+		return new SpellcheckOptions(null, new LinkedHashMap<>());
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class SpellcheckOptions {
 	 * @return
 	 */
 	public static SpellcheckOptions spellcheck(Query q) {
-		return new SpellcheckOptions(q, new LinkedHashMap<String, Object>());
+		return new SpellcheckOptions(q, new LinkedHashMap<>());
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class SpellcheckOptions {
 	 */
 	public Map<String, Object> getCollateParams() {
 
-		Map<String, Object> tmp = new LinkedHashMap<String, Object>();
+		Map<String, Object> tmp = new LinkedHashMap<>();
 
 		for (Entry<String, Object> entry : params.entrySet()) {
 			if (entry.getKey().startsWith(SpellingParams.SPELLCHECK_COLLATE_PARAM_OVERRIDE)) {
@@ -262,7 +262,6 @@ public class SpellcheckOptions {
 	 * This parameter causes Solr to use the dictionary named in the parameter's argument. The default setting is
 	 * "default". This parameter can be used to invoke a specific spellchecker on a per request basis.
 	 *
-	 * @param name
 	 * @return
 	 */
 	public SpellcheckOptions dictionaries(String... names) {

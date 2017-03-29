@@ -52,7 +52,7 @@ public class SimpleSolrPersistentPropertyBoostTests {
 	public void setUp() {
 
 		typeInfoMock = ClassTypeInformation.from(BeanWithSolrFieldAnnotation.class);
-		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInfoMock);
+		persistentEntity = new SimpleSolrPersistentEntity<>(typeInfoMock);
 	}
 
 	@Parameters(name = "{index}: {0} should be boosted by {1}")

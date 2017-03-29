@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  */
-public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements
-		SolrPersistentEntity<T>, ApplicationContextAware {
+public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty>
+		implements SolrPersistentEntity<T>, ApplicationContextAware {
 
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
@@ -179,8 +179,8 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isScoreProperty()) {
 
 				if (scoreProperty != null) {
-					throw new MappingException(String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(),
-							scoreProperty.getFieldName()));
+					throw new MappingException(
+							String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(), scoreProperty.getFieldName()));
 				}
 
 				scoreProperty = property;
@@ -194,7 +194,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * @author Christoph Strobl
 	 * @since 1.5
 	 */
-	private static enum DynamicFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
+	private enum DynamicFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
 
 		INSTANCE;
 
@@ -207,13 +207,13 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isDynamicProperty()) {
 
 				if (!property.isMap()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(), property.getFieldName()));
 				}
 
 				if (!property.containsWildcard()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(), property.getFieldName()));
 				}
 			}
 		}

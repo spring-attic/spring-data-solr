@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.core.schema;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,9 +28,6 @@ import java.util.Map;
 
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author Christoph Strobl
@@ -46,7 +46,7 @@ public class SchemaDefinition {
 
 	public SchemaDefinition(String collectionName) {
 		this.collectionName = collectionName;
-		this.fields = new ArrayList<FieldDefinition>();
+		this.fields = new ArrayList<>();
 	}
 
 	public String getCollectionName() {
@@ -58,7 +58,7 @@ public class SchemaDefinition {
 	}
 
 	public void setFields(List<FieldDefinition> fields) {
-		this.fields = fields != null ? fields : new ArrayList<FieldDefinition>();
+		this.fields = fields != null ? fields : new ArrayList<>();
 	}
 
 	public String getName() {
@@ -107,7 +107,7 @@ public class SchemaDefinition {
 	public void addFieldDefinition(FieldDefinition fieldDef) {
 
 		if (this.fields == null) {
-			this.fields = new ArrayList<FieldDefinition>();
+			this.fields = new ArrayList<>();
 		}
 		this.fields.add(fieldDef);
 	}
@@ -115,7 +115,7 @@ public class SchemaDefinition {
 	public void addCopyField(CopyFieldDefinition copyField) {
 
 		if (this.copyFields == null) {
-			this.copyFields = new ArrayList<CopyFieldDefinition>();
+			this.copyFields = new ArrayList<>();
 		}
 		this.copyFields.add(copyField);
 	}
@@ -132,7 +132,7 @@ public class SchemaDefinition {
 	 * @author Christoph Strobl
 	 * @since 1.3
 	 */
-	public static interface SchemaField {}
+	public interface SchemaField {}
 
 	/**
 	 * @author Christoph Strobl
@@ -158,7 +158,7 @@ public class SchemaDefinition {
 		}
 
 		public void setCopyFields(Collection<String> copyFields) {
-			this.copyFields = new ArrayList<String>(copyFields);
+			this.copyFields = new ArrayList<>(copyFields);
 		}
 
 		/**
@@ -167,7 +167,7 @@ public class SchemaDefinition {
 		 */
 		public Map<String, Object> asMap() {
 
-			Map<String, Object> values = new LinkedHashMap<String, Object>();
+			Map<String, Object> values = new LinkedHashMap<>();
 			addIfNotNull("name", name, values);
 			addIfNotNull("type", type, values);
 			addIfNotNull("indexed", indexed, values);
@@ -299,7 +299,7 @@ public class SchemaDefinition {
 
 			Object dest = fieldValueMap.get("dest");
 			if (dest instanceof Collection) {
-				cfd.destination = new ArrayList<String>((Collection<String>) dest);
+				cfd.destination = new ArrayList<>((Collection<String>) dest);
 			} else if (fieldValueMap.get("dest") instanceof String) {
 				cfd.destination = Collections.<String> singletonList(dest.toString());
 			}
@@ -337,7 +337,7 @@ public class SchemaDefinition {
 				if (cf.getDestination() == null) {
 					cf.setDestination(Arrays.asList(destinations));
 				} else {
-					ArrayList<String> values = new ArrayList<String>(cf.getDestination());
+					ArrayList<String> values = new ArrayList<>(cf.getDestination());
 					CollectionUtils.mergeArrayIntoCollection(destinations, values);
 					cf.setDestination(values);
 				}

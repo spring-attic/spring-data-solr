@@ -52,13 +52,13 @@ public class CustomConversions {
 	private final Set<ConvertiblePair> writingPairs;
 	private SimpleTypeHolder simpleTypeHolder;
 
-	private ConcurrentMap<ConvertiblePair, Class<?>> cache = new ConcurrentHashMap<ConvertiblePair, Class<?>>(36, 0.9f, 1);
+	private ConcurrentMap<ConvertiblePair, Class<?>> cache = new ConcurrentHashMap<>(36, 0.9f, 1);
 
 	/**
 	 * Create new instance
 	 */
 	public CustomConversions() {
-		this(new ArrayList<Object>());
+		this(new ArrayList<>());
 	}
 
 	/**
@@ -68,10 +68,10 @@ public class CustomConversions {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public CustomConversions(List converters) {
-		this.converters = (converters != null ? new ArrayList<Object>(converters) : new ArrayList<Object>());
-		this.readingPairs = new HashSet<ConvertiblePair>();
-		this.writingPairs = new HashSet<ConvertiblePair>();
-		this.customSimpleTypes = new HashSet<Class<?>>();
+		this.converters = (converters != null ? new ArrayList<>(converters) : new ArrayList<>());
+		this.readingPairs = new HashSet<>();
+		this.writingPairs = new HashSet<>();
+		this.customSimpleTypes = new HashSet<>();
 
 		this.simpleTypeHolder = new SimpleTypeHolder(customSimpleTypes, SolrSimpleTypes.HOLDER);
 
@@ -108,8 +108,8 @@ public class CustomConversions {
 			} else if (converter instanceof GenericConverter) {
 				conversionService.addConverter((GenericConverter) converter);
 			} else {
-				throw new IllegalArgumentException("Given object '" + converter
-						+ "' expected to be a Converter, ConverterFactory or GenericeConverter!");
+				throw new IllegalArgumentException(
+						"Given object '" + converter + "' expected to be a Converter, ConverterFactory or GenericeConverter!");
 			}
 		}
 	}
@@ -148,8 +148,8 @@ public class CustomConversions {
 		Assert.notNull(sourceType, "SourceType must not be null!");
 		Assert.notNull(pairs, "Pairs of ConvertiblePairs must not be null!");
 
-		ConvertiblePair expectedTypePair = new ConvertiblePair(sourceType, expectedTargetType != null ? expectedTargetType
-				: Any.class);
+		ConvertiblePair expectedTypePair = new ConvertiblePair(sourceType,
+				expectedTargetType != null ? expectedTargetType : Any.class);
 
 		if (cache.containsKey(expectedTypePair)) {
 			Class<?> cachedTargetType = cache.get(expectedTypePair);

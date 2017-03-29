@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ public class GroupOptions {
 	int DEFAULT_GROUP_LIMIT = 1;
 	int DEFAULT_CACHE_PERCENT = 0;
 
-	private List<Field> groupByFields = new ArrayList<Field>(0);
-	private List<Function> groupByFunctions = new ArrayList<Function>(0);
-	private List<Query> groupByQuery = new ArrayList<Query>(0);
+	private List<Field> groupByFields = new ArrayList<>(0);
+	private List<Function> groupByFunctions = new ArrayList<>(0);
+	private List<Query> groupByQuery = new ArrayList<>(0);
 
 	private Integer offset = null;
 	private Integer limit = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,16 +26,16 @@ public @interface SelectiveStats {
 	/**
 	 * @return field name to which the selective stats are associated to
 	 */
-	public String field();
+	String field();
 
 	/**
 	 * @return fields to be facet within this stats field request
 	 */
-	public String[] facets();
+	String[] facets();
 
 	/**
 	 * @return if distinct elements for this field shall be calculated
 	 */
-	public boolean distinct() default false;
+	boolean distinct() default false;
 
 }

@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -336,7 +337,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortAsc() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -356,7 +357,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortDesc() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -376,7 +377,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortDescForAnnotatedQuery() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -397,7 +398,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortDescInPageableForAnnotatedQuery() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -418,7 +419,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortDescForNamedQuery() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -438,7 +439,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFindWithSortDescInPageableForNamedQuery() {
 		repo.deleteAll();
 
-		List<ProductBean> values = new ArrayList<ProductBean>();
+		List<ProductBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			values.add(createProductBean(Integer.toString(i), i, true));
 		}
@@ -748,7 +749,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testDefaultAndOperator() {
-		List<ProductBean> found = repo.findByAvailableIn(Arrays.asList(Boolean.TRUE));
+		List<ProductBean> found = repo.findByAvailableIn(Collections.singletonList(Boolean.TRUE));
 		Assert.assertEquals(3, found.size());
 
 		found = repo.findByAvailableIn(Arrays.asList(Boolean.TRUE, Boolean.FALSE));
@@ -757,7 +758,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testDefaultOrOperator() {
-		List<ProductBean> found = repo.findByAvailableInWithOrOperator(Arrays.asList(Boolean.TRUE));
+		List<ProductBean> found = repo.findByAvailableInWithOrOperator(Collections.singletonList(Boolean.TRUE));
 		Assert.assertEquals(3, found.size());
 
 		found = repo.findByAvailableInWithOrOperator(Arrays.asList(Boolean.TRUE, Boolean.FALSE));
@@ -774,10 +775,10 @@ public class ITestSolrRepositoryOperations {
 	public void testWithBoost() {
 		repo.deleteAll();
 		ProductBean beanWithName = createProductBean("1", 5, true, "stackoverflow");
-		beanWithName.setTitle(Arrays.asList("indexoutofbounds"));
+		beanWithName.setTitle(Collections.singletonList("indexoutofbounds"));
 
 		ProductBean beanWithTitle = createProductBean("2", 5, true, "indexoutofbounds");
-		beanWithTitle.setTitle(Arrays.asList("stackoverflow"));
+		beanWithTitle.setTitle(Collections.singletonList("stackoverflow"));
 
 		repo.save(Arrays.asList(beanWithName, beanWithTitle));
 
@@ -1051,7 +1052,7 @@ public class ITestSolrRepositoryOperations {
 
 	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {
 
-		List<ProductBean> beans = new ArrayList<ProductBean>(nrToCreate);
+		List<ProductBean> beans = new ArrayList<>(nrToCreate);
 		for (int i = 0; i < nrToCreate; i++) {
 			String id = StringUtils.hasText(prefix) ? (prefix + "-" + i) : Integer.toString(i);
 			beans.add(createProductBean(id, 0, true, id));

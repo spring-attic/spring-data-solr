@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.core.mapping;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,8 +42,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		implements SolrPersistentProperty {
 
 	private static final String SOLRJ_FIELD_ANNOTATION_DEFAULT_VALUE = "#default";
-	private static final Set<Class<?>> SUPPORTED_ID_TYPES = new HashSet<Class<?>>(3);
-	private static final Set<String> SUPPORTED_ID_PROPERTY_NAMES = new HashSet<String>(1);
+	private static final Set<Class<?>> SUPPORTED_ID_TYPES = new HashSet<>(3);
+	private static final Set<String> SUPPORTED_ID_PROPERTY_NAMES = new HashSet<>(1);
 
 	static {
 		SUPPORTED_ID_TYPES.add(String.class);
@@ -55,8 +53,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		SUPPORTED_ID_PROPERTY_NAMES.add("id");
 	}
 
-	public SimpleSolrPersistentProperty(Property property,
-			PersistentEntity<?, SolrPersistentProperty> owner, SimpleTypeHolder simpleTypeHolder) {
+	public SimpleSolrPersistentProperty(Property property, PersistentEntity<?, SolrPersistentProperty> owner,
+			SimpleTypeHolder simpleTypeHolder) {
 		super(property, owner, simpleTypeHolder);
 	}
 
@@ -77,7 +75,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		} else if (isAnnotationPresent(Indexed.class)) {
 			Optional<Indexed> indexedAnnotation = findAnnotation(Indexed.class);
 
-			if(indexedAnnotation.isPresent()) {
+			if (indexedAnnotation.isPresent()) {
 				fieldName = indexedAnnotation.get().value();
 				if (!StringUtils.hasText(fieldName)) {
 					fieldName = indexedAnnotation.get().name();
@@ -114,11 +112,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 */
 	@Override
 	public boolean isIdProperty() {
-		if (super.isIdProperty()) {
-			return true;
-		}
-
-		return SUPPORTED_ID_PROPERTY_NAMES.contains(getFieldName());
+		return super.isIdProperty() || SUPPORTED_ID_PROPERTY_NAMES.contains(getFieldName());
 	}
 
 	/*

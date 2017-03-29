@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2015 the original author or authors.
+ * Copyright 2014 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class SolrJsonRequest extends SolrRequest<SolrJsonResponse> {
 	public void addContentToStream(Object content) {
 
 		if (contentStream == null) {
-			this.contentStream = new ArrayList<ContentStream>();
+			this.contentStream = new ArrayList<>();
 		}
 
 		contentStream.add(getContentParser().parse(content));
@@ -77,13 +77,9 @@ public class SolrJsonRequest extends SolrRequest<SolrJsonResponse> {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(getMethod().toString());
-		sb.append(" ");
-		sb.append(getPath());
-		sb.append("\r\n");
-		sb.append(quietlyReadContentStreams());
+		String sb = getMethod().toString() + " " + getPath() + "\r\n" + quietlyReadContentStreams();
 
-		return sb.toString();
+		return sb;
 	}
 
 	private String quietlyReadContentStreams() {

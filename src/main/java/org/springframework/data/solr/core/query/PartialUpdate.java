@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,13 @@ import java.util.List;
  * Implementation of {@link Update} to be used when performing atomic updates against solr. <br />
  * Update can directly be saved via {@link org.springframework.data.solr.core.SolrOperations#saveBean(Object)}
  * 
- * 
  * @author Christoph Strobl
  */
 public class PartialUpdate implements Update {
 
 	private final ValueHoldingField idField;
 	private Object version;
-	private final List<UpdateField> updates = new ArrayList<UpdateField>();
+	private final List<UpdateField> updates = new ArrayList<>();
 
 	public PartialUpdate(String idFieldName, Object idFieldValue) {
 		this(new IdField(idFieldName, idFieldValue));

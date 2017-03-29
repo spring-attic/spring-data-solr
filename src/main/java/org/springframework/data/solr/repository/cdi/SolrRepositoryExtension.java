@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.springframework.data.solr.core.SolrOperations;
  */
 public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 
-	private final Map<String, Bean<SolrOperations>> solrOperationsMap = new HashMap<String, Bean<SolrOperations>>();
+	private final Map<String, Bean<SolrOperations>> solrOperationsMap = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
 	<T> void processBean(@Observes ProcessBean<T> processBean) {
@@ -62,7 +62,8 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 		}
 	}
 
-	private <T> Bean<T> createRepositoryBean(Class<T> repositoryType, Set<Annotation> qualifiers, BeanManager beanManager) {
+	private <T> Bean<T> createRepositoryBean(Class<T> repositoryType, Set<Annotation> qualifiers,
+			BeanManager beanManager) {
 		Bean<SolrOperations> solrOperationBeans = this.solrOperationsMap.get(qualifiers.toString());
 
 		if (solrOperationBeans == null) {
@@ -70,7 +71,7 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 					SolrOperations.class.getName(), qualifiers));
 		}
 
-		return new SolrRepositoryBean<T>(solrOperationBeans, qualifiers, repositoryType, beanManager,
+		return new SolrRepositoryBean<>(solrOperationBeans, qualifiers, repositoryType, beanManager,
 				Optional.ofNullable(getCustomImplementationDetector()));
 	}
 

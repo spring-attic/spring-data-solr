@@ -123,7 +123,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetQueryResponseForQueryResultWithSingleFacetFieldWithoutValues() {
-		List<FacetField> fieldList = new ArrayList<FacetField>(1);
+		List<FacetField> fieldList = new ArrayList<>(1);
 		FacetField ffield = new FacetField("field_1");
 		fieldList.add(ffield);
 
@@ -141,7 +141,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetQueryResponseForQueryResultWithSingeFacetField() {
-		List<FacetField> fieldList = new ArrayList<FacetField>(1);
+		List<FacetField> fieldList = new ArrayList<>(1);
 		FacetField ffield = createFacetField("field_1", 1, 2);
 		fieldList.add(ffield);
 
@@ -177,7 +177,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetQueryResponseForQueryResultWithFacetQueries() {
-		Map<String, Integer> resultMap = new LinkedHashMap<String, Integer>(2);
+		Map<String, Integer> resultMap = new LinkedHashMap<>(2);
 		resultMap.put("field_1:[* TO 5]", 5);
 		resultMap.put("field_1:[6 TO *]", 10);
 
@@ -204,29 +204,28 @@ public class ResultHelperTests {
 	public void testParseAndAddHighlightQueryResponseToResultPageWithEmptyHighlighting() {
 		Mockito.when(response.getHighlighting()).thenReturn(Collections.<String, Map<String, List<String>>> emptyMap());
 		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
-				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithNullHighlighting() {
 		Mockito.when(response.getHighlighting()).thenReturn(null);
 		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
-				new SolrResultPage<Object>(Arrays.asList(new Object()))).isEmpty());
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithNullResponse() {
-		Assert.assertTrue(ResultHelper
-				.convertAndAddHighlightQueryResponseToResultPage(null, new SolrResultPage<Object>(Arrays.asList(new Object())))
-				.isEmpty());
+		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(null,
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPage() {
-		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
-		Map<String, List<String>> fieldHighlights = new LinkedHashMap<String, List<String>>();
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<>();
+		Map<String, List<String>> fieldHighlights = new LinkedHashMap<>();
 		fieldHighlights.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
-		fieldHighlights.put("field_2", Arrays.asList("highlight 3"));
+		fieldHighlights.put("field_2", Collections.singletonList("highlight 3"));
 		highlightingData.put("entity-id-1", fieldHighlights);
 
 		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
@@ -235,7 +234,7 @@ public class ResultHelperTests {
 
 		List<HighlightEntry<SolrBeanWithIdNamedField>> result = ResultHelper
 				.convertAndAddHighlightQueryResponseToResultPage(response,
-						new SolrResultPage<SolrBeanWithIdNamedField>(Arrays.asList(resultBean)));
+						new SolrResultPage<>(Collections.singletonList(resultBean)));
 
 		Assert.assertEquals(1, result.size());
 		Assert.assertEquals(resultBean, result.get(0).getEntity());
@@ -251,15 +250,15 @@ public class ResultHelperTests {
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseWithMultipleEntriesToResultPage() {
-		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<>();
 
-		Map<String, List<String>> fieldHighlightsEntity1 = new LinkedHashMap<String, List<String>>();
+		Map<String, List<String>> fieldHighlightsEntity1 = new LinkedHashMap<>();
 		fieldHighlightsEntity1.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
-		fieldHighlightsEntity1.put("field_2", Arrays.asList("highlight 3"));
+		fieldHighlightsEntity1.put("field_2", Collections.singletonList("highlight 3"));
 		highlightingData.put("entity-id-1", fieldHighlightsEntity1);
 
-		Map<String, List<String>> fieldHighlightsEntity2 = new LinkedHashMap<String, List<String>>();
-		fieldHighlightsEntity2.put("field_3", Arrays.asList("highlight 3"));
+		Map<String, List<String>> fieldHighlightsEntity2 = new LinkedHashMap<>();
+		fieldHighlightsEntity2.put("field_3", Collections.singletonList("highlight 3"));
 		highlightingData.put("entity-id-2", fieldHighlightsEntity2);
 
 		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
@@ -269,7 +268,7 @@ public class ResultHelperTests {
 
 		List<HighlightEntry<SolrBeanWithIdNamedField>> result = ResultHelper
 				.convertAndAddHighlightQueryResponseToResultPage(response,
-						new SolrResultPage<SolrBeanWithIdNamedField>(Arrays.asList(resultBean1, resultBean2)));
+						new SolrResultPage<>(Arrays.asList(resultBean1, resultBean2)));
 
 		Assert.assertEquals(2, result.size());
 		Assert.assertEquals(resultBean1, result.get(0).getEntity());
@@ -280,10 +279,10 @@ public class ResultHelperTests {
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseForBeanWithAnnotatedId() {
-		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<String, Map<String, List<String>>>();
-		Map<String, List<String>> fieldHighlights = new LinkedHashMap<String, List<String>>();
+		Map<String, Map<String, List<String>>> highlightingData = new LinkedHashMap<>();
+		Map<String, List<String>> fieldHighlights = new LinkedHashMap<>();
 		fieldHighlights.put("field_1", Arrays.asList("highlight 1", "highlight 2"));
-		fieldHighlights.put("field_2", Arrays.asList("highlight 3"));
+		fieldHighlights.put("field_2", Collections.singletonList("highlight 3"));
 		highlightingData.put("entity-id-1", fieldHighlights);
 
 		Mockito.when(response.getHighlighting()).thenReturn(highlightingData);
@@ -292,7 +291,7 @@ public class ResultHelperTests {
 
 		List<HighlightEntry<SolrBeanWithAnnoteatedIdNamedField>> result = ResultHelper
 				.convertAndAddHighlightQueryResponseToResultPage(response,
-						new SolrResultPage<SolrBeanWithAnnoteatedIdNamedField>(Arrays.asList(resultBean)));
+						new SolrResultPage<>(Collections.singletonList(resultBean)));
 
 		Assert.assertEquals(1, result.size());
 		Assert.assertEquals(resultBean, result.get(0).getEntity());
@@ -347,10 +346,10 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertFacetQueryResponseToFacetPivotMap() {
-		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<List<org.apache.solr.client.solrj.response.PivotField>>();
-		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<>();
+		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<>();
 		{
-			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<>();
 			pivotValues
 					.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_1_1", 7, null, null, null, null));
 			pivotValues
@@ -359,7 +358,7 @@ public class ResultHelperTests {
 					null));
 		}
 		{
-			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<org.apache.solr.client.solrj.response.PivotField>();
+			List<org.apache.solr.client.solrj.response.PivotField> pivotValues = new ArrayList<>();
 			pivotValues
 					.add(new org.apache.solr.client.solrj.response.PivotField("field_2", "value_2_1", 2, null, null, null, null));
 			vals.add(
@@ -413,7 +412,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertTermsQueryResponseReturnsTermsMapCorrectlyWhenOneFieldReturned() {
-		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		TermsResponse termsResponse = new TermsResponse(new NamedList<>());
 		termsResponse.getTermMap().put("field_1", Arrays.asList(new Term("term_1", 10), new Term("term_2", 5)));
 
 		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
@@ -432,7 +431,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertTermsQueryResponseReturnsTermsMapCorrectlyWhenMultipleFieldsReturned() {
-		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		TermsResponse termsResponse = new TermsResponse(new NamedList<>());
 		termsResponse.getTermMap().put("field_1", Arrays.asList(new Term("term_1", 10), new Term("term_2", 5)));
 		termsResponse.getTermMap().put("field_2", Arrays.asList(new Term("term_2", 2), new Term("term_3", 1)));
 
@@ -461,7 +460,7 @@ public class ResultHelperTests {
 
 	@Test
 	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenTermsMapIsEmpty() {
-		TermsResponse termsResponse = new TermsResponse(new NamedList<NamedList<Number>>());
+		TermsResponse termsResponse = new TermsResponse(new NamedList<>());
 		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
 
 		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
@@ -476,11 +475,11 @@ public class ResultHelperTests {
 		GroupCommand groupCommand1 = Mockito.mock(GroupCommand.class);
 		Group group1_1 = Mockito.mock(Group.class);
 		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
-		List<Object> documents1_1 = Arrays.asList(new Object());
+		List<Object> documents1_1 = Collections.singletonList(new Object());
 
 		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
-		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
-		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
+		Mockito.when(groupResponse.getValues()).thenReturn(Collections.singletonList(groupCommand1));
+		Mockito.when(groupCommand1.getValues()).thenReturn(Collections.singletonList(group1_1));
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
@@ -497,7 +496,7 @@ public class ResultHelperTests {
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
 
 		Object group1Key = new Object();
-		Map<String, Object> objectNames = new HashMap<String, Object>();
+		Map<String, Object> objectNames = new HashMap<>();
 		objectNames.put("group1_name", group1Key);
 
 		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
@@ -537,11 +536,11 @@ public class ResultHelperTests {
 		GroupCommand groupCommand1 = Mockito.mock(GroupCommand.class);
 		Group group1_1 = Mockito.mock(Group.class);
 		SolrDocumentList group1_1DocumentList = Mockito.mock(SolrDocumentList.class);
-		List<Object> documents1_1 = Arrays.asList(new Object());
+		List<Object> documents1_1 = Collections.singletonList(new Object());
 
 		Mockito.when(response.getGroupResponse()).thenReturn(groupResponse);
-		Mockito.when(groupResponse.getValues()).thenReturn(Arrays.asList(groupCommand1));
-		Mockito.when(groupCommand1.getValues()).thenReturn(Arrays.asList(group1_1));
+		Mockito.when(groupResponse.getValues()).thenReturn(Collections.singletonList(groupCommand1));
+		Mockito.when(groupCommand1.getValues()).thenReturn(Collections.singletonList(group1_1));
 		Mockito.when(group1_1.getResult()).thenReturn(group1_1DocumentList);
 		Mockito.when(group1_1.getGroupValue()).thenReturn("group1_1_value");
 		Mockito.when(group1_1DocumentList.getNumFound()).thenReturn(3L);
@@ -558,7 +557,7 @@ public class ResultHelperTests {
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
 
 		Object group1Key = new Object();
-		Map<String, Object> objectNames = new HashMap<String, Object>();
+		Map<String, Object> objectNames = new HashMap<>();
 		objectNames.put("group1_name", group1Key);
 
 		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
@@ -594,7 +593,7 @@ public class ResultHelperTests {
 	@Test // DATASOLR-160
 	public void testConvertSingleFieldStatsInfoToStatsResultMap() {
 
-		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
+		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<>();
 
 		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D, 1D);
 
@@ -606,8 +605,8 @@ public class ResultHelperTests {
 
 		Assert.assertEquals("min", fieldStatsResult.getMin());
 		Assert.assertEquals("max", fieldStatsResult.getMax());
-		Assert.assertEquals(Double.valueOf(20), fieldStatsResult.getSum());
-		Assert.assertEquals(Double.valueOf(22.5), fieldStatsResult.getMean());
+		Assert.assertEquals(20d, fieldStatsResult.getSum());
+		Assert.assertEquals(22.5, fieldStatsResult.getMean());
 		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
@@ -626,8 +625,7 @@ public class ResultHelperTests {
 	@Test // DATASOLR-160
 	public void testConvertEmptyFieldStatsInfoMapToStatsResultMap() {
 
-		Map<String, FieldStatsResult> converted = ResultHelper
-				.convertFieldStatsInfoToFieldStatsResultMap(new HashMap<String, FieldStatsInfo>());
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(new HashMap<>());
 
 		Assert.assertThat(converted, IsNull.notNullValue());
 		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
@@ -646,8 +644,8 @@ public class ResultHelperTests {
 	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoMapWithEmptyNamedListToStatsResultMap() {
 
-		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(Collections
-				.<String, FieldStatsInfo> singletonMap("field", new FieldStatsInfo(new NamedList<Object>(), "field")));
+		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(
+				Collections.<String, FieldStatsInfo> singletonMap("field", new FieldStatsInfo(new NamedList<>(), "field")));
 
 		Assert.assertThat(converted, IsNull.notNullValue());
 		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
@@ -656,10 +654,10 @@ public class ResultHelperTests {
 	@Test // DATASOLR-160
 	public void testConvertFieldStatsInfoToStatsResultMap() {
 
-		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<String, FieldStatsInfo>();
+		Map<String, FieldStatsInfo> fieldStatsInfos = new HashMap<>();
 
-		NamedList<Object> values = new NamedList<Object>();
-		NamedList<Object> facets = new NamedList<Object>();
+		NamedList<Object> values = new NamedList<>();
+		NamedList<Object> facets = new NamedList<>();
 		NamedList<Object> nl = createFieldStatNameList("min", "max", 20D, 10L, 5L, 22.5D, 15.5D, 1D);
 		nl.add("facets", facets);
 		facets.add("facetField", values);
@@ -675,8 +673,8 @@ public class ResultHelperTests {
 		FieldStatsResult fieldStatsResult = converted.get("field");
 		Assert.assertEquals("min", fieldStatsResult.getMin());
 		Assert.assertEquals("max", fieldStatsResult.getMax());
-		Assert.assertEquals(Double.valueOf(20), fieldStatsResult.getSum());
-		Assert.assertEquals(Double.valueOf(22.5), fieldStatsResult.getMean());
+		Assert.assertEquals(20d, fieldStatsResult.getSum());
+		Assert.assertEquals(22.5, fieldStatsResult.getMean());
 		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
@@ -693,8 +691,8 @@ public class ResultHelperTests {
 		StatsResult facetValue1StatsResult = facetStatsResult.get("value1");
 		Assert.assertEquals("f1v1min", facetValue1StatsResult.getMin());
 		Assert.assertEquals("f1v1max", facetValue1StatsResult.getMax());
-		Assert.assertEquals(Double.valueOf(110), facetValue1StatsResult.getSum());
-		Assert.assertEquals(Double.valueOf(113), facetValue1StatsResult.getMean());
+		Assert.assertEquals(110d, facetValue1StatsResult.getSum());
+		Assert.assertEquals(113d, facetValue1StatsResult.getMean());
 		Assert.assertEquals(Long.valueOf(111), facetValue1StatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(112), facetValue1StatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(11.3), facetValue1StatsResult.getStddev());
@@ -702,8 +700,8 @@ public class ResultHelperTests {
 		StatsResult facetValue2StatsResult = facetStatsResult.get("value2");
 		Assert.assertEquals("f1v2min", facetValue2StatsResult.getMin());
 		Assert.assertEquals("f1v2max", facetValue2StatsResult.getMax());
-		Assert.assertEquals(Double.valueOf(120), facetValue2StatsResult.getSum());
-		Assert.assertEquals(Double.valueOf(123), facetValue2StatsResult.getMean());
+		Assert.assertEquals(120d, facetValue2StatsResult.getSum());
+		Assert.assertEquals(123d, facetValue2StatsResult.getMean());
 		Assert.assertEquals(Long.valueOf(121), facetValue2StatsResult.getCount());
 		Assert.assertEquals(Long.valueOf(122), facetValue2StatsResult.getMissing());
 		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
@@ -731,7 +729,7 @@ public class ResultHelperTests {
 		RangeFacet.Numeric rangeFacet2 = new RangeFacet.Numeric("", 10, 20, 2, 4, 6, 8);
 
 		@SuppressWarnings("rawtypes")
-		List<RangeFacet> value = new ArrayList<RangeFacet>();
+		List<RangeFacet> value = new ArrayList<>();
 		value.add(rangeFacet1);
 		value.add(rangeFacet2);
 		Mockito.when(response.getFacetRanges()).thenReturn(value);
@@ -755,7 +753,7 @@ public class ResultHelperTests {
 	@Test // DATASOLR-305
 	public void testConvertFacetQueryResponseForNegativeFacetLimit() {
 
-		List<FacetField> fieldList = new ArrayList<FacetField>(1);
+		List<FacetField> fieldList = new ArrayList<>(1);
 		FacetField ffield = createFacetField("field_1", 1, 2);
 		fieldList.add(ffield);
 
@@ -771,7 +769,7 @@ public class ResultHelperTests {
 
 	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,
 			Object mean, Double stddev, Double sumOfSquares) {
-		NamedList<Object> nl = new NamedList<Object>();
+		NamedList<Object> nl = new NamedList<>();
 		nl.add("min", min);
 		nl.add("max", max);
 		nl.add("sum", sum);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ public interface FieldStatsResult extends StatsResult {
 	/**
 	 * Return a map of value associated to its statistics for a given field.
 	 * 
-	 * @param value
 	 * @return map of values statistics
 	 */
 	Map<String, StatsResult> getFacetStatsResult(Field field);
@@ -47,7 +46,6 @@ public interface FieldStatsResult extends StatsResult {
 	/**
 	 * Return a map of value associated to its statistics for a given field name.
 	 * 
-	 * @param value
 	 * @return map of values statistics
 	 */
 	Map<String, StatsResult> getFacetStatsResult(String fieldName);

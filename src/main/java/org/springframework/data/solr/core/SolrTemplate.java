@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +30,6 @@ import java.util.Set;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -52,7 +50,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.SolrRealtimeGetRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
-import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetAndHighlightQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsHighlightQuery;
@@ -86,7 +83,6 @@ import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreat
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
-import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -132,12 +128,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	public SolrTemplate(SolrClient solrClient, String core) {
-		this(new HttpSolrClientFactory(solrClient, core));
+		this(new HttpSolrClientFactory(solrClient));
 		this.solrCore = core;
 	}
 
 	public SolrTemplate(SolrClient solrClient, String core, RequestMethod requestMethod) {
-		this(new HttpSolrClientFactory(solrClient, core), requestMethod);
+		this(new HttpSolrClientFactory(solrClient), requestMethod);
 		this.solrCore = core;
 
 	}
@@ -207,18 +203,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(action, "Action must not be null!");
 
 		try {
-
-			SolrClient solrClient = null;
-			if(StringUtils.hasText(collection)) {
-				if(this.solrClientFactory instanceof MulticoreSolrClientFactory) {
-					solrClient = this.solrClientFactory.getSolrClient();
-				} else {
-					solrClient = this.solrClientFactory.getSolrClient(collection);
-				}
-			} else {
-				solrClient = this.getSolrClient();
-			}
-			return action.doInSolr(solrClient, collection);
+			return action.doInSolr(getSolrClient(), collection);
 		} catch (Exception e) {
 			DataAccessException resolved = getExceptionTranslator().translateExceptionIfPossible(
 					e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e.getMessage(), e));
@@ -232,12 +217,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public SolrPingResponse ping() {
-		return execute(new SolrCallback<SolrPingResponse>() {
-			@Override
-			public SolrPingResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.ping();
-			}
-		});
+		return execute(solrClient -> solrClient.ping());
 	}
 
 	/*
@@ -259,17 +239,13 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(query, "Query must not be 'null'.");
 		Assert.notNull(method, "Method must not be 'null'.");
 
-		return execute(new SolrCallback<Long>() {
+		return execute(solrClient -> {
 
-			@Override
-			public Long doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+			SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
+			solrQuery.setStart(0);
+			solrQuery.setRows(0);
 
-				SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
-				solrQuery.setStart(0);
-				solrQuery.setRows(0);
-
-				return solrClient.query(solrQuery, getSolrRequestMethod(method)).getResults().getNumFound();
-			}
+			return solrClient.query(solrQuery, getSolrRequestMethod(method)).getResults().getNumFound();
 		});
 	}
 
@@ -289,12 +265,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public UpdateResponse saveBean(final Object objectToAdd, final int commitWithinMs) {
 		assertNoCollection(objectToAdd);
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs);
-			}
-		});
+		return execute(solrClient -> solrClient.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs));
 	}
 
 	/*
@@ -312,12 +283,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs);
-			}
-		});
+		return execute(solrClient -> solrClient.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs));
 	}
 
 	/*
@@ -335,12 +301,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.add(documentToAdd, commitWithinMs);
-			}
-		});
+		return execute(solrClient -> solrClient.add(documentToAdd, commitWithinMs));
 	}
 
 	/*
@@ -358,12 +319,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.add(documentsToAdd, commitWithinMs);
-			}
-		});
+		return execute(solrClient -> solrClient.add(documentsToAdd, commitWithinMs));
 	}
 
 	/*
@@ -376,12 +332,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query);
 
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.deleteByQuery(queryString);
-			}
-		});
+		return execute(solrClient -> solrClient.deleteByQuery(queryString));
 	}
 
 	/*
@@ -392,12 +343,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse deleteById(final String id) {
 		Assert.notNull(id, "Cannot delete 'null' id.");
 
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.deleteById(id);
-			}
-		});
+		return execute(solrClient -> solrClient.deleteById(id));
 	}
 
 	/*
@@ -408,13 +354,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public UpdateResponse deleteById(Collection<String> ids) {
 		Assert.notNull(ids, "Cannot delete 'null' collection.");
 
-		final List<String> toBeDeleted = new ArrayList<String>(ids);
-		return execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.deleteById(toBeDeleted);
-			}
-		});
+		final List<String> toBeDeleted = new ArrayList<>(ids);
+		return execute(solrClient -> solrClient.deleteById(toBeDeleted));
 	}
 
 	/*
@@ -644,7 +585,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		Pageable pageRequest = query.getPageRequest();
 
-		SolrResultPage<T> page = new SolrResultPage<T>(beans, pageRequest, numFound, maxScore);
+		SolrResultPage<T> page = new SolrResultPage<>(beans, pageRequest, numFound, maxScore);
 
 		page.setFieldStatsResults(ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(response.getFieldStatsInfo()));
 		page.setGroupResults(
@@ -713,7 +654,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 
 		if (clazz != null) {
-			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz).orElseThrow(() -> new IllegalArgumentException("No persistent entity found."));
+			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz)
+					.orElseThrow(() -> new IllegalArgumentException("No persistent entity found."));
 			if (persistedEntity.hasScoreProperty()) {
 				solrQuery.setIncludeScore(true);
 			}
@@ -726,12 +668,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	final QueryResponse executeSolrQuery(final SolrQuery solrQuery, final SolrRequest.METHOD method) {
 
-		return execute(new SolrCallback<QueryResponse>() {
-			@Override
-			public QueryResponse doInSolr(SolrClient solrServer) throws SolrServerException, IOException {
-				return solrServer.query(solrQuery, method);
-			}
-		});
+		return execute(solrServer -> solrServer.query(solrQuery, method));
 	}
 
 	/*
@@ -740,12 +677,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public void commit() {
-		execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.commit();
-			}
-		});
+		execute(solrClient -> solrClient.commit());
 	}
 
 	/*
@@ -755,12 +687,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public void softCommit() {
 
-		execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.commit(true, true, true);
-			}
-		});
+		execute(solrClient -> solrClient.commit(true, true, true));
 	}
 
 	/*
@@ -769,12 +696,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public void rollback() {
-		execute(new SolrCallback<UpdateResponse>() {
-			@Override
-			public UpdateResponse doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
-				return solrClient.rollback();
-			}
-		});
+		execute(solrClient -> solrClient.rollback());
 	}
 
 	/*
@@ -817,10 +739,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 				QueryResponse response = executeSolrQuery(nativeQuery, getSolrRequestMethod(getDefaultRequestMethod()));
 				if (response == null) {
-					return new PartialResult<T>("", Collections.<T> emptyList());
+					return new PartialResult<>("", Collections.<T> emptyList());
 				}
 
-				return new PartialResult<T>(response.getNextCursorMark(), convertQueryResponseToBeans(response, clazz));
+				return new PartialResult<>(response.getNextCursorMark(), convertQueryResponseToBeans(response, clazz));
 			}
 
 		}.open();
@@ -837,15 +759,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			return Collections.emptyList();
 		}
 
-		return execute(new SolrCallback<Collection<T>>() {
-			@Override
-			public Collection<T> doInSolr(SolrClient solrClient) throws SolrServerException, IOException {
+		return execute((SolrCallback<Collection<T>>) solrClient -> {
 
-				QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient,
-						getSolrCoreOrBeanCollection(clazz));
-				return convertSolrDocumentListToBeans(response.getResults(), clazz);
-			}
-
+			QueryResponse response = new SolrRealtimeGetRequest(ids).process(solrClient, getSolrCoreOrBeanCollection(clazz));
+			return convertSolrDocumentListToBeans(response.getResults(), clazz);
 		});
 	}
 
@@ -879,7 +796,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			return Collections.emptyList();
 		}
 
-		List<SolrInputDocument> resultList = new ArrayList<SolrInputDocument>();
+		List<SolrInputDocument> resultList = new ArrayList<>();
 		for (Object bean : beans) {
 			resultList.add(convertBeanToSolrInputDocument(bean));
 		}
@@ -920,7 +837,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public final SolrClient getSolrClient() {
-		return solrClientFactory.getSolrClient(this.solrCore);
+		return solrClientFactory.getSolrClient();
 	}
 
 	/*
@@ -937,7 +854,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	private String getSolrCoreOrBeanCollection(Class<?> clazz) {
-		return StringUtils.hasText(solrCore) ? solrCore : mappingContext.getPersistentEntity(clazz).orElseThrow(() -> new IllegalArgumentException("No entity found for type.")).getSolrCoreName();
+		return StringUtils.hasText(solrCore) ? solrCore
+				: mappingContext.getPersistentEntity(clazz)
+						.orElseThrow(() -> new IllegalArgumentException("No entity found for type.")).getSolrCoreName();
 	}
 
 	/*
@@ -1023,7 +942,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @param schemaCreationFeatures
 	 */
 	public void setSchemaCreationFeatures(Collection<Feature> schemaCreationFeatures) {
-		this.schemaCreationFeatures = new HashSet<Feature>(schemaCreationFeatures);
+		this.schemaCreationFeatures = new HashSet<>(schemaCreationFeatures);
 	}
 
 	/**

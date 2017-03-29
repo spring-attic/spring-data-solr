@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -36,28 +36,28 @@ public class CustomConversionsTests {
 
 	@Test
 	public void testFindReadingConverter() {
-		conversions = new CustomConversions(Arrays.asList(StringToNumberConverter.INSTANCE));
+		conversions = new CustomConversions(Collections.singletonList(StringToNumberConverter.INSTANCE));
 		Assert.assertTrue(conversions.hasCustomReadTarget(String.class, Number.class));
 		Assert.assertFalse(conversions.hasCustomReadTarget(Date.class, Number.class));
 	}
 
 	@Test
 	public void testFindWritingConverter() {
-		conversions = new CustomConversions(Arrays.asList(NumberToStringConverter.INSTANCE));
+		conversions = new CustomConversions(Collections.singletonList(NumberToStringConverter.INSTANCE));
 		Assert.assertTrue(conversions.hasCustomWriteTarget(Number.class, String.class));
 		Assert.assertFalse(conversions.hasCustomWriteTarget(Date.class, String.class));
 	}
 
 	@Test
 	public void testFindReadWriteConverter() {
-		conversions = new CustomConversions(Arrays.asList(StringToLocaleConverter.INSTANCE));
+		conversions = new CustomConversions(Collections.singletonList(StringToLocaleConverter.INSTANCE));
 		Assert.assertTrue(conversions.hasCustomReadTarget(String.class, Locale.class));
 		Assert.assertTrue(conversions.hasCustomWriteTarget(String.class, Locale.class));
 	}
 
 	@Test
 	public void testFindMostRecentConverter() {
-		conversions = new CustomConversions(Arrays.asList(NumberToStringConverter.INSTANCE));
+		conversions = new CustomConversions(Collections.singletonList(NumberToStringConverter.INSTANCE));
 		Assert.assertThat(conversions.getCustomWriteTarget(Number.class),
 				Matchers.is(Matchers.typeCompatibleWith(String.class)));
 	}

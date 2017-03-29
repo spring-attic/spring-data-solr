@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,16 +62,15 @@ public class MappingSolrEntityInformationTests {
 
 	@Test
 	public void testSolrCoreRetrievalWhenNotExplicitlySet() {
-		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
-				persistentEntity);
+		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity);
 		Assert.assertEquals(PRODUCT_BEAN_SIMPLE_NAME, entityInformation.getSolrCoreName());
 	}
 
 	@Test
 	public void testSolrCoreRetrievalWhenSet() {
 		final String coreName = "core1";
-		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
-				persistentEntity, coreName);
+		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity,
+				coreName);
 		Assert.assertEquals(coreName, entityInformation.getSolrCoreName());
 	}
 
@@ -84,8 +83,7 @@ public class MappingSolrEntityInformationTests {
 				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, new SimpleTypeHolder());
 		Mockito.when(persistentEntity.getIdProperty()).thenReturn(Optional.of(property));
 
-		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
-				persistentEntity);
+		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity);
 		Assert.assertEquals(String.class, entityInformation.getIdType());
 	}
 
@@ -101,7 +99,7 @@ public class MappingSolrEntityInformationTests {
 				new SimpleTypeHolder());
 		Mockito.when(persistentEntityWithLongIdFieldType.getIdProperty()).thenReturn(Optional.of(property));
 
-		SolrEntityInformation<ProductBeanWithLongIdFieldType, Long> entityInformation = new MappingSolrEntityInformation<ProductBeanWithLongIdFieldType, Long>(
+		SolrEntityInformation<ProductBeanWithLongIdFieldType, Long> entityInformation = new MappingSolrEntityInformation<>(
 				persistentEntityWithLongIdFieldType);
 		Assert.assertEquals(Long.class, entityInformation.getIdType());
 	}
@@ -114,8 +112,7 @@ public class MappingSolrEntityInformationTests {
 				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, new SimpleTypeHolder());
 		Mockito.when(persistentEntity.getIdProperty()).thenReturn(Optional.of(property));
 
-		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<ProductBean, String>(
-				persistentEntity);
+		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity);
 		Assert.assertEquals("id", entityInformation.getIdAttribute());
 	}
 
@@ -131,7 +128,7 @@ public class MappingSolrEntityInformationTests {
 				persistentEntityWithAlternateFieldNameForId, new SimpleTypeHolder());
 		Mockito.when(persistentEntityWithAlternateFieldNameForId.getIdProperty()).thenReturn(Optional.of(property));
 
-		SolrEntityInformation<ProductBeanWithAlternateFieldNameForId, String> entityInformation = new MappingSolrEntityInformation<ProductBeanWithAlternateFieldNameForId, String>(
+		SolrEntityInformation<ProductBeanWithAlternateFieldNameForId, String> entityInformation = new MappingSolrEntityInformation<>(
 				persistentEntityWithAlternateFieldNameForId);
 		Assert.assertEquals("product_id", entityInformation.getIdAttribute());
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ public class QueryParsers {
 
 	private final List<QueryParserPair> parserPairs;
 
-	private final Map<Class<?>, QueryParser> cache = new LinkedHashMap<Class<?>, QueryParser>();
+	private final Map<Class<?>, QueryParser> cache = new LinkedHashMap<>();
 
 	public QueryParsers() {
-		this.parserPairs = new ArrayList<QueryParserPair>(4);
+		this.parserPairs = new ArrayList<>(4);
 
 		parserPairs.add(new QueryParserPair(TermsQuery.class, new TermsQueryParser()));
 		parserPairs.add(new QueryParserPair(FacetQuery.class, DEFAULT_QUERY_PARSER));
@@ -86,7 +86,6 @@ public class QueryParsers {
 	 * QueryParserPair holds reference form the {@link SolrQuery} to the {@link QueryParser} suitable for it
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	private static class QueryParserPair {
 
@@ -107,7 +106,6 @@ public class QueryParsers {
 		}
 
 		/**
-		 * 
 		 * @param clazz
 		 * @return true if {@link ClassUtils#isAssignable(Class, Class)}
 		 */
