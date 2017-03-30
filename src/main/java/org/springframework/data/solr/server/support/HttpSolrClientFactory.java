@@ -38,7 +38,6 @@ import org.springframework.util.Assert;
  */
 public class HttpSolrClientFactory extends SolrClientFactoryBase {
 
-	private String core;
 	private Credentials credentials;
 	private String authPolicy;
 
@@ -58,16 +57,10 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 			Assert.hasText(authPolicy, "AuthPolicy must not be null nor empty!");
 		}
 
-		this.core = core;
 		this.credentials = credentials;
 		this.authPolicy = authPolicy;
 
 		appendAuthentication(this.credentials, this.authPolicy, this.getSolrClient());
-	}
-
-	@Override
-	public List<String> getCores() {
-		return this.core != null ? Collections.singletonList(this.core) : Collections.<String> emptyList();
 	}
 
 	private void appendAuthentication(Credentials credentials, String authPolicy, SolrClient solrClient) {

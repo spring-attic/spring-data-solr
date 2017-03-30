@@ -20,7 +20,6 @@ import java.util.Map;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.response.schema.SchemaRepresentation;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse.UpdateResponse;
-import org.apache.solr.common.util.NamedList;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.schema.SchemaDefinition.CopyFieldDefinition;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
@@ -55,8 +54,8 @@ public class DefaultSchemaOperations implements SchemaOperations {
 	@Override
 	public String getSchemaName() {
 
-		return template.execute(collection,
-				(solrClient, collection) -> new SchemaRequest.SchemaName().process(solrClient, collection).getSchemaName());
+		return template
+				.execute(solrClient -> new SchemaRequest.SchemaName().process(solrClient, collection).getSchemaName());
 
 	}
 
@@ -66,8 +65,8 @@ public class DefaultSchemaOperations implements SchemaOperations {
 	 */
 	@Override
 	public Double getSchemaVersion() {
-		return template.execute(collection, (solrClient, collection) -> new Double(
-				new SchemaRequest.SchemaVersion().process(solrClient, collection).getSchemaVersion()));
+		return template.execute(
+				solrClient -> new Double(new SchemaRequest.SchemaVersion().process(solrClient, collection).getSchemaVersion()));
 	}
 
 	/*
@@ -77,12 +76,8 @@ public class DefaultSchemaOperations implements SchemaOperations {
 	@Override
 	public SchemaDefinition readSchema() {
 
-		SchemaRepresentation representation = template.execute(collection, (solrClient, collection) -> {
-
-			NamedList<Object> x = solrClient.request(new SchemaRequest(), collection);
-
-			return new SchemaRequest().process(solrClient, collection).getSchemaRepresentation();
-		});
+		SchemaRepresentation representation = template
+				.execute(solrClient -> new SchemaRequest().process(solrClient, collection).getSchemaRepresentation());
 
 		SchemaDefinition sd = new SchemaDefinition(collection);
 
@@ -118,7 +113,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 
 	private void addField(final FieldDefinition field) {
 
-		template.execute(collection, (solrClient, collection) -> {
+		template.execute(solrClient -> {
 
 			UpdateResponse response = new SchemaRequest.AddField(field.asMap()).process(solrClient, collection);
 			if (hasErrors(response)) {
@@ -141,7 +136,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 
 	private void addCopyField(final CopyFieldDefinition field) {
 
-		template.execute(collection, (solrClient, collection) -> {
+		template.execute(solrClient -> {
 
 			UpdateResponse response = new SchemaRequest.AddCopyField(field.getSource(), field.getDestination())
 					.process(solrClient, collection);
@@ -163,7 +158,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 	@Override
 	public void removeField(final String name) {
 
-		template.execute(collection, (solrClient, collection) -> {
+		template.execute(solrClient -> {
 
 			UpdateResponse response = new SchemaRequest.DeleteField(name).process(solrClient, collection);
 			if (hasErrors(response)) {

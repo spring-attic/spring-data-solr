@@ -77,9 +77,7 @@ public class SolrJsonRequest extends SolrRequest<SolrJsonResponse> {
 
 	@Override
 	public String toString() {
-		String sb = getMethod().toString() + " " + getPath() + "\r\n" + quietlyReadContentStreams();
-
-		return sb;
+		return getMethod().toString() + " " + getPath() + "\r\n" + quietlyReadContentStreams();
 	}
 
 	private String quietlyReadContentStreams() {

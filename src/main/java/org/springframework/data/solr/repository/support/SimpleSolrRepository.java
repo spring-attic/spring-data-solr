@@ -16,8 +16,6 @@
 package org.springframework.data.solr.repository.support;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterBuilder;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.SimpleFilterQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
@@ -51,35 +50,25 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	private static final String DEFAULT_ID_FIELD = "id";
 
-	private SolrOperations solrOperations;
+	private final SolrOperations solrOperations;
 	private String idFieldName = DEFAULT_ID_FIELD;
-	private Class<T> entityClass;
-	private SolrEntityInformation<T, ?> entityInformation;
-
-	public SimpleSolrRepository() {
-
-	}
-
-	/**
-	 * @param solrOperations must not be null
-	 */
-	public SimpleSolrRepository(SolrOperations solrOperations) {
-		Assert.notNull(solrOperations, "SolrOperations must not be null!");
-
-		this.setSolrOperations(solrOperations);
-	}
+	private final Class<T> entityClass;
+	private final String solrCollectionName;
+	private final SolrEntityInformation<T, ?> entityInformation;
 
 	/**
 	 * @param metadata must not be null
 	 * @param solrOperations must not be null
 	 */
-	public SimpleSolrRepository(SolrEntityInformation<T, ?> metadata, SolrOperations solrOperations) {
-		this(solrOperations);
+	public SimpleSolrRepository(SolrOperations solrOperations, SolrEntityInformation<T, ?> metadata) {
+
 		Assert.notNull(metadata, "Metadata must not be null!");
 
+		this.solrOperations = solrOperations;
 		this.entityInformation = metadata;
-		setIdFieldName(this.entityInformation.getIdAttribute());
-		setEntityClass(this.entityInformation.getJavaType());
+		this.entityClass = this.entityInformation.getJavaType();
+		this.idFieldName = this.entityInformation.getIdAttribute();
+		this.solrCollectionName = this.entityInformation.getSolrCoreName();
 	}
 
 	/**
@@ -87,9 +76,11 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	 * @param entityClass
 	 */
 	public SimpleSolrRepository(SolrOperations solrOperations, Class<T> entityClass) {
-		this(solrOperations);
+		this(solrOperations, getEntityInformation(entityClass));
+	}
 
-		this.setEntityClass(entityClass);
+	private static SolrEntityInformation getEntityInformation(Class type) {
+		return new SolrEntityInformationCreatorImpl(new SimpleSolrMappingContext()).getEntityInformation(type);
 	}
 
 	@Override
@@ -108,7 +99,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public Page<T> findAll(Pageable pageable) {
-		return getSolrOperations().queryForPage(
+		return getSolrOperations().queryForPage(solrCollectionName,
 				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)).setPageRequest(pageable),
 				getEntityClass());
 	}
@@ -119,9 +110,10 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		if (itemCount == 0) {
 			return new PageImpl<>(Collections.<T> emptyList());
 		}
-		return getSolrOperations()
-				.queryForPage(new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
-						.setPageRequest(new SolrPageRequest(0, itemCount)).addSort(sort), getEntityClass());
+		return getSolrOperations().queryForPage(solrCollectionName,
+				new SimpleQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
+						.setPageRequest(new SolrPageRequest(0, itemCount)).addSort(sort),
+				getEntityClass());
 	}
 
 	@Override
@@ -129,7 +121,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
 		query.setPageRequest(new SolrPageRequest(0, (int) count(query)));
 
-		return getSolrOperations().queryForPage(query, getEntityClass());
+		return getSolrOperations().queryForPage(solrCollectionName, query, getEntityClass());
 	}
 
 	@Override
@@ -139,14 +131,14 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	protected long count(org.springframework.data.solr.core.query.Query query) {
 		org.springframework.data.solr.core.query.Query countQuery = SimpleQuery.fromQuery(query);
-		return getSolrOperations().count(countQuery);
+		return getSolrOperations().count(solrCollectionName, countQuery);
 	}
 
 	@Override
 	public <S extends T> S save(S entity) {
 		Assert.notNull(entity, "Cannot save 'null' entity.");
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.saveBean(entity);
+		this.solrOperations.saveBean(solrCollectionName, entity);
 		commitIfTransactionSynchronisationIsInactive();
 		return entity;
 	}
@@ -160,7 +152,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		}
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.saveBeans((Collection<? extends T>) entities);
+		this.solrOperations.saveBeans(solrCollectionName, (Collection<? extends T>) entities);
 		commitIfTransactionSynchronisationIsInactive();
 		return entities;
 	}
@@ -175,7 +167,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.deleteById(id.toString());
+		this.solrOperations.deleteById(solrCollectionName, id.toString());
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
@@ -196,14 +188,15 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		}
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.deleteById(idsToDelete);
+		this.solrOperations.deleteById(solrCollectionName, idsToDelete);
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
 	@Override
 	public void deleteAll() {
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.delete(new SimpleFilterQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
+		this.solrOperations.delete(solrCollectionName,
+				new SimpleFilterQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD)));
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
@@ -211,37 +204,10 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return idFieldName;
 	}
 
-	public final void setIdFieldName(String idFieldName) {
-		Assert.notNull(idFieldName, "ID Field cannot be null.");
-
-		this.idFieldName = idFieldName;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Class<T> resolveReturnedClassFromGernericType() {
-		ParameterizedType parameterizedType = resolveReturnedClassFromGernericType(getClass());
-		return (Class<T>) parameterizedType.getActualTypeArguments()[0];
-	}
-
-	private ParameterizedType resolveReturnedClassFromGernericType(Class<?> clazz) {
-		Object genericSuperclass = clazz.getGenericSuperclass();
-		if (genericSuperclass instanceof ParameterizedType) {
-			ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
-			Type rawtype = parameterizedType.getRawType();
-			if (SimpleSolrRepository.class.equals(rawtype)) {
-				return parameterizedType;
-			}
-		}
-		return resolveReturnedClassFromGernericType(clazz.getSuperclass());
-	}
-
 	public Class<T> getEntityClass() {
+
 		if (!isEntityClassSet()) {
-			try {
-				this.entityClass = resolveReturnedClassFromGernericType();
-			} catch (Exception e) {
-				throw new InvalidDataAccessApiUsageException("Unable to resolve EntityClass. Please use according setter!", e);
-			}
+			throw new InvalidDataAccessApiUsageException("Unable to resolve EntityClass. Please use according setter!");
 		}
 		return entityClass;
 	}
@@ -250,23 +216,12 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return entityClass != null;
 	}
 
-	public final void setEntityClass(Class<T> entityClass) {
-		Assert.notNull(entityClass, "EntityClass must not be null.");
-
-		this.entityClass = entityClass;
-	}
-
-	public final void setSolrOperations(SolrOperations solrOperations) {
-		Assert.notNull(solrOperations, "SolrOperations must not be null.");
-
-		this.solrOperations = solrOperations;
-	}
-
 	public final SolrOperations getSolrOperations() {
 		return solrOperations;
 	}
 
 	private Object extractIdFromBean(T entity) {
+
 		if (entityInformation != null) {
 			return entityInformation.getId(entity).orElseThrow(() -> new IllegalArgumentException("Id must not be null"));
 		}
@@ -290,14 +245,13 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	private void registerTransactionSynchronisationAdapter() {
-		TransactionSynchronizationManager.registerSynchronization(
-				SolrTransactionSynchronizationAdapterBuilder.forOperations(this.solrOperations).withDefaultBehaviour());
+		TransactionSynchronizationManager.registerSynchronization(SolrTransactionSynchronizationAdapterBuilder
+				.forOperations(this.solrOperations).onCollection(solrCollectionName).withDefaultBehaviour());
 	}
 
 	private void commitIfTransactionSynchronisationIsInactive() {
 		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-			this.solrOperations.commit();
+			this.solrOperations.commit(solrCollectionName);
 		}
 	}
-
 }

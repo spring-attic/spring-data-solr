@@ -142,7 +142,6 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.server.SolrClientFactory#getCores()
 	 */
-	@Override
 	public List<String> getCores() {
 		return new ArrayList<>(coreContainer.getCoreNames());
 	}

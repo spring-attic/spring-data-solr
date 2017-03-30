@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 public class SolrTransactionSynchronizationAdapterBuilder {
 
 	SolrTransactionSynchronizationAdapter adapter;
+	private String collectionName;
 
 	/**
 	 * @param solrOperations must not be {@literal null}
@@ -39,6 +40,16 @@ public class SolrTransactionSynchronizationAdapterBuilder {
 	}
 
 	/**
+	 * @param collection
+	 * @return
+	 */
+	public SolrTransactionSynchronizationAdapterBuilder onCollection(String collection) {
+
+		this.collectionName = collection;
+		return this;
+	}
+
+	/**
 	 * Creates a {@link SolrTransactionSynchronizationAdapter} reacting on
 	 * {@link TransactionSynchronization#STATUS_COMMITTED} and {@link TransactionSynchronization#STATUS_ROLLED_BACK}.
 	 * 
@@ -47,9 +58,9 @@ public class SolrTransactionSynchronizationAdapterBuilder {
 	public SolrTransactionSynchronizationAdapter withDefaultBehaviour() {
 
 		this.adapter.registerCompletionDelegate(TransactionSynchronization.STATUS_COMMITTED,
-				new SolrTransactionSynchronizationAdapter.CommitTransaction());
+				new SolrTransactionSynchronizationAdapter.CommitTransaction(this.collectionName));
 		this.adapter.registerCompletionDelegate(TransactionSynchronization.STATUS_ROLLED_BACK,
-				new SolrTransactionSynchronizationAdapter.RollbackTransaction());
+				new SolrTransactionSynchronizationAdapter.RollbackTransaction(this.collectionName));
 
 		return this.adapter;
 	}

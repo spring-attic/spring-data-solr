@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,47 +20,37 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 /**
  * @author Christoph Strobl
  */
+@SolrDocument(collection = "collection1")
 public class ProductBean {
 
-	@Id
-	@Field("id")
-	private String id;
+	@Id @Field("id") private String id;
 
-	@Field("title")
-	private List<String> title;
+	@Field("title") private List<String> title;
 
-	@Field("name")
-	private String name;
+	@Field("name") private String name;
 
-	@Field("description")
-	private String description;
+	@Field("description") private String description;
 
 	private String text;
 
-	@Field
-	private List<String> categories;
+	@Field private List<String> categories;
 
-	@Field
-	private Float weight;
+	@Field private Float weight;
 
-	@Field
-	private Float price;
+	@Field private Float price;
 
-	@Field
-	private Integer popularity;
+	@Field private Integer popularity;
 
-	@Field("inStock")
-	private boolean available;
+	@Field("inStock") private boolean available;
 
-	@Field("store")
-	private String location;
+	@Field("store") private String location;
 
-	@Field("last_modified")
-	private Date lastModified;
+	@Field("last_modified") private Date lastModified;
 
 	public String getId() {
 		return id;

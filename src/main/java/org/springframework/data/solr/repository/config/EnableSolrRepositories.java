@@ -133,13 +133,6 @@ public @interface EnableSolrRepositories {
 	String solrClientRef() default "solrClient";
 
 	/**
-	 * Configures Multicore support for Solr Server
-	 * 
-	 * @since 1.1
-	 */
-	boolean multicoreSupport() default false;
-
-	/**
 	 * Configure schema creation support using the solr schema api.
 	 * 
 	 * @since 1.3

@@ -51,8 +51,6 @@ public class HttpSolrClientFactoryTests {
 	@Test
 	public void testInitFactory() {
 		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient);
-		Assert.assertNotNull(factory.getCores());
-		Assert.assertThat(factory.getCores(), IsEmptyCollection.emptyCollectionOf(String.class));
 		Assert.assertEquals(solrClient, factory.getSolrClient());
 		Assert.assertEquals(URL, ((HttpSolrClient) factory.getSolrClient()).getBaseURL());
 	}

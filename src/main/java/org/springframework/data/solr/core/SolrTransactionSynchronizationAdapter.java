@@ -64,18 +64,30 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 
 	public static class CommitTransaction implements CompletionDelegate {
 
+		private final String collectionName;
+
+		CommitTransaction(String collectionName) {
+			this.collectionName = collectionName;
+		}
+
 		@Override
 		public void execute(SolrOperations solrOperations) {
-			solrOperations.commit();
+			solrOperations.commit(collectionName);
 		}
 
 	}
 
 	public static class RollbackTransaction implements CompletionDelegate {
 
+		private final String collectionName;
+
+		RollbackTransaction(String collectionName) {
+			this.collectionName = collectionName;
+		}
+
 		@Override
 		public void execute(SolrOperations solrOperations) {
-			solrOperations.rollback();
+			solrOperations.rollback(collectionName);
 		}
 
 	}

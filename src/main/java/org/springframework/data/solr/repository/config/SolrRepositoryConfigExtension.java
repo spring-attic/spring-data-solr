@@ -93,12 +93,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	public void postProcess(BeanDefinitionBuilder builder, AnnotationRepositoryConfigurationSource config) {
 
 		AnnotationAttributes attributes = config.getAttributes();
-		if (!attributes.getBoolean("multicoreSupport")) {
-			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
-					attributes.getString("solrTemplateRef"));
-		} else {
-			builder.addPropertyReference(BeanDefinition.SOLR_CLIENT.getBeanName(), attributes.getString("solrClientRef"));
-		}
+		builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(), attributes.getString("solrTemplateRef"));
 		builder.addPropertyValue("schemaCreationSupport", attributes.getBoolean("schemaCreationSupport"));
 		builder.addPropertyReference(BeanDefinition.SOLR_MAPPTING_CONTEXT.getBeanName(), "solrMappingContext");
 
@@ -128,12 +123,9 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	public void postProcess(BeanDefinitionBuilder builder, XmlRepositoryConfigurationSource config) {
 
 		Element element = config.getElement();
-		if (!Boolean.valueOf(element.getAttribute("multicore-support"))) {
-			builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
-					element.getAttribute("solr-template-ref"));
-		} else {
-			builder.addPropertyReference(BeanDefinition.SOLR_CLIENT.getBeanName(), element.getAttribute("solr-client-ref"));
-		}
+		builder.addPropertyReference(BeanDefinition.SOLR_OPERATIONS.getBeanName(),
+				element.getAttribute("solr-template-ref"));
+
 		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
 			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));
 		}

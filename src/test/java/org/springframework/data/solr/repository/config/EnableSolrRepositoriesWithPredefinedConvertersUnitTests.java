@@ -35,6 +35,7 @@ import org.springframework.data.solr.core.convert.CustomConversions;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.support.SimpleSolrRepository;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -48,16 +49,16 @@ public class EnableSolrRepositoriesWithPredefinedConvertersUnitTests extends Abs
 	private static final CustomConversions CUSTOM_CONVERSIONS = new CustomConversions();
 
 	@Configuration
-	@EnableSolrRepositories(multicoreSupport = true, considerNestedRepositories = true)
-	static class Config {
+	@EnableSolrRepositories(considerNestedRepositories = true)
+	static class Config extends AbstractSolrConfiguration {
 
-		@Bean
-		public SolrClient solrClient() {
-			return server.getSolrClient("collection1");
+		@Override
+		public SolrClientFactory solrClientFactory() {
+			return server;
 		}
 
 		@Bean
-		CustomConversions customConversions() {
+		public CustomConversions customConversions() {
 			CustomConversions conversions = CUSTOM_CONVERSIONS;
 			return conversions;
 		}

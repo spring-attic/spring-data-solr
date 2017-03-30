@@ -54,7 +54,7 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse extends 
 
 	@AfterTransaction
 	public void checkIfSaved() throws SolrServerException, IOException {
-		Mockito.verify(solrClientMock, Mockito.times(1)).commit();
+		Mockito.verify(solrClientMock, Mockito.times(1)).commit(Mockito.any());
 		Mockito.verify(solrClientMock, Mockito.never()).rollback();
 	}
 

@@ -47,7 +47,6 @@ import org.springframework.data.solr.repository.query.SolrQueryMethod;
 import org.springframework.data.solr.repository.query.StringBasedSolrQuery;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
-import org.springframework.data.solr.server.support.SolrClientUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -126,15 +125,13 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 				template.setMappingContext(this.solrOperations.getConverter().getMappingContext());
 				template.setSolrConverter(this.solrOperations.getConverter());
 			}
-			template.setSolrCore(SolrClientUtils.resolveSolrCoreName(metadata.getDomainType()));
 			addSchemaCreationFeaturesIfEnabled(template);
 			template.afterPropertiesSet();
 			operations = template;
 		}
 
-		SimpleSolrRepository repository = getTargetRepositoryViaReflection(metadata,
-				getEntityInformation(metadata.getDomainType()), operations);
-		repository.setEntityClass(metadata.getDomainType());
+		SimpleSolrRepository repository = getTargetRepositoryViaReflection(metadata, operations,
+				getEntityInformation(metadata.getDomainType()));
 
 		this.templateHolder.add(metadata.getDomainType(), operations);
 		return repository;

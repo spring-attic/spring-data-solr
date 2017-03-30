@@ -227,10 +227,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			Map<String, ?> source, Object parent) {
 
 		SolrPropertyValueProvider provider = new SolrPropertyValueProvider(source, parent);
-		PersistentEntityParameterValueProvider<SolrPersistentProperty> parameterProvider = new PersistentEntityParameterValueProvider<>(
-				entity, provider, Optional.ofNullable(parent));
-
-		return parameterProvider;
+		return new PersistentEntityParameterValueProvider<>(entity, provider, Optional.ofNullable(parent));
 	}
 
 	@SuppressWarnings("unchecked")

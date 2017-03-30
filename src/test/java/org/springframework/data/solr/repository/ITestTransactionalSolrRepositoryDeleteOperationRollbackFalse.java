@@ -54,7 +54,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 
 	@AfterTransaction
 	public void checkIfDeleted() throws SolrServerException, IOException {
-		Mockito.verify(solrClientMock, Mockito.times(1)).commit();
+		Mockito.verify(solrClientMock, Mockito.times(1)).commit(Mockito.any());
 		Mockito.verify(solrClientMock, Mockito.never()).rollback();
 	}
 

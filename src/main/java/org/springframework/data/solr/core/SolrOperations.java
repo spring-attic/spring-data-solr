@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,16 @@ public interface SolrOperations {
 
 	/**
 	 * return number of elements found by for given query
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	long count(String collection, SolrDataQuery query);
+
+	/**
+	 * return number of elements found by for given query
 	 * 
 	 * @param query must not be {@literal null}.
 	 * @param method must not be {@literal null}.
@@ -85,12 +95,33 @@ public interface SolrOperations {
 	long count(SolrDataQuery query, RequestMethod method);
 
 	/**
-	 * Execute add operation against solr, which will do either insert or update
+	 * return number of elements found by for given query
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	long count(String collection, SolrDataQuery query, RequestMethod method);
+
+	/**
+	 * Execute add operation against solr, which will do either insert or update into the default collection.
 	 * 
 	 * @param obj
 	 * @return
 	 */
 	UpdateResponse saveBean(Object obj);
+
+	/**
+	 * Execute add operation against solr, which will do either insert or update.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param obj must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveBean(String collection, Object obj);
 
 	/**
 	 * Execute add operation against solr, which will do either insert or update with support for commitWithin strategy
@@ -102,7 +133,17 @@ public interface SolrOperations {
 	UpdateResponse saveBean(Object obj, int commitWithinMs);
 
 	/**
-	 * Add a collection of beans to solr, which will do either insert or update
+	 * Execute add operation against solr, which will do either insert or update with support for commitWithin strategy.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param obj must not be {@literal null}.
+	 * @param commitWithinMs
+	 * @return
+	 */
+	UpdateResponse saveBean(String collection, Object obj, int commitWithinMs);
+
+	/**
+	 * Add a collection of beans to solr, which will do either insert or update in the default collection.
 	 * 
 	 * @param beans
 	 * @return
@@ -110,13 +151,35 @@ public interface SolrOperations {
 	UpdateResponse saveBeans(Collection<?> beans);
 
 	/**
-	 * Add a collection of beans to solr, which will do either insert or update with support for commitWithin strategy
+	 * Add a collection of beans to solr, which will do either insert or update.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param beans must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveBeans(String collection, Collection<?> beans);
+
+	/**
+	 * Add a collection of beans to solr, which will do either insert or update in the default collection with support for
+	 * commitWithin strategy.
 	 * 
 	 * @param beans
 	 * @param commitWithinMs
 	 * @return
 	 */
 	UpdateResponse saveBeans(Collection<?> beans, int commitWithinMs);
+
+	/**
+	 * Add a collection of beans to solr, which will do either insert or update with support for commitWithin strategy.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param beans must not be {@literal null}.
+	 * @param commitWithinMs
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveBeans(String collection, Collection<?> beans, int commitWithinMs);
 
 	/**
 	 * Add a solrj input document to solr, which will do either insert or update
@@ -127,13 +190,32 @@ public interface SolrOperations {
 	UpdateResponse saveDocument(SolrInputDocument document);
 
 	/**
-	 * Add a solrj input document to solr, which will do either insert or update with support for commitWithin strategy
+	 * Add a solrj input document to solr, which will do either insert or update
+	 *
+	 * @param document
+	 * @return
+	 */
+	UpdateResponse saveDocument(String collection, SolrInputDocument document);
+
+	/**
+	 * Add a solrj input document to solr, which will do either insert or update in the default collection with support
+	 * for commitWithin strategy
 	 * 
 	 * @param document
 	 * @param commitWithinMs
 	 * @return
 	 */
 	UpdateResponse saveDocument(SolrInputDocument document, int commitWithinMs);
+
+	/**
+	 * Add a solrj input document to solr, which will do either insert or update with support for commitWithin strategy
+	 *
+	 * @param document must not be {@literal null}.
+	 * @param commitWithinMs must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveDocument(String collection, SolrInputDocument document, int commitWithinMs);
 
 	/**
 	 * Add multiple solrj input documents to solr, which will do either insert or update
@@ -144,16 +226,39 @@ public interface SolrOperations {
 	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents);
 
 	/**
+	 * Add multiple solrj input documents to solr, which will do either insert or update
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param documents must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveDocuments(String collection, Collection<SolrInputDocument> documents);
+
+	/**
 	 * Add multiple solrj input documents to solr, which will do either insert or update with support for commitWithin
 	 * strategy
 	 * 
 	 * @param documents
+	 * @param commitWithinMs
 	 * @return
 	 */
 	UpdateResponse saveDocuments(Collection<SolrInputDocument> documents, int commitWithinMs);
 
 	/**
-	 * Find and delete all objects matching the provided Query
+	 * Add multiple solrj input documents to solr, which will do either insert or update with support for commitWithin
+	 * strategy.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param documents must not be {@literal null}.
+	 * @param commitWithinMs
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse saveDocuments(String collection, Collection<SolrInputDocument> documents, int commitWithinMs);
+
+	/**
+	 * Find and delete all objects matching the provided Query from the default collection.
 	 * 
 	 * @param query must not be {@literal null}.
 	 * @return
@@ -161,7 +266,17 @@ public interface SolrOperations {
 	UpdateResponse delete(SolrDataQuery query);
 
 	/**
-	 * Detele the one object with provided id
+	 * Find and delete all objects matching the provided Query.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse delete(String collection, SolrDataQuery query);
+
+	/**
+	 * Detele the one object with provided id from the default collection.
 	 * 
 	 * @param id must not be {@literal null}.
 	 * @return
@@ -169,12 +284,32 @@ public interface SolrOperations {
 	UpdateResponse deleteById(String id);
 
 	/**
-	 * Delete objects with given ids
+	 * Detele the one object with provided id.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param id must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse deleteById(String collection, String id);
+
+	/**
+	 * Delete objects with given ids from the default collection.
 	 * 
 	 * @param id must not be {@literal null}.
 	 * @return
 	 */
 	UpdateResponse deleteById(Collection<String> id);
+
+	/**
+	 * Delete objects with given ids
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param id must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	UpdateResponse deleteById(String collection, Collection<String> id);
 
 	/**
 	 * Execute the query against solr and return the first returned object
@@ -184,6 +319,17 @@ public interface SolrOperations {
 	 * @return the first matching object
 	 */
 	<T> Optional<T> queryForObject(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against solr and return the first returned object
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return the first matching object
+	 * @since 3.0
+	 */
+	<T> Optional<T> queryForObject(String collection, Query query, Class<T> clazz);
 
 	/**
 	 * Execute the query against solr and return the first returned object
@@ -197,6 +343,18 @@ public interface SolrOperations {
 	<T> Optional<T> queryForObject(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
+	 * Execute the query against solr and return the first returned object
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return the first matching object
+	 * @since 3.0
+	 */
+	<T> Optional<T> queryForObject(String collection, Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute the query against solr and retrun result as {@link Page}
 	 * 
 	 * @param query must not be {@literal null}.
@@ -204,6 +362,17 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against solr and retrun result as {@link Page}
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> ScoredPage<T> queryForPage(String collection, Query query, Class<T> clazz);
 
 	/**
 	 * Execute the query against solr and retrun result as {@link Page}
@@ -217,6 +386,18 @@ public interface SolrOperations {
 	<T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
+	 * Execute the query against solr and retrun result as {@link Page}
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> ScoredPage<T> queryForPage(String collection, Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
 	 * 
 	 * @param query must not be {@literal null}.
@@ -224,6 +405,17 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz);
+
+	/**
+	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> FacetPage<T> queryForFacetPage(String collection, FacetQuery query, Class<T> clazz);
 
 	/**
 	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
@@ -237,6 +429,18 @@ public interface SolrOperations {
 	<T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method);
 
 	/**
+	 * Execute a facet query against solr facet result will be returned along with query result within the FacetPage
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> FacetPage<T> queryForFacetPage(String collection, FacetQuery query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute a query and highlight matches in result
 	 * 
 	 * @param query must not be {@literal null}.
@@ -244,6 +448,17 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz);
+
+	/**
+	 * Execute a query and highlight matches in result
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> HighlightPage<T> queryForHighlightPage(String collection, HighlightQuery query, Class<T> clazz);
 
 	/**
 	 * Execute a query and highlight matches in result
@@ -259,12 +474,37 @@ public interface SolrOperations {
 	/**
 	 * Execute a query and highlight matches in result
 	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> HighlightPage<T> queryForHighlightPage(String collection, HighlightQuery query, Class<T> clazz,
+			RequestMethod method);
+
+	/**
+	 * Execute a query and highlight matches in result
+	 *
 	 * @param query must not be {@literal null}.
 	 * @param clazz must not be {@literal null}.
 	 * @return
 	 * @since 2.1
 	 */
 	<T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz);
+
+	/**
+	 * Execute a query and highlight matches in result
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(String collection, FacetAndHighlightQuery query,
+			Class<T> clazz);
 
 	/**
 	 * Execute a query and highlight matches in result
@@ -279,12 +519,35 @@ public interface SolrOperations {
 			RequestMethod method);
 
 	/**
+	 * Execute a query and highlight matches in result
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(String collection, FacetAndHighlightQuery query,
+			Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute query using terms handler
 	 * 
 	 * @param query must not be {@literal null}.
 	 * @return
 	 */
 	TermsPage queryForTermsPage(TermsQuery query);
+
+	/**
+	 * Execute query using terms handler
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	TermsPage queryForTermsPage(String collection, TermsQuery query);
 
 	/**
 	 * Execute query using terms handler
@@ -295,6 +558,17 @@ public interface SolrOperations {
 	 * @since 2.0
 	 */
 	TermsPage queryForTermsPage(TermsQuery query, RequestMethod method);
+
+	/**
+	 * Execute query using terms handler
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	TermsPage queryForTermsPage(String collection, TermsQuery query, RequestMethod method);
 
 	/**
 	 * Executes the given {@link Query} and returns an open {@link Cursor} allowing to iterate of results, dynamically
@@ -308,6 +582,18 @@ public interface SolrOperations {
 	<T> Cursor<T> queryForCursor(Query query, Class<T> clazz);
 
 	/**
+	 * Executes the given {@link Query} and returns an open {@link Cursor} allowing to iterate of results, dynamically
+	 * fetching additional ones if required.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> Cursor<T> queryForCursor(String collection, Query query, Class<T> clazz);
+
+	/**
 	 * Execute the query against solr and return result as {@link GroupPage}
 	 * 
 	 * @param query must not be {@literal null}.
@@ -316,6 +602,17 @@ public interface SolrOperations {
 	 * @since 1.4
 	 */
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against solr and return result as {@link GroupPage}
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> GroupPage<T> queryForGroupPage(String collection, Query query, Class<T> clazz);
 
 	/**
 	 * Execute the query against solr and return result as {@link GroupPage}
@@ -329,6 +626,18 @@ public interface SolrOperations {
 	<T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method);
 
 	/**
+	 * Execute the query against solr and return result as {@link GroupPage}
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> GroupPage<T> queryForGroupPage(String collection, Query query, Class<T> clazz, RequestMethod method);
+
+	/**
 	 * Execute the query against Solr and return result as {@link StatsPage}.
 	 * 
 	 * @param query must not be {@literal null}.
@@ -340,6 +649,17 @@ public interface SolrOperations {
 
 	/**
 	 * Execute the query against Solr and return result as {@link StatsPage}.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @size 3.0
+	 */
+	<T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against Solr and return result as {@link StatsPage}.
 	 * 
 	 * @param query must not be {@literal null}.
 	 * @param clazz must not be {@literal null}.
@@ -348,6 +668,18 @@ public interface SolrOperations {
 	 * @since 2.0
 	 */
 	<T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
+	 * Execute the query against Solr and return result as {@link StatsPage}.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz, RequestMethod method);
 
 	/**
 	 * Execute the query against Solr and return result as page.
@@ -362,6 +694,17 @@ public interface SolrOperations {
 	/**
 	 * Execute the query against Solr and return result as page.
 	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 3.0
+	 */
+	<T, S extends Page<T>> S query(String collection, Query query, Class<T> clazz);
+
+	/**
+	 * Execute the query against Solr and return result as page.
+	 *
 	 * @param query must not be {@literal null}.
 	 * @param clazz must not be {@literal null}.
 	 * @param method must not be {@literal null}.
@@ -369,6 +712,18 @@ public interface SolrOperations {
 	 * @since 2.1
 	 */
 	<T, S extends Page<T>> S query(Query query, Class<T> clazz, RequestMethod method);
+
+	/**
+	 * Execute the query against Solr and return result as page.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 3.0
+	 */
+	<T, S extends Page<T>> S query(String collection, Query query, Class<T> clazz, RequestMethod method);
 
 	/**
 	 * Executes a realtime get using given id.
@@ -381,6 +736,17 @@ public interface SolrOperations {
 	<T> T getById(Serializable id, Class<T> clazz);
 
 	/**
+	 * Executes a realtime get using given id.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param id must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> T getById(String collection, Serializable id, Class<T> clazz);
+
+	/**
 	 * Executes a realtime get using given ids.
 	 * 
 	 * @param ids must not be {@literal null}.
@@ -391,9 +757,27 @@ public interface SolrOperations {
 	<T> Collection<T> getById(Collection<? extends Serializable> ids, Class<T> clazz);
 
 	/**
+	 * Executes a realtime get using given ids.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param ids must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return
+	 * @since 3.0
+	 */
+	<T> Collection<T> getById(String collection, Collection<? extends Serializable> ids, Class<T> clazz);
+
+	/**
 	 * Send commit command {@link SolrClient#commit()}
 	 */
 	void commit();
+
+	/**
+	 * Send commit command {@link SolrClient#commit()}
+	 * 
+	 * @since 3.0
+	 */
+	void commit(String collection);
 
 	/**
 	 * Send soft commmit command {@link SolrClient#commit(boolean, boolean, boolean)}
@@ -401,9 +785,23 @@ public interface SolrOperations {
 	void softCommit();
 
 	/**
+	 * Send soft commmit command {@link SolrClient#commit(boolean, boolean, boolean)}
+	 * 
+	 * @since 3.9
+	 */
+	void softCommit(String collection);
+
+	/**
 	 * send rollback command {@link SolrClient#rollback()}
 	 */
 	void rollback();
+
+	/**
+	 * send rollback command {@link SolrClient#rollback()}
+	 * 
+	 * @since 3.0
+	 */
+	void rollback(String collection);
 
 	/**
 	 * Convert given bean into a solrj InputDocument
@@ -425,16 +823,6 @@ public interface SolrOperations {
 	 * @return
 	 */
 	<T> T execute(SolrCallback<T> action);
-
-	/**
-	 * Execute action within callback on a given collection.
-	 *
-	 * @param collection must not be {@literal null}.
-	 * @param action must not be {@literal null}.
-	 * @return
-	 * @since 2.1
-	 */
-	<T> T execute(String collection, CollectionCallback<T> action);
 
 	/**
 	 * Get the {@link SchemaOperations} executable.

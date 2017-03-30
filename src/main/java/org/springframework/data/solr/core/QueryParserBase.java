@@ -472,8 +472,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public String next() {
 			Object o = getPredicateValue(this.delegate.next());
-			String s = o != null ? o.toString() : null;
-			return s;
+			return o != null ? o.toString() : null;
 		}
 
 		@Override
@@ -754,7 +753,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 	}
 
-	private static final void setObjectName(Map<String, Object> namesAssociation, Object object, String name) {
+	private static void setObjectName(Map<String, Object> namesAssociation, Object object, String name) {
 		namesAssociation.put(name, object);
 	}
 

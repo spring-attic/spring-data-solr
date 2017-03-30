@@ -55,7 +55,7 @@ public class SimplePivotField implements PivotField {
 		this.fields.addAll(fields);
 	}
 
-	private final void splitAndAddFieldnames(String... fieldnames) {
+	private void splitAndAddFieldnames(String... fieldnames) {
 		for (String fieldname : fieldnames) {
 			if (fieldname.contains(DELIMINATOR)) {
 				splitAndAddFieldnames(fieldname.split(DELIMINATOR));

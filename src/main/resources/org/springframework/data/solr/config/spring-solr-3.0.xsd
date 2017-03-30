@@ -19,7 +19,6 @@
 					<xsd:attributeGroup ref="repository:transactional-repository-attributes" />
 					<xsd:attribute name="solr-template-ref" type="solrTemplateRef" default="solrTemplate" />
 					<xsd:attribute name="solr-client-ref" type="solrClientRef" default="solrClient" />
-					<xsd:attribute name="multicore-support" type="xsd:boolean" default="false" />
 					<xsd:attribute name="schema-creation-support" type="xsd:boolean" default="false" />
 				</xsd:extension>
 			</xsd:complexContent>

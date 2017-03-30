@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import org.springframework.data.solr.ExampleSolrBean;
+import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.repository.support.SimpleSolrRepository;
 
 /**
@@ -23,4 +24,7 @@ import org.springframework.data.solr.repository.support.SimpleSolrRepository;
  */
 public class ExampleSolrBeanRepository extends SimpleSolrRepository<ExampleSolrBean, String> {
 
+	public ExampleSolrBeanRepository(SolrOperations solrOperations, Class<ExampleSolrBean> entityClass) {
+		super(solrOperations, entityClass);
+	}
 }

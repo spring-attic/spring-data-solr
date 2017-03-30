@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 - 2016 the original author or authors.
+ * Copyright 2014 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
+import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -38,12 +39,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ITestEnableSolrRepositoriesWithMulticoreSupport extends AbstractITestWithEmbeddedSolrServer {
 
 	@Configuration
-	@EnableSolrRepositories(multicoreSupport = true)
-	static class Config {
+	@EnableSolrRepositories
+	static class Config extends AbstractSolrConfiguration {
 
-		@Bean
-		public SolrClient solrClient() {
-			return server.getSolrClient("collection1");
+		@Override
+		public SolrClientFactory solrClientFactory() {
+			return server;
 		}
 	}
 

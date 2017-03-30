@@ -103,7 +103,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
-		solrTemplate = new SolrTemplate(server, "collection1");
+		solrTemplate = new SolrTemplate(server);
 		solrTemplate.afterPropertiesSet();
 	}
 
@@ -1233,9 +1233,9 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		final HttpSolrClient client = new HttpSolrClient("http://127.0.0.1/solr/");
 
-		SolrTemplate solrTemplate = new SolrTemplate(new HttpSolrClientFactory(client), "collection-1");
+		SolrTemplate solrTemplate = new SolrTemplate(new HttpSolrClientFactory(client));
 
-		solrTemplate.execute("collection-1", (solrClient, collection) -> {
+		solrTemplate.execute(solrClient -> {
 
 			Assert.assertThat(((HttpSolrClient) solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
 			return null;

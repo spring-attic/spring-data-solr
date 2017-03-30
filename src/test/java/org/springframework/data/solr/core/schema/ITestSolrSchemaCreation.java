@@ -61,7 +61,6 @@ public class ITestSolrSchemaCreation {
 	public void setUp() {
 
 		this.template = new SolrTemplate(resource);
-		this.template.setSolrCore(COLLECTION_NAME);
 		template.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
 		template.afterPropertiesSet();
 

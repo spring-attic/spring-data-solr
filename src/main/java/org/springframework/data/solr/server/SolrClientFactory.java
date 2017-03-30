@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.server;
 
-import java.util.List;
-
 import org.apache.solr.client.solrj.SolrClient;
 
 /**
@@ -26,6 +24,7 @@ import org.apache.solr.client.solrj.SolrClient;
  * @author Christoph Strobl
  * @since 2.0
  */
+@FunctionalInterface
 public interface SolrClientFactory {
 
 	/**
@@ -34,12 +33,5 @@ public interface SolrClientFactory {
 	 * @return a reusable SolrClient instance
 	 */
 	SolrClient getSolrClient();
-
-	/**
-	 * Get list of cores
-	 * 
-	 * @return empty list if no cores defined
-	 */
-	List<String> getCores();
 
 }

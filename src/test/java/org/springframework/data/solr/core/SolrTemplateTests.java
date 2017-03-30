@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,7 +49,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -92,7 +90,7 @@ public class SolrTemplateTests {
 
 	@Before
 	public void setUp() {
-		solrTemplate = new SolrTemplate(solrClientMock, "core1");
+		solrTemplate = new SolrTemplate(solrClientMock);
 		solrTemplate.afterPropertiesSet();
 	}
 
@@ -118,14 +116,15 @@ public class SolrTemplateTests {
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
 	public void testQueryThrowsParseException() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET))).thenThrow(
-				new SolrServerException("error", new SolrException(ErrorCode.BAD_REQUEST, new ParseException("parse error"))));
+		Mockito.when(solrClientMock.query(any(), Mockito.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET)))
+				.thenThrow(new SolrServerException("error",
+						new SolrException(ErrorCode.BAD_REQUEST, new ParseException("parse error"))));
 		solrTemplate.executeSolrQuery(new SolrQuery(), SolrRequest.METHOD.GET);
 	}
 
 	@Test(expected = UncategorizedSolrException.class)
 	public void testQueryThrowsUntranslateableException() throws SolrServerException, IOException {
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET)))
+		Mockito.when(solrClientMock.query(any(), Mockito.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.GET)))
 				.thenThrow(new SecurityException());
 		solrTemplate.executeSolrQuery(new SolrQuery(), SolrRequest.METHOD.GET);
 	}
@@ -327,7 +326,7 @@ public class SolrTemplateTests {
 	@Test
 	public void testSoftCommit() throws SolrServerException, IOException {
 		solrTemplate.softCommit();
-		Mockito.verify(solrClientMock, Mockito.times(1)).commit(Matchers.eq(true), Matchers.eq(true), Matchers.eq(true));
+		Mockito.verify(solrClientMock, Mockito.times(1)).commit(Mockito.eq(true), Mockito.eq(true), Mockito.eq(true));
 	}
 
 	@Test
@@ -360,7 +359,8 @@ public class SolrTemplateTests {
 
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(captor.capture(), Mockito.eq(SolrRequest.METHOD.GET));
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(nullable(String.class), captor.capture(),
+				Mockito.eq(SolrRequest.METHOD.GET));
 		Assert.assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
 	}
 
@@ -416,13 +416,13 @@ public class SolrTemplateTests {
 		when(solrClientMock.request((SchemaVersion) any(), anyString())).thenReturn(nl);
 		when(solrClientMock.request((SchemaRequest) any(), anyString())).thenReturn(nl);
 
-		solrTemplate = new SolrTemplate(solrClientMock, "core1");
+		solrTemplate = new SolrTemplate(solrClientMock);
 		solrTemplate.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
 		solrTemplate.afterPropertiesSet();
 		solrTemplate.saveBean(new DocumentWithIndexAnnotations());
 
 		ArgumentCaptor<SolrRequest> requestCaptor = ArgumentCaptor.forClass(SolrRequest.class);
-		Mockito.verify(solrClientMock, Mockito.times(5)).request(requestCaptor.capture(), Mockito.anyString());
+		Mockito.verify(solrClientMock, Mockito.times(4)).request(requestCaptor.capture(), Mockito.anyString());
 
 		SolrRequest capturedRequest = requestCaptor.getValue();
 
@@ -434,37 +434,22 @@ public class SolrTemplateTests {
 	@Test // DATASOLR-83
 	public void testGetById() throws SolrServerException, IOException {
 
-		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
-		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
-		SolrDocumentList resultList = new SolrDocumentList();
-		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<>());
+		Mockito.when(solrClientMock.getById(anyCollection())).thenReturn(new SolrDocumentList());
 
-		DocumentWithIndexAnnotations result = solrTemplate.getById("myId", DocumentWithIndexAnnotations.class);
+		solrTemplate.getById("myId", DocumentWithIndexAnnotations.class);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).request(captor.capture(), Matchers.anyString());
-		Assert.assertNull(result);
-		Assert.assertEquals("myId", captor.getValue().getParams().get("ids"));
-		Assert.assertEquals("/get", captor.getValue().getPath());
+		Mockito.verify(solrClientMock, Mockito.times(1)).getById(eq(Collections.singletonList("myId")));
 	}
 
 	@Test // DATASOLR-83
 	public void testGetByIds() throws SolrServerException, IOException {
 
-		ArgumentCaptor<SolrRequest> captor = ArgumentCaptor.forClass(SolrRequest.class);
-
-		QueryResponse responseMock = Mockito.mock(QueryResponse.class);
-		SolrDocumentList resultList = new SolrDocumentList();
-		Mockito.when(responseMock.getResults()).thenReturn(resultList);
-		Mockito.when(solrClientMock.request(captor.capture(), Matchers.anyString())).thenReturn(new NamedList<>());
+		Mockito.when(solrClientMock.getById(anyCollection())).thenReturn(new SolrDocumentList());
 
 		List<String> ids = Arrays.asList("myId1", "myId2");
-		Collection<DocumentWithIndexAnnotations> result = solrTemplate.getById(ids, DocumentWithIndexAnnotations.class);
+		solrTemplate.getById(ids, DocumentWithIndexAnnotations.class);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).request(captor.capture(), Matchers.anyString());
-		Assert.assertTrue(result.isEmpty());
-		Assert.assertArrayEquals(new String[] { "myId1", "myId2" }, captor.getValue().getParams().getParams("ids"));
-		Assert.assertEquals("/get", captor.getValue().getPath());
+		Mockito.verify(solrClientMock, Mockito.times(1)).getById(eq(ids));
 	}
 
 	@Test // DATASOLR-160
@@ -482,28 +467,28 @@ public class SolrTemplateTests {
 	@Test // DATASOLR-215
 	public void usesTemplateDefaultRequestMethodForQuery() throws SolrServerException, IOException {
 
-		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
+		solrTemplate = new SolrTemplate(solrClientMock, RequestMethod.POST);
 		solrTemplate.afterPropertiesSet();
 
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.POST)))
+		Mockito.when(solrClientMock.query(any(), Mockito.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.POST)))
 				.thenReturn(new QueryResponse());
 		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(any(), Mockito.any(SolrParams.class),
 				Mockito.eq(SolrRequest.METHOD.POST));
 	}
 
 	@Test // DATASOLR-215
 	public void usesTemplateMethodRequetsParameterForQuery() throws SolrServerException, IOException {
 
-		solrTemplate = new SolrTemplate(solrClientMock, "core1", RequestMethod.POST);
+		solrTemplate = new SolrTemplate(solrClientMock, RequestMethod.POST);
 		solrTemplate.afterPropertiesSet();
 
-		Mockito.when(solrClientMock.query(Matchers.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.PUT)))
+		Mockito.when(solrClientMock.query(any(), Mockito.any(SolrParams.class), Mockito.eq(SolrRequest.METHOD.PUT)))
 				.thenReturn(new QueryResponse());
 		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, RequestMethod.PUT);
 
-		Mockito.verify(solrClientMock, Mockito.times(1)).query(Matchers.any(SolrParams.class),
+		Mockito.verify(solrClientMock, Mockito.times(1)).query(any(), Mockito.any(SolrParams.class),
 				Mockito.eq(SolrRequest.METHOD.PUT));
 	}
 
