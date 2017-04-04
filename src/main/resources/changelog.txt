@@ -1,6 +1,23 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.M2 (2017-04-04)
+----------------------------------------
+* DATASOLR-371 - Rename getRepositoryFactoryClassName to getRepositoryFactoryBeanClassName.
+* DATASOLR-364 - Duplicate core names in Solr Url.
+* DATASOLR-361 - Remove references to single-argument assertion methods.
+* DATASOLR-358 - Integrate Data Commons Java 8 upgrade branch.
+* DATASOLR-357 - Remove woodstox dependency.
+* DATASOLR-355 - Update "what’s new" section in reference documentation.
+* DATASOLR-354 - Update project documentation with the CLA tool integration.
+* DATASOLR-352 - Migrate ticket references in test code to Spring Framework style.
+* DATASOLR-345 - Upgrade to a newer JDK version on TravisCI.
+* DATASOLR-344 - Adapt API in RepositoryFactoryBeanSupport implementation.
+* DATASOLR-342 - Register repository factory in spring.factories for multi-store support.
+* DATASOLR-339 - Release 3.0 M2 (Kay).
+* DATASOLR-309 - Upgrade to Solr 6.
+
+
 Changes in version 2.0.8.RELEASE (2017-03-02)
 ---------------------------------------------
 * DATASOLR-361 - Remove references to single-argument assertion methods.
