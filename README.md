@@ -130,7 +130,7 @@ Go on and use it as shown below:
 
 ```java
 @Configuration
-@EnableSolrRepositories(basePackages = { "com.acme.sorl" }), multicoreSupport = true)
+@EnableSolrRepositories(basePackages = { "com.acme.solr" }), multicoreSupport = true)
 public class SolrContext {
   
   private @Resource Environment env;
