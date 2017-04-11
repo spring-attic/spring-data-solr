@@ -26,7 +26,7 @@ Quick Start
 -----------
 
 ### SolrTemplate
-```SolrTemplate``` is the central support class for solr operations.
+```SolrTemplate``` is the central support class for Solr operations.
  
  
 ### SolrRepository
@@ -130,7 +130,7 @@ Go on and use it as shown below:
 
 ```java
 @Configuration
-@EnableSolrRepositories(basePackages = { "com.acme.sorl" }), multicoreSupport = true)
+@EnableSolrRepositories(basePackages = { "com.acme.solr" })
 public class SolrContext {
   
   private @Resource Environment env;
@@ -145,7 +145,7 @@ public class SolrContext {
 @Service
 public class ProductService {
   
-  private SolrProductRepository repository;
+  final SolrProductRepository repository;
 
   @Autowired
   public ProductService(SolrProductRepository repository) {
@@ -155,12 +155,12 @@ public class ProductService {
   public void doSomething() {
     repository.deleteAll();
     
-    Product product = new Product("spring-data-solr");
+    Product product = new Product("spring-data-for-apache-solr");
     product.setAuthor("Christoph Strobl");
     product.setCategory("search");
     repository.save(product);
     
-    Product singleProduct = repository.findById("spring-data-solr");
+    Product singleProduct = repository.findById("spring-data-for-apache-solr");
     List<Product> productList = repository.findByAuthorLike("Chr");
   }
   
@@ -179,21 +179,21 @@ You can set up repository scanning via xml configuration, which will happily cre
   xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr.xsd
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-  <solr:repositories base-package="com.acme.repository" multicoreSupport="true" />
+  <solr:repositories base-package="com.acme.repository" />
   <solr:solr-client id="solrClient" url="http://localhost:8983/solr" />
   
 </beans>
 ```
 
-### Automatic Schema Population
-Automatic schema population will inspect your domain types whenever the applications context is refreshed and populate new fields to your index based on the properties configuration.
+### Schema Support
+Schema Support inspects your domain types whenever the applications context is refreshed and create missing fields in your index based on the properties configuration.
 This requires solr to run in [Schemaless Mode](https://cwiki.apache.org/confluence/display/solr/Schemaless+Mode).
 
 Use `@Indexed` to provide additional details like specific solr types to use.
 
 ```java
 @Configuration
-@EnableSolrRepositories(schemaCreationSupport = true, multicoreSupport = true)
+@EnableSolrRepositories(schemaCreationSupport = true)
 class Config {
 
   @Bean
@@ -202,7 +202,7 @@ class Config {
   }
 }
 
-@Document(coreName="collection1")
+@SolrDocument(collection="collection1")
 class Product {
   
   @Id String id;
