@@ -359,7 +359,11 @@ public class MappingSolrConverter extends SolrConverterBase
 					field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
 				}
 			}
-		} else {
+		}
+		else if (fieldValue instanceof Enum) {
+			field.setValue(this.getConversionService().convert(fieldValue, String.class), 1f);
+		}
+		else {
 			field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 		}
 

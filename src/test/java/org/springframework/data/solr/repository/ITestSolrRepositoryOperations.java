@@ -15,6 +15,10 @@
  */
 package org.springframework.data.solr.repository;
 
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.junit.Assert.assertThat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -23,6 +27,7 @@ import java.util.List;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsEqual;
@@ -55,6 +60,7 @@ import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
+import org.springframework.data.solr.repository.ProductBean.ContentType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StringUtils;
@@ -604,10 +610,10 @@ public class ITestSolrRepositoryOperations {
 
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
-			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 			for (Highlight highlight : highlights) {
 				Assert.assertEquals("name", highlight.getField().getName());
-				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 				for (String s : highlight.getSnipplets()) {
 					Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
 				}
@@ -625,10 +631,10 @@ public class ITestSolrRepositoryOperations {
 
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
-			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 			for (Highlight highlight : highlights) {
 				Assert.assertEquals("name", highlight.getField().getName());
-				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 				for (String s : highlight.getSnipplets()) {
 					Assert.assertTrue("expected to find <b>name</b> but was \"" + s + "\"", s.contains("<b>name</b>"));
 				}
@@ -651,12 +657,12 @@ public class ITestSolrRepositoryOperations {
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
 			if (!product.getId().equals(beanWithText.getId())) {
-				Assert.assertThat(highlights, IsEmptyCollection.empty());
+				assertThat(highlights, IsEmptyCollection.empty());
 			} else {
-				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 				for (Highlight highlight : highlights) {
 					Assert.assertEquals("description", highlight.getField().getName());
-					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 					for (String s : highlight.getSnipplets()) {
 						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
 					}
@@ -680,12 +686,12 @@ public class ITestSolrRepositoryOperations {
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
 			if (!product.getId().equals(beanWithText.getId())) {
-				Assert.assertThat(highlights, IsEmptyCollection.empty());
+				assertThat(highlights, IsEmptyCollection.empty());
 			} else {
-				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 				for (Highlight highlight : highlights) {
 					Assert.assertEquals("description", highlight.getField().getName());
-					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 					for (String s : highlight.getSnipplets()) {
 						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
 					}
@@ -795,7 +801,7 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> found = repo.findByNameIn(Arrays.asList(NAMED_PRODUCT.getName(), anotherProductBean.getName()));
 		Assert.assertEquals(2, found.size());
 
-		Assert.assertThat(found, Matchers.containsInAnyOrder(anotherProductBean, NAMED_PRODUCT));
+		assertThat(found, Matchers.containsInAnyOrder(anotherProductBean, NAMED_PRODUCT));
 	}
 
 	@Test
@@ -821,10 +827,10 @@ public class ITestSolrRepositoryOperations {
 
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
-			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 			for (Highlight highlight : highlights) {
 				Assert.assertEquals("name", highlight.getField().getName());
-				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 				for (String s : highlight.getSnipplets()) {
 					Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
 				}
@@ -839,10 +845,10 @@ public class ITestSolrRepositoryOperations {
 
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
-			Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+			assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 			for (Highlight highlight : highlights) {
 				Assert.assertEquals("name", highlight.getField().getName());
-				Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 				for (String s : highlight.getSnipplets()) {
 					Assert.assertTrue("expected to find <b>name</b> but was \"" + s + "\"", s.contains("<b>name</b>"));
 				}
@@ -862,12 +868,12 @@ public class ITestSolrRepositoryOperations {
 		for (ProductBean product : page) {
 			List<Highlight> highlights = page.getHighlights(product);
 			if (!product.getId().equals(beanWithText.getId())) {
-				Assert.assertThat(highlights, IsEmptyCollection.empty());
+				assertThat(highlights, IsEmptyCollection.empty());
 			} else {
-				Assert.assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
+				assertThat(highlights, IsNot.not(IsEmptyCollection.empty()));
 				for (Highlight highlight : highlights) {
 					Assert.assertEquals("description", highlight.getField().getName());
-					Assert.assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
+					assertThat(highlight.getSnipplets(), IsNot.not(IsEmptyCollection.empty()));
 					for (String s : highlight.getSnipplets()) {
 						Assert.assertTrue("expected to find <em>name</em> but was \"" + s + "\"", s.contains("<em>name</em>"));
 					}
@@ -899,8 +905,8 @@ public class ITestSolrRepositoryOperations {
 	@Test // DATASOLR-143
 	public void testCountByWorksCorrectly() {
 
-		Assert.assertThat(repo.countProductBeanByName(NAMED_PRODUCT.getName()), Is.is(1L));
-		Assert.assertThat(repo.countByName(NAMED_PRODUCT.getName()), Is.is(1L));
+		assertThat(repo.countProductBeanByName(NAMED_PRODUCT.getName()), Is.is(1L));
+		assertThat(repo.countByName(NAMED_PRODUCT.getName()), Is.is(1L));
 	}
 
 	@Test // DATASOLR-144
@@ -908,8 +914,8 @@ public class ITestSolrRepositoryOperations {
 
 		long referenceCount = repo.count();
 		repo.deleteByName(NAMED_PRODUCT.getName());
-		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
-		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
+		assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
 	@Test // DATASOLR-144
@@ -917,17 +923,17 @@ public class ITestSolrRepositoryOperations {
 
 		long referenceCount = repo.count();
 		long nrDeleted = repo.deleteProductBeanByName(NAMED_PRODUCT.getName());
-		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
-		Assert.assertThat(repo.count(), Is.is(referenceCount - nrDeleted));
+		assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		assertThat(repo.count(), Is.is(referenceCount - nrDeleted));
 	}
 
 	@Test // DATASOLR-144
 	public void testDerivedDeleteByQueryRemovesDocumentAndReturnsListOfDeletedDocumentsCorrectly() {
 
 		List<ProductBean> result = repo.removeByName(NAMED_PRODUCT.getName());
-		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
-		Assert.assertThat(result, IsCollectionWithSize.hasSize(1));
-		Assert.assertThat(result.get(0).getId(), IsEqual.equalTo(NAMED_PRODUCT.getId()));
+		assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		assertThat(result, hasSize(1));
+		assertThat(result.get(0).getId(), IsEqual.equalTo(NAMED_PRODUCT.getId()));
 	}
 
 	@Test // DATASOLR-144
@@ -935,15 +941,15 @@ public class ITestSolrRepositoryOperations {
 
 		long referenceCount = repo.count();
 		repo.removeUsingAnnotatedQuery(NAMED_PRODUCT.getName());
-		Assert.assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
-		Assert.assertThat(repo.count(), Is.is(referenceCount - 1));
+		assertThat(repo.exists(NAMED_PRODUCT.getId()), Is.is(false));
+		assertThat(repo.count(), Is.is(referenceCount - 1));
 	}
 
 	@Test // DATASOLR-170
 	public void findTopNResultAppliesLimitationCorrectly() {
 
 		List<ProductBean> result = repo.findTop2ByNameStartingWith("na");
-		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
+		assertThat(result, hasSize(2));
 	}
 
 	@Test // DATASOLR-170
@@ -953,8 +959,8 @@ public class ITestSolrRepositoryOperations {
 		repo.save(beans);
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(0, 2));
-		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(2));
-		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(0), beans.get(1)));
+		assertThat(result.getNumberOfElements(), IsEqual.equalTo(2));
+		assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(0), beans.get(1)));
 	}
 
 	@Test // DATASOLR-170
@@ -964,8 +970,8 @@ public class ITestSolrRepositoryOperations {
 		repo.save(beans);
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 2));
-		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
-		Assert.assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(2)));
+		assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
+		assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(2)));
 	}
 
 	@Test // DATASOLR-170
@@ -974,8 +980,8 @@ public class ITestSolrRepositoryOperations {
 		repo.save(createProductBeans(10, "top"));
 
 		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 5));
-		Assert.assertThat(result.getNumberOfElements(), IsEqual.equalTo(0));
-		Assert.assertThat(result.hasNext(), IsEqual.equalTo(false));
+		assertThat(result.getNumberOfElements(), IsEqual.equalTo(0));
+		assertThat(result.hasNext(), IsEqual.equalTo(false));
 	}
 
 	@Test // DATASOLR-186
@@ -984,7 +990,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(createProductBeans(10, "slice"));
 
 		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 2));
-		Assert.assertThat(slice.getNumberOfElements(), Is.is(2));
+		assertThat(slice.getNumberOfElements(), Is.is(2));
 	}
 
 	@Test // DATASOLR-186
@@ -993,7 +999,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(createProductBeans(10, "slice"));
 
 		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 20));
-		Assert.assertThat(slice.getNumberOfElements(), Is.is(10));
+		assertThat(slice.getNumberOfElements(), Is.is(10));
 	}
 
 	@Test // DATASOLR-186
@@ -1002,7 +1008,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(createProductBeans(10, "slice"));
 
 		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(1, 20));
-		Assert.assertThat(slice.hasContent(), Is.is(false));
+		assertThat(slice.hasContent(), Is.is(false));
 	}
 
 	@Test // DATASOLR-160
@@ -1044,9 +1050,25 @@ public class ITestSolrRepositoryOperations {
 		repo.save(greenProduct);
 
 		SpellcheckedPage<ProductBean> found = repo.findByName("gren", new PageRequest(0, 20));
-		Assert.assertThat(found.hasContent(), Is.is(false));
-		Assert.assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
-		Assert.assertThat(found.getSuggestions(), Matchers.contains("green"));
+		assertThat(found.hasContent(), Is.is(false));
+		assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
+		assertThat(found.getSuggestions(), Matchers.contains("green"));
+	}
+
+	@Test // DATASOLR-375
+	public void derivedFinderUsingEnum() {
+
+		ProductBean html = createProductBean("5", 3, true, "html");
+		html.setContentType(ContentType.HTML);
+
+		ProductBean json = createProductBean("6", 3, true, "json");
+		json.setContentType(ContentType.JSON);
+
+		repo.save(Arrays.asList(html, json));
+
+		List<ProductBean> result = repo.findByContentType(ContentType.HTML);
+		assertThat(result, hasSize(1));
+		assertThat(result, contains(html));
 	}
 
 	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {
