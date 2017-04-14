@@ -52,6 +52,9 @@ public class ProductBean {
 
 	@Field("last_modified") private Date lastModified;
 
+	@Field("content_type_s")
+	private ContentType contentType;
+
 	public String getId() {
 		return id;
 	}
@@ -175,4 +178,15 @@ public class ProductBean {
 		this.text = text;
 	}
 
+	public ContentType getContentType() {
+		return contentType;
+	}
+
+	public void setContentType(ContentType contentType) {
+		this.contentType = contentType;
+	}
+
+	public enum ContentType {
+		TEXT, JSON, HTML
+	}
 }

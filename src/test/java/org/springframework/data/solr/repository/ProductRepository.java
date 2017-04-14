@@ -31,6 +31,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
+import org.springframework.data.solr.repository.ProductBean.ContentType;
 
 /**
  * @author Christoph Strobl
@@ -242,5 +243,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 			count = 10, alternativeTermCount = 5, maxResultsForSuggest = 5, collate = true, maxCollationsTries = 10,
 			maxCollations = 5)
 	SpellcheckedPage<ProductBean> findByName(String name, Pageable page);
+
+	List<ProductBean> findByContentType(ContentType contentType);
 
 }

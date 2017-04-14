@@ -1061,6 +1061,20 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(1, regularDocument.getDocumentBoost(), 0);
 	}
 
+	@Test // DATASOLR-375
+	public void writeEnumValues() {
+
+		SolrInputDocument regularDocument = new SolrInputDocument();
+
+		BeanWithDefaultTypes source = new BeanWithDefaultTypes();
+		source.enumProperty = SomeEnum.E2;
+
+		SolrInputDocument sink = new SolrInputDocument();
+		converter.write(source, sink);
+
+		Assert.assertThat(sink.getFieldValue("enumProperty"), IsEqual.equalTo(SomeEnum.E2.name()));
+	}
+
 	public static class BeanWithoutAnnotatedFields {
 
 		String notIndexedProperty;
@@ -1121,6 +1135,12 @@ public class MappingSolrConverterTests {
 
 		@Field Date dateProperty;
 
+		@Field SomeEnum enumProperty;
+
+	}
+
+	enum SomeEnum {
+		E1, E2
 	}
 
 	public static class BeanWithCatchAllField {
