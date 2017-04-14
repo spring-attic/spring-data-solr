@@ -226,7 +226,7 @@ The same result could be achieved annotating the repository method with `@Stats`
 ----
 @Query("name:?0")
 @Stats(value = { "price" })
-Stats<Product> findByName(String name, Pageable page);
+StatsPage<Product> findByName(String name, Pageable page);
 ----
 ====
 
