@@ -77,6 +77,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	private final SolrOperations solrOperations;
 	private final SolrQueryMethod solrQueryMethod;
+	private final String collection;
 
 	public final int UNLIMITED = 1;
 
@@ -109,11 +110,12 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 * @param solrOperations must not be null
 	 * @param solrQueryMethod must not be null
 	 */
-	protected AbstractSolrQuery(SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
+	protected AbstractSolrQuery(String collection, SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
 		Assert.notNull(solrOperations, "SolrOperations must not be null!");
 		Assert.notNull(solrQueryMethod, "SolrQueryMethod must not be null!");
 		this.solrOperations = solrOperations;
 		this.solrQueryMethod = solrQueryMethod;
+		this.collection = collection;
 	}
 
 	@Override
@@ -442,7 +444,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		protected Page<?> executeFind(Query query) {
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
-			return solrOperations.queryForPage(query, metadata.getJavaType());
+			return solrOperations.queryForPage(collection, query, metadata.getJavaType());
 		}
 	}
 
@@ -487,7 +489,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 
 		private long count(Query query) {
-			return solrOperations.count(query);
+			return solrOperations.count(collection, query);
 		}
 
 	}
@@ -552,7 +554,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			Assert.isInstanceOf(FacetQuery.class, query, "Query must be instance of FacetQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
-			return solrOperations.queryForFacetPage((FacetQuery) query, metadata.getJavaType());
+			return solrOperations.queryForFacetPage(collection, (FacetQuery) query, metadata.getJavaType());
 		}
 
 	}
@@ -573,7 +575,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			Assert.isInstanceOf(HighlightQuery.class, query, "Query must be instanceof HighlightQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
-			return solrOperations.queryForHighlightPage((HighlightQuery) query, metadata.getJavaType());
+			return solrOperations.queryForHighlightPage(collection, (HighlightQuery) query, metadata.getJavaType());
 		}
 	}
 
@@ -595,7 +597,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			Assert.isInstanceOf(FacetAndHighlightQuery.class, query, "Query must be instance of FacetAndHighlightQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
-			return solrOperations.queryForFacetAndHighlightPage((FacetAndHighlightQuery) query, metadata.getJavaType());
+			return solrOperations.queryForFacetAndHighlightPage(collection, (FacetAndHighlightQuery) query, metadata.getJavaType());
 		}
 	}
 
@@ -614,7 +616,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 				return solrOperations.queryForObject(query, metadata.getJavaType()).orElse(null);
 			}
 
-			return solrOperations.queryForObject(query, metadata.getJavaType());
+			return solrOperations.queryForObject(collection, query, metadata.getJavaType());
 		}
 	}
 
@@ -625,7 +627,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
-			return solrOperations.count(query);
+			return solrOperations.count(collection, query);
 		}
 
 	}
@@ -644,9 +646,9 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			Object result = countOrGetDocumentsForDelete(query);
 
-			solrOperations.delete(query);
+			solrOperations.delete(collection, query);
 			if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-				solrOperations.commit();
+				solrOperations.commit(collection);
 			}
 
 			return result;
@@ -658,12 +660,12 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 			if (solrQueryMethod.isCollectionQuery()) {
 				Query clone = SimpleQuery.fromQuery(query);
-				result = solrOperations.queryForPage(clone.setPageRequest(new SolrPageRequest(0, Integer.MAX_VALUE)),
+				result = solrOperations.queryForPage(collection, clone.setPageRequest(new SolrPageRequest(0, Integer.MAX_VALUE)),
 						solrQueryMethod.getEntityInformation().getJavaType()).getContent();
 			}
 
 			if (ClassUtils.isAssignable(Number.class, solrQueryMethod.getReturnedObjectType())) {
-				result = solrOperations.count(query);
+				result = solrOperations.count(collection, query);
 			}
 			return result;
 		}

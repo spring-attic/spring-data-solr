@@ -32,7 +32,11 @@ public class PartTreeSolrQuery extends AbstractSolrQuery {
 	private final MappingContext<?, SolrPersistentProperty> mappingContext;
 
 	public PartTreeSolrQuery(SolrQueryMethod method, SolrOperations solrOperations) {
-		super(solrOperations, method);
+		this(null, method, solrOperations);
+	}
+
+	public PartTreeSolrQuery(String collection, SolrQueryMethod method, SolrOperations solrOperations) {
+		super(collection, solrOperations, method);
 		this.tree = new PartTree(method.getName(), method.getEntityInformation().getJavaType());
 		this.mappingContext = solrOperations.getConverter().getMappingContext();
 	}

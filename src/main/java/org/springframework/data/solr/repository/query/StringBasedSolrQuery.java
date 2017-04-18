@@ -30,11 +30,15 @@ public class StringBasedSolrQuery extends AbstractSolrQuery {
 	private final String rawQueryString;
 
 	public StringBasedSolrQuery(SolrQueryMethod method, SolrOperations solrOperations) {
-		this(method.getAnnotatedQuery(), method, solrOperations);
+		this(null, method, solrOperations);
 	}
 
-	public StringBasedSolrQuery(String query, SolrQueryMethod queryMethod, SolrOperations solrOperations) {
-		super(solrOperations, queryMethod);
+	public StringBasedSolrQuery(String collection, SolrQueryMethod method, SolrOperations solrOperations) {
+		this(collection, method.getAnnotatedQuery(), method, solrOperations);
+	}
+
+	public StringBasedSolrQuery(String collection, String query, SolrQueryMethod queryMethod, SolrOperations solrOperations) {
+		super(collection, solrOperations, queryMethod);
 		this.rawQueryString = query;
 	}
 

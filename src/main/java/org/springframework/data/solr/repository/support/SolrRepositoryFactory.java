@@ -186,16 +186,17 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 			SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreator);
 			String namedQueryName = queryMethod.getNamedQueryName();
+			String collectionName = getEntityInformation(metadata.getDomainType()).getSolrCoreName();
 
 			SolrOperations solrOperations = selectSolrOperations(metadata);
 
 			if (namedQueries.hasQuery(namedQueryName)) {
 				String namedQuery = namedQueries.getQuery(namedQueryName);
-				return new StringBasedSolrQuery(namedQuery, queryMethod, solrOperations);
+				return new StringBasedSolrQuery(collectionName, namedQuery, queryMethod, solrOperations);
 			} else if (queryMethod.hasAnnotatedQuery()) {
-				return new StringBasedSolrQuery(queryMethod, solrOperations);
+				return new StringBasedSolrQuery(collectionName, queryMethod, solrOperations);
 			} else {
-				return new PartTreeSolrQuery(queryMethod, solrOperations);
+				return new PartTreeSolrQuery(collectionName, queryMethod, solrOperations);
 			}
 		}
 
