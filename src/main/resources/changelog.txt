@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.2.RELEASE (2017-04-19)
+---------------------------------------------
+* DATASOLR-376 - Can't find Stats<T>.
+* DATASOLR-375 - Unable to search on enumerated fields.
+* DATASOLR-365 - Release 2.1.2 (Ingalls SR2).
+* DATASOLR-364 - Duplicate core names in Solr Url.
+
+
 Changes in version 3.0.0.M2 (2017-04-04)
 ----------------------------------------
 * DATASOLR-371 - Rename getRepositoryFactoryClassName to getRepositoryFactoryBeanClassName.
