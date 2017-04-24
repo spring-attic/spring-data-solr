@@ -55,9 +55,10 @@ import org.springframework.util.CollectionUtils;
 /**
  * Implementation of {@link SolrConverter} to read/write {@link org.apache.solr.common.SolrDocument}/
  * {@link SolrInputDocument}. <br/>
- * 
+ *
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 public class MappingSolrConverter extends SolrConverterBase
 		implements SolrConverter, ApplicationContextAware, InitializingBean {
@@ -247,7 +248,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			target.putAll(convertedDocument);
 		} else {
 
-			SolrPersistentEntity<?> entity = mappingContext.getPersistentEntity(sourceClass).get();
+			SolrPersistentEntity<?> entity = mappingContext.getRequiredPersistentEntity(sourceClass);
 			write(source, target, entity);
 		}
 
@@ -362,20 +363,15 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	private Object convertToSolrType(Class<?> type, Object value) {
+
 		if (type == null || value == null) {
 			return value;
 		}
 
-		if (isSimpleType(type)) {
-			return value;
-		} else if (hasCustomWriteTarget(value.getClass())) {
-			Class<?> targetType = getCustomWriteTargetType(value.getClass());
-			if (canConvert(value.getClass(), targetType)) {
-				return convert(value, targetType);
-			}
-		}
-
-		return value;
+		return getCustomWriteTargetType(value.getClass()) //
+				.filter(targetType -> canConvert(value.getClass(), targetType)) //
+				.map(targetType -> (Object) convert(value, targetType)) //
+				.orElse(value);
 	}
 
 	private static Collection<?> asCollection(Object source) {

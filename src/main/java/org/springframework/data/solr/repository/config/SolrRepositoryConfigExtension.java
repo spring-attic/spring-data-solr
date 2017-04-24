@@ -38,8 +38,8 @@ import org.springframework.data.repository.config.XmlRepositoryConfigurationSour
 import org.springframework.data.solr.core.SolrExceptionTranslator;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.convert.CustomConversions;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
+import org.springframework.data.solr.core.convert.SolrCustomConversions;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.SolrCrudRepository;
@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
  *
  * @author Oliver Gierke
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtensionSupport {
 
@@ -161,7 +162,9 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	private void registeCustomConversionsIfNotPresent(BeanDefinitionRegistry registry,
 			RepositoryConfigurationSource configurationSource) {
 
-		RootBeanDefinition definition = new RootBeanDefinition(CustomConversions.class);
+		RootBeanDefinition definition = new RootBeanDefinition(SolrCustomConversions.class);
+
+		definition.getConstructorArgumentValues().addGenericArgumentValue(Collections.emptyList());
 		definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
 		definition.setSource(configurationSource.getSource());
 

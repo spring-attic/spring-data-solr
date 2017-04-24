@@ -21,12 +21,13 @@ import java.util.Collections;
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.convert.CustomConversions;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.RequestMethod;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.convert.CustomConversions;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrConverter;
+import org.springframework.data.solr.core.convert.SolrCustomConversions;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
@@ -36,6 +37,7 @@ import org.springframework.data.solr.server.SolrClientFactory;
  * Spring Data for Apache Solr base configuration using JavaConfig.
  *
  * @author Christoph Strobl
+ * @author Mark Paluch
  * @since 3.0
  */
 @Configuration
@@ -90,7 +92,7 @@ public abstract class AbstractSolrConfiguration {
 	 * @return CustomConversions by default. Never {@literal null}.
 	 */
 	protected CustomConversions customConversions() {
-		return new CustomConversions();
+		return new SolrCustomConversions(Collections.emptyList());
 	}
 
 	/**

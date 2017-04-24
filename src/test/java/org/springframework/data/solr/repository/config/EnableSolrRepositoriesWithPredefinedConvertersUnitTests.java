@@ -19,8 +19,8 @@ import static org.hamcrest.core.IsSame.*;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 
-import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
@@ -28,11 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.convert.CustomConversions;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.core.convert.CustomConversions;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
+import org.springframework.data.solr.core.convert.SolrCustomConversions;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.support.SimpleSolrRepository;
 import org.springframework.data.solr.server.SolrClientFactory;
@@ -46,7 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration
 public class EnableSolrRepositoriesWithPredefinedConvertersUnitTests extends AbstractITestWithEmbeddedSolrServer {
 
-	private static final CustomConversions CUSTOM_CONVERSIONS = new CustomConversions();
+	private static final CustomConversions CUSTOM_CONVERSIONS = new SolrCustomConversions(Collections.emptyList());
 
 	@Configuration
 	@EnableSolrRepositories(considerNestedRepositories = true)

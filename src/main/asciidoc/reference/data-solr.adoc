@@ -31,7 +31,7 @@ Using the `repositories` element looks up Spring Data repositories as described 
 ----
 ====
 
-Using the `solr-server` or `embedded-solr-server` element registers an instance of `SolrClient` in the context. 
+Using the `solr-server` or `embedded-solr-server` element registers an instance of `SolrClient` in the context.
 
 .HttpSolrClient using Namespace
 ====
@@ -47,7 +47,7 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
   <solr:solr-client id="solrClient" url="http://locahost:8983/solr" />
-</beans> 
+</beans>
 ----
 ====
 
@@ -65,7 +65,7 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
   <solr:solr-client id="solrClient" url="http://locahost:8983/solr,http://localhost:8984/solr" />
-</beans> 
+</beans>
 ----
 ====
 
@@ -83,7 +83,7 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
     http://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
   <solr:embedded-solr-server id="solrClient" solrHome="classpath:com/acme/solr" />
-</beans> 
+</beans>
 ----
 ====
 
@@ -99,13 +99,13 @@ The Spring Data Solr repositories support cannot only be activated through an XM
 @Configuration
 @EnableSolrRepositories
 class ApplicationConfig {
-  
+
   @Bean
   public SolrClient solrClient() {
     EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory("classpath:com/acme/solr");
     return factory.getSolrServer();
   }
-  
+
   @Bean
   public SolrOperations solrTemplate() {
     return new SolrTemplate(solrClient());
@@ -182,7 +182,7 @@ Deriving the query from the method name is not always sufficient and/or may resu
 [[solr.query-methods.criterions]]
 === Query creation
 
-Generally the query creation mechanism for Solr works as described in <<repositories.query-methods>> . Here's a short example of what a Solr query method translates into: 
+Generally the query creation mechanism for Solr works as described in <<repositories.query-methods>> . Here's a short example of what a Solr query method translates into:
 
 .Query creation from method names
 ====
@@ -201,7 +201,7 @@ The method name above will be translated into the following solr query
 q=name:?0 AND popularity:?1
 ----
 
-A list of supported keywords for Solr is shown below. 
+A list of supported keywords for Solr is shown below.
 
 [cols="1,2,3", options="header"]
 .Supported keywords inside method names
@@ -362,12 +362,12 @@ Product.findByName=name:?0
 [source,java]
 ----
 public interface ProductRepository extends SolrCrudRepository<Product, String> {
-				
+
   List<Product> findByNamedQuery(Integer popularity);
-  
+
   @Query(name = "Product.findByName")
-  List<Product> findByAnnotatedNamedQuery(String name); 
-  
+  List<Product> findByAnnotatedNamedQuery(String name);
+
 }
 ----
 
@@ -388,32 +388,32 @@ Though there is already support for Entity Mapping within SolrJ, Spring Data Sol
 public class Product {
   @Field
   private String simpleProperty;
-  
+
   @Field("somePropertyName")
   private String namedPropery;
-  
+
   @Field
   private List<String> listOfValues;
-  
+
   @Indexed(readonly = true)
   @Field("property_*")
   private List<String> ignoredFromWriting;
-  
+
   @Field("mappedField_*")
-  private Map<String, List<String>> mappedFieldValues; 
-  
+  private Map<String, List<String>> mappedFieldValues;
+
   @Dynamic
   @Field("dynamicMappedField_*")
-  private Map<String, String> dynamicMappedFieldValues; 
-  
+  private Map<String, String> dynamicMappedFieldValues;
+
   @Field
   private GeoLocation location;
-				
+
 }
 ----
 ====
 
-Taking a look as the above `MappingSolrConverter` will do as follows: 
+Taking a look as the above `MappingSolrConverter` will do as follows:
 
 [cols="1,3", options="header"]
 |===
@@ -440,7 +440,7 @@ Taking a look as the above `MappingSolrConverter` will do as follows:
 | `<field name="location">48.362893,14.534437</field>`
 |===
 
-To register a custom converter one must add `CustomConversions` to `SolrTemplate` initializing it with own `Converter` implementation. 
+To register a custom converter one must add `CustomConversions` to `SolrTemplate` initializing it with own `Converter` implementation.
 
 ====
 [source]
@@ -450,9 +450,9 @@ To register a custom converter one must add `CustomConversions` to `SolrTemplate
 		<bean class="org.springframework.data.solr.core.mapping.SimpleSolrMappingContext" />
 	</constructor-arg>
 	<property name="customConversions" ref="customConversions" />
-</bean> 
+</bean>
 
-<bean id="customConversions" class="org.springframework.data.solr.core.convert.CustomConversions">
+<bean id="customConversions" class="org.springframework.data.solr.core.convert.SolrCustomConversions">
 	<constructor-arg>
 		<list>
 			<bean class="com.acme.MyBeanToSolrInputDocumentConverter" />
