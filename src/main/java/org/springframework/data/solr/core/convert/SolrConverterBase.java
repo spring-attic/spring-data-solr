@@ -122,7 +122,7 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 	 *
 	 * @param conversionService
 	 */
-	protected void registerCutomConverters(GenericConversionService conversionService) {
+	protected void registerCustomConverters(GenericConversionService conversionService) {
 		if (customConversions != null) {
 			customConversions.registerConvertersIn(conversionService);
 		}
@@ -162,7 +162,7 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 
 	@Override
 	public void afterPropertiesSet() {
-		registerCutomConverters(this.conversionService);
+		registerCustomConverters(this.conversionService);
 	}
 
 }
