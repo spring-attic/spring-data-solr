@@ -84,7 +84,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	@Override
-	public Optional<T> findOne(ID id) {
+	public Optional<T> findById(ID id) {
 		return getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
@@ -117,7 +117,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	@Override
-	public Iterable<T> findAll(Iterable<ID> ids) {
+	public Iterable<T> findAllById(Iterable<ID> ids) {
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
 		query.setPageRequest(new SolrPageRequest(0, (int) count(query)));
 
@@ -144,7 +144,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	@Override
-	public <S extends T> Iterable<S> save(Iterable<S> entities) {
+	public <S extends T> Iterable<S> saveAll(Iterable<S> entities) {
 		Assert.notNull(entities, "Cannot insert 'null' as a List.");
 
 		if (!(entities instanceof Collection<?>)) {
@@ -158,12 +158,12 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	}
 
 	@Override
-	public boolean exists(ID id) {
-		return findOne(id).isPresent();
+	public boolean existsById(ID id) {
+		return findById(id).isPresent();
 	}
 
 	@Override
-	public void delete(ID id) {
+	public void deleteById(ID id) {
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
 		registerTransactionSynchronisationIfSynchronisationActive();
@@ -175,11 +175,11 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	public void delete(T entity) {
 		Assert.notNull(entity, "Cannot delete 'null' entity.");
 
-		delete(Collections.singletonList(entity));
+		deleteAll(Collections.singletonList(entity));
 	}
 
 	@Override
-	public void delete(Iterable<? extends T> entities) {
+	public void deleteAll(Iterable<? extends T> entities) {
 		Assert.notNull(entities, "Cannot delete 'null' list.");
 
 		ArrayList<String> idsToDelete = new ArrayList<>();

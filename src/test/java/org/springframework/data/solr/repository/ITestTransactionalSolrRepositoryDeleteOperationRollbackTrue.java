@@ -58,7 +58,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue extends
 
 	@Test
 	public void testDeleteById() {
-		repo.delete(ID);
+		repo.deleteById(ID);
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackTrue extends
 	public void testDeleteMultipleObjects() {
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
-		repo.delete(Collections.singletonList(bean));
+		repo.deleteAll(Collections.singletonList(bean));
 	}
 
 	@Test

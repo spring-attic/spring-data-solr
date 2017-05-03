@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.repository.support;
 
-import java.io.Serializable;
-
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 import org.springframework.data.repository.core.support.PersistentEntityInformation;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
@@ -30,7 +28,7 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
  * @author Christoph Strobl
  * @author Oliver Gierke
  */
-public class MappingSolrEntityInformation<T, ID extends Serializable> extends PersistentEntityInformation<T, ID>
+public class MappingSolrEntityInformation<T, ID> extends PersistentEntityInformation<T, ID>
 		implements SolrEntityInformation<T, ID> {
 
 	private final SolrPersistentEntity<T> entityMetadata;

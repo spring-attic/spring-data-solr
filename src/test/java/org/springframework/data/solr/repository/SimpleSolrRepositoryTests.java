@@ -54,13 +54,13 @@ public class SimpleSolrRepositoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullSolrOperations() {
-		new SimpleSolrRepository<ExampleSolrBean, String>(null, (Class)null);
+		new SimpleSolrRepository<ExampleSolrBean, String>(null, (Class) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullEntityClass() {
 		new SimpleSolrRepository<ExampleSolrBean, String>(
-				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), (Class)null);
+				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), (Class) null);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class SimpleSolrRepositoryTests {
 	public void testFindAllByIdQuery() {
 		Mockito.when(solrOperationsMock.count(Mockito.any(), Mockito.any(SolrDataQuery.class))).thenReturn(12345l);
 
-		repository.findAll(Arrays.asList("id-1", "id-2", "id-3"));
+		repository.findAllById(Arrays.asList("id-1", "id-2", "id-3"));
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).count(Mockito.any(), captor.capture());
@@ -91,7 +91,7 @@ public class SimpleSolrRepositoryTests {
 		SimpleSolrRepository<BeanWithLongIdType, Long> repoWithNonStringIdType = new SimpleSolrRepository<>(
 				solrOperationsMock, BeanWithLongIdType.class);
 
-		repoWithNonStringIdType.findAll(Arrays.asList(1L, 2L, 3L));
+		repoWithNonStringIdType.findAllById(Arrays.asList(1L, 2L, 3L));
 		ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
 
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).count(Mockito.any(), captor.capture());

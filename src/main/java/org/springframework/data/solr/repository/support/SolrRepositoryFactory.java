@@ -17,7 +17,6 @@ package org.springframework.data.solr.repository.support;
 
 import static org.springframework.data.querydsl.QuerydslUtils.*;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	}
 
 	@Override
-	public <T, ID extends Serializable> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
+	public <T, ID> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
 		return entityInformationCreator.getEntityInformation(domainClass);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,11 @@
  */
 package org.springframework.data.solr.repository.query;
 
-import java.io.Serializable;
-
 /**
  * @author Christoph Strobl
  */
 public interface SolrEntityInformationCreator {
 
-	<T, ID extends Serializable> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass);
+	<T, ID> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass);
 
 }

@@ -70,14 +70,14 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.save(initial);
 		Assert.assertEquals(1, repository.count());
 
-		ProductBean loaded = repository.findOne(initial.getId()).get();
+		ProductBean loaded = repository.findById(initial.getId()).get();
 		Assert.assertEquals(initial.getName(), loaded.getName());
 
 		loaded.setName("name changed");
 		repository.save(loaded);
 		Assert.assertEquals(1, repository.count());
 
-		loaded = repository.findOne(initial.getId()).get();
+		loaded = repository.findById(initial.getId()).get();
 		Assert.assertEquals("name changed", loaded.getName());
 
 		repository.delete(loaded);
@@ -117,7 +117,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
-		repository.save(Arrays.asList(availableProduct, unavailableProduct));
+		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
 		Assert.assertEquals(2, repository.count());
 
 		Page<ProductBean> result = repository.findByAvailableTrue(new PageRequest(0, 10));
@@ -133,7 +133,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
-		repository.save(Arrays.asList(availableProduct, unavailableProduct));
+		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
 		Assert.assertEquals(2, repository.count());
 
 		List<ProductBean> result = repository.findByAvailableTrue();

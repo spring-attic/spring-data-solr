@@ -69,21 +69,21 @@ public class ITestCdiRepository {
 
 		repository.save(bean);
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		Assert.assertTrue(repository.existsById(bean.getId()));
 
-		Optional<ProductBean> retrieved = repository.findOne(bean.getId());
+		Optional<ProductBean> retrieved = repository.findById(bean.getId());
 		Assert.assertTrue(retrieved.isPresent());
 		Assert.assertEquals(bean.getId(), retrieved.get().getId());
 		Assert.assertEquals(bean.getName(), retrieved.get().getName());
 
 		Assert.assertEquals(1, repository.count());
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		Assert.assertTrue(repository.existsById(bean.getId()));
 
 		repository.delete(bean);
 
 		Assert.assertEquals(0, repository.count());
-		retrieved = repository.findOne(bean.getId());
+		retrieved = repository.findById(bean.getId());
 		Assert.assertFalse(retrieved.isPresent());
 	}
 

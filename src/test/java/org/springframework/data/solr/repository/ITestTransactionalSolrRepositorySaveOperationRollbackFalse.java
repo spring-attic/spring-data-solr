@@ -69,7 +69,7 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse extends 
 	public void testSaveMultipleObjects() {
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
-		repo.save(Collections.singletonList(bean));
+		repo.saveAll(Collections.singletonList(bean));
 	}
 
 }
