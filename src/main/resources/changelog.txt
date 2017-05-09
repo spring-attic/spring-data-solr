@@ -1,6 +1,17 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.M3 (2017-05-09)
+----------------------------------------
+* DATASOLR-385 - Adapt to API changes in repository interfaces.
+* DATASOLR-384 - Adapt to moved CustomConversions to Spring Data Commons.
+* DATASOLR-378 - Derived and String based queries do not take domain type collection name into account.
+* DATASOLR-376 - Can't find Stats<T>.
+* DATASOLR-375 - Unable to search on enumerated fields.
+* DATASOLR-374 - Unable to find @Document in the code base.
+* DATASOLR-373 - Release 3.0 M3 (Kay).
+
+
 Changes in version 2.0.10.RELEASE (2017-04-19)
 ----------------------------------------------
 * DATASOLR-380 - Release 2.0.10 (Hopper SR10).
