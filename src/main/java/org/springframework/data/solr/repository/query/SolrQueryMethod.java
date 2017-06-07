@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,12 @@ import org.springframework.util.StringUtils;
 
 /**
  * Solr specific implementation of {@link QueryMethod} taking care of {@link Query}
- * 
+ *
  * @author Christoph Strobl
  * @author Luke Corpe
  * @author Andrey Paramonov
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 public class SolrQueryMethod extends QueryMethod {
 
@@ -138,7 +139,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	/**
-	 * @return true if  is not empty
+	 * @return true if is not empty
 	 */
 	public boolean hasPivotFields() {
 		return hasFacetAnnotation() && !CollectionUtils.isEmpty(getPivotFields());
@@ -188,14 +189,28 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return value of {@link Facet#limit()}
 	 */
 	public Integer getFacetLimit() {
-		return (Integer) AnnotationUtils.getValue(getFacetAnnotation(), "limit");
+
+		Facet facetAnnotation = getFacetAnnotation();
+
+		if (facetAnnotation != null) {
+			return (Integer) AnnotationUtils.getValue(getFacetAnnotation(), "limit");
+		}
+
+		return null;
 	}
 
 	/**
 	 * @return value of {@link Facet#minCount()}
 	 */
 	public Integer getFacetMinCount() {
-		return (Integer) AnnotationUtils.getValue(getFacetAnnotation(), "minCount");
+
+		Facet facetAnnotation = getFacetAnnotation();
+
+		if (facetAnnotation != null) {
+			return (Integer) AnnotationUtils.getValue(getFacetAnnotation(), "minCount");
+		}
+
+		return null;
 	}
 
 	/**
@@ -502,20 +517,38 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	private String getAnnotationValueAsStringOrNullIfBlank(Annotation annotation, String attributeName) {
+
+		if (annotation == null) {
+			return null;
+		}
+
 		String value = (String) AnnotationUtils.getValue(annotation, attributeName);
+
 		return StringUtils.hasText(value) ? value : null;
 	}
 
 	private Integer getAnnotationValueAsIntOrNullIfNegative(Annotation annotation, String attributeName) {
+
+		if (annotation == null) {
+			return null;
+		}
+
 		Integer timeAllowed = (Integer) AnnotationUtils.getValue(annotation, attributeName);
+
 		if (timeAllowed != null && timeAllowed > 0) {
 			return timeAllowed;
 		}
+
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
 	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
+
+		if (annotation == null) {
+			return Collections.emptyList();
+		}
+
 		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);
 		if (values.length > 1 || (values.length == 1 && StringUtils.hasText(values[0]))) {
 			return CollectionUtils.arrayToList(values);
@@ -525,7 +558,13 @@ public class SolrQueryMethod extends QueryMethod {
 
 	@SuppressWarnings("unchecked")
 	private <T> List<T> getAnnotationValuesList(Annotation annotation, String attribute, Class<T> clazz) {
+
+		if (annotation == null) {
+			return Collections.emptyList();
+		}
+
 		T[] values = (T[]) AnnotationUtils.getValue(annotation, attribute);
+
 		return CollectionUtils.arrayToList(values);
 	}
 
