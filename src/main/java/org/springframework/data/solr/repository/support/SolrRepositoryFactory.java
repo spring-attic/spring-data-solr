@@ -185,7 +185,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 			SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreator);
 			String namedQueryName = queryMethod.getNamedQueryName();
-			String collectionName = getEntityInformation(metadata.getDomainType()).getSolrCoreName();
+			String collectionName = getEntityInformation(metadata.getDomainType()).getCollectionName();
 
 			SolrOperations solrOperations = selectSolrOperations(metadata);
 

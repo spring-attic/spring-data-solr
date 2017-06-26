@@ -57,8 +57,8 @@ class SolrTemplateProducer {
 		SolrOperations template;
 		try {
 			template = createSolrTemplate();
-			template.delete(new SimpleQuery(new SimpleStringCriteria("*:*")));
-			template.commit();
+			template.delete("collection1", new SimpleQuery(new SimpleStringCriteria("*:*")));
+			template.commit("collection1");
 		} catch (IOException | SAXException | ParserConfigurationException e) {
 			throw new RuntimeException(e);
 		}

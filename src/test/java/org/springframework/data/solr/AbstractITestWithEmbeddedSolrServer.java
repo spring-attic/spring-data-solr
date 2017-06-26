@@ -29,15 +29,16 @@ import org.springframework.data.solr.test.util.EmbeddedSolrServer.ClientCache;
  */
 public abstract class AbstractITestWithEmbeddedSolrServer {
 
-	protected static String DEFAULT_BEAN_ID = "1";
+	protected static final String COLLECTION_NAME = "collection1";
+	protected static final String DEFAULT_BEAN_ID = "1";
 
 	public static @ClassRule org.springframework.data.solr.test.util.EmbeddedSolrServer server = org.springframework.data.solr.test.util.EmbeddedSolrServer
 			.configure(new ClassPathResource("static-schema"), ClientCache.ENABLED);
 
 	public void cleanDataInSolr() throws SolrServerException, IOException {
 
-		server.getSolrClient("collection1").deleteByQuery("*:*");
-		server.getSolrClient("collection1").commit();
+		server.getSolrClient(COLLECTION_NAME).deleteByQuery("*:*");
+		server.getSolrClient(COLLECTION_NAME).commit();
 	}
 
 	public ExampleSolrBean createDefaultExampleBean() {

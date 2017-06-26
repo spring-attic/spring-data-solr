@@ -38,7 +38,9 @@ public @interface SolrDocument {
 	 * Defines the {@literal collectionname} the document is persisted in.
 	 * 
 	 * @return
+	 * @deprecated since 3.0. Please use {@link #collection()}.
 	 */
+	@Deprecated
 	@AliasFor(attribute = "collection")
 	String solrCoreName() default "";
 
@@ -51,7 +53,6 @@ public @interface SolrDocument {
 	float boost() default Float.NaN;
 
 	/**
-	 *
 	 * @return
 	 * @since 3.0
 	 */

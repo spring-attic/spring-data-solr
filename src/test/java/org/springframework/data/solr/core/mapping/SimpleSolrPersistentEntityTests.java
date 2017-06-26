@@ -57,7 +57,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals(CORE_NAME, pe.getSolrCoreName());
+		assertEquals(CORE_NAME, pe.getCollectionName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,7 +67,7 @@ public class SimpleSolrPersistentEntityTests {
 		when(typeInfo.getType()).thenReturn(InheritingClass.class);
 
 		SimpleSolrPersistentEntity<InheritingClass> pe = new SimpleSolrPersistentEntity<>(typeInfo);
-		assertEquals(CORE_NAME, pe.getSolrCoreName());
+		assertEquals(CORE_NAME, pe.getCollectionName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,7 +78,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals("searchablebeanwithoutsolrdocumentannotation", pe.getSolrCoreName());
+		assertEquals("searchablebeanwithoutsolrdocumentannotation", pe.getCollectionName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,7 +89,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getSolrCoreName());
+		assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getCollectionName());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -31,7 +31,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	 * 
 	 * @return
 	 */
-	String getSolrCoreName();
+	String getCollectionName();
 
 	/**
 	 * @return true if this entity is boosted

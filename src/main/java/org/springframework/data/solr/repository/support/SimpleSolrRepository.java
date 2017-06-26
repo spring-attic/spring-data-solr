@@ -68,7 +68,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		this.entityInformation = metadata;
 		this.entityClass = this.entityInformation.getJavaType();
 		this.idFieldName = this.entityInformation.getIdAttribute();
-		this.solrCollectionName = this.entityInformation.getSolrCoreName();
+		this.solrCollectionName = this.entityInformation.getCollectionName();
 	}
 
 	/**
@@ -85,7 +85,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public Optional<T> findById(ID id) {
-		return getSolrOperations().queryForObject(new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
+		return getSolrOperations().queryForObject(solrCollectionName,
+				new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
 	@Override
@@ -167,7 +168,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		Assert.notNull(id, "Cannot delete entity with id 'null'.");
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.deleteById(solrCollectionName, id.toString());
+		this.solrOperations.deleteByIds(solrCollectionName, id.toString());
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
@@ -188,7 +189,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		}
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.deleteById(solrCollectionName, idsToDelete);
+		this.solrOperations.deleteByIds(solrCollectionName, idsToDelete);
 		commitIfTransactionSynchronisationIsInactive();
 	}
 

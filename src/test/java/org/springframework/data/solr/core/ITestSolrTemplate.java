@@ -45,7 +45,6 @@ import org.apache.solr.common.params.FacetParams;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -109,52 +108,56 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 	@After
 	public void tearDown() {
-		solrTemplate.delete(ALL_DOCUMENTS_QUERY);
-		solrTemplate.commit();
+		solrTemplate.delete(COLLECTION_NAME, ALL_DOCUMENTS_QUERY);
+		solrTemplate.commit(COLLECTION_NAME);
 	}
 
 	@Test
 	public void testBeanLifecycle() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 
-		solrTemplate.saveBean(toInsert);
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")),
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME,
+				new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		assertFalse(recalled.isPresent());
+		solrTemplate.commit(COLLECTION_NAME);
+
+		recalled = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery(new Criteria("id").is("1")),
 				ExampleSolrBean.class);
-		Assert.assertFalse(recalled.isPresent());
-		solrTemplate.commit();
+		assertTrue(recalled.isPresent());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-		Assert.assertTrue(recalled.isPresent());
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		solrTemplate.deleteByIds(COLLECTION_NAME, toInsert.getId());
+		recalled = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery(new Criteria("id").is("1")),
+				ExampleSolrBean.class);
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		solrTemplate.deleteById(toInsert.getId());
-		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
-
-		solrTemplate.commit();
-		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-		Assert.assertFalse(recalled.isPresent());
+		solrTemplate.commit(COLLECTION_NAME);
+		recalled = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery(new Criteria("id").is("1")),
+				ExampleSolrBean.class);
+		assertFalse(recalled.isPresent());
 	}
 
 	@Test
 	public void testPartialUpdateSetSingleValueField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.add("name", "updated-name");
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
-		Assert.assertEquals("updated-name", recalled.get().getName());
-		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
+		assertEquals(toInsert.getId(), recalled.get().getId());
+		assertEquals("updated-name", recalled.get().getName());
+		assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
 	}
 
 	@Test
@@ -162,76 +165,79 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
 		toInsert.setCategory(Collections.singletonList("nosql"));
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.add(new SimpleUpdateField("cat", "spring-data-solr", UpdateAction.ADD));
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		Assert.assertEquals(2, recalled.get().getCategory().size());
-		Assert.assertEquals(Arrays.asList("nosql", "spring-data-solr"), recalled.get().getCategory());
+		assertEquals(2, recalled.get().getCategory().size());
+		assertEquals(Arrays.asList("nosql", "spring-data-solr"), recalled.get().getCategory());
 
-		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
-		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
+		assertEquals(toInsert.getName(), recalled.get().getName());
+		assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
 	}
 
 	@Test
 	public void testPartialUpdateIncSingleValue() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.add(new SimpleUpdateField("popularity", 1, UpdateAction.INC));
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertTrue(recalled.isPresent());
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		assertTrue(recalled.isPresent());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		Assert.assertEquals(1, recalled.get().getCategory().size());
+		assertEquals(1, recalled.get().getCategory().size());
 
-		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
-		Assert.assertEquals(Integer.valueOf(11), recalled.get().getPopularity());
+		assertEquals(toInsert.getName(), recalled.get().getName());
+		assertEquals(Integer.valueOf(11), recalled.get().getPopularity());
 	}
 
 	@Test
 	public void testPartialUpdateSetMultipleValuesToMultivaluedField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setValueOfField("cat", Arrays.asList("spring", "data", "solr"));
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertTrue(recalled.isPresent());
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		assertTrue(recalled.isPresent());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		Assert.assertEquals(3, recalled.get().getCategory().size());
-		Assert.assertEquals(Arrays.asList("spring", "data", "solr"), recalled.get().getCategory());
+		assertEquals(3, recalled.get().getCategory().size());
+		assertEquals(Arrays.asList("spring", "data", "solr"), recalled.get().getCategory());
 
-		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
-		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
+		assertEquals(toInsert.getName(), recalled.get().getName());
+		assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
 	}
 
 	@Test
@@ -239,53 +245,54 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setCategory(Arrays.asList("spring", "data", "solr"));
 		toInsert.setPopularity(10);
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setValueOfField("cat", Collections.emptyList());
 
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertTrue(recalled.isPresent());
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		assertTrue(recalled.isPresent());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		Assert.assertEquals(0, recalled.get().getCategory().size());
+		assertEquals(0, recalled.get().getCategory().size());
 
-		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
-		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
+		assertEquals(toInsert.getName(), recalled.get().getName());
+		assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
 	}
 
 	@Test
 	public void testPartialUpdateAddMultipleValuesToMultivaluedField() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.addValueToField("cat", Arrays.asList("spring", "data", "solr"));
 
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(1, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(1, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertEquals(toInsert.getId(), recalled.get().getId());
+		assertEquals(toInsert.getId(), recalled.get().getId());
 
-		Assert.assertEquals(4, recalled.get().getCategory().size());
-		Assert.assertEquals(Arrays.asList(toInsert.getCategory().get(0), "spring", "data", "solr"),
-				recalled.get().getCategory());
+		assertEquals(4, recalled.get().getCategory().size());
+		assertEquals(Arrays.asList(toInsert.getCategory().get(0), "spring", "data", "solr"), recalled.get().getCategory());
 
-		Assert.assertEquals(toInsert.getName(), recalled.get().getName());
-		Assert.assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
+		assertEquals(toInsert.getName(), recalled.get().getName());
+		assertEquals(toInsert.getPopularity(), recalled.get().getPopularity());
 	}
 
 	@Test
@@ -296,8 +303,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			toBeInserted.setPopularity(10);
 			values.add(toBeInserted);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		List<Update> updates = new ArrayList<>(5);
 		for (int i = 0; i < 5; i++) {
@@ -305,19 +312,18 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			update.add("popularity", 5);
 			updates.add(update);
 		}
-		solrTemplate.saveBeans(updates);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, updates);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Assert.assertEquals(10, solrTemplate.count(ALL_DOCUMENTS_QUERY));
+		assertEquals(10, solrTemplate.count(COLLECTION_NAME, ALL_DOCUMENTS_QUERY));
 
-		Page<ExampleSolrBean> recalled = solrTemplate
-				.queryForPage(new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
+		Page<ExampleSolrBean> recalled = solrTemplate.queryForPage(COLLECTION_NAME,
+				new SimpleQuery(new SimpleStringCriteria("popularity:5")), ExampleSolrBean.class);
 
-		Assert.assertEquals(5, recalled.getNumberOfElements());
+		assertEquals(5, recalled.getNumberOfElements());
 
 		for (ExampleSolrBean bean : recalled) {
-			Assert.assertEquals("Category must not change on partial update", "category_" + bean.getId(),
-					bean.getCategory().get(0));
+			assertEquals("Category must not change on partial update", "category_" + bean.getId(), bean.getCategory().get(0));
 		}
 	}
 
@@ -326,25 +332,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
 		toInsert.setCategory(Collections.singletonList("cat-1"));
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertEquals(1, loaded.get().getCategory().size());
+		assertEquals(1, loaded.get().getCategory().size());
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setValueOfField("popularity", 500);
 		update.setValueOfField("cat", Arrays.asList("cat-1", "cat-2", "cat-3"));
 		update.setValueOfField("name", null);
 
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
-		Assert.assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
-		Assert.assertEquals(3, loaded.get().getCategory().size());
-		Assert.assertNull(loaded.get().getName());
+		loaded = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
+		assertEquals(3, loaded.get().getCategory().size());
+		assertNull(loaded.get().getName());
 	}
 
 	@Test
@@ -352,57 +359,59 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		toInsert.setPopularity(10);
 		toInsert.setCategory(Collections.singletonList("cat-1"));
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
 
-		Assert.assertEquals(1, loaded.get().getCategory().size());
+		assertEquals(1, loaded.get().getCategory().size());
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setValueOfField("popularity", 500);
 		update.setValueOfField("name", null);
 		update.setValueOfField("cat", Arrays.asList("cat-1", "cat-2", "cat-3"));
 
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
-		Assert.assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
-		Assert.assertNull(loaded.get().getName());
-		Assert.assertEquals(3, loaded.get().getCategory().size());
+		loaded = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
+		assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
+		assertNull(loaded.get().getName());
+		assertEquals(3, loaded.get().getCategory().size());
 	}
 
 	@Test
 	public void testPartialUpdateWithVersion() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setVersion(1L);
 		update.setValueOfField("popularity", 500);
 
-		solrTemplate.saveBean(update);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, update);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, ExampleSolrBean.class);
-		Assert.assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
+		Optional<ExampleSolrBean> loaded = solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY,
+				ExampleSolrBean.class);
+		assertEquals(Integer.valueOf(500), loaded.get().getPopularity());
 	}
 
 	@Test(expected = UncategorizedSolrException.class)
 	public void testPartialUpdateWithInvalidVersion() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 
-		solrTemplate.saveBean(toInsert);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		PartialUpdate update = new PartialUpdate("id", DEFAULT_BEAN_ID);
 		update.setVersion(2L);
 		update.setValueOfField("popularity", 500);
 
-		solrTemplate.saveBean(update);
+		solrTemplate.saveBean(COLLECTION_NAME, update);
 	}
 
 	@Test
@@ -413,14 +422,15 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test
 	public void testRollback() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
-		solrTemplate.saveBean(toInsert);
-		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")),
-				ExampleSolrBean.class);
-		Assert.assertFalse(recalled.isPresent());
+		solrTemplate.saveBean(COLLECTION_NAME, toInsert);
+		Optional<ExampleSolrBean> recalled = solrTemplate.queryForObject(COLLECTION_NAME,
+				new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
+		assertFalse(recalled.isPresent());
 
-		solrTemplate.rollback();
-		recalled = solrTemplate.queryForObject(new SimpleQuery(new Criteria("id").is("1")), ExampleSolrBean.class);
-		Assert.assertFalse(recalled.isPresent());
+		solrTemplate.rollback(COLLECTION_NAME);
+		recalled = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery(new Criteria("id").is("1")),
+				ExampleSolrBean.class);
+		assertFalse(recalled.isPresent());
 	}
 
 	@Test
@@ -429,31 +439,31 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField("name").addFacetOnField("id").setFacetLimit(5));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+			assertEquals(5, facetResultPage.getNumberOfElements());
 		}
 
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("name", entry.getField().getName());
-			Assert.assertEquals(1l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("name", entry.getField().getName());
+			assertEquals(1l, entry.getValueCount());
 		}
 
 		facetPage = page.getFacetResultPage(new SimpleField("id"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("id", entry.getField().getName());
-			Assert.assertEquals(1l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("id", entry.getField().getName());
+			assertEquals(1l, entry.getValueCount());
 		}
 	}
 
@@ -465,8 +475,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			exampleSolrBean.setLastModified(new GregorianCalendar(2013, Calendar.DECEMBER, (i + 10) / 2).getTime());
 			values.add(exampleSolrBean);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		final FieldWithDateRangeParameters lastModifiedField = new FieldWithDateRangeParameters("last_modified",
 				new GregorianCalendar(2013, NOVEMBER, 30).getTime(), new GregorianCalendar(2014, JANUARY, 1).getTime(), "+1DAY") //
@@ -483,19 +493,19 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 								.setPageable(new PageRequest(1, 10)));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
-		Assert.assertEquals(FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FACET_RANGE_INCLUDE));
+		assertEquals(FacetRangeInclude.LOWER, lastModifiedField.getQueryParameterValue(FACET_RANGE_INCLUDE));
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+			assertEquals(5, facetResultPage.getNumberOfElements());
 		}
 
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("last_modified"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("last_modified", entry.getField().getName());
-			Assert.assertEquals(2l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("last_modified", entry.getField().getName());
+			assertEquals(2l, entry.getValueCount());
 		}
 	}
 
@@ -507,8 +517,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			exampleSolrBean.setPopularity((i + 1) * 100);
 			values.add(exampleSolrBean);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		final FieldWithNumericRangeParameters popularityField = new FieldWithNumericRangeParameters("popularity", 100, 800,
 				200) //
@@ -525,17 +535,17 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 								.setFacetSort(FacetSort.COUNT));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-			Assert.assertEquals(4, facetResultPage.getNumberOfElements());
+			assertEquals(4, facetResultPage.getNumberOfElements());
 		}
 
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("popularity"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("popularity", entry.getField().getName());
-			Assert.assertEquals(2l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("popularity", entry.getField().getName());
+			assertEquals(2l, entry.getValueCount());
 		}
 	}
 
@@ -545,27 +555,27 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnPivot("cat", "name"));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
 		List<FacetPivotFieldEntry> pivotEntries = page.getPivot("cat,name");
-		Assert.assertNotNull(pivotEntries);
-		Assert.assertEquals(10, pivotEntries.size());
+		assertNotNull(pivotEntries);
+		assertEquals(10, pivotEntries.size());
 
 		for (FacetPivotFieldEntry entry1 : pivotEntries) {
-			Assert.assertNotNull(entry1.getValue());
-			Assert.assertEquals("cat", entry1.getField().getName());
-			Assert.assertEquals(1l, entry1.getValueCount());
+			assertNotNull(entry1.getValue());
+			assertEquals("cat", entry1.getField().getName());
+			assertEquals(1l, entry1.getValueCount());
 			for (FacetPivotFieldEntry entry2 : entry1.getPivot()) {
-				Assert.assertNotNull(entry2.getValue());
-				Assert.assertEquals("name", entry2.getField().getName());
-				Assert.assertEquals(1l, entry2.getValueCount());
+				assertNotNull(entry2.getValue());
+				assertEquals("name", entry2.getField().getName());
+				assertEquals(1l, entry2.getValueCount());
 			}
 		}
 
@@ -579,25 +589,25 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			bean.setInStock(i % 2 == 0);
 			values.add(bean);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetQuery q = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		q.setFacetOptions(new FacetOptions(new SimpleQuery(new SimpleStringCriteria("inStock:true")),
 				new SimpleQuery(new SimpleStringCriteria("inStock:false"))));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
 		Page<FacetQueryEntry> facetQueryResultPage = page.getFacetQueryResult();
-		Assert.assertEquals(2, facetQueryResultPage.getContent().size());
-		Assert.assertEquals("inStock:true", facetQueryResultPage.getContent().get(0).getValue());
-		Assert.assertEquals(5, facetQueryResultPage.getContent().get(0).getValueCount());
+		assertEquals(2, facetQueryResultPage.getContent().size());
+		assertEquals("inStock:true", facetQueryResultPage.getContent().get(0).getValue());
+		assertEquals(5, facetQueryResultPage.getContent().get(0).getValueCount());
 
-		Assert.assertEquals("inStock:false", facetQueryResultPage.getContent().get(1).getValue());
-		Assert.assertEquals(5, facetQueryResultPage.getContent().get(1).getValueCount());
+		assertEquals("inStock:false", facetQueryResultPage.getContent().get(1).getValue());
+		assertEquals(5, facetQueryResultPage.getContent().get(1).getValueCount());
 
-		Assert.assertEquals(1, page.getAllFacets().size());
+		assertEquals(1, page.getAllFacets().size());
 	}
 
 	@Test
@@ -607,19 +617,19 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean island = new ExampleSolrBean("3", "java", "island");
 		ExampleSolrBean language = new ExampleSolrBean("4", "java", "language");
 
-		solrTemplate.saveBeans(Arrays.asList(season, framework, island, language));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(season, framework, island, language));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5).setFacetPrefix("spr"));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertEquals("spring", entry.getValue());
-			Assert.assertEquals("name", entry.getField().getName());
-			Assert.assertEquals(2l, entry.getValueCount());
+			assertEquals("spring", entry.getValue());
+			assertEquals("name", entry.getField().getName());
+			assertEquals(2l, entry.getValueCount());
 		}
 	}
 
@@ -630,26 +640,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean island = new ExampleSolrBean("3", "java", "island");
 		ExampleSolrBean language = new ExampleSolrBean("4", "java", "language");
 
-		solrTemplate.saveBeans(Arrays.asList(season, framework, island, language));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(season, framework, island, language));
+		solrTemplate.commit(COLLECTION_NAME);
 		FacetQuery q = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
 				.setFacetOptions(new FacetOptions().addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spr"))
 						.addFacetOnField("cat").setFacetPrefix("lan").setFacetLimit(5));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertEquals("spring", entry.getValue());
-			Assert.assertEquals("name", entry.getField().getName());
-			Assert.assertEquals(2l, entry.getValueCount());
+			assertEquals("spring", entry.getValue());
+			assertEquals("name", entry.getField().getName());
+			assertEquals(2l, entry.getValueCount());
 		}
 
 		facetPage = page.getFacetResultPage(new SimpleField("cat"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertEquals("language", entry.getValue());
-			Assert.assertEquals("cat", entry.getField().getName());
-			Assert.assertEquals(1l, entry.getValueCount());
+			assertEquals("language", entry.getValue());
+			assertEquals("cat", entry.getField().getName());
+			assertEquals(1l, entry.getValueCount());
 		}
 	}
 
@@ -660,8 +670,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetAndHighlightQuery q = new SimpleFacetAndHighlightQuery(
 				new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
@@ -670,24 +680,24 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		q.setHighlightOptions(new HighlightOptions().addField("name"));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
-				.queryForFacetPage(q, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 
 		for (Page<FacetFieldEntry> facetResultPage : page.getFacetResultPages()) {
-			Assert.assertEquals(5, facetResultPage.getNumberOfElements());
+			assertEquals(5, facetResultPage.getNumberOfElements());
 		}
 
 		Page<FacetFieldEntry> facetPage = page.getFacetResultPage(new SimpleField("name"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("name", entry.getField().getName());
-			Assert.assertEquals(1l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("name", entry.getField().getName());
+			assertEquals(1l, entry.getValueCount());
 		}
 
 		facetPage = page.getFacetResultPage(new SimpleField("id"));
 		for (FacetFieldEntry entry : facetPage) {
-			Assert.assertNotNull(entry.getValue());
-			Assert.assertEquals("id", entry.getField().getName());
-			Assert.assertEquals(1l, entry.getValueCount());
+			assertNotNull(entry.getValue());
+			assertEquals("id", entry.getField().getName());
+			assertEquals(1l, entry.getValueCount());
 		}
 	}
 
@@ -697,16 +707,16 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		for (int i = 0; i < 10; i++) {
 			values.add(createExampleBeanWithId(Integer.toString(i)));
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "name"));
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
 		for (int i = 1; i < page.getContent().size(); i++) {
 			ExampleSolrBean cur = page.getContent().get(i);
-			Assert.assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
+			assertTrue(Long.valueOf(cur.getId()) < Long.valueOf(prev.getId()));
 			prev = cur;
 		}
 	}
@@ -719,26 +729,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			bean.setInStock(i % 2 == 0);
 			values.add(bean);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "inStock"))
 				.addSort(new Sort(Sort.Direction.ASC, "name"));
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
 		for (int i = 1; i < 5; i++) {
 			ExampleSolrBean cur = page.getContent().get(i);
-			Assert.assertTrue(cur.isInStock());
-			Assert.assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
+			assertTrue(cur.isInStock());
+			assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
 			prev = cur;
 		}
 
 		prev = page.getContent().get(5);
 		for (int i = 6; i < page.getContent().size(); i++) {
 			ExampleSolrBean cur = page.getContent().get(i);
-			Assert.assertFalse(cur.isInStock());
-			Assert.assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
+			assertFalse(cur.isInStock());
+			assertTrue(Long.valueOf(cur.getId()) > Long.valueOf(prev.getId()));
 			prev = cur;
 		}
 	}
@@ -751,31 +761,31 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			bean.setInStock(i % 2 == 0);
 			values.add(bean);
 		}
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("inStock:(true false)"));
 		query.setDefaultOperator(Operator.AND);
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(0, page.getContent().size());
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(0, page.getContent().size());
 
 		query.setDefaultOperator(Operator.OR);
-		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(10, page.getContent().size());
+		page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(10, page.getContent().size());
 	}
 
 	@Test
 	public void testQueryWithDefType() {
 		List<ExampleSolrBean> values = createBeansWithIdAndPrefix(5, "id-");
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery query = new SimpleQuery(new Criteria("id").in("id-1", "id-2", "id-3"));
 		query.setDefType("lucene");
 		query.setDefaultOperator(Operator.OR);
 
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(3, page.getContent().size());
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(3, page.getContent().size());
 	}
 
 	@Test
@@ -784,18 +794,18 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		values.get(0).setInStock(false);
 		values.get(1).setInStock(true);
 
-		solrTemplate.saveBeans(values);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, values);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery query = new SimpleQuery(new Criteria("id").in("rh-1", "rh-2"));
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(2, page.getContent().size());
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(2, page.getContent().size());
 
 		query = new SimpleQuery(new Criteria("id").in("rh-1", "rh-2"));
 		query.setRequestHandler("/instock");
-		page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(1, page.getContent().size());
-		Assert.assertEquals("rh-2", page.getContent().get(0).getId());
+		page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(1, page.getContent().size());
+		assertEquals("rh-2", page.getContent().get(0).getId());
 	}
 
 	@Test
@@ -806,15 +816,15 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean ipod = new ExampleSolrBean("F8V7067-APL-KIT", "Belkin Mobile Power Cord for iPod", null);
 		ipod.setManufacturerId(belkin.getId());
 
-		solrTemplate.saveBeans(Arrays.asList(belkin, apple, ipod));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(belkin, apple, ipod));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
 		query.setJoin(Join.from("manu_id_s").to("id"));
 
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(1, page.getContent().size());
-		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(1, page.getContent().size());
+		assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
 
 	@Test // DATASOLR-176
@@ -825,15 +835,15 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean ipod = new ExampleSolrBean("F8V7067-APL-KIT", "Belkin Mobile Power Cord for iPod", null);
 		ipod.setManufacturerId(belkin.getId());
 
-		solrTemplate.saveBeans(Arrays.asList(belkin, apple, ipod));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(belkin, apple, ipod));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("text:ipod"));
 		query.setJoin(Join.from("manu_id_s").fromIndex("collection1").to("id"));
 
-		Page<ExampleSolrBean> page = solrTemplate.queryForPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(1, page.getContent().size());
-		Assert.assertEquals(belkin.getId(), page.getContent().get(0).getId());
+		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		assertEquals(1, page.getContent().size());
+		assertEquals(belkin.getId(), page.getContent().get(0).getId());
 	}
 
 	@Test
@@ -841,17 +851,18 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean belkin = new ExampleSolrBean("GB18030TEST", "Test with some GB18030TEST", null);
 		ExampleSolrBean apple = new ExampleSolrBean("UTF8TEST", "Test with some UTF8TEST", null);
 
-		solrTemplate.saveBeans(Arrays.asList(belkin, apple));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(belkin, apple));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
 		query.setHighlightOptions(new HighlightOptions());
 
-		HighlightQueryResult<ExampleSolrBean> page = solrTemplate.queryForHighlightPage(query, ExampleSolrBean.class);
-		Assert.assertEquals(2, page.getHighlighted().size());
+		HighlightQueryResult<ExampleSolrBean> page = solrTemplate.queryForHighlightPage(COLLECTION_NAME, query,
+				ExampleSolrBean.class);
+		assertEquals(2, page.getHighlighted().size());
 
-		Assert.assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
-		Assert.assertEquals("Test <em>with</em> some GB18030TEST",
+		assertEquals("name", page.getHighlighted().get(0).getHighlights().get(0).getField().getName());
+		assertEquals("Test <em>with</em> some GB18030TEST",
 				page.getHighlighted().get(0).getHighlights().get(0).getSnipplets().get(0));
 	}
 
@@ -863,47 +874,47 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two three", null);
 		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "three", null);
 
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit(COLLECTION_NAME);
 
-		TermsPage page = solrTemplate.queryForTermsPage(query);
+		TermsPage page = solrTemplate.queryForTermsPage(COLLECTION_NAME, query);
 
 		ArrayList<TermsFieldEntry> values = Lists.newArrayList(page.getTermsForField("name"));
-		Assert.assertEquals("three", values.get(0).getValue());
-		Assert.assertEquals(3, values.get(0).getValueCount());
+		assertEquals("three", values.get(0).getValue());
+		assertEquals(3, values.get(0).getValueCount());
 
-		Assert.assertEquals("two", values.get(1).getValue());
-		Assert.assertEquals(2, values.get(1).getValueCount());
+		assertEquals("two", values.get(1).getValue());
+		assertEquals(2, values.get(1).getValueCount());
 
-		Assert.assertEquals("one", values.get(2).getValue());
-		Assert.assertEquals(1, values.get(2).getValueCount());
+		assertEquals("one", values.get(2).getValue());
+		assertEquals(1, values.get(2).getValueCount());
 	}
 
 	@Test
 	public void testFuctionQueryInFilterReturnsProperResult() {
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Query q = new SimpleQuery("*:*")
 				.addFilterQuery(new SimpleFilterQuery(new Criteria(QueryFunction.query("{!query v = 'one'}"))));
 
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), equalTo(bean1.getId()));
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
+		assertThat(result.getContent().get(0).getId(), equalTo(bean1.getId()));
 	}
 
 	@Test
 	public void testFuctionQueryReturnsProperResult() {
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Query q = new SimpleQuery(new Criteria(QueryFunction.query("{!query v='two'}")));
 
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
-		Assert.assertThat(result.getContent().get(0).getId(), is(bean2.getId()));
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
+		assertThat(result.getContent().get(0).getId(), is(bean2.getId()));
 	}
 
 	@Test
@@ -914,14 +925,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
 		bean2.setStore("40.7143,-74.006");
 
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Query q = new SimpleQuery("*:*");
 		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
-		Page<ExampleSolrBean> result = solrTemplate.queryForPage(q, ExampleSolrBean.class);
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 		for (ExampleSolrBean bean : result) {
-			Assert.assertThat(bean.getDistance(), notNullValue());
+			assertThat(bean.getDistance(), notNullValue());
 		}
 
 	}
@@ -929,11 +940,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-162
 	public void testDelegatingCursorLoadsAllElements() throws IOException {
 
-		solrTemplate.saveBeans(createBeansWithId(100));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, createBeansWithId(100));
+		solrTemplate.commit(COLLECTION_NAME);
 
-		Cursor<ExampleSolrBean> cursor = solrTemplate
-				.queryForCursor(new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
+		Cursor<ExampleSolrBean> cursor = solrTemplate.queryForCursor(COLLECTION_NAME,
+				new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
 
 		int i = 0;
 		while (cursor.hasNext()) {
@@ -942,16 +953,16 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		}
 		cursor.close();
 
-		Assert.assertThat(i, is(100));
+		assertThat(i, is(100));
 	}
 
 	@Test // DATASOLR-121
 	public void testRegularGroupQuery() {
-		solrTemplate.saveBean(new ExampleSolrBean("id_1", "name1", "category1", 2, true));
-		solrTemplate.saveBean(new ExampleSolrBean("id_2", "name1", "category2"));
-		solrTemplate.saveBean(new ExampleSolrBean("id_3", "name2", "category2", 1, true));
-		solrTemplate.saveBean(new ExampleSolrBean("id_4", "name3", "category2"));
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_1", "name1", "category1", 2, true));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_2", "name1", "category2"));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_3", "name2", "category2", 1, true));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_4", "name3", "category2"));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		Function f = IfFunction.when("inStock").then("1").otherwise("2");
 		Query q1 = new SimpleQuery("cat:category2");
@@ -968,7 +979,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		groupOptions.setLimit(2);
 
 		// asserts result page
-		GroupPage<ExampleSolrBean> groupResultPage = solrTemplate.queryForGroupPage(groupQuery, ExampleSolrBean.class);
+		GroupPage<ExampleSolrBean> groupResultPage = solrTemplate.queryForGroupPage(COLLECTION_NAME, groupQuery,
+				ExampleSolrBean.class);
 		GroupResult<ExampleSolrBean> groupResultName = groupResultPage.getGroupResult("name");
 		GroupResult<ExampleSolrBean> groupResultFunction = groupResultPage.getGroupResult(f);
 		GroupResult<ExampleSolrBean> groupResultQuery1 = groupResultPage.getGroupResult(q1);
@@ -976,7 +988,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		// asserts field group
 		Page<GroupEntry<ExampleSolrBean>> nameGroupEntries = groupResultName.getGroupEntries();
-		Assert.assertEquals(3, nameGroupEntries.getTotalElements());
+		assertEquals(3, nameGroupEntries.getTotalElements());
 		List<GroupEntry<ExampleSolrBean>> nameGroupEntriesContent = nameGroupEntries.getContent();
 		assertGroupEntry(nameGroupEntriesContent.get(0), 2, "name1", 2, "id_1", "id_2");
 		assertGroupEntry(nameGroupEntriesContent.get(1), 1, "name2", 1, "id_3");
@@ -984,21 +996,21 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		// asserts function group
 		Page<GroupEntry<ExampleSolrBean>> functionGroupEntries = groupResultFunction.getGroupEntries();
-		Assert.assertEquals(2, functionGroupEntries.getNumberOfElements());
+		assertEquals(2, functionGroupEntries.getNumberOfElements());
 		List<GroupEntry<ExampleSolrBean>> functionGroupEntriesContent = functionGroupEntries.getContent();
 		assertGroupEntry(functionGroupEntriesContent.get(0), 2, "1.0", 2, "id_1", "id_3");
 		assertGroupEntry(functionGroupEntriesContent.get(1), 2, "2.0", 2, "id_2", "id_4");
 
 		// asserts first query group
 		Page<GroupEntry<ExampleSolrBean>> query1GroupEntries = groupResultQuery1.getGroupEntries();
-		Assert.assertEquals(1, query1GroupEntries.getNumberOfElements());
+		assertEquals(1, query1GroupEntries.getNumberOfElements());
 		GroupEntry<ExampleSolrBean> query1GroupEntry = query1GroupEntries.getContent().get(0);
 		assertGroupEntry(query1GroupEntry, 3, "cat:category2", 2, "id_2", "id_3");
 		assertTrue(query1GroupEntry.getResult().hasNext());
 
 		// asserts second query group
 		Page<GroupEntry<ExampleSolrBean>> query2GroupEntries = groupResultQuery2.getGroupEntries();
-		Assert.assertEquals(1, query2GroupEntries.getNumberOfElements());
+		assertEquals(1, query2GroupEntries.getNumberOfElements());
 		GroupEntry<ExampleSolrBean> query2GroupEntry = query2GroupEntries.getContent().get(0);
 		assertGroupEntry(query2GroupEntry, 1, "cat:category1", 1, "id_1");
 		assertFalse(query2GroupEntry.getResult().hasNext());
@@ -1007,13 +1019,13 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATASOLR-121
 	@Ignore("Seems to be broken on solr side")
 	public void testGroupQueryWithFacets() {
-		solrTemplate.saveBean(new ExampleSolrBean("id_1", "name1", "category1", 2, true));
-		solrTemplate.saveBean(new ExampleSolrBean("id_2", "name1", "category1", 2, true));
-		solrTemplate.saveBean(new ExampleSolrBean("id_3", "name1", "category1", 1, true));
-		solrTemplate.saveBean(new ExampleSolrBean("id_4", "name2", "category2", 1, false));
-		solrTemplate.saveBean(new ExampleSolrBean("id_5", "name2", "category2", 2, false));
-		solrTemplate.saveBean(new ExampleSolrBean("id_6", "name2", "category1", 1, true));
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_1", "name1", "category1", 2, true));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_2", "name1", "category1", 2, true));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_3", "name1", "category1", 1, true));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_4", "name2", "category2", 1, false));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_5", "name2", "category2", 2, false));
+		solrTemplate.saveBean(COLLECTION_NAME, new ExampleSolrBean("id_6", "name2", "category1", 1, true));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleFacetQuery groupQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		GroupOptions groupOptions = new GroupOptions();
@@ -1022,29 +1034,29 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		groupOptions.addGroupByField("name");
 		groupOptions.setGroupFacets(true);
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> groupResultPage = solrTemplate
-				.queryForFacetPage(groupQuery, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, groupQuery, ExampleSolrBean.class);
 
 		Page<FacetFieldEntry> facetResultPage = groupResultPage.getFacetResultPage("inStock");
 
 		List<FacetFieldEntry> facetContent = facetResultPage.getContent();
 
-		Assert.assertEquals("true", facetContent.get(0).getValue());
-		Assert.assertEquals("false", facetContent.get(1).getValue());
-		Assert.assertEquals(2, facetContent.get(0).getValueCount());
-		Assert.assertEquals(1, facetContent.get(1).getValueCount());
+		assertEquals("true", facetContent.get(0).getValue());
+		assertEquals("false", facetContent.get(1).getValue());
+		assertEquals(2, facetContent.get(0).getValueCount());
+		assertEquals(1, facetContent.get(1).getValueCount());
 	}
 
 	private void assertGroupEntryContentIds(GroupEntry<ExampleSolrBean> groupEntry, String... ids) {
 		for (int i = 0; i < ids.length; i++) {
-			Assert.assertEquals(ids[i], groupEntry.getResult().getContent().get(i).getId());
+			assertEquals(ids[i], groupEntry.getResult().getContent().get(i).getId());
 		}
 	}
 
 	private void assertGroupEntry(GroupEntry<ExampleSolrBean> entry, long totalElements, String groupValue,
 			int numberOfDocuments, String... ids) {
-		Assert.assertEquals(totalElements, entry.getResult().getTotalElements());
-		Assert.assertEquals(groupValue, entry.getGroupValue());
-		Assert.assertEquals(numberOfDocuments, entry.getResult().getContent().size());
+		assertEquals(totalElements, entry.getResult().getTotalElements());
+		assertEquals(groupValue, entry.getGroupValue());
+		assertEquals(numberOfDocuments, entry.getResult().getContent().size());
 		assertGroupEntryContentIds(entry, ids);
 	}
 
@@ -1053,11 +1065,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
 
-		ExampleSolrBean beanReturned = solrTemplate.getById("id-1", ExampleSolrBean.class);
+		Optional<ExampleSolrBean> beanReturned = solrTemplate.getById(COLLECTION_NAME, "id-1", ExampleSolrBean.class);
 
-		Assert.assertEquals(bean1.getId(), beanReturned.getId());
+		assertEquals(bean1.getId(), beanReturned.get().getId());
 	}
 
 	@Test // DATASOLR-83
@@ -1065,15 +1077,15 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
 
 		List<String> ids = Arrays.<String> asList("id-1", "id-2");
-		Collection<ExampleSolrBean> beansReturned = solrTemplate.getById(ids, ExampleSolrBean.class);
+		Collection<ExampleSolrBean> beansReturned = solrTemplate.getByIds(COLLECTION_NAME, ids, ExampleSolrBean.class);
 		List<ExampleSolrBean> listBeansReturned = new ArrayList<>(beansReturned);
 
-		Assert.assertEquals(2, beansReturned.size());
-		Assert.assertEquals(bean1.getId(), listBeansReturned.get(0).getId());
-		Assert.assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
+		assertEquals(2, beansReturned.size());
+		assertEquals(bean1.getId(), listBeansReturned.get(0).getId());
+		assertEquals(bean2.getId(), listBeansReturned.get(1).getId());
 	}
 
 	@Test // DATASOLR-160
@@ -1102,25 +1114,26 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		bean3.setPrice(20);
 		bean1.setPopularity(2);
 
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		StatsOptions statsOptions = new StatsOptions().addField("popularity").addField("price")
 				.setSelectiveCalcDistinct(true);
 
 		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
 		statsQuery.setStatsOptions(statsOptions);
-		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
+		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(COLLECTION_NAME, statsQuery,
+				ExampleSolrBean.class);
 
 		FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
 		FieldStatsResult popularityStatResult = statResultPage.getFieldStatsResult("popularity");
 
-		Assert.assertEquals(Long.valueOf(2), priceStatResult.getDistinctCount());
+		assertEquals(Long.valueOf(2), priceStatResult.getDistinctCount());
 		Collection<Object> distinctValues = priceStatResult.getDistinctValues();
-		Assert.assertEquals(2, distinctValues.size());
-		Assert.assertTrue(distinctValues.contains(10.0F));
-		Assert.assertTrue(distinctValues.contains(20.0F));
-		Assert.assertEquals(null, popularityStatResult.getDistinctCount());
+		assertEquals(2, distinctValues.size());
+		assertTrue(distinctValues.contains(10.0F));
+		assertTrue(distinctValues.contains(20.0F));
+		assertEquals(null, popularityStatResult.getDistinctCount());
 	}
 
 	@Test // DATASOLR-86
@@ -1136,8 +1149,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		bean3.setPrice(20);
 		bean1.setPopularity(2);
 
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2, bean3));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		FacetOptions facetOptions = new FacetOptions()
 				.addFacetByRange(new FieldWithNumericRangeParameters("price", 5, 20, 5).setInclude(FacetRangeInclude.ALL));
@@ -1146,19 +1159,19 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		SimpleFacetQuery statsQuery = new SimpleFacetQuery(new SimpleStringCriteria("*:*"));
 		statsQuery.setFacetOptions(facetOptions);
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> statResultPage = solrTemplate
-				.queryForFacetPage(statsQuery, ExampleSolrBean.class);
+				.queryForFacetPage(COLLECTION_NAME, statsQuery, ExampleSolrBean.class);
 
 		Page<FacetFieldEntry> priceRangeResult = statResultPage.getRangeFacetResultPage("price");
 
 		List<FacetFieldEntry> content = priceRangeResult.getContent();
 
-		Assert.assertEquals(3, priceRangeResult.getTotalElements());
-		Assert.assertEquals(2, content.get(2).getValueCount());
-		Assert.assertEquals(1, content.get(1).getValueCount());
+		assertEquals(3, priceRangeResult.getTotalElements());
+		assertEquals(2, content.get(2).getValueCount());
+		assertEquals(1, content.get(1).getValueCount());
 
-		Assert.assertEquals("5.0", content.get(0).getValue());
-		Assert.assertEquals("10.0", content.get(1).getValue());
-		Assert.assertEquals("15.0", content.get(2).getValue());
+		assertEquals("5.0", content.get(0).getValue());
+		assertEquals("10.0", content.get(1).getValue());
+		assertEquals("15.0", content.get(2).getValue());
 	}
 
 	@Test // DATASOLR-248
@@ -1170,10 +1183,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			sid.addField("id", "id-1");
 			sid.addField("title", "title");
 			solrClient.add(sid).getStatus();
-			return solrClient.commit();
+			return solrClient.commit(COLLECTION_NAME);
 		});
 
-		Optional<SomeDoc> document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		Optional<SomeDoc> document = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery("id:id-1"),
+				SomeDoc.class);
 		assertThat(document.get().title, is(equalTo("title")));
 	}
 
@@ -1186,14 +1200,14 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			sid.addField("id", "id-1");
 			sid.addField("title", new String[] { "title-1", "title-2" });
 			solrClient.add(sid).getStatus();
-			return solrClient.commit();
+			return solrClient.commit(COLLECTION_NAME);
 		});
 
 		exception.expect(MappingException.class);
 		exception.expectMessage("title-1");
 		exception.expectMessage("title-2");
 
-		solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery("id:id-1"), SomeDoc.class);
 	}
 
 	@Test // DATASOLR-248
@@ -1204,10 +1218,11 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			SolrInputDocument sid = new SolrInputDocument();
 			sid.addField("id", "id-1");
 			solrClient.add(sid).getStatus();
-			return solrClient.commit();
+			return solrClient.commit(COLLECTION_NAME);
 		});
 
-		Optional<SomeDoc> document = solrTemplate.queryForObject(new SimpleQuery("id:id-1"), SomeDoc.class);
+		Optional<SomeDoc> document = solrTemplate.queryForObject(COLLECTION_NAME, new SimpleQuery("id:id-1"),
+				SomeDoc.class);
 		assertThat(document.get().title, is(nullValue()));
 	}
 
@@ -1215,17 +1230,17 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	public void testFindByNameWithSpellcheckSeggestion() {
 
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "green", null);
-		solrTemplate.saveBean(bean1);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, bean1);
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery q = new SimpleQuery("name:gren");
 		q.setSpellcheckOptions(SpellcheckOptions.spellcheck());
 		q.setRequestHandler("/spell");
 
-		SpellcheckedPage<ExampleSolrBean> found = solrTemplate.query(q, ExampleSolrBean.class);
-		Assert.assertThat(found.hasContent(), Is.is(false));
-		Assert.assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
-		Assert.assertThat(found.getSuggestions(), Matchers.contains("green"));
+		SpellcheckedPage<ExampleSolrBean> found = solrTemplate.query(COLLECTION_NAME, q, ExampleSolrBean.class);
+		assertThat(found.hasContent(), Is.is(false));
+		assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
+		assertThat(found.getSuggestions(), Matchers.contains("green"));
 	}
 
 	@Test // DATSOLR-364
@@ -1237,7 +1252,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
 		solrTemplate.execute(solrClient -> {
 
-			Assert.assertThat(((HttpSolrClient) solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
+			assertThat(((HttpSolrClient) solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
 			return null;
 		});
 	}
@@ -1248,42 +1263,43 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		bean1.setPrice(10f);
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "two", null);
 		bean2.setPrice(20.5f);
-		solrTemplate.saveBeans(Arrays.asList(bean1, bean2));
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
 
 		SimpleQuery statsQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
 		statsQuery.setStatsOptions(statsOptions);
-		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(statsQuery, ExampleSolrBean.class);
+		StatsPage<ExampleSolrBean> statResultPage = solrTemplate.queryForStatsPage(COLLECTION_NAME, statsQuery,
+				ExampleSolrBean.class);
 
 		FieldStatsResult priceStats = statResultPage.getFieldStatsResult("price");
-		Assert.assertEquals(Long.valueOf(2), priceStats.getCount());
-		Assert.assertEquals(10D, priceStats.getMin());
-		Assert.assertEquals(20.50, priceStats.getMax());
-		Assert.assertEquals(Double.valueOf(10), priceStats.getMinAsDouble());
-		Assert.assertEquals(Double.valueOf(20.50), priceStats.getMaxAsDouble());
-		Assert.assertEquals("10.0", priceStats.getMinAsString());
-		Assert.assertEquals("20.5", priceStats.getMaxAsString());
-		Assert.assertNull(priceStats.getMinAsDate());
-		Assert.assertNull(priceStats.getMaxAsDate());
-		Assert.assertEquals(15.25, priceStats.getMean());
-		Assert.assertEquals(30.50, priceStats.getSum());
-		Assert.assertEquals(Long.valueOf(0), priceStats.getMissing());
-		Assert.assertEquals(Double.valueOf(7.424621202458749), priceStats.getStddev());
-		Assert.assertEquals(Double.valueOf(520.25), priceStats.getSumOfSquares());
+		assertEquals(Long.valueOf(2), priceStats.getCount());
+		assertEquals(10D, priceStats.getMin());
+		assertEquals(20.50, priceStats.getMax());
+		assertEquals(Double.valueOf(10), priceStats.getMinAsDouble());
+		assertEquals(Double.valueOf(20.50), priceStats.getMaxAsDouble());
+		assertEquals("10.0", priceStats.getMinAsString());
+		assertEquals("20.5", priceStats.getMaxAsString());
+		assertNull(priceStats.getMinAsDate());
+		assertNull(priceStats.getMaxAsDate());
+		assertEquals(15.25, priceStats.getMean());
+		assertEquals(30.50, priceStats.getSum());
+		assertEquals(Long.valueOf(0), priceStats.getMissing());
+		assertEquals(Double.valueOf(7.424621202458749), priceStats.getStddev());
+		assertEquals(Double.valueOf(520.25), priceStats.getSumOfSquares());
 
 		Map<String, StatsResult> facetStatsResult = priceStats.getFacetStatsResult(new SimpleField("name"));
-		Assert.assertEquals(2, facetStatsResult.size());
+		assertEquals(2, facetStatsResult.size());
 		{
 			StatsResult nameFacetStatsResult = facetStatsResult.get("one");
-			Assert.assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
-			Assert.assertEquals(10D, nameFacetStatsResult.getMin());
-			Assert.assertEquals(10D, nameFacetStatsResult.getMax());
+			assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
+			assertEquals(10D, nameFacetStatsResult.getMin());
+			assertEquals(10D, nameFacetStatsResult.getMax());
 		}
 		{
 			StatsResult nameFacetStatsResult = facetStatsResult.get("two");
-			Assert.assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
-			Assert.assertEquals(20.5D, nameFacetStatsResult.getMin());
-			Assert.assertEquals(20.5D, nameFacetStatsResult.getMax());
+			assertEquals(Long.valueOf(1), nameFacetStatsResult.getCount());
+			assertEquals(20.5D, nameFacetStatsResult.getMin());
+			assertEquals(20.5D, nameFacetStatsResult.getMax());
 		}
 	}
 

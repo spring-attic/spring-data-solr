@@ -36,6 +36,6 @@ public interface SolrEntityInformation<T, ID> extends EntityInformation<T, ID> {
 	 *
 	 * @return
 	 */
-	String getSolrCoreName();
+	String getCollectionName();
 
 }

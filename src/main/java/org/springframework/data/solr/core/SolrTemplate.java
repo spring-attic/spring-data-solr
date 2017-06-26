@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +45,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -184,35 +186,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(SolrClient::ping);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#count(org.springframework.data.solr.core.query.SolrDataQuery)
-	 */
-	@Override
-	public long count(final SolrDataQuery query) {
-		return count(query, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#count(org.springframework.data.solr.core.query.SolrDataQuery, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public long count(final SolrDataQuery query, final RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(method, "Method must not be 'null'.");
-
-		return execute(solrClient -> {
-
-			SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
-			solrQuery.setStart(0);
-			solrQuery.setRows(0);
-
-			return solrClient.query(solrQuery, getSolrRequestMethod(method)).getResults().getNumFound();
-		});
-	}
-
 	@Override
 	public long count(String collection, SolrDataQuery query) {
 		return count(collection, query, getDefaultRequestMethod());
@@ -235,133 +208,30 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		});
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveBean(java.lang.Object)
-	 */
 	@Override
-	public UpdateResponse saveBean(Object obj) {
-		return saveBean(obj, -1);
-	}
-
-	@Override
-	public UpdateResponse saveBean(String collection, Object obj) {
-		return saveBean(collection, obj, -1);
-	}
-
-	@Override
-	public UpdateResponse saveBean(String collection, Object obj, int commitWithinMs) {
+	public UpdateResponse saveBean(String collection, Object obj, Duration commitWithin) {
 
 		assertNoCollection(obj);
-		return execute(solrClient -> solrClient.add(collection, convertBeanToSolrInputDocument(obj), commitWithinMs));
-	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveBean(java.lang.Object, int)
-	 */
-	@Override
-	public UpdateResponse saveBean(final Object objectToAdd, final int commitWithinMs) {
-		assertNoCollection(objectToAdd);
-		return execute(solrClient -> solrClient.add(convertBeanToSolrInputDocument(objectToAdd), commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveBeans(java.util.Collection)
-	 */
-	@Override
-	public UpdateResponse saveBeans(Collection<?> beans) {
-		return saveBeans(beans, -1);
+		return execute(solrClient -> solrClient.add(collection, convertBeanToSolrInputDocument(obj),
+				getCommitWithinTimeout(commitWithin)));
 	}
 
 	@Override
-	public UpdateResponse saveBeans(String collection, Collection<?> beans) {
-		return saveBeans(collection, beans, -1);
+	public UpdateResponse saveBeans(String collection, Collection<?> beans, Duration commitWithin) {
+		return execute(solrClient -> solrClient.add(collection, convertBeansToSolrInputDocuments(beans),
+				getCommitWithinTimeout(commitWithin)));
 	}
 
 	@Override
-	public UpdateResponse saveBeans(String collection, Collection<?> beans, int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(collection, convertBeansToSolrInputDocuments(beans), commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveBeans(java.util.Collection, int)
-	 */
-	@Override
-	public UpdateResponse saveBeans(final Collection<?> beansToAdd, final int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(convertBeansToSolrInputDocuments(beansToAdd), commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveDocument(org.apache.solr.common.SolrInputDocument)
-	 */
-	@Override
-	public UpdateResponse saveDocument(SolrInputDocument document) {
-		return saveDocument(document, -1);
+	public UpdateResponse saveDocument(String collection, SolrInputDocument document, Duration commitWithin) {
+		return execute(solrClient -> solrClient.add(collection, document, getCommitWithinTimeout(commitWithin)));
 	}
 
 	@Override
-	public UpdateResponse saveDocument(String collection, SolrInputDocument document) {
-		return saveDocument(collection, document, -1);
-	}
-
-	@Override
-	public UpdateResponse saveDocument(String collection, SolrInputDocument document, int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(collection, document, commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveDocument(org.apache.solr.common.SolrInputDocument, int)
-	 */
-	@Override
-	public UpdateResponse saveDocument(final SolrInputDocument documentToAdd, final int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(documentToAdd, commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#saveDocuments(java.util.Collection)
-	 */
-	@Override
-	public UpdateResponse saveDocuments(Collection<SolrInputDocument> documents) {
-		return saveDocuments(documents, -1);
-	}
-
-	@Override
-	public UpdateResponse saveDocuments(String collection, Collection<SolrInputDocument> documents) {
-		return saveDocuments(collection, documents, -1);
-	}
-
-	@Override
-	public UpdateResponse saveDocuments(String collection, Collection<SolrInputDocument> documents, int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(collection, documents, commitWithinMs));
-	}
-
-	/*
-		 * (non-Javadoc)
-			 * @see org.springframework.data.solr.core.SolrOperations#saveDocuments(java.util.Collection, int)
-			 */
-	@Override
-	public UpdateResponse saveDocuments(final Collection<SolrInputDocument> documentsToAdd, final int commitWithinMs) {
-		return execute(solrClient -> solrClient.add(documentsToAdd, commitWithinMs));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#delete(org.springframework.data.solr.core.query.SolrDataQuery)
-	 */
-	@Override
-	public UpdateResponse delete(SolrDataQuery query) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-
-		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query);
-
-		return execute(solrClient -> solrClient.deleteByQuery(queryString));
+	public UpdateResponse saveDocuments(String collection, Collection<SolrInputDocument> documents,
+			Duration commitWithin) {
+		return execute(solrClient -> solrClient.add(collection, documents, getCommitWithinTimeout(commitWithin)));
 	}
 
 	@Override
@@ -374,53 +244,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(solrClient -> solrClient.deleteByQuery(collection, queryString));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#deleteById(java.lang.String)
-	 */
 	@Override
-	public UpdateResponse deleteById(final String id) {
-
-		Assert.notNull(id, "Cannot delete 'null' id.");
-
-		return execute(solrClient -> solrClient.deleteById(id));
-	}
-
-	@Override
-	public UpdateResponse deleteById(String collection, String id) {
+	public UpdateResponse deleteByIds(String collection, String id) {
 
 		Assert.notNull(id, "Cannot delete 'null' id.");
 
 		return execute(solrClient -> solrClient.deleteById(collection, id));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#deleteById(java.util.Collection)
-	 */
 	@Override
-	public UpdateResponse deleteById(Collection<String> ids) {
-
-		Assert.notNull(ids, "Cannot delete 'null' collection.");
-
-		return execute(solrClient -> solrClient.deleteById(ids.stream().collect(Collectors.toList())));
-	}
-
-	@Override
-	public UpdateResponse deleteById(String collection, Collection<String> ids) {
+	public UpdateResponse deleteByIds(String collection, Collection<String> ids) {
 
 		Assert.notNull(ids, "Cannot delete 'null' collection.");
 
 		return execute(solrClient -> solrClient.deleteById(collection, ids.stream().collect(Collectors.toList())));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	public <T> Optional<T> queryForObject(Query query, Class<T> clazz) {
-		return queryForObject(query, clazz, getDefaultRequestMethod());
 	}
 
 	@Override
@@ -451,28 +288,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return Optional.empty();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForObject(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> Optional<T> queryForObject(Query query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		query.setPageRequest(PageRequest.of(0, 1));
-		QueryResponse response = querySolr(query, clazz, method);
-
-		if (response.getResults().size() > 0) {
-			if (response.getResults().size() > 1) {
-				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
-			}
-			return Optional.ofNullable(convertSolrDocumentListToBeans(response.getResults(), clazz).get(0));
-		}
-		return Optional.empty();
-	}
-
 	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
 		return doQueryForPage(null, query, clazz, requestMethod);
 	}
@@ -489,19 +304,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return createSolrResultPage(query, clazz, response, objectsName);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> ScoredPage<T> queryForPage(String collection, Query query, Class<T> clazz) {
 
@@ -512,32 +314,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(collection, query, clazz, getDefaultRequestMethod());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryFor(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	public <T, S extends Page<T>> S query(Query query, Class<T> clazz) {
-		return query(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T, S extends Page<T>> S query(String collection, Query query, Class<T> clazz) {
 		return query(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#query(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T, S extends Page<T>> S query(Query query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(clazz, "Method must not be 'null'.");
-
-		return (S) doQueryForPage(query, clazz, method);
 	}
 
 	public <T, S extends Page<T>> S query(String collection, Query query, Class<T> clazz, RequestMethod method) {
@@ -548,20 +327,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Method must not be 'null'.");
 
 		return (S) doQueryForPage(collection, query, clazz, method);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> ScoredPage<T> queryForPage(Query query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
 	}
 
 	@Override
@@ -575,32 +340,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(collection, query, clazz, method);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForGroupPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz) {
-		return queryForGroupPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(String collection, Query query, Class<T> clazz) {
 		return queryForGroupPage(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForGroupPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> GroupPage<T> queryForGroupPage(Query query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
 	}
 
 	@Override
@@ -614,32 +356,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(collection, query, clazz, method);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForStatsPage(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz) {
-		return queryForStatsPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz) {
 		return queryForStatsPage(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForStatsPage(org.springframework.data.solr.core.query.Query, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> StatsPage<T> queryForStatsPage(Query query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
-
-		return doQueryForPage(query, clazz, method);
 	}
 
 	public <T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz, RequestMethod method) {
@@ -652,35 +371,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return doQueryForPage(collection, query, clazz, method);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetPage(org.springframework.data.solr.core.query.FacetQuery, java.lang.Class)
-	 */
-	@Override
-	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz) {
-		return queryForFacetPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> FacetPage<T> queryForFacetPage(String collection, FacetQuery query, Class<T> clazz) {
 		return queryForFacetPage(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetPage(org.springframework.data.solr.core.query.FacetQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> FacetPage<T> queryForFacetPage(FacetQuery query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
-
-		return createSolrResultPage(query, clazz, querySolr(namedObjectsQuery, clazz, method),
-				namedObjectsQuery.getNamesAssociation());
-
 	}
 
 	@Override
@@ -697,34 +390,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForHighlightPage(org.springframework.data.solr.core.query.HighlightQuery, java.lang.Class)
-	 */
-	@Override
-	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz) {
-		return queryForHighlightPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> HighlightPage<T> queryForHighlightPage(String collection, HighlightQuery query, Class<T> clazz) {
 		return queryForHighlightPage(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForHighlightPage(org.springframework.data.solr.core.query.HighlightQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> HighlightPage<T> queryForHighlightPage(HighlightQuery query, Class<T> clazz, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
-		QueryResponse response = querySolr(namedObjectsQuery, clazz, getDefaultRequestMethod());
-
-		return createSolrResultPage(query, clazz, response, namedObjectsQuery.getNamesAssociation());
 	}
 
 	@Override
@@ -740,39 +408,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return createSolrResultPage(query, clazz, response, namedObjectsQuery.getNamesAssociation());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetAndHighlightPage(org.springframework.data.solr.core.query.FacetAndHighlightQuery, java.lang.Class)
-	 */
-	@Override
-	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz) {
-		return queryForFacetAndHighlightPage(query, clazz, getDefaultRequestMethod());
-	}
-
 	@Override
 	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(String collection, FacetAndHighlightQuery query,
 			Class<T> clazz) {
 		return queryForFacetAndHighlightPage(collection, query, clazz, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForFacetAndHighlightPage(org.springframework.data.solr.core.query.FacetAndHighlightQuery, java.lang.Class, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(FacetAndHighlightQuery query, Class<T> clazz,
-			RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-
-		NamedObjectsFacetAndHighlightQuery namedObjectsFacetAndHighlightQuery = new NamedObjectsFacetAndHighlightQuery(
-				query);
-
-		QueryResponse response = querySolr(namedObjectsFacetAndHighlightQuery, clazz, method);
-		Map<String, Object> objectsName = namedObjectsFacetAndHighlightQuery.getNamesAssociation();
-
-		return createSolrResultPage(query, clazz, response, objectsName);
 	}
 
 	@Override
@@ -833,34 +472,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return page;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForTermsPage(org.springframework.data.solr.core.query.TermsQuery)
-	 */
-	@Override
-	public TermsPage queryForTermsPage(TermsQuery query) {
-		return queryForTermsPage(query, getDefaultRequestMethod());
-	}
-
 	@Override
 	public TermsPage queryForTermsPage(String collection, TermsQuery query) {
 		return queryForTermsPage(collection, query, getDefaultRequestMethod());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForTermsPage(org.springframework.data.solr.core.query.TermsQuery, org.springframework.data.solr.core.RequestMethod)
-	 */
-	@Override
-	public TermsPage queryForTermsPage(TermsQuery query, RequestMethod method) {
-
-		Assert.notNull(query, "Query must not be 'null'.");
-
-		QueryResponse response = querySolr(null, query, null, method);
-
-		TermsResultPage page = new TermsResultPage();
-		page.addAllTerms(ResultHelper.convertTermsQueryResponseToTermsMap(response));
-		return page;
 	}
 
 	@Override
@@ -913,43 +527,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return execute(solrServer -> solrServer.query(collection, solrQuery, method));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#commit()
-	 */
-	@Override
-	public void commit() {
-		execute(SolrClient::commit);
-	}
-
 	@Override
 	public void commit(String collection) {
 		execute(solrClient -> solrClient.commit(collection));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#softCommit()
-	 */
-	@Override
-	public void softCommit() {
-
-		execute(solrClient -> solrClient.commit(true, true, true));
 	}
 
 	@Override
 	public void softCommit(String collection) {
 
 		execute(solrClient -> solrClient.commit(collection, true, true, true));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#rollback()
-	 */
-	@Override
-	public void rollback() {
-		execute(SolrClient::rollback);
 	}
 
 	@Override
@@ -981,31 +567,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return getSchemaOperations(collectionName).getSchemaName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#queryForCursor(org.springframework.data.solr.core.query.Query, java.lang.Class)
-	 */
-	@Override
-	@SuppressWarnings("resource")
-	public <T> Cursor<T> queryForCursor(Query query, final Class<T> clazz) {
-
-		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
-
-			@Override
-			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
-					SolrQuery nativeQuery) {
-
-				QueryResponse response = executeSolrQuery(nativeQuery, getSolrRequestMethod(getDefaultRequestMethod()));
-				if (response == null) {
-					return new PartialResult<>("", Collections.<T> emptyList());
-				}
-
-				return new PartialResult<>(response.getNextCursorMark(), convertQueryResponseToBeans(response, clazz));
-			}
-
-		}.open();
-	}
-
 	public <T> Cursor<T> queryForCursor(String collection, Query query, final Class<T> clazz) {
 
 		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
@@ -1026,23 +587,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}.open();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#getById(java.util.Collection, java.lang.Class)
-	 */
 	@Override
-	public <T> Collection<T> getById(final Collection<? extends Serializable> ids, final Class<T> clazz) {
-
-		if (CollectionUtils.isEmpty(ids)) {
-			return Collections.emptyList();
-		}
-
-		return execute(solrClient -> convertSolrDocumentListToBeans(
-				solrClient.getById(ids.stream().map(Object::toString).collect(Collectors.toList())), clazz));
-	}
-
-	@Override
-	public <T> Collection<T> getById(String collection, final Collection<? extends Serializable> ids,
+	public <T> Collection<T> getByIds(String collection, final Collection<?> ids,
 			final Class<T> clazz) {
 
 		if (CollectionUtils.isEmpty(ids)) {
@@ -1053,32 +599,16 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 				solrClient.getById(collection, ids.stream().map(Object::toString).collect(Collectors.toList())), clazz));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.SolrOperations#getById(java.io.Serializable, java.lang.Class)
-	 */
-	@Override
-	public <T> T getById(Serializable id, Class<T> clazz) {
-
-		Assert.notNull(id, "Id must not be 'null'.");
-
-		Collection<T> result = getById(Collections.singletonList(id), clazz);
-		if (result.isEmpty()) {
-			return null;
-		}
-		return result.iterator().next();
-	}
-
-	public <T> T getById(String collection, Serializable id, Class<T> clazz) {
+	public <T> Optional<T> getById(String collection, Object id, Class<T> clazz) {
 
 		Assert.notNull(collection, "Collection must not be null!");
 		Assert.notNull(id, "Id must not be 'null'.");
 
-		Collection<T> result = getById(collection, Collections.singletonList(id), clazz);
+		Collection<T> result = getByIds(collection, Collections.singletonList(id), clazz);
 		if (result.isEmpty()) {
-			return null;
+			return Optional.empty();
 		}
-		return result.iterator().next();
+		return Optional.of(result.iterator().next());
 	}
 
 	/*
@@ -1211,6 +741,20 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 
 		throw new IllegalArgumentException("Unsupported request method type");
+	}
+
+	private int getCommitWithinTimeout(Duration duration) {
+
+		if (duration == null || duration.isZero() || duration.isNegative()) {
+			return -1;
+		}
+
+		if (duration.toMillis() > Integer.MAX_VALUE) {
+			throw new InvalidDataAccessApiUsageException(
+					String.format("CommitWithin must must not exceed int range but was %s", duration.toMillis()));
+		}
+
+		return (int) duration.toMillis();
 	}
 
 	/**

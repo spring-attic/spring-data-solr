@@ -32,7 +32,6 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
@@ -68,8 +67,8 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	@After
 	public void tearDown() {
-		solrTemplate.delete(ALL_DOCUMENTS_QUERY);
-		solrTemplate.commit();
+		solrTemplate.delete(COLLECTION_NAME, ALL_DOCUMENTS_QUERY);
+		solrTemplate.commit(COLLECTION_NAME);
 	}
 
 	@Test // DATASOLR-142
@@ -142,7 +141,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		Query query = new SimpleQuery(new Criteria("enumProperty_s").is(LiteralNumberEnum.TWO));
 
-		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(query, BeanWithEnum.class).get();
+		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(COLLECTION_NAME, query, BeanWithEnum.class).get();
 		assertEquals(bean.id, loadedViaProperty.id);
 		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
@@ -156,11 +155,11 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		beans.add(new BeanWithScore("3", "apache solr"));
 		beans.add(new BeanWithScore("4", "apache lucene"));
 
-		solrTemplate.saveBeans(beans);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, beans);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		ScoredPage<BeanWithScore> page = solrTemplate.queryForPage(new SimpleQuery("description:spring solr"),
-				BeanWithScore.class);
+		ScoredPage<BeanWithScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
+				new SimpleQuery("description:spring solr"), BeanWithScore.class);
 
 		List<BeanWithScore> content = page.getContent();
 		assertEquals(3, page.getTotalElements());
@@ -181,12 +180,12 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		map.put("key_2", "value 2");
 		BeanWithDynamicMap bean = new BeanWithDynamicMap("bean-id", map);
 
-		solrTemplate.saveBean(bean);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, bean);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		BeanWithDynamicMap loaded = solrTemplate.getById("bean-id", BeanWithDynamicMap.class);
-		Assert.assertEquals("value 1", loaded.values.get("key_1"));
-		Assert.assertEquals("value 2", loaded.values.get("key_2"));
+		BeanWithDynamicMap loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMap.class).get();
+		assertEquals("value 1", loaded.values.get("key_1"));
+		assertEquals("value 2", loaded.values.get("key_2"));
 
 	}
 
@@ -198,21 +197,21 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		map.put("key_2", Arrays.asList("value 21", "value 22"));
 		BeanWithDynamicMapList bean = new BeanWithDynamicMapList("bean-id", map);
 
-		solrTemplate.saveBean(bean);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, bean);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		BeanWithDynamicMapList loaded = solrTemplate.getById("bean-id", BeanWithDynamicMapList.class);
-		Assert.assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
-		Assert.assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
+		BeanWithDynamicMapList loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMapList.class).get();
+		assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
+		assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
 
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
-		solrTemplate.saveBean(o);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, o);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		return (T) solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, o.getClass()).orElse(null);
+		return (T) solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY, o.getClass()).orElse(null);
 	}
 
 	private static class BeanWithPoint {

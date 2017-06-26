@@ -44,7 +44,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
-	private String solrCoreName;
+	private String collectionName;
 	private Float boost;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
@@ -52,7 +52,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		super(typeInformation);
 		this.context = new StandardEvaluationContext();
 		this.typeInformation = typeInformation;
-		this.solrCoreName = derivateSolrCoreName();
+		this.collectionName = derivateSolrCollectionName();
 		this.boost = derivateDocumentBoost();
 	}
 
@@ -68,16 +68,15 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		context.setRootObject(applicationContext);
 	}
 
-	private String derivateSolrCoreName() {
+	private String derivateSolrCollectionName() {
 
-		String derivativeSolrCoreName = this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 		Optional<SolrDocument> solrDocument = findAnnotation(SolrDocument.class);
 		if (solrDocument.isPresent()) {
 			if (StringUtils.hasText(solrDocument.get().solrCoreName())) {
-				derivativeSolrCoreName = solrDocument.get().solrCoreName();
+				return solrDocument.get().collection();
 			}
 		}
-		return derivativeSolrCoreName;
+		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 	}
 
 	private Float derivateDocumentBoost() {
@@ -91,11 +90,11 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getSolrCoreName()
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getCollectionName()
 	 */
 	@Override
-	public String getSolrCoreName() {
-		return this.solrCoreName;
+	public String getCollectionName() {
+		return this.collectionName;
 	}
 
 	/*

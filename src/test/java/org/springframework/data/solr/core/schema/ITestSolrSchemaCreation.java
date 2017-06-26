@@ -64,8 +64,8 @@ public class ITestSolrSchemaCreation {
 		template.setSchemaCreationFeatures(Collections.singletonList(Feature.CREATE_MISSING_FIELDS));
 		template.afterPropertiesSet();
 
-		template.delete(new SimpleQuery("*:*"));
-		template.commit();
+		template.delete(COLLECTION_NAME, new SimpleQuery("*:*"));
+		template.commit(COLLECTION_NAME);
 	}
 
 	@Test // DATASOLR-72, DATASOLR-313
@@ -73,44 +73,44 @@ public class ITestSolrSchemaCreation {
 
 		Foo foo = new Foo();
 		foo.id = "1";
-		template.saveBean(foo);
+		template.saveBean(COLLECTION_NAME, foo);
 
 		Map<String, Map<String, Object>> fields = requestSchemaFields();
 
 		// @Indexed String indexedStringWithoutType;
-		assertThat((String) fields.get("indexedStringWithoutType").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("stored"), is(true));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("required"), is(false));
+		assertThat(fields.get("indexedStringWithoutType").get("type"), is(equalTo("string")));
+		assertThat(fields.get("indexedStringWithoutType").get("multiValued"), is(false));
+		assertThat(fields.get("indexedStringWithoutType").get("indexed"), is(true));
+		assertThat(fields.get("indexedStringWithoutType").get("stored"), is(true));
+		assertThat(fields.get("indexedStringWithoutType").get("required"), is(false));
 
 		// @Indexed(name = "namedField", type = "string", searchable = false)
-		assertThat((String) fields.get("namedField").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("namedField").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("namedField").get("indexed"), is(false));
-		assertThat((Boolean) fields.get("namedField").get("stored"), is(true));
-		assertThat((Boolean) fields.get("namedField").get("required"), is(false));
+		assertThat(fields.get("namedField").get("type"), is(equalTo("string")));
+		assertThat(fields.get("namedField").get("multiValued"), is(false));
+		assertThat(fields.get("namedField").get("indexed"), is(false));
+		assertThat(fields.get("namedField").get("stored"), is(true));
+		assertThat(fields.get("namedField").get("required"), is(false));
 
 		// @Indexed List<String> listField;
-		assertThat((String) fields.get("listField").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("listField").get("multiValued"), is(true));
-		assertThat((Boolean) fields.get("listField").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("listField").get("stored"), is(true));
-		assertThat((Boolean) fields.get("listField").get("required"), is(false));
+		assertThat(fields.get("listField").get("type"), is(equalTo("string")));
+		assertThat(fields.get("listField").get("multiValued"), is(true));
+		assertThat(fields.get("listField").get("indexed"), is(true));
+		assertThat(fields.get("listField").get("stored"), is(true));
+		assertThat(fields.get("listField").get("required"), is(false));
 
 		// @Indexed(type = "tdouble") Double someDoubleValue;
-		assertThat((String) fields.get("someDoubleValue").get("type"), is(equalTo("tdouble")));
-		assertThat((Boolean) fields.get("someDoubleValue").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("someDoubleValue").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("someDoubleValue").get("stored"), is(true));
-		assertThat((Boolean) fields.get("someDoubleValue").get("required"), is(false));
+		assertThat(fields.get("someDoubleValue").get("type"), is(equalTo("tdouble")));
+		assertThat(fields.get("someDoubleValue").get("multiValued"), is(false));
+		assertThat(fields.get("someDoubleValue").get("indexed"), is(true));
+		assertThat(fields.get("someDoubleValue").get("stored"), is(true));
+		assertThat(fields.get("someDoubleValue").get("required"), is(false));
 
 		// @Indexed(name = "copySource", type = "string", copyTo = { "_text_" }) String aCopyFiled;
-		assertThat((String) fields.get("copySource").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("copySource").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("copySource").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("copySource").get("stored"), is(true));
-		assertThat((Boolean) fields.get("copySource").get("required"), is(false));
+		assertThat(fields.get("copySource").get("type"), is(equalTo("string")));
+		assertThat(fields.get("copySource").get("multiValued"), is(false));
+		assertThat(fields.get("copySource").get("indexed"), is(true));
+		assertThat(fields.get("copySource").get("stored"), is(true));
+		assertThat(fields.get("copySource").get("required"), is(false));
 
 		Map<String, Object> hm = new HashMap<>();
 		hm.put("source", "copySource");
@@ -133,37 +133,37 @@ public class ITestSolrSchemaCreation {
 
 		Foo foo = new Foo();
 		foo.id = "1";
-		template.saveBean(foo);
+		template.saveBean(COLLECTION_NAME, foo);
 
 		Map<String, Map<String, Object>> fields = requestSchemaFields();
 
 		// @Indexed String indexedStringWithoutType;
-		assertThat((String) fields.get("indexedStringWithoutType").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("multiValued"), is(true));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("indexed"), is(false));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("stored"), is(true));
-		assertThat((Boolean) fields.get("indexedStringWithoutType").get("required"), is(nullValue()));
+		assertThat(fields.get("indexedStringWithoutType").get("type"), is(equalTo("string")));
+		assertThat(fields.get("indexedStringWithoutType").get("multiValued"), is(true));
+		assertThat(fields.get("indexedStringWithoutType").get("indexed"), is(false));
+		assertThat(fields.get("indexedStringWithoutType").get("stored"), is(true));
+		assertThat(fields.get("indexedStringWithoutType").get("required"), is(nullValue()));
 
 		// @Indexed(name = "namedField", type = "string", searchable = false)
-		assertThat((String) fields.get("namedField").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("namedField").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("namedField").get("indexed"), is(false));
-		assertThat((Boolean) fields.get("namedField").get("stored"), is(true));
-		assertThat((Boolean) fields.get("namedField").get("required"), is(false));
+		assertThat(fields.get("namedField").get("type"), is(equalTo("string")));
+		assertThat(fields.get("namedField").get("multiValued"), is(false));
+		assertThat(fields.get("namedField").get("indexed"), is(false));
+		assertThat(fields.get("namedField").get("stored"), is(true));
+		assertThat(fields.get("namedField").get("required"), is(false));
 
 		// @Indexed List<String> listField;
-		assertThat((String) fields.get("listField").get("type"), is(equalTo("string")));
-		assertThat((Boolean) fields.get("listField").get("multiValued"), is(true));
-		assertThat((Boolean) fields.get("listField").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("listField").get("stored"), is(true));
-		assertThat((Boolean) fields.get("listField").get("required"), is(false));
+		assertThat(fields.get("listField").get("type"), is(equalTo("string")));
+		assertThat(fields.get("listField").get("multiValued"), is(true));
+		assertThat(fields.get("listField").get("indexed"), is(true));
+		assertThat(fields.get("listField").get("stored"), is(true));
+		assertThat(fields.get("listField").get("required"), is(false));
 
 		// @Indexed(type = "tdouble") Double someDoubleValue;
-		assertThat((String) fields.get("someDoubleValue").get("type"), is(equalTo("tdouble")));
-		assertThat((Boolean) fields.get("someDoubleValue").get("multiValued"), is(false));
-		assertThat((Boolean) fields.get("someDoubleValue").get("indexed"), is(true));
-		assertThat((Boolean) fields.get("someDoubleValue").get("stored"), is(true));
-		assertThat((Boolean) fields.get("someDoubleValue").get("required"), is(false));
+		assertThat(fields.get("someDoubleValue").get("type"), is(equalTo("tdouble")));
+		assertThat(fields.get("someDoubleValue").get("multiValued"), is(false));
+		assertThat(fields.get("someDoubleValue").get("indexed"), is(true));
+		assertThat(fields.get("someDoubleValue").get("stored"), is(true));
+		assertThat(fields.get("someDoubleValue").get("required"), is(false));
 	}
 
 	private Map<String, Map<String, Object>> requestSchemaFields() throws SolrServerException, IOException {

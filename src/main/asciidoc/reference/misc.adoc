@@ -13,7 +13,7 @@ PartialUpdates can be done using `PartialUpdate` which implements `Update`.
 ----
 PartialUpdate update = new PartialUpdate("id", "123");
 update.add("name", "updated-name");
-solrTemplate.saveBean(update);
+solrTemplate.saveBean("collection-1", update);
 ----
 ====
 
@@ -40,7 +40,7 @@ Faceting cannot be directly applied using the `SolrRepository` but the `SolrTemp
 ----
 FacetQuery query = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
   .setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5));
-FacetPage<Product> page = solrTemplate.queryForFacetPage(query, Product.class);
+FacetPage<Product> page = solrTemplate.queryForFacetPage("collection-1", query, Product.class);
 ----
 ====
 
@@ -98,7 +98,7 @@ facetOptions.setFacetMinCount(0);
 
 Criteria criteria = new SimpleStringCriteria("*:*");
 SimpleFacetQuery facetQuery = new SimpleFacetQuery(criteria).setFacetOptions(facetOptions);
-FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage(facetQuery, ExampleSolrBean.class);
+FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage("collection-1", facetQuery, ExampleSolrBean.class);
 ----
 ==== 
 
@@ -143,7 +143,7 @@ FacetOptions facetOptions = new FacetOptions();
 facetOptions.setFacetMinCount(0);
 facetOptions.addFacetOnPivot("category","dimension");
 facetQuery.setFacetOptions(facetOptions);
-FacetPage<Product> facetResult = solrTemplate.queryForFacetPage(facetQuery, Product.class);
+FacetPage<Product> facetResult = solrTemplate.queryForFacetPage("collection-1", facetQuery, Product.class);
 ----
 ==== 
 
@@ -165,7 +165,7 @@ Terms Vector cannot directly be used within `SolrRepository` but can be applied 
 [source,java]
 ----
 TermsQuery query = SimpleTermsQuery.queryBuilder().fields("name").build();
-TermsPage page = solrTemplate.queryForTermsPage(query);		
+TermsPage page = solrTemplate.queryForTermsPage("collection-1", query);
 ----
 ====
 
@@ -188,7 +188,7 @@ GroupOptions groupOptions = new GroupOptions()
 	.addGroupByQuery(query);
 groupQuery.setGroupOptions(groupOptions);
 
-GroupPage<Product> page = solrTemplate.queryForGroupPage(query, Product.class);
+GroupPage<Product> page = solrTemplate.queryForGroupPage("collection-1", query, Product.class);
 
 GroupResult<Product> fieldGroup = page.getGroupResult(field);
 GroupResult<Product> funcGroup = page.getGroupResult(func);
@@ -210,7 +210,7 @@ StatsOptions statsOptions = new StatsOptions().addField("price");
 // query
 SimpleQuery statsQuery = new SimpleQuery("*:*");
 statsQuery.setStatsOptions(statsOptions);
-StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage("collection-1", statsQuery, Product.class);
 
 // retrieving stats info
 FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
@@ -245,7 +245,7 @@ StatsOptions statsOptions = new StatsOptions()
 // query
 SimpleQuery statsQuery = new SimpleQuery("*:*");
 statsQuery.setStatsOptions(statsOptions);
-StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage("collection-1", statsQuery, Product.class);
 
 // field stats
 FieldStatsResult categoryStatResult = statResultPage.getFieldStatsResult("category");
@@ -413,7 +413,7 @@ To highlight matches in search result add `HighlightOptions` to the `SimpleHighl
 ----
 SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
 query.setHighlightOptions(new HighlightOptions());
-HighlightPage<Product> page = solrTemplate.queryForHighlightPage(query, Product.class);
+HighlightPage<Product> page = solrTemplate.queryForHighlightPage("collection-1", query, Product.class);
 ----
 ====
 
@@ -551,7 +551,7 @@ NOTE: realtime get relies on the update log feature.
 ====
 [source,java]
 ----
-Product product = solrTemplate.getById("123", Product.class);
+Optional<Product> product = solrTemplate.getById("collection-1", "123", Product.class);
 ----
 ====
 
@@ -562,7 +562,7 @@ Multiple documents can be retrieved by providing a collection of ids as follows:
 [source,java]
 ----
 Collection<String> ids = Arrays.asList("123", "134");
-Collection<Product> products = solrTemplate.getById(ids, Product.class);
+Collection<Product> products = solrTemplate.getByIds("collection-1", ids, Product.class);
 ----
 ====
 

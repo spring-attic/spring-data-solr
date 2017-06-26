@@ -32,16 +32,10 @@ public class MappingSolrEntityInformation<T, ID> extends PersistentEntityInforma
 		implements SolrEntityInformation<T, ID> {
 
 	private final SolrPersistentEntity<T> entityMetadata;
-	private final String solrCoreName;
 
 	public MappingSolrEntityInformation(SolrPersistentEntity<T> entity) {
-		this(entity, null);
-	}
-
-	public MappingSolrEntityInformation(SolrPersistentEntity<T> entity, String solrCoreName) {
 		super(entity);
 		this.entityMetadata = entity;
-		this.solrCoreName = solrCoreName;
 	}
 
 	@Override
@@ -50,7 +44,7 @@ public class MappingSolrEntityInformation<T, ID> extends PersistentEntityInforma
 				.getFieldName();
 	}
 
-	public String getSolrCoreName() {
-		return solrCoreName != null ? solrCoreName : entityMetadata.getSolrCoreName();
+	public String getCollectionName() {
+		return entityMetadata.getCollectionName();
 	}
 }
