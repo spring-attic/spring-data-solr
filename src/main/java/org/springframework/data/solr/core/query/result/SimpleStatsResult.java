@@ -155,6 +155,16 @@ public class SimpleStatsResult implements StatsResult {
 		return mean;
 	}
 
+	@Override
+	public Double getMeanAsDouble() {
+		return mean instanceof Number ? ((Number) mean).doubleValue() : null;
+	}
+
+	@Override
+	public Date getMeanAsDate() {
+		return mean instanceof Date ? (Date) mean : null;
+	}
+
 	public void setMean(Object mean) {
 		this.mean = mean;
 	}

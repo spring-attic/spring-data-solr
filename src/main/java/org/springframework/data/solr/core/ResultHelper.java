@@ -405,16 +405,8 @@ final class ResultHelper {
 		statsResult.setMissing(value.getMissing());
 		statsResult.setStddev(value.getStddev());
 		statsResult.setSumOfSquares((Double) new DirectFieldAccessor(value).getPropertyValue("sumOfSquares"));
-
-		Object mean = value.getMean();
-		if (mean instanceof Double) {
-			statsResult.setMean((Double) mean);
-		}
-
-		Object sum = value.getSum();
-		if (sum instanceof Double) {
-			statsResult.setSum((Double) sum);
-		}
+		statsResult.setMean(value.getMean());
+		statsResult.setSum(value.getSum());
 
 		return statsResult;
 	}

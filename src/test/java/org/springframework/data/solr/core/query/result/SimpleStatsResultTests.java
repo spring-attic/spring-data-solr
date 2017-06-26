@@ -72,4 +72,32 @@ public class SimpleStatsResultTests {
 		Assert.assertEquals(date, stats.getMaxAsDate());
 	}
 
+	@Test // DATASOLR-404
+	public void testMeanDate() {
+
+		SimpleStatsResult stats = new SimpleStatsResult();
+		Date date = new Date();
+		stats.setMean(date);
+
+		Assert.assertEquals(date, stats.getMeanAsDate());
+	}
+
+	@Test // DATASOLR-404
+	public void testMeanNumber() {
+
+		SimpleStatsResult stats = new SimpleStatsResult();
+		Date date = new Date();
+		stats.setMean(1L);
+
+		Assert.assertEquals(1D, stats.getMeanAsDouble(), 0D);
+	}
+
+	@Test // DATASOLR-404
+	public void testMeanDateWhenNoDate() {
+
+		SimpleStatsResult stats = new SimpleStatsResult();
+		stats.setMean("o_O");
+
+		Assert.assertNull(stats.getMeanAsDate());
+	}
 }
