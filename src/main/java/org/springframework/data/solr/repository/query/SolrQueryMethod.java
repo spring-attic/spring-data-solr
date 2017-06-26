@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -40,6 +41,7 @@ import org.springframework.data.solr.repository.Spellcheck;
 import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -574,6 +576,14 @@ public class SolrQueryMethod extends QueryMethod {
 			return super.getNamedQueryName();
 		}
 		return getAnnotatedNamedQueryName();
+	}
+
+	/**
+	 * @return {@literal true} if the method return type is {@link Optional}.
+	 * @since 2.0
+	 */
+	public boolean returnsOptional() {
+		return ClassUtils.isAssignable(Optional.class, getReturnedObjectType());
 	}
 
 	@Override

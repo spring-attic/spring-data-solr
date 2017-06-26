@@ -610,13 +610,11 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		public Object execute(Query query) {
+
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 
-			if (!ClassUtils.isAssignable(Optional.class, solrQueryMethod.getReturnedObjectType())) {
-				return solrOperations.queryForObject(query, metadata.getJavaType()).orElse(null);
-			}
-
-			return solrOperations.queryForObject(collection, query, metadata.getJavaType());
+			Optional<?> result = solrOperations.queryForObject(collection, query, metadata.getJavaType());
+			return solrQueryMethod.returnsOptional() ? result : result.orElse(null);
 		}
 	}
 

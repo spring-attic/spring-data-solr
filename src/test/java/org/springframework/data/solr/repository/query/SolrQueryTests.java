@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.solr.common.params.HighlightParams;
 import org.hamcrest.collection.IsEmptyIterable;
@@ -303,6 +304,14 @@ public class SolrQueryTests {
 		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
 	}
 
+	@Test // DATASOLR-402
+	public void singleEntityExecutionShouldUseCollectionNameWhenReturningOptional() {
+
+		createQueryForMethod("findAndReturnNotOptional").execute(new Object[] {});
+
+		Mockito.verify(solrOperationsMock).queryForObject(Mockito.eq("collection-1"), Mockito.any(), Mockito.any());
+	}
+
 	private RepositoryQuery createQueryForMethod(String methodName, Class<?>... paramTypes) {
 		try {
 			return this.createQueryForMethod(Repo1.class.getMethod(methodName, paramTypes));
@@ -352,6 +361,7 @@ public class SolrQueryTests {
 		@Stats(value = "field1")
 		Page<ProductBean> findAndApplyStatsNoFacets(Pageable page);
 
+		ProductBean findAndReturnNotOptional();
 	}
 
 	private class SolrEntityInformationCreatorImpl implements SolrEntityInformationCreator {
