@@ -15,19 +15,26 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.hamcrest.collection.IsIterableWithSize.*;
 import static org.hamcrest.core.IsEqual.*;
 import static org.junit.Assert.*;
+
+import lombok.Data;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
@@ -38,10 +45,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.mapping.ChildDocument;
 import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.ScoredPage;
@@ -200,10 +209,56 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.saveBean(COLLECTION_NAME, bean);
 		solrTemplate.commit(COLLECTION_NAME);
 
-		BeanWithDynamicMapList loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMapList.class).get();
+		BeanWithDynamicMapList loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMapList.class)
+				.get();
 		assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
 		assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
 
+	}
+
+	@Test // DATASOLR-394
+	public void writeAndReadDocumentWithNestedChildObjectsCorrectly() throws IOException, SolrServerException {
+
+		Book theWayOfKings = new Book();
+		theWayOfKings.id = "book1";
+		theWayOfKings.type = "book";
+		theWayOfKings.title = "The Way of Kings";
+		theWayOfKings.author = "Brandon Sanderson";
+		theWayOfKings.category = "fantasy";
+		theWayOfKings.publicationYear = 2010;
+		theWayOfKings.publisher = "Tor";
+		theWayOfKings.reviews = new ArrayList<>();
+
+		BookReview review1 = new BookReview();
+		review1.id = "review1";
+		review1.type = "review";
+		review1.author = "yonik";
+		review1.date = new Date();
+		review1.stars = 5;
+		review1.comment = "A great start to what looks like an epic series!";
+		theWayOfKings.reviews.add(review1);
+
+		BookReview review2 = new BookReview();
+		review2.id = "review2";
+		review2.type = "review";
+		review2.author = "dan";
+		review2.date = new Date();
+		review2.stars = 3;
+		review2.comment = "This book was too long.";
+		theWayOfKings.reviews.add(review2);
+
+		solrTemplate.saveBean(COLLECTION_NAME, theWayOfKings);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		assertThat(solrTemplate.getSolrClient().query(new SolrQuery("*:*")).getResults(), iterableWithSize(3));
+
+		Query query = new SimpleQuery();
+		query.addCriteria(Criteria.where("id").is(theWayOfKings.id));
+		query.addProjectionOnField(new SimpleField("*"));
+		query.addProjectionOnField(new SimpleField("[child parentFilter=type_s:book]"));
+
+		Optional<Book> result = solrTemplate.queryForObject(COLLECTION_NAME, query, Book.class);
+		assertThat(result.orElse(null), equalTo(theWayOfKings));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -326,6 +381,31 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 			this.values = values;
 		}
 
+	}
+
+	@Data
+	static class Book {
+
+		@Id String id;
+		@Indexed("type_s") String type;
+		@Indexed("title_t") String title;
+		@Indexed("author_s") String author;
+		@Indexed("cat_s") String category;
+		@Indexed("pubyear_i") int publicationYear;
+		@Indexed("publisher_s") String publisher;
+
+		@ChildDocument List<BookReview> reviews;
+	}
+
+	@Data
+	static class BookReview {
+
+		String id;
+		@Indexed("type_s") String type;
+		@Indexed("review_dt") Date date;
+		@Indexed("stars_i") int stars;
+		@Indexed("author_s") String author;
+		@Indexed("comment_t") String comment;
 	}
 
 }

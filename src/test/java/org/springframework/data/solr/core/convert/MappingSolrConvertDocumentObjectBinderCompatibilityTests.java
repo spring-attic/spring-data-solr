@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.junit.Assert.*;
+
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +59,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		this.converter = converter;
 	}
 
-	@Parameters
+	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() {
 		Object[][] data = new Object[][] { { new SolrJConverter() },
 				{ new MappingSolrConverter(new SimpleSolrMappingContext()) } };
@@ -73,8 +75,8 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 
 		SolrDocumentList solDocList = res.getResults();
 		List<Item> l = getBeans(solDocList);
-		Assert.assertEquals(solDocList.size(), l.size());
-		Assert.assertEquals(solDocList.get(0).getFieldValue("features"), l.get(0).features);
+		assertEquals(solDocList.size(), l.size());
+		assertEquals(solDocList.get(0).getFieldValue("features"), l.get(0).features);
 
 		Item item = new Item();
 		item.id = "aaa";
@@ -82,14 +84,14 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		SolrInputDocument out = new SolrInputDocument();
 		converter.write(item, out);
 
-		Assert.assertEquals(item.id, out.getFieldValue("id"));
+		assertEquals(item.id, out.getFieldValue("id"));
 		SolrInputField catfield = out.getField("cat");
-		Assert.assertEquals(3, catfield.getValueCount());
+		assertEquals(3, catfield.getValueCount());
 
 		List<String> catValues = (List<String>) catfield.getValue();
-		Assert.assertEquals("aaa", catValues.get(0));
-		Assert.assertEquals("bbb", catValues.get(1));
-		Assert.assertEquals("ccc", catValues.get(2));
+		assertEquals("aaa", catValues.get(0));
+		assertEquals("bbb", catValues.get(1));
+		assertEquals("ccc", catValues.get(2));
 	}
 
 	@Test
@@ -97,7 +99,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		SolrDocument d = new SolrDocument();
 		d.setField("cat", "hello");
 		Item item = converter.read(Item.class, d);
-		Assert.assertEquals("hello", item.categories[0]);
+		assertEquals("hello", item.categories[0]);
 	}
 
 	@Test
@@ -113,22 +115,19 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Assert.assertArrayEquals(new String[] { "Mobile Store", "iPod Store", "CCTV Store" }, item.getAllSuppliers());
 		Assert.assertTrue(item.supplier.containsKey("supplier_1"));
 		Assert.assertTrue(item.supplier.containsKey("supplier_2"));
-		Assert.assertEquals(2, item.supplier.size());
+		assertEquals(2, item.supplier.size());
 
 		List<String> supplierOne = item.supplier.get("supplier_1");
-		Assert.assertEquals("Mobile Store", supplierOne.get(0));
-		Assert.assertEquals("iPod Store", supplierOne.get(1));
+		assertEquals("Mobile Store", supplierOne.get(0));
+		assertEquals("iPod Store", supplierOne.get(1));
 
 		List<String> supplierTwo = item.supplier.get("supplier_2");
-		Assert.assertEquals("CCTV Store", supplierTwo.get(0));
+		assertEquals("CCTV Store", supplierTwo.get(0));
 	}
 
-	/**
-	 * @see DATASOLR-87
-	 * @see DATASOLR-309
-	 */
-	@Test
+	@Test // DATASOLR-87, DATASOLR-309
 	public void testToAndFromSolrDocument() {
+
 		Item item = new Item();
 		item.id = "one";
 		item.inStock = false;
@@ -153,13 +152,13 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Item out = converter.read(Item.class, docs.get(0));
 
 		// make sure it came out the same
-		Assert.assertEquals(item.id, out.id);
-		Assert.assertEquals(item.inStock, out.inStock);
-		Assert.assertEquals(item.categories.length, out.categories.length);
-		Assert.assertEquals(item.features, out.features);
-		Assert.assertEquals(supA, out.supplier.get("supplier_supA"));
-		Assert.assertEquals(supB, out.supplier.get("supplier_supB"));
-		Assert.assertEquals(item.supplier_simple.get("sup_simple_supB"), out.supplier_simple.get("sup_simple_supB"));
+		assertEquals(item.id, out.id);
+		assertEquals(item.inStock, out.inStock);
+		assertEquals(item.categories.length, out.categories.length);
+		assertEquals(item.features, out.features);
+		assertEquals(supA, out.supplier.get("supplier_supA"));
+		assertEquals(supB, out.supplier.get("supplier_supB"));
+		assertEquals(item.supplier_simple.get("sup_simple_supB"), out.supplier_simple.get("sup_simple_supB"));
 
 		// put back "out" as Bean, to see if both ways work as you would expect
 		// but the Field that "allSuppliers" need to be cleared, as it is just for
@@ -172,25 +171,128 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		docs1.add(toSolrDocument(doc1));
 		Item out1 = converter.read(Item.class, docs1.get(0));
 
-		Assert.assertEquals(item.id, out1.id);
-		Assert.assertEquals(item.inStock, out1.inStock);
-		Assert.assertEquals(item.categories.length, out1.categories.length);
-		Assert.assertEquals(item.features, out1.features);
+		assertEquals(item.id, out1.id);
+		assertEquals(item.inStock, out1.inStock);
+		assertEquals(item.categories.length, out1.categories.length);
+		assertEquals(item.features, out1.features);
 
-		Assert.assertEquals(item.supplier_simple.get("sup_simple_supB"), out1.supplier_simple.get("sup_simple_supB"));
+		assertEquals(item.supplier_simple.get("sup_simple_supB"), out1.supplier_simple.get("sup_simple_supB"));
 
-		Assert.assertEquals(supA, out1.supplier.get("supplier_supA"));
-		Assert.assertEquals(supB, out1.supplier.get("supplier_supB"));
+		assertEquals(supA, out1.supplier.get("supplier_supA"));
+		assertEquals(supB, out1.supplier.get("supplier_supB"));
 	}
 
 	private List<Item> getBeans(SolrDocumentList solDocList) {
 		return converter.read(solDocList, Item.class);
 	}
 
-	public static SolrDocument toSolrDocument(SolrInputDocument d) {
+	@Test // DATASOLR-394
+	public void testChild() throws Exception {
+
+		SingleValueChild in = new SingleValueChild();
+		in.id = "1";
+		in.child = new Child();
+		in.child.id = "1.0";
+		in.child.name = "Name One";
+
+		SolrInputDocument solrInputDoc = new SolrInputDocument();
+		new SolrJConverter().write(in, solrInputDoc);
+		SolrDocument solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(1, solrInputDoc.getChildDocuments().size());
+		assertEquals(1, solrDoc.getChildDocuments().size());
+
+		SingleValueChild out = converter.read(SingleValueChild.class, toSolrDocument(solrInputDoc));
+
+		assertEquals(in.id, out.id);
+		assertEquals(in.child.id, out.child.id);
+		assertEquals(in.child.name, out.child.name);
+
+		ListChild listIn = new ListChild();
+		listIn.id = "2";
+		Child child = new Child();
+		child.id = "1.1";
+		child.name = "Name Two";
+		listIn.child = Arrays.asList(in.child, child);
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(listIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(2, solrInputDoc.getChildDocuments().size());
+		assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ListChild listOut = converter.read(ListChild.class, toSolrDocument(solrInputDoc));
+
+		assertEquals(listIn.id, listOut.id);
+		assertEquals(listIn.child.get(0).id, listOut.child.get(0).id);
+		assertEquals(listIn.child.get(0).name, listOut.child.get(0).name);
+		assertEquals(listIn.child.get(1).id, listOut.child.get(1).id);
+		assertEquals(listIn.child.get(1).name, listOut.child.get(1).name);
+
+		ArrayChild arrIn = new ArrayChild();
+		arrIn.id = "3";
+		arrIn.child = new Child[] { in.child, child };
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(arrIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(2, solrInputDoc.getChildDocuments().size());
+		assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ArrayChild arrOut = converter.read(ArrayChild.class, solrDoc);
+
+		assertEquals(arrIn.id, arrOut.id);
+		assertEquals(arrIn.child[0].id, arrOut.child[0].id);
+		assertEquals(arrIn.child[0].name, arrOut.child[0].name);
+		assertEquals(arrIn.child[1].id, arrOut.child[1].id);
+		assertEquals(arrIn.child[1].name, arrOut.child[1].name);
+
+	}
+
+	public static class Child {
+
+		@Field String id;
+
+		@Field String name;
+
+	}
+
+	public static class SingleValueChild {
+
+		@Field String id;
+
+		@Field(child = true) Child child;
+	}
+
+	public static class ListChild {
+
+		@Field String id;
+
+		@Field(child = true) List<Child> child;
+
+	}
+
+	public static class ArrayChild {
+
+		@Field String id;
+
+		@Field(child = true) Child[] child;
+	}
+
+	private static SolrDocument toSolrDocument(SolrInputDocument d) {
+
 		SolrDocument doc = new SolrDocument();
 		for (SolrInputField field : d) {
 			doc.setField(field.getName(), field.getValue());
+		}
+		if (d.getChildDocuments() != null) {
+			for (SolrInputDocument in : d.getChildDocuments()) {
+				doc.addChildDocument(toSolrDocument(in));
+			}
 		}
 		return doc;
 	}

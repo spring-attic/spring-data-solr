@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
@@ -148,7 +150,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		List<R> resultList = new ArrayList<>(source.size());
 		TypeInformation<R> typeInformation = ClassTypeInformation.from(type);
-		for (Map<String, ?> item : source) {
+		for (SolrDocumentBase item : source) {
 			resultList.add(read(typeInformation, item));
 		}
 
@@ -156,12 +158,12 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	@Override
-	public <R> R read(Class<R> type, Map<String, ?> source) {
+	public <R> R read(Class<R> type, SolrDocumentBase source) {
 		return read(ClassTypeInformation.from(type), source);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <S> S read(TypeInformation<S> targetTypeInformation, Map<String, ?> source) {
+	protected <S> S read(TypeInformation<S> targetTypeInformation, SolrDocumentBase source) {
 		if (source == null) {
 			return null;
 		}
@@ -177,7 +179,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return read(entity, source, null);
 	}
 
-	private <S> S read(final SolrPersistentEntity<S> entity, final Map<String, ?> source, Object parent) {
+	private <S> S read(final SolrPersistentEntity<S> entity, final SolrDocumentBase source, Object parent) {
 		ParameterValueProvider<SolrPersistentProperty> parameterValueProvider = getParameterValueProvider(entity, source,
 				parent);
 
@@ -194,7 +196,30 @@ public class MappingSolrConverter extends SolrConverterBase
 			Optional<Object> o = getValue(persistentProperty, source, instance);
 			if (o.isPresent()) {
 
-				if (o.get() instanceof Collection && !persistentProperty.isCollectionLike()) {
+				Object val = o.get();
+
+				if (persistentProperty.isChildProperty()) {
+
+					List<SolrDocument> childDocuments = source.getChildDocuments();
+					List target = new ArrayList<>(childDocuments.size());
+					for (SolrDocument childDocument : childDocuments) {
+						target.add(read(persistentProperty.getActualType(), childDocument));
+					}
+
+					if (persistentProperty.isCollectionLike()) {
+
+						if (persistentProperty.getActualType().isArray()) {
+							accessor.setProperty(persistentProperty,
+									Optional.of(convertItemsToArrayOfType(persistentProperty.getTypeInformation(), target)));
+						} else {
+							accessor.setProperty(persistentProperty, Optional.of(target));
+						}
+					} else {
+						accessor.setProperty(persistentProperty, Optional.of(target.iterator().next()));
+					}
+				}
+
+				else if (val instanceof Collection && !persistentProperty.isCollectionLike()) {
 
 					Collection<?> c = (Collection<?>) o.get();
 
@@ -208,7 +233,6 @@ public class MappingSolrConverter extends SolrConverterBase
 									c, persistentProperty.getFieldName(), persistentProperty.getName()));
 						}
 					}
-
 				} else {
 					accessor.setProperty(persistentProperty, o);
 				}
@@ -220,6 +244,12 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	protected Optional<Object> getValue(SolrPersistentProperty property, Object source, Object parent) {
+
+		if (property.isChildProperty() && source instanceof SolrDocumentBase
+				&& ((SolrDocumentBase) source).hasChildDocuments()) {
+			return Optional.ofNullable(((SolrDocumentBase) source).getChildDocuments());
+		}
+
 		SolrPropertyValueProvider provider = new SolrPropertyValueProvider(source, parent);
 		return provider.getPropertyValue(property);
 	}
@@ -233,7 +263,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void write(Object source, @SuppressWarnings("rawtypes") Map target) {
+	public void write(Object source, @SuppressWarnings("rawtypes") SolrDocumentBase target) {
 
 		if (source == null) {
 			return;
@@ -255,7 +285,7 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	@SuppressWarnings("rawtypes")
-	protected void write(Object source, final Map target, SolrPersistentEntity<?> entity) {
+	protected void write(Object source, final SolrDocumentBase target, SolrPersistentEntity<?> entity) {
 
 		final PersistentPropertyAccessor accessor = new ConvertingPropertyAccessor(entity.getPropertyAccessor(source),
 				getConversionService());
@@ -272,14 +302,32 @@ public class MappingSolrConverter extends SolrConverterBase
 						+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
 			}
 
-			Collection<SolrInputField> fields;
+			Collection<SolrInputField> fields = null;
 			if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
 				fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value.get());
+			} else if (persistentProperty.isEntity() && persistentProperty.isChildProperty()) {
+
+				List<SolrInputDocument> nestedDocs = new ArrayList<>();
+
+				if (persistentProperty.isCollectionLike()) {
+
+					for (Object obj : asCollection(value.get())) {
+						SolrInputDocument nested = new SolrInputDocument();
+						write(obj, nested, mappingContext.getRequiredPersistentEntity(persistentProperty.getActualType()));
+						nestedDocs.add(nested);
+					}
+				} else {
+					SolrInputDocument nested = new SolrInputDocument();
+					write(value.get(), nested, mappingContext.getRequiredPersistentEntity(persistentProperty.getActualType()));
+					nestedDocs.add(nested);
+				}
+
+				target.addChildDocuments(nestedDocs);
 			} else {
 				fields = writeRegularPropertyToTarget(target, persistentProperty, value.get());
 			}
 
-			if (persistentProperty.isBoosted()) {
+			if (fields != null && persistentProperty.isBoosted()) {
 				for (SolrInputField field : fields) {
 					field.setBoost(persistentProperty.getBoost());
 				}
@@ -292,7 +340,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	}
 
-	private Collection<SolrInputField> writeWildcardMapPropertyToTarget(Map<? super Object, ? super Object> target,
+	private Collection<SolrInputField> writeWildcardMapPropertyToTarget(SolrDocumentBase target,
 			SolrPersistentProperty persistentProperty, Map<?, ?> fieldValue) {
 
 		TypeInformation<?> mapTypeInformation = persistentProperty.getTypeInformation().getMapValueType().get();
@@ -336,7 +384,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return fields;
 	}
 
-	private Collection<SolrInputField> writeRegularPropertyToTarget(final Map<? super Object, ? super Object> target,
+	private Collection<SolrInputField> writeRegularPropertyToTarget(final SolrDocumentBase target,
 			SolrPersistentProperty persistentProperty, Object fieldValue) {
 
 		SolrInputField field = new SolrInputField(persistentProperty.getFieldName());
@@ -348,11 +396,9 @@ public class MappingSolrConverter extends SolrConverterBase
 					field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
 				}
 			}
-		}
-		else if (fieldValue instanceof Enum) {
+		} else if (fieldValue instanceof Enum) {
 			field.setValue(this.getConversionService().convert(fieldValue, String.class), 1f);
-		}
-		else {
+		} else {
 			field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
 		}
 
@@ -401,6 +447,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> Optional<T> getPropertyValue(SolrPersistentProperty property) {
+
 			if (source instanceof Map<?, ?>) {
 				return Optional.ofNullable(readValue((Map<String, ?>) source, property, parent));
 			}
@@ -410,6 +457,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		@SuppressWarnings("unchecked")
 		private <T> T readValue(Map<String, ?> value, SolrPersistentProperty property, Object parent) {
+
 			if (value == null) {
 				return null;
 			}
@@ -419,6 +467,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			if (property.isScoreProperty()) {
 				return (T) readScore(value, property, parent);
 			}
+
 			return readValue(value.get(property.getFieldName()), property.getTypeInformation(), parent);
 		}
 
@@ -429,6 +478,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		@SuppressWarnings("unchecked")
 		private <T> T readValue(Object value, TypeInformation<?> type, Object parent) {
+
 			if (value == null) {
 				return null;
 			}
@@ -620,12 +670,13 @@ public class MappingSolrConverter extends SolrConverterBase
 			return type.getType().isArray() ? convertItemsToArrayOfType(type, items) : items;
 		}
 
-		private Object convertItemsToArrayOfType(TypeInformation<?> type, Collection<Object> items) {
+	}
 
-			Object[] newArray = (Object[]) java.lang.reflect.Array.newInstance(type.getActualType().getType(), items.size());
-			Object[] itemsArray = items.toArray();
-			System.arraycopy(itemsArray, 0, newArray, 0, itemsArray.length);
-			return newArray;
-		}
+	private Object convertItemsToArrayOfType(TypeInformation<?> type, Collection<Object> items) {
+
+		Object[] newArray = (Object[]) java.lang.reflect.Array.newInstance(type.getActualType().getType(), items.size());
+		Object[] itemsArray = items.toArray();
+		System.arraycopy(itemsArray, 0, newArray, 0, itemsArray.length);
+		return newArray;
 	}
 }

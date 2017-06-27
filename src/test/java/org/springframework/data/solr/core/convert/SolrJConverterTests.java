@@ -68,7 +68,7 @@ public class SolrJConverterTests {
 		document.addField("stringProperty", "christoph");
 		document.addField("intProperty", 32);
 
-		ConvertableBean convertable = converter.read(ConvertableBean.class, (Map<String, Object>) document);
+		ConvertableBean convertable = converter.read(ConvertableBean.class, document);
 
 		Assert.assertEquals(document.getFieldValue("stringProperty"), convertable.getStringProperty());
 		Assert.assertEquals(document.getFieldValue("intProperty"), convertable.getIntProperty());

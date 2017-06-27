@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.mapping.context.MappingContext;
@@ -56,7 +57,7 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 		}
 
 		List<R> resultList = new ArrayList<>(source.size());
-		for (Map<String, ?> item : source) {
+		for (SolrDocumentBase item : source) {
 			resultList.add(read(type, item));
 		}
 
@@ -64,7 +65,7 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 	}
 
 	@Override
-	public <R> R read(Class<R> type, Map<String, ?> source) {
+	public <R> R read(Class<R> type, SolrDocumentBase source) {
 		if (!canConvert(SolrDocument.class, type)) {
 			initializeTypedConverter(source, type);
 		}
@@ -73,13 +74,17 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void write(Object source, Map sink) {
+	public void write(Object source, SolrDocumentBase sink) {
 		if (source == null) {
 			return;
 		}
 
 		SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
 		sink.putAll(convertedDocument);
+
+		if (convertedDocument.hasChildDocuments() && sink instanceof SolrInputDocument) {
+			((SolrInputDocument) sink).addChildDocuments(convertedDocument.getChildDocuments());
+		}
 	}
 
 	private void initializeConverters() {

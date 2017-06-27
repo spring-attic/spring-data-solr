@@ -18,6 +18,7 @@ package org.springframework.data.solr.core.convert;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.common.SolrDocumentBase;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.convert.EntityConverter;
@@ -31,8 +32,8 @@ import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
  */
 public interface SolrConverter extends
 
-EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, Map<String, ?>>,
-		EntityWriter<Object, Map<String, ?>>, EntityReader<Object, Map<String, ?>> {
+EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, SolrDocumentBase>,
+		EntityWriter<Object, SolrDocumentBase>, EntityReader<Object, SolrDocumentBase> {
 
 	/**
 	 * Read {@link SolrDocumentList} and convert to {@link List} of given type

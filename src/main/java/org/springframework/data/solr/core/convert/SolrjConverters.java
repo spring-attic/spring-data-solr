@@ -150,8 +150,12 @@ final class SolrjConverters {
 			if (source == null) {
 				return null;
 			}
+
 			SolrDocument document = new SolrDocument();
 			document.putAll(source);
+			if (source instanceof SolrDocument && ((SolrDocument) source).hasChildDocuments()) {
+				document.addChildDocuments(((SolrDocument) source).getChildDocuments());
+			}
 
 			return documentObjectBinder.getBean(clazz, document);
 		}

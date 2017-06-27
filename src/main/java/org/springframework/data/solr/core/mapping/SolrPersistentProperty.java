@@ -17,6 +17,7 @@ package org.springframework.data.solr.core.mapping;
 
 import java.util.Collection;
 
+import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PersistentProperty;
@@ -122,6 +123,13 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @since 1.5
 	 */
 	boolean isDynamicProperty();
+
+	/**
+	 * @return {@literal true} if property has set annotation {@link Field#child()} to true or is annotated with
+	 *         {@link ChildDocument}.
+	 * @since 3.0
+	 */
+	boolean isChildProperty();
 
 	enum PropertyToFieldNameConverter implements Converter<SolrPersistentProperty, String> {
 

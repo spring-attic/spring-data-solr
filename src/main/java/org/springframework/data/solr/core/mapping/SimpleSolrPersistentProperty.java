@@ -286,7 +286,8 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return findAnnotation(Score.class).isPresent();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isDynamicProperty()
 	 */
 	@Override
@@ -294,4 +295,17 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 		return findAnnotation(Dynamic.class).isPresent();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isChildProperty()
+	 */
+	@Override
+	public boolean isChildProperty() {
+
+		if (getFieldAnnotation().map(it -> it.child()).orElse(false)) {
+			return true;
+		}
+
+		return findAnnotation(ChildDocument.class).map(it -> true).orElse(false);
+	}
 }

@@ -591,3 +591,59 @@ public class MyEntity {
 }	            
 ----
 ====
+
+[[solr.misc.child-documents]]
+== Nested Documents
+
+Nested Documents provides the ability to add documents inside of other documents in a parent/child relationship.
+
+The nested documents need to be indexed along with the parent one and cannot be updated individually. Though nested documents will appear as individual ones in the index.
+Resolving the parent child relation is done at query query time.
+
+To indicate a property should be treated as nested object it has to be annotated with either `@o.a.s.c.solrj.beans.Field(child=true)` or `@o.s.d.s.core.mapping.ChildDocument`.
+
+====
+[source,java]
+----
+public class Book {
+
+    @Id String id;
+    @Indexed("type_s") String type;
+    @Indexed("title_t") String title;
+    @Indexed("author_s") String author;
+    @Indexed("publisher_s") String publisher;
+
+    @ChildDocument List<Review> reviews;      <1>
+
+    // setters and getters ...
+
+}
+
+public class Review {
+
+    @Id String id;                            <2>
+    @Indexed("type_s") String type;
+    @Indexed("review_dt") Date date;
+    @Indexed("stars_i") int stars;
+    @Indexed("author_s") String author;
+    @Indexed("comment_t") String comment;
+
+}
+----
+<1> Multiple child documents can be associated with a prarent one, or just use the domain type to store a single relation ship.
+<2> Note that the nested document also needs to have an unique `id` assigned.
+====
+
+Assuming `Book#type` is _book_, and `Review#type` resolves to _review_ retrieving `Book` with its child relations `reviews` can be done by altering the `fl` query parameter.
+
+====
+[source,java]
+----
+Query query = new SimpleQuery(where("id").is("theWayOfKings"));
+query.addProjectionOnField(new SimpleField("*"));
+query.addProjectionOnField(new SimpleField("[child parentFilter=type_s:book]")); <1>
+
+return solrTemplate.queryForObject("books", query, Book.class);
+----
+<1> The parent filter always defines the complete set of parent documents in the index, not the one for a single document.
+====

@@ -1014,7 +1014,7 @@ public class MappingSolrConverterTests {
 		bean.boostedRegularField = "value";
 		bean.regularField = "value";
 
-		Map<String, SolrInputField> target = new HashMap<>();
+		SolrInputDocument target = new SolrInputDocument();
 		converter.write(bean, target);
 
 		// configured boost
@@ -1036,7 +1036,7 @@ public class MappingSolrConverterTests {
 		bean.mapWildcardField.put("val1_mapWildcardField", "value");
 		bean.mapWildcardField.put("val2_mapWildcardField", "value");
 
-		Map<String, SolrInputField> target = new HashMap<>();
+		SolrInputDocument target = new SolrInputDocument();
 		converter.write(bean, target);
 
 		// configured boost
