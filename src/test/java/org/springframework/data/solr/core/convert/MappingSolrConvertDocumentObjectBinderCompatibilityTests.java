@@ -32,7 +32,9 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
 import org.apache.solr.common.util.NamedList;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -178,6 +180,108 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 
 		Assert.assertEquals(supA, out1.supplier.get("supplier_supA"));
 		Assert.assertEquals(supB, out1.supplier.get("supplier_supB"));
+	}
+
+	@Test // DATASOLR-394
+	public void testChild() throws Exception {
+
+		Assume.assumeThat("Needs to be SolrJConverter", converter, IsInstanceOf.instanceOf(SolrJConverter.class));
+
+		SingleValueChild in = new SingleValueChild();
+		in.id = "1";
+		in.child = new Child();
+		in.child.id = "1.0";
+		in.child.name = "Name One";
+
+		SolrInputDocument solrInputDoc = new SolrInputDocument();
+		new SolrJConverter().write(in, solrInputDoc);
+		SolrDocument solrDoc = toSolrDocument(solrInputDoc);
+
+		Assert.assertEquals(1, solrInputDoc.getChildDocuments().size());
+		Assert.assertEquals(1, solrDoc.getChildDocuments().size());
+
+		SingleValueChild out = converter.read(SingleValueChild.class, toSolrDocument(solrInputDoc));
+
+		Assert.assertEquals(in.id, out.id);
+		Assert.assertEquals(in.child.id, out.child.id);
+		Assert.assertEquals(in.child.name, out.child.name);
+
+		ListChild listIn = new ListChild();
+		listIn.id = "2";
+		Child child = new Child();
+		child.id = "1.1";
+		child.name = "Name Two";
+		listIn.child = Arrays.asList(in.child, child);
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(listIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		Assert.assertEquals(2, solrInputDoc.getChildDocuments().size());
+		Assert.assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ListChild listOut = converter.read(ListChild.class, toSolrDocument(solrInputDoc));
+
+		Assert.assertEquals(listIn.id, listOut.id);
+		Assert.assertEquals(listIn.child.get(0).id, listOut.child.get(0).id);
+		Assert.assertEquals(listIn.child.get(0).name, listOut.child.get(0).name);
+		Assert.assertEquals(listIn.child.get(1).id, listOut.child.get(1).id);
+		Assert.assertEquals(listIn.child.get(1).name, listOut.child.get(1).name);
+
+		ArrayChild arrIn = new ArrayChild();
+		arrIn.id = "3";
+		arrIn.child = new Child[] { in.child, child };
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(arrIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		Assert.assertEquals(2, solrInputDoc.getChildDocuments().size());
+		Assert.assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ArrayChild arrOut = converter.read(ArrayChild.class, solrDoc);
+
+		Assert.assertEquals(arrIn.id, arrOut.id);
+		Assert.assertEquals(arrIn.child[0].id, arrOut.child[0].id);
+		Assert.assertEquals(arrIn.child[0].name, arrOut.child[0].name);
+		Assert.assertEquals(arrIn.child[1].id, arrOut.child[1].id);
+		Assert.assertEquals(arrIn.child[1].name, arrOut.child[1].name);
+	}
+
+	public static class Child {
+
+		@Field String id;
+
+		@Field String name;
+
+	}
+
+	public static class SingleValueChild {
+
+		@Field String id;
+
+		@Field(child = true) Child child;
+	}
+
+	public static class ListChild {
+
+		@Field String id;
+
+		@Field(child = true) List<Child> child;
+
+	}
+
+	public static class ArrayChild {
+
+		@Field String id;
+
+		@Field(child = true) Child[] child;
+	}
+
+	private static SolrDocument toSolrDocument(SolrInputDocument d) {
+		return ClientUtils.toSolrDocument(d);
 	}
 
 	private List<Item> getBeans(SolrDocumentList solDocList) {

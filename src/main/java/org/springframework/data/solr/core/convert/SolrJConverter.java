@@ -79,6 +79,9 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 		}
 
 		SolrInputDocument convertedDocument = convert(source, SolrInputDocument.class);
+		if (convertedDocument.hasChildDocuments() && sink instanceof SolrInputDocument) {
+			((SolrInputDocument) sink).addChildDocuments(convertedDocument.getChildDocuments());
+		}
 		sink.putAll(convertedDocument);
 	}
 
