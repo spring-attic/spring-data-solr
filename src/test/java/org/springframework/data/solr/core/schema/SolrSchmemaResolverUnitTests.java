@@ -43,7 +43,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @author Christoph Strobl
  * @author Mark Paluch
  */
-public class SolrSchmeaResolverUnitTests {
+public class SolrSchmemaResolverUnitTests {
 
 	private SolrSchemaResolver schemaResolver;
 	private MappingContext<SimpleSolrPersistentEntity<?>, SolrPersistentProperty> context;
