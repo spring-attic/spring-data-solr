@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
  * </code> Will be parsed to a SolrQuery that outputs the following <code>
  *  q=field_1%3Avalue_1+AND+field_2%3Avalue_2*&fl=field_3&start=0&rows=10
  * </code>
- * 
+ *
  * @author Christoph Strobl
  */
 public interface QueryParser {
 
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link SolrClient}
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -42,7 +42,7 @@ public interface QueryParser {
 
 	/**
 	 * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
-	 * 
+	 *
 	 * @param query
 	 * @return String representation of query without faceting, pagination, projection...
 	 */
@@ -50,7 +50,7 @@ public interface QueryParser {
 
 	/**
 	 * Register an additional converter for transforming object values to solr readable format
-	 * 
+	 *
 	 * @param converter
 	 */
 	void registerConverter(Converter<?, ?> converter);
