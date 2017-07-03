@@ -15,20 +15,19 @@
  */
 package org.springframework.data.solr.core.mapping;
 
-import java.util.Optional;
-
 import org.springframework.data.mapping.PersistentEntity;
 
 /**
  * @param <T>
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersistentProperty> {
 
 	/**
 	 * Get the core's name for this entity.
-	 * 
+	 *
 	 * @return
 	 */
 	String getCollectionName();
@@ -46,7 +45,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	/**
 	 * Returns whether the {@link SolrPersistentEntity} has an score property. If this call returns {@literal true},
 	 * {@link #getScoreProperty()} will return a non-{@literal null} value.
-	 * 
+	 *
 	 * @return false when {@link SolrPersistentEntity} does not define a score property.
 	 * @since 1.4
 	 */
@@ -55,10 +54,10 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	/**
 	 * Returns the score property of the {@link SolrPersistentEntity}. Can be {@literal null} in case no score property is
 	 * available on the entity.
-	 * 
+	 *
 	 * @return the score {@link SolrPersistentProperty} of the {@link PersistentEntity} or {@literal null} if not defined.
 	 * @since 1.4
 	 */
-	Optional<SolrPersistentProperty> getScoreProperty();
+	SolrPersistentProperty getScoreProperty();
 
 }

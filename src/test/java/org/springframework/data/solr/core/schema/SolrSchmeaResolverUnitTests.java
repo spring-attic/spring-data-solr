@@ -41,6 +41,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class SolrSchmeaResolverUnitTests {
 
@@ -170,13 +171,13 @@ public class SolrSchmeaResolverUnitTests {
 	}
 
 	SolrPersistentEntity<?> createEntity(Class<?> type) {
-		return context.getPersistentEntity(type).get();
+		return context.getPersistentEntity(type);
 	}
 
 	SolrPersistentProperty getPropertyFor(String property, Class<?> type) {
 
 		SolrPersistentEntity<?> entity = createEntity(type);
-		return entity.getPersistentProperty(property).orElse(null);
+		return entity.getPersistentProperty(property);
 	}
 
 	private static class Foo {

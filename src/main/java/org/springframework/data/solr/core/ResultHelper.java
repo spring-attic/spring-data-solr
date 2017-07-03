@@ -44,7 +44,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mapping.model.MappingException;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.repository.util.ClassUtils;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.Field;
@@ -77,7 +77,7 @@ import org.springframework.util.StringUtils;
 /**
  * Use Result Helper to extract various parameters from the QueryResponse and convert it into a proper Format taking
  * care of non existent and null elements with the response.
- * 
+ *
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Venil Noronha

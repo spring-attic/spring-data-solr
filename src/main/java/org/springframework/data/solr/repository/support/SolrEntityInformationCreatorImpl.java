@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCreator {
 
@@ -39,8 +40,7 @@ public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCr
 	@SuppressWarnings("unchecked")
 	public <T, ID> SolrEntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
 
-		SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext.getPersistentEntity(domainClass)
-				.orElseThrow(() -> new IllegalArgumentException("not an managed type: " + domainClass));
+		SolrPersistentEntity<T> persistentEntity = (SolrPersistentEntity<T>) mappingContext.getRequiredPersistentEntity(domainClass);
 
 		return new MappingSolrEntityInformation<>(persistentEntity);
 	}

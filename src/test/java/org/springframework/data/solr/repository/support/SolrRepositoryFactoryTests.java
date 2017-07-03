@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.repository.support;
 
-import java.util.Optional;
-
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.solr.core.SolrOperations;
@@ -39,6 +38,7 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrRepositoryFactoryTests {
@@ -56,7 +56,7 @@ public class SolrRepositoryFactoryTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		Mockito.when(solrEntityMock.getIdProperty()).thenReturn(Optional.of(solrPersistentPropertyMock));
+		Mockito.when(solrEntityMock.getRequiredIdProperty()).thenReturn(solrPersistentPropertyMock);
 		Mockito.when(solrPersistentPropertyMock.getFieldName()).thenReturn("id");
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
 		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContextMock);
@@ -80,7 +80,7 @@ public class SolrRepositoryFactoryTests {
 		Assert.assertNotNull(repository);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = MappingException.class)
 	public void testGetRepositoryOfUnmanageableType() {
 
 		SolrTemplate template = new SolrTemplate(new HttpSolrClient("http://solrserver:8983/solr"), null);
@@ -90,7 +90,7 @@ public class SolrRepositoryFactoryTests {
 
 	@SuppressWarnings("unchecked")
 	private void initMappingContext() {
-		Mockito.when(mappingContextMock.getPersistentEntity(ProductBean.class)).thenReturn(Optional.of(solrEntityMock));
+		Mockito.when(mappingContextMock.getRequiredPersistentEntity(ProductBean.class)).thenReturn(solrEntityMock);
 		Mockito.when(solrEntityMock.getType()).thenReturn(ProductBean.class);
 	}
 

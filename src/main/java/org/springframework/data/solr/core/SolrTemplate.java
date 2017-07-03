@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,13 +89,14 @@ import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of {@link SolrOperations}
- * 
+ *
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
  * @author David Webb
  * @author Petar Tahchiev
+ * @author Mark Paluch
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -506,8 +506,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 
 		if (clazz != null) {
-			SolrPersistentEntity<?> persistedEntity = mappingContext.getPersistentEntity(clazz)
-					.orElseThrow(() -> new IllegalArgumentException("No persistent entity found."));
+			SolrPersistentEntity<?> persistedEntity = mappingContext.getRequiredPersistentEntity(clazz);
 			if (persistedEntity.hasScoreProperty()) {
 				solrQuery.setIncludeScore(true);
 			}

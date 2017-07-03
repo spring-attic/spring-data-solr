@@ -36,6 +36,7 @@ import org.springframework.data.util.TypeInformation;
 /**
  * @author Francisco Spaeth
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrPersistentPropertyTest {
@@ -54,7 +55,7 @@ public class SimpleSolrPersistentPropertyTest {
 
 		when(owner.getType()).thenReturn((Class) BeanWithScore.class);
 		when(owner.getTypeInformation()).thenReturn(typeInformation);
-		when(typeInformation.getProperty("myScoreProperty")).thenReturn(Optional.of(typeInformation));
+		when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(Property.of(field, propertyDescriptor),
 				owner, simpleTypeHolder);

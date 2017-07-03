@@ -41,10 +41,11 @@ import org.springframework.util.Assert;
 
 /**
  * Solr specific repository implementation. Likely to be used as target within {@link SolrRepositoryFactory}
- * 
+ *
  * @param <T>
  * @Param <ID>
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
 
@@ -224,7 +225,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	private Object extractIdFromBean(T entity) {
 
 		if (entityInformation != null) {
-			return entityInformation.getId(entity).orElseThrow(() -> new IllegalArgumentException("Id must not be null"));
+			return entityInformation.getRequiredId(entity);
 		}
 
 		SolrInputDocument solrInputDocument = this.solrOperations.convertBeanToSolrInputDocument(entity);

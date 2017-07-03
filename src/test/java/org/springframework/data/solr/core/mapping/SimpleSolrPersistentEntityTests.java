@@ -20,15 +20,13 @@ import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Optional;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.mapping.model.MappingException;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.solr.core.mapping.SimpleSolrPersistentPropertyTest.BeanWithScore;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
@@ -36,6 +34,7 @@ import org.springframework.data.util.TypeInformation;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class SimpleSolrPersistentEntityTests {
@@ -129,8 +128,8 @@ public class SimpleSolrPersistentEntityTests {
 		entity.addPersistentProperty(property);
 
 		assertTrue(entity.hasScoreProperty());
-		assertEquals(Optional.of(property), entity.getScoreProperty());
-		assertEquals("myScoreProperty", entity.getScoreProperty().get().getFieldName());
+		assertEquals(property, entity.getScoreProperty());
+		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
 	}
 
 	@SuppressWarnings("unchecked")

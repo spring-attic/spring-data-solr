@@ -16,17 +16,16 @@
 package org.springframework.data.solr.core.mapping;
 
 import java.util.Locale;
-import java.util.Optional;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.mapping.model.MappingException;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -34,10 +33,11 @@ import org.springframework.util.StringUtils;
 
 /**
  * Solr specific {@link PersistentEntity} implementation holding eg. name of solr core.
- * 
+ *
  * @param <T>
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty>
 		implements SolrPersistentEntity<T>, ApplicationContextAware {
@@ -70,20 +70,18 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	private String derivateSolrCollectionName() {
 
-		Optional<SolrDocument> solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument.isPresent()) {
-			if (StringUtils.hasText(solrDocument.get().solrCoreName())) {
-				return solrDocument.get().collection();
-			}
+		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument != null && StringUtils.hasText(solrDocument.solrCoreName())) {
+			return solrDocument.collection();
 		}
 		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 	}
 
 	private Float derivateDocumentBoost() {
 
-		Optional<SolrDocument> solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument.isPresent() && !Float.isNaN(solrDocument.get().boost())) {
-			return solrDocument.get().boost();
+		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
+		if (solrDocument != null && !Float.isNaN(solrDocument.boost())) {
+			return solrDocument.boost();
 		}
 		return null;
 	}
@@ -129,7 +127,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getScoreProperty()
 	 */
 	@Override
-	public Optional<SolrPersistentProperty> getScoreProperty() {
+	public SolrPersistentProperty getScoreProperty() {
 		return getPersistentProperty(Score.class);
 	}
 
@@ -156,7 +154,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	/**
 	 * Handler to inspect {@link SolrPersistentProperty} instances and check that max one can be mapped as {@link Score}
 	 * property.
-	 * 
+	 *
 	 * @author Christpoh Strobl
 	 * @since 1.4
 	 */
@@ -189,7 +187,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	/**
 	 * Handler to inspect {@link SolrPersistentProperty} instances and check usage of {@link Dynamic}.
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 * @since 1.5
 	 */

@@ -22,11 +22,12 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
 
 /**
  * Solr specific implementation of {@link AbstractEntityInformation}
- * 
+ *
  * @param <T>
  * @param <ID>
  * @author Christoph Strobl
  * @author Oliver Gierke
+ * @author Mark Paluch
  */
 public class MappingSolrEntityInformation<T, ID> extends PersistentEntityInformation<T, ID>
 		implements SolrEntityInformation<T, ID> {
@@ -40,8 +41,7 @@ public class MappingSolrEntityInformation<T, ID> extends PersistentEntityInforma
 
 	@Override
 	public String getIdAttribute() {
-		return entityMetadata.getIdProperty().orElseThrow(() -> new IllegalArgumentException("No ID property found."))
-				.getFieldName();
+		return entityMetadata.getRequiredIdProperty().getFieldName();
 	}
 
 	public String getCollectionName() {
