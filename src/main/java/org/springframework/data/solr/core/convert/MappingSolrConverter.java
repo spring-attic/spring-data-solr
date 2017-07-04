@@ -393,7 +393,11 @@ public class MappingSolrConverter extends SolrConverterBase
 			Collection<?> collection = asCollection(fieldValue);
 			for (Object o : collection) {
 				if (o != null) {
-					field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
+					if(o instanceof Enum) {
+						field.addValue(this.getConversionService().convert(o, String.class), 1f);
+					} else {
+						field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
+					}
 				}
 			}
 		} else if (fieldValue instanceof Enum) {

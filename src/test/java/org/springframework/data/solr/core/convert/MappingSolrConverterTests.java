@@ -28,11 +28,11 @@ import java.util.Map;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.SolrInputField;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.hamcrest.collection.IsMapContaining;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsInstanceOf;
@@ -1064,8 +1064,6 @@ public class MappingSolrConverterTests {
 	@Test // DATASOLR-375
 	public void writeEnumValues() {
 
-		SolrInputDocument regularDocument = new SolrInputDocument();
-
 		BeanWithDefaultTypes source = new BeanWithDefaultTypes();
 		source.enumProperty = SomeEnum.E2;
 
@@ -1073,6 +1071,29 @@ public class MappingSolrConverterTests {
 		converter.write(source, sink);
 
 		Assert.assertThat(sink.getFieldValue("enumProperty"), IsEqual.equalTo(SomeEnum.E2.name()));
+	}
+
+	@Test // DATASOLR-407
+	public void writeListOfEnumValues() {
+
+		BeanWithDefaultTypes source = new BeanWithDefaultTypes();
+		source.enumList = Arrays.asList(SomeEnum.E2, SomeEnum.E1);
+
+		SolrInputDocument sink = new SolrInputDocument();
+		converter.write(source, sink);
+
+		Assert.assertThat(sink.getFieldValues("enumList"), IsIterableContainingInOrder.contains("E2", "E1"));
+	}
+
+	@Test // DATASOLR-407
+	public void readListOfEnumValues() {
+
+		SolrDocument source = new SolrDocument();
+		source.addField("enumList", Arrays.asList("E2", "E1"));
+
+		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, source);
+
+		Assert.assertThat(target.enumList, IsIterableContainingInOrder.contains(SomeEnum.E2, SomeEnum.E1));
 	}
 
 	public static class BeanWithoutAnnotatedFields {
@@ -1136,6 +1157,8 @@ public class MappingSolrConverterTests {
 		@Field Date dateProperty;
 
 		@Field SomeEnum enumProperty;
+
+		@Field List<SomeEnum> enumList;
 
 	}
 
