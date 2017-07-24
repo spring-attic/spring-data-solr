@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.5.RELEASE (2017-07-24)
+---------------------------------------------
+* DATASOLR-407 - Wrong list Enum conversion in Entity mapping.
+* DATASOLR-399 - Release 2.1.5 (Ingalls SR5).
+* DATASOLR-398 - Parent POM contains relative path to Spring Build POM.
+* DATASOLR-394 - SolrJConverter ignores childDocuments when indexing.
+
+
 Changes in version 3.0.0.M4 (2017-06-14)
 ----------------------------------------
 * DATASOLR-396 - Adopt to changed AnnotationUtils.getValue(…) behavior.
