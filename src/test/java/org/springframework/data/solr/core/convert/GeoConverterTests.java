@@ -52,9 +52,10 @@ public class GeoConverterTests {
 					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.MILES)));
 		}
 
-		@Test
-		public void testConvertDistanceWithNullUnitToString() {
-			Assert.assertEquals("1.0", GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, null)));
+		@Test // DATASOLR-31, DATASOLR-408
+		public void testConvertDistanceWithNeutralUnitToString() {
+			Assert.assertEquals("1.0",
+					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.NEUTRAL)));
 		}
 	}
 
