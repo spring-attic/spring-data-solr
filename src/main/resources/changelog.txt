@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.RC2 (2017-07-25)
+-----------------------------------------
+* DATASOLR-410 - Release 3.0 RC2 (Kay).
+
+
 Changes in version 3.0.0.RC1 (2017-07-25)
 -----------------------------------------
 * DATASOLR-408 - Adapt to nullability changes in spring-data-commons.
