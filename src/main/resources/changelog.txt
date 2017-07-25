@@ -1,6 +1,19 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.RC1 (2017-07-25)
+-----------------------------------------
+* DATASOLR-408 - Adapt to nullability changes in spring-data-commons.
+* DATASOLR-407 - Wrong list Enum conversion in Entity mapping.
+* DATASOLR-406 - Adapt to API changes in mapping subsystem.
+* DATASOLR-405 - Remove template methods without collection name.
+* DATASOLR-404 - Support Date value for StatsResult "mean" parameter.
+* DATASOLR-402 - Solr query missing collection name.
+* DATASOLR-401 - Release 3.0 RC1 (Kay).
+* DATASOLR-394 - SolrJConverter ignores childDocuments when indexing.
+* DATASOLR-298 - Add support for child documents.
+
+
 Changes in version 2.1.5.RELEASE (2017-07-24)
 ---------------------------------------------
 * DATASOLR-407 - Wrong list Enum conversion in Entity mapping.
