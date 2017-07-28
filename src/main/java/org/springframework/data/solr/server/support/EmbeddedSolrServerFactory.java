@@ -157,7 +157,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	public List<String> getCores() {
-		return new ArrayList<>(getCoreContainer().getCoreNames());
+		return new ArrayList<>(getCoreContainer().getAllCoreNames());
 	}
 
 	public void setSolrHome(String solrHome) {

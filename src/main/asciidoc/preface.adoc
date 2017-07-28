@@ -16,7 +16,7 @@ The Spring Data for Apache Solr project applies core Spring concepts to the deve
 [preface]
 == Requirements
 
-Requires Java 8 runtime and http://lucene.apache.org/solr/[Apache Solr] 6.5. Preferably the latest 6.5.x version.
+Requires Java 8 runtime and http://lucene.apache.org/solr/[Apache Solr] 6.6. Preferably the latest 6.6.x version.
 
 [source,xml]
 ----
