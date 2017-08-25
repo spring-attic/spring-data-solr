@@ -639,7 +639,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		public Object execute(Query query) {
 
 			if (TransactionSynchronizationManager.isSynchronizationActive()) {
-				SolrTransactionSynchronizationAdapterBuilder.forOperations(solrOperations).withDefaultBehaviour().register();
+				SolrTransactionSynchronizationAdapterBuilder.forOperations(solrOperations).onCollection(collection)
+						.withDefaultBehaviour().register();
 			}
 
 			Object result = countOrGetDocumentsForDelete(query);

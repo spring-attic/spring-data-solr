@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository;
 
+import static org.mockito.ArgumentMatchers.eq;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -54,7 +56,7 @@ public class ITestTransactionalSolrRepositoryDeleteOperationRollbackFalse extend
 
 	@AfterTransaction
 	public void checkIfDeleted() throws SolrServerException, IOException {
-		Mockito.verify(solrClientMock, Mockito.times(1)).commit(Mockito.any());
+		Mockito.verify(solrClientMock, Mockito.times(1)).commit(eq("collection1"));
 		Mockito.verify(solrClientMock, Mockito.never()).rollback();
 	}
 
