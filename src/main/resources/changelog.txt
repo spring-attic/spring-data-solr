@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.RC3 (2017-09-11)
+-----------------------------------------
+* DATASOLR-418 - Upgrade to Solr 6.6.1.
+* DATASOLR-416 - Collection name is not set in registering transaction synchronization callback of DeleteExecution.
+* DATASOLR-413 - Upgrade to Solr 6.6.
+* DATASOLR-411 - Release 3.0 RC3 (Kay).
+
+
 Changes in version 2.1.7.RELEASE (2017-09-11)
 ---------------------------------------------
 * DATASOLR-412 - Release 2.1.7 (Ingalls SR7).
