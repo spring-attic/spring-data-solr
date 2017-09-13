@@ -37,6 +37,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.SchemaVersion;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -62,7 +63,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.PageRequest;
@@ -116,10 +117,19 @@ public class SolrTemplateTests {
 		verify(solrClientMock, times(1)).ping();
 	}
 
-	@Test(expected = DataAccessException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testPingThrowsException() throws SolrServerException, IOException {
 		when(solrClientMock.ping())
 				.thenThrow(new SolrServerException("error", new SolrException(ErrorCode.NOT_FOUND, "not found")));
+		solrTemplate.ping();
+	}
+
+	@Test(expected = DataAccessResourceFailureException.class) // DATASOLR-414
+	public void testPingThrowsExceptionCorrectlyWhenMimeTypeDoesNotMatch() throws SolrServerException, IOException {
+
+		when(solrClientMock.ping()).thenThrow(new RemoteSolrException("localhost", 404,
+				"Error from server at http://localhost:8983: Expected mime type application/octet-stream but got text/html.",
+				null));
 		solrTemplate.ping();
 	}
 

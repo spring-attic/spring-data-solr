@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.request.SolrPing;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -66,18 +67,8 @@ import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
-import org.springframework.data.solr.core.query.result.Cursor;
-import org.springframework.data.solr.core.query.result.DelegatingCursor;
-import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
-import org.springframework.data.solr.core.query.result.FacetPage;
-import org.springframework.data.solr.core.query.result.GroupPage;
-import org.springframework.data.solr.core.query.result.HighlightPage;
-import org.springframework.data.solr.core.query.result.ScoredPage;
-import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.*;
 import org.springframework.data.solr.core.query.result.SpellcheckQueryResult.Alternative;
-import org.springframework.data.solr.core.query.result.StatsPage;
-import org.springframework.data.solr.core.query.result.TermsPage;
-import org.springframework.data.solr.core.query.result.TermsResultPage;
 import org.springframework.data.solr.core.schema.DefaultSchemaOperations;
 import org.springframework.data.solr.core.schema.SchemaOperations;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
@@ -184,6 +175,15 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public SolrPingResponse ping() {
 		return execute(SolrClient::ping);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.SolrOperations#ping(java.lang.String)
+	 */
+	@Override
+	public SolrPingResponse ping(String collection) {
+		return execute(client -> new SolrPing().process(client, collection));
 	}
 
 	@Override
@@ -587,8 +587,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public <T> Collection<T> getByIds(String collection, final Collection<?> ids,
-			final Class<T> clazz) {
+	public <T> Collection<T> getByIds(String collection, final Collection<?> ids, final Class<T> clazz) {
 
 		if (CollectionUtils.isEmpty(ids)) {
 			return Collections.emptyList();

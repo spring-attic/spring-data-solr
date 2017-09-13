@@ -15,7 +15,6 @@
  */
 package org.springframework.data.solr.core;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Optional;
@@ -55,17 +54,28 @@ public interface SolrOperations {
 
 	/**
 	 * Get the underlying SolrClient instance
-	 * 
+	 *
 	 * @return the {@link SolrClient} in use. Never {@literal null}.
 	 */
 	SolrClient getSolrClient();
 
 	/**
 	 * Execute ping against SolrClient and return duration in msec
-	 * 
+	 *
 	 * @return {@link SolrPingResponse} containing ping result.
+	 * @throws org.springframework.dao.DataAccessResourceFailureException if ping fails.
 	 */
 	SolrPingResponse ping();
+
+	/**
+	 * Execute ping against SolrClient and return duration in msec
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @return {@link SolrPingResponse} containing ping result.
+	 * @throws org.springframework.dao.DataAccessResourceFailureException if ping fails.
+	 * @since 3.0
+	 */
+	SolrPingResponse ping(String collection);
 
 	/**
 	 * return number of elements found by for given query

@@ -18,6 +18,7 @@ package org.springframework.data.solr.core;
 import java.net.ConnectException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
 import org.springframework.dao.DataAccessException;
@@ -45,6 +46,7 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 		}
 
 		if (ex.getCause() instanceof SolrServerException) {
+
 			SolrServerException solrServerException = (SolrServerException) ex.getCause();
 			if (solrServerException.getCause() instanceof SolrException) {
 				SolrException solrException = (SolrException) solrServerException.getCause();
@@ -77,6 +79,11 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 						solrServerException.getCause());
 			}
 		}
+
+		if (ex instanceof RemoteSolrException) {
+			return new DataAccessResourceFailureException(ex.getMessage(), ex);
+		}
+
 		return null;
 	}
 }
