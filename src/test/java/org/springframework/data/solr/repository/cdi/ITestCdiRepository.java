@@ -20,13 +20,15 @@ import static org.junit.Assert.*;
 
 import java.util.Optional;
 
-import org.apache.webbeans.cditest.CdiTestContainer;
-import org.apache.webbeans.cditest.CdiTestContainerLoader;
+import javax.enterprise.inject.se.SeContainer;
+import javax.enterprise.inject.se.SeContainerInitializer;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.data.solr.repository.ProductBean;
 
 /**
@@ -35,32 +37,35 @@ import org.springframework.data.solr.repository.ProductBean;
  */
 public class ITestCdiRepository {
 
-	private static CdiTestContainer cdiContainer;
+	private static SeContainer cdiContainer;
 	private CdiProductRepository repository;
 	private SamplePersonRepository samplePersonRepository;
 
 	@BeforeClass
-	public static void init() throws Exception {
-		cdiContainer = CdiTestContainerLoader.getCdiContainer();
-		cdiContainer.startApplicationScope();
-		cdiContainer.bootContainer();
+	public static void init() {
+
+		cdiContainer = SeContainerInitializer.newInstance() //
+				.disableDiscovery() //
+				.addPackages(CdiRepositoryClient.class) //
+				.initialize();
 	}
 
 	@AfterClass
-	public static void shutdown() throws Exception {
-		cdiContainer.stopContexts();
-		cdiContainer.shutdownContainer();
+	public static void shutdown() {
+		cdiContainer.close();
 	}
 
 	@Before
 	public void setUp() {
-		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
+
+		CdiRepositoryClient client = cdiContainer.select(CdiRepositoryClient.class).get();
 		repository = client.getRepository();
 		samplePersonRepository = client.getSamplePersonRepository();
 	}
 
-	@Test
+	@Test // DATASOLR-106
 	public void testCdiRepository() {
+
 		Assert.assertNotNull(repository);
 
 		ProductBean bean = new ProductBean();
@@ -89,8 +94,6 @@ public class ITestCdiRepository {
 
 	@Test // DATASOLR-187
 	public void returnOneFromCustomImpl() {
-
 		assertThat(samplePersonRepository.returnOne(), is(1));
 	}
-
 }

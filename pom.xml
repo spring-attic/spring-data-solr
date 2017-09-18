@@ -157,8 +157,14 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.openwebbeans.test</groupId>
-			<artifactId>cditest-owb</artifactId>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>${javax-annotation-api}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openwebbeans</groupId>
+			<artifactId>openwebbeans-se</artifactId>
 			<version>${webbeans}</version>
 			<scope>test</scope>
 		</dependency>
