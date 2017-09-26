@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PersistentProperty;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -54,6 +55,7 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	/**
 	 * @return property boost value if {@link #isBoosted()}, null otherwise
 	 */
+	@Nullable
 	Float getBoost();
 
 	/**
@@ -79,11 +81,13 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	 * @return mapped solr type name
 	 * @since 1.3
 	 */
+	@Nullable
 	String getSolrTypeName();
 
 	/**
 	 * @since 1.3
 	 */
+	@Nullable
 	Object getDefaultValue();
 
 	/**

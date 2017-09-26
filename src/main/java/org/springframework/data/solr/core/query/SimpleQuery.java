@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -37,18 +38,18 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	private List<Field> projectionOnFields = new ArrayList<>(0);
 	private List<FilterQuery> filterQueries = new ArrayList<>(0);
 
-	private Long offset = null;
-	private Integer rows = null;
+	private @Nullable Long offset = null;
+	private @Nullable Integer rows = null;
 
-	private Sort sort;
+	private Sort sort = Sort.unsorted();
 
-	private Operator defaultOperator;
-	private Integer timeAllowed;
-	private String defType;
+	private @Nullable Operator defaultOperator;
+	private @Nullable Integer timeAllowed;
+	private @Nullable String defType;
 
-	private GroupOptions groupOptions;
-	private StatsOptions statsOptions;
-	private SpellcheckOptions spellcheckOptions;
+	private @Nullable GroupOptions groupOptions;
+	private @Nullable StatsOptions statsOptions;
+	private @Nullable SpellcheckOptions spellcheckOptions;
 
 	public SimpleQuery() {}
 
@@ -56,7 +57,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * @param criteria
 	 */
 	public SimpleQuery(Criteria criteria) {
-		this(criteria, null);
+		this(criteria, Pageable.unpaged());
 	}
 
 	/**
@@ -71,10 +72,10 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * @param criteria
 	 * @param pageable
 	 */
-	public SimpleQuery(Criteria criteria, Pageable pageable) {
+	public SimpleQuery(Criteria criteria, @Nullable Pageable pageable) {
 		super(criteria);
 
-		if (pageable != null) {
+		if (pageable != null && !pageable.isUnpaged()) {
 			this.offset = pageable.getOffset();
 			this.rows = pageable.getPageSize();
 			this.addSort(pageable.getSort());
@@ -90,11 +91,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this(new SimpleStringCriteria(queryString), pageable);
 	}
 
+	@Nullable
 	public static final Query fromQuery(Query source) {
 		return fromQuery(source, new SimpleQuery());
 	}
 
-	public static <T extends SimpleQuery> T fromQuery(Query source, T destination) {
+	@Nullable
+	public static <T extends SimpleQuery> T fromQuery(@Nullable Query source, @Nullable T destination) {
 		if (source == null || destination == null) {
 			return null;
 		}
@@ -225,7 +228,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <T extends Query> T addSort(Sort sort) {
+	public final <T extends Query> T addSort(@Nullable Sort sort) {
 		if (sort == null) {
 			return (T) this;
 		}
@@ -257,11 +260,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return new SolrPageRequest(rows != 0 ? (int) (offset / rows) : 0, rows, this.sort);
 	}
 
+	@Nullable
 	@Override
 	public Long getOffset() {
 		return this.offset;
 	}
 
+	@Nullable
 	@Override
 	public Integer getRows() {
 		return this.rows;
@@ -295,6 +300,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@Nullable
 	@Override
 	public Integer getTimeAllowed() {
 		return this.timeAllowed;
@@ -307,6 +313,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@Nullable
 	@Override
 	public GroupOptions getGroupOptions() {
 		return groupOptions;
@@ -316,6 +323,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.Query#getStatsOptions()
 	 */
+	@Nullable
 	@Override
 	public StatsOptions getStatsOptions() {
 		return statsOptions;
@@ -381,6 +389,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.Query#getSpellcheckOptions()
 	 */
+	@Nullable
 	@Override
 	public SpellcheckOptions getSpellcheckOptions() {
 		return this.spellcheckOptions;

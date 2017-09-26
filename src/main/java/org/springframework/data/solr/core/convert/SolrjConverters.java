@@ -28,6 +28,7 @@ import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.solr.core.query.Update;
 import org.springframework.data.solr.core.query.UpdateField;
 import org.springframework.data.solr.core.query.ValueHoldingField;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -44,7 +45,7 @@ final class SolrjConverters {
 	abstract static class DocumentBinderConverter {
 		protected final DocumentObjectBinder documentObjectBinder;
 
-		public DocumentBinderConverter(DocumentObjectBinder binder) {
+		public DocumentBinderConverter(@Nullable DocumentObjectBinder binder) {
 			this.documentObjectBinder = binder != null ? binder : new DocumentObjectBinder();
 		}
 
@@ -64,7 +65,7 @@ final class SolrjConverters {
 		}
 
 		@Override
-		public SolrInputDocument convert(Object source) {
+		public SolrInputDocument convert(@Nullable Object source) {
 			if (source == null) {
 				return null;
 			}
@@ -88,7 +89,7 @@ final class SolrjConverters {
 		}
 
 		@Override
-		public SolrInputDocument convert(Update source) {
+		public SolrInputDocument convert(@Nullable Update source) {
 			if (source == null) {
 				return null;
 			}
@@ -110,6 +111,7 @@ final class SolrjConverters {
 			return solrInputDocument;
 		}
 
+		@Nullable
 		private Object getUpdateValue(ValueHoldingField field) {
 			// Solr removes all values from document in case of empty colleciton
 			// therefore those values have to be set to null.

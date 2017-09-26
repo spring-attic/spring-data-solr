@@ -18,7 +18,6 @@ package org.springframework.data.solr.core.mapping;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -29,6 +28,7 @@ import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.repository.Score;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -137,10 +137,12 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 				: false;
 	}
 
+	@Nullable
 	private org.apache.solr.client.solrj.beans.Field getFieldAnnotation() {
 		return findAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 	}
 
+	@Nullable
 	private Indexed getIndexAnnotation() {
 		return findAnnotation(Indexed.class);
 	}
@@ -160,6 +162,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getBoost()
 	 */
+	@Nullable
 	@Override
 	public Float getBoost() {
 

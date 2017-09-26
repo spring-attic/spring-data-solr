@@ -49,6 +49,7 @@ import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
@@ -127,7 +128,7 @@ public class MappingSolrConverter extends SolrConverterBase
 	private final EntityInstantiators instantiators = new EntityInstantiators();
 
 	@SuppressWarnings("unused") //
-	private ApplicationContext applicationContext;
+	private @Nullable ApplicationContext applicationContext;
 
 	public MappingSolrConverter(
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
@@ -142,7 +143,7 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	@Override
-	public <S, R> List<R> read(SolrDocumentList source, Class<R> type) {
+	public <S, R> List<R> read(@Nullable SolrDocumentList source, Class<R> type) {
 		if (source == null) {
 			return Collections.emptyList();
 		}
@@ -162,7 +163,8 @@ public class MappingSolrConverter extends SolrConverterBase
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <S> S read(TypeInformation<S> targetTypeInformation, SolrDocumentBase source) {
+	@Nullable
+	protected <S> S read(TypeInformation<S> targetTypeInformation, @Nullable SolrDocumentBase source) {
 		if (source == null) {
 			return null;
 		}
@@ -178,7 +180,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return read(entity, source, null);
 	}
 
-	private <S> S read(final SolrPersistentEntity<S> entity, final SolrDocumentBase source, Object parent) {
+	private <S> S read(final SolrPersistentEntity<S> entity, final SolrDocumentBase source, @Nullable Object parent) {
 		ParameterValueProvider<SolrPersistentProperty> parameterValueProvider = getParameterValueProvider(entity, source,
 				parent);
 
@@ -241,6 +243,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		return instance;
 	}
 
+	@Nullable
 	protected Object getValue(SolrPersistentProperty property, Object source, Object parent) {
 
 		if (property.isChildProperty() && source instanceof SolrDocumentBase
@@ -262,10 +265,6 @@ public class MappingSolrConverter extends SolrConverterBase
 	@SuppressWarnings("unchecked")
 	@Override
 	public void write(Object source, @SuppressWarnings("rawtypes") SolrDocumentBase target) {
-
-		if (source == null) {
-			return;
-		}
 
 		Class<?> sourceClass = source.getClass();
 
@@ -391,7 +390,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			Collection<?> collection = asCollection(fieldValue);
 			for (Object o : collection) {
 				if (o != null) {
-					if(o instanceof Enum) {
+					if (o instanceof Enum) {
 						field.addValue(this.getConversionService().convert(o, String.class), 1f);
 					} else {
 						field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
@@ -410,7 +409,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	}
 
-	private Object convertToSolrType(Class<?> type, Object value) {
+	private Object convertToSolrType(@Nullable Class<?> type, @Nullable Object value) {
 
 		if (type == null || value == null) {
 			return value;
@@ -448,6 +447,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		@Override
 		@SuppressWarnings("unchecked")
+		@Nullable
 		public <T> T getPropertyValue(SolrPersistentProperty property) {
 
 			if (source instanceof Map<?, ?>) {
@@ -458,7 +458,8 @@ public class MappingSolrConverter extends SolrConverterBase
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T readValue(Map<String, ?> value, SolrPersistentProperty property, Object parent) {
+		@Nullable
+		private <T> T readValue(@Nullable Map<String, ?> value, SolrPersistentProperty property, Object parent) {
 
 			if (value == null) {
 				return null;
@@ -479,7 +480,8 @@ public class MappingSolrConverter extends SolrConverterBase
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T readValue(Object value, TypeInformation<?> type, Object parent) {
+		@Nullable
+		private <T> T readValue(@Nullable Object value, TypeInformation<?> type, Object parent) {
 
 			if (value == null) {
 				return null;
@@ -508,6 +510,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		}
 
+		@Nullable
 		private Object readWildcard(Map<String, ?> source, SolrPersistentProperty property, Object parent) {
 
 			WildcardPosition wildcardPosition = WildcardPosition.getAppropriate(property.getFieldName());
@@ -529,6 +532,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return null;
 		}
 
+		@Nullable
 		private Object readWildcardCollectionLike(Map<String, ?> source, SolrPersistentProperty property, Object parent,
 				WildcardPosition wildcardPosition) {
 
@@ -563,6 +567,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return values.isEmpty() ? null : (property.isArray() ? values.toArray() : values);
 		}
 
+		@Nullable
 		private Object readWildcardMap(Map<String, ?> source, SolrPersistentProperty property, Object parent,
 				WildcardPosition wildcardPosition) {
 
@@ -570,8 +575,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			Class<?> rawMapType = mapTypeInformation.getType();
 
 			Class<?> genericTargetType;
-			if (mapTypeInformation.getTypeArguments() != null
-					&& !mapTypeInformation.getTypeArguments().isEmpty()) {
+			if (mapTypeInformation.getTypeArguments() != null && !mapTypeInformation.getTypeArguments().isEmpty()) {
 				genericTargetType = mapTypeInformation.getTypeArguments().get(0).getType();
 			} else {
 				genericTargetType = Object.class;
@@ -626,7 +630,8 @@ public class MappingSolrConverter extends SolrConverterBase
 			return values.isEmpty() ? null : values;
 		}
 
-		private Object readValue(SolrPersistentProperty property, Object o, Object parent, Class<?> target) {
+		@Nullable
+		private Object readValue(SolrPersistentProperty property, Object o, Object parent, @Nullable Class<?> target) {
 
 			Object value = getValue(property, o, parent);
 
@@ -641,6 +646,7 @@ public class MappingSolrConverter extends SolrConverterBase
 			return value;
 		}
 
+		@Nullable
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
 			Assert.notNull(type, "Type must not be null!");
 

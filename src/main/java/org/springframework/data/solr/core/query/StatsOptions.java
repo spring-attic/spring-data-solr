@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -146,6 +147,7 @@ public class StatsOptions {
 	 * @param field
 	 * @return true if a distinct calculation shall be done selectively to the given field.
 	 */
+	@Nullable
 	public Boolean isSelectiveCalcDistincts(Field field) {
 		return state.selectiveCalcDistinct.get(field);
 	}

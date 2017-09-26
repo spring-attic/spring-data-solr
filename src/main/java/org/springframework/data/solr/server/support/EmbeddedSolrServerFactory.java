@@ -37,6 +37,7 @@ import org.apache.solr.core.CoreContainer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -54,7 +55,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
-	private String solrHome;
+	private @Nullable String solrHome;
 	private AtomicReference<CoreContainer> coreContainer = new AtomicReference<>(null);
 	private ConcurrentHashMap<String, EmbeddedSolrServer> servers = new ConcurrentHashMap<>();
 

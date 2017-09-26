@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -31,7 +32,7 @@ public class SimplePivotField implements PivotField {
 
 	private static final String DELIMINATOR = ",";
 	private final List<Field> fields = new ArrayList<>(2);
-	private String name;
+	private @Nullable String name;
 
 	/**
 	 * Create new {@link SimplePivotField}

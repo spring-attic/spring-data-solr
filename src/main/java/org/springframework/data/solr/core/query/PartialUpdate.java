@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.lang.Nullable;
+
 /**
  * Implementation of {@link Update} to be used when performing atomic updates against solr. <br />
  * Update can directly be saved via {@link org.springframework.data.solr.core.SolrOperations#saveBean(Object)}
@@ -28,7 +30,7 @@ import java.util.List;
 public class PartialUpdate implements Update {
 
 	private final ValueHoldingField idField;
-	private Object version;
+	private @Nullable Object version;
 	private final List<UpdateField> updates = new ArrayList<>();
 
 	public PartialUpdate(String idFieldName, Object idFieldValue) {
@@ -49,8 +51,8 @@ public class PartialUpdate implements Update {
 	}
 
 	/**
-	 * Add field with given name and value to the fields to be updated. Default {@link UpateAction} will be
-	 * {@link UpateAction.SET}.
+	 * Add field with given name and value to the fields to be updated. Default {@link UpdateAction} will be
+	 * {@link UpdateAction.SET}.
 	 * 
 	 * @param fieldName
 	 * @param value
@@ -69,7 +71,7 @@ public class PartialUpdate implements Update {
 	}
 
 	/**
-	 * Add field with given name and value using {@link UpateAction.ADD} to the fields to be updated.
+	 * Add field with given name and value using {@link UpdateAction#ADD} to the fields to be updated.
 	 * 
 	 * @param fieldName
 	 * @param value
@@ -79,7 +81,7 @@ public class PartialUpdate implements Update {
 	}
 
 	/**
-	 * Add field with given name and value using {@link UpateAction.SET} to the fields to be updated.
+	 * Add field with given name and value using {@link UpdateAction#SET} to the fields to be updated.
 	 * 
 	 * @param fieldName
 	 * @param value
@@ -89,7 +91,7 @@ public class PartialUpdate implements Update {
 	}
 
 	/**
-	 * Add field with given name and value using {@link UpateAction.INC} to the fields to be updated.
+	 * Add field with given name and value using {@link UpdateAction#INC} to the fields to be updated.
 	 * 
 	 * @param fieldName
 	 * @param value
@@ -103,6 +105,7 @@ public class PartialUpdate implements Update {
 		return Collections.unmodifiableList(updates);
 	}
 
+	@Nullable
 	@Override
 	public Object getVersion() {
 		return this.version;

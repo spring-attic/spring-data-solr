@@ -16,7 +16,6 @@
 package org.springframework.data.solr.server.support;
 
 import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
@@ -26,6 +25,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -38,8 +38,8 @@ import org.springframework.util.Assert;
  */
 public class HttpSolrClientFactory extends SolrClientFactoryBase {
 
-	private Credentials credentials;
-	private String authPolicy;
+	private @Nullable Credentials credentials;
+	private @Nullable String authPolicy;
 
 	protected HttpSolrClientFactory() {
 
@@ -49,7 +49,7 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 		this(solrClient, null, null);
 	}
 
-	public HttpSolrClientFactory(SolrClient solrClient, Credentials credentials, String authPolicy) {
+	public HttpSolrClientFactory(SolrClient solrClient, @Nullable Credentials credentials, @Nullable String authPolicy) {
 		super(solrClient);
 		Assert.notNull(solrClient, "SolrServer must not be null");
 

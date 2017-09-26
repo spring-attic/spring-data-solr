@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -25,9 +26,9 @@ import org.springframework.util.Assert;
  */
 class AbstractQuery {
 
-	private Criteria criteria;
-	private Join join;
-	private String requestHandler;
+	private @Nullable Criteria criteria;
+	private @Nullable Join join;
+	private @Nullable String requestHandler;
 
 	AbstractQuery() {}
 
@@ -38,11 +39,12 @@ class AbstractQuery {
 	/**
 	 * Add an criteria to the query. The criteria will be connected using 'AND'.
 	 * 
-	 * @param criteria
+	 * @param criteria must not be {@literal null}.
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public final <T extends SolrDataQuery> T addCriteria(Criteria criteria) {
+
 		Assert.notNull(criteria, "Cannot add null criteria.");
 
 		if (this.criteria == null) {
@@ -63,6 +65,7 @@ class AbstractQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Criteria getCriteria() {
 		return this.criteria;
 	}
@@ -77,10 +80,12 @@ class AbstractQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Join getJoin() {
 		return join;
 	}
 
+	@Nullable
 	public String getRequestHandler() {
 		return requestHandler;
 	}

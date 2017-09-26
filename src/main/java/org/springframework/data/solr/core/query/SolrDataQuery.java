@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
+
 /**
  * Common interface for any Query
  * 
@@ -33,6 +35,7 @@ public interface SolrDataQuery {
 	/**
 	 * @return
 	 */
+	@Nullable
 	Criteria getCriteria();
 
 	/**
@@ -43,6 +46,7 @@ public interface SolrDataQuery {
 	/**
 	 * @return
 	 */
+	@Nullable
 	Join getJoin();
 
 }

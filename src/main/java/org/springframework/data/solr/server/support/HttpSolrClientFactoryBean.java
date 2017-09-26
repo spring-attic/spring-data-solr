@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -36,9 +37,9 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory
 		implements FactoryBean<SolrClient>, InitializingBean, DisposableBean {
 
 	private static final String SERVER_URL_SEPARATOR = ",";
-	private String url;
-	private Integer timeout;
-	private Integer maxConnections;
+	private @Nullable String url;
+	private @Nullable Integer timeout;
+	private @Nullable Integer maxConnections;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

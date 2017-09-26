@@ -19,6 +19,8 @@ import java.io.Closeable;
 import java.io.Serializable;
 import java.util.Iterator;
 
+import org.springframework.lang.Nullable;
+
 /**
  * {@link Cursor} provides a lazy loading abstraction for fetching documents.
  * 
@@ -36,6 +38,7 @@ public interface Cursor<T> extends Iterator<T>, Closeable {
 	 * 
 	 * @return
 	 */
+	@Nullable
 	Serializable getCursorMark();
 
 	/**

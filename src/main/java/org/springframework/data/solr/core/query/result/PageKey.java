@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core.query.result;
 
+import org.springframework.lang.Nullable;
+
 /**
  * @author Christoph Strobl
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implmentation of an {@link AbstractQueryCreator} that constructs {@link Query}
@@ -58,7 +59,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 	}
 
 	@Override
-	protected Query and(Part part, Query base, Iterator<Object> iterator) {
+	protected Query and(Part part, @Nullable Query base, Iterator<Object> iterator) {
 		if (base == null) {
 			return create(part, iterator);
 		}
@@ -88,13 +89,10 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 
 	@Override
 	protected Query complete(Query query, Sort sort) {
-		if (query == null) {
-			return null;
-		}
 		return query.addSort(sort);
 	}
 
-	private Criteria from(Type type, Criteria instance, Iterator<?> parameters) {
+	private Criteria from(Type type, @Nullable Criteria instance, Iterator<?> parameters) {
 		Criteria criteria = instance;
 		if (criteria == null) {
 			criteria = new Criteria();
@@ -168,7 +166,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		return criteria;
 	}
 
-	private Object getBindableValue(BindableSolrParameter parameter) {
+	@Nullable
+	private Object getBindableValue(@Nullable BindableSolrParameter parameter) {
 		if (parameter == null) {
 			return null;
 		}

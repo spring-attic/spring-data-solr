@@ -30,6 +30,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Update;
+import org.springframework.lang.Nullable;
 
 /**
  * Trivial implementation of {@link SolrConverter} delegating conversion to {@link DocumentObjectBinder}
@@ -51,7 +52,7 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 	}
 
 	@Override
-	public <S, R> List<R> read(SolrDocumentList source, Class<R> type) {
+	public <S, R> List<R> read(@Nullable SolrDocumentList source, Class<R> type) {
 		if (source == null) {
 			return Collections.emptyList();
 		}
@@ -74,7 +75,7 @@ public class SolrJConverter extends SolrConverterBase implements SolrConverter {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void write(Object source, SolrDocumentBase sink) {
+	public void write(@Nullable Object source, SolrDocumentBase sink) {
 		if (source == null) {
 			return;
 		}

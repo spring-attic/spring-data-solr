@@ -38,25 +38,13 @@ import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterB
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
-import org.springframework.data.solr.core.query.FacetOptions;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.HighlightOptions;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
-import org.springframework.data.solr.core.query.HighlightQuery;
-import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SimpleFacetAndHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleFacetQuery;
-import org.springframework.data.solr.core.query.SimpleField;
-import org.springframework.data.solr.core.query.SimpleHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.SolrPageRequest;
-import org.springframework.data.solr.core.query.StatsOptions;
 import org.springframework.data.solr.core.query.StatsOptions.FieldStatsOptions;
 import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -110,7 +98,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 * @param solrOperations must not be null
 	 * @param solrQueryMethod must not be null
 	 */
-	protected AbstractSolrQuery(String collection, SolrOperations solrOperations, SolrQueryMethod solrQueryMethod) {
+	protected AbstractSolrQuery(@Nullable String collection, SolrOperations solrOperations,
+			SolrQueryMethod solrQueryMethod) {
 		Assert.notNull(solrOperations, "SolrOperations must not be null!");
 		Assert.notNull(solrQueryMethod, "SolrQueryMethod must not be null!");
 		this.solrOperations = solrOperations;
@@ -178,7 +167,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 	private void setDefaultQueryOperatorIfDefined(Query query) {
 		Query.Operator defaultOperator = solrQueryMethod.getDefaultOperator();
-		if (defaultOperator != null && !Query.Operator.NONE.equals(defaultOperator)) {
+		if (!Query.Operator.NONE.equals(defaultOperator)) {
 			query.setDefaultOperator(defaultOperator);
 		}
 	}
@@ -219,7 +208,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 	}
 
-	protected void appendProjection(Query query) {
+	protected void appendProjection(@Nullable Query query) {
 		if (query != null && this.getQueryMethod().hasProjectionFields()) {
 			for (String fieldname : this.getQueryMethod().getProjectionFields()) {
 				query.addProjectionOnField(new SimpleField(fieldname));
@@ -249,13 +238,13 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	}
 
 	@SuppressWarnings("rawtypes")
+	@Nullable
 	private String getParameterWithIndex(SolrParameterAccessor accessor, int index) {
-		Object parameter = accessor.getBindableValue(index);
 
+		Object parameter = accessor.getBindableValue(index);
 		if (parameter == null) {
 			return "null";
 		}
-
 		if (conversionService.canConvert(parameter.getClass(), String.class)) {
 			return conversionService.convert(parameter, String.class);
 		}
@@ -276,7 +265,9 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return parameter.toString();
 	}
 
+	@Nullable
 	private StatsOptions extractStatsOptions(SolrQueryMethod queryMethod, SolrParameterAccessor accessor) {
+
 		if (!queryMethod.hasStatsDefinition()) {
 			return null;
 		}
@@ -372,7 +363,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 	}
 
-	private boolean isSimpleHighlightingOption(String formatter) {
+	private boolean isSimpleHighlightingOption(@Nullable String formatter) {
 		return formatter == null || HighlightParams.SIMPLE.equalsIgnoreCase(formatter);
 	}
 
@@ -408,7 +399,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		return UNLIMITED;
 	}
 
-	protected Pageable getLimitingPageable(final Pageable source, final int limit) {
+	protected Pageable getLimitingPageable(@Nullable Pageable source, final int limit) {
 
 		if (source == null) {
 			return new SolrPageRequest(0, limit);
@@ -597,7 +588,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			Assert.isInstanceOf(FacetAndHighlightQuery.class, query, "Query must be instance of FacetAndHighlightQuery!");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
-			return solrOperations.queryForFacetAndHighlightPage(collection, (FacetAndHighlightQuery) query, metadata.getJavaType());
+			return solrOperations.queryForFacetAndHighlightPage(collection, (FacetAndHighlightQuery) query,
+					metadata.getJavaType());
 		}
 	}
 
@@ -653,14 +645,17 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 			return result;
 		}
 
+		@Nullable
 		private Object countOrGetDocumentsForDelete(Query query) {
 
 			Object result = null;
 
 			if (solrQueryMethod.isCollectionQuery()) {
 				Query clone = SimpleQuery.fromQuery(query);
-				result = solrOperations.queryForPage(collection, clone.setPageRequest(new SolrPageRequest(0, Integer.MAX_VALUE)),
-						solrQueryMethod.getEntityInformation().getJavaType()).getContent();
+				result = solrOperations
+						.queryForPage(collection, clone.setPageRequest(new SolrPageRequest(0, Integer.MAX_VALUE)),
+								solrQueryMethod.getEntityInformation().getJavaType())
+						.getContent();
 			}
 
 			if (ClassUtils.isAssignable(Number.class, solrQueryMethod.getReturnedObjectType())) {

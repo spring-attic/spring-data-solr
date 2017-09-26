@@ -75,6 +75,7 @@ import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreat
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -94,10 +95,16 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
 	private final QueryParsers queryParsers = new QueryParsers();
-	private MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
+	private @Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
-	private ApplicationContext applicationContext;
+	private @Nullable ApplicationContext applicationContext;
 	private final RequestMethod defaultRequestMethod;
+
+	private @Nullable SolrClientFactory solrClientFactory;
+
+	private @Nullable SolrConverter solrConverter;
+
+	private Set<Feature> schemaCreationFeatures = Collections.emptySet();
 
 	@SuppressWarnings("serial") //
 	private static final List<String> ITERABLE_CLASSES = new ArrayList<String>() {
@@ -107,12 +114,6 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			add(Iterator.class.getName());
 		}
 	};
-
-	private SolrClientFactory solrClientFactory;
-
-	private SolrConverter solrConverter;
-
-	private Set<Feature> schemaCreationFeatures;
 
 	public SolrTemplate(SolrClient solrClient) {
 		this(new HttpSolrClientFactory(solrClient));
@@ -130,7 +131,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this(solrClientFactory, null, requestMethod);
 	}
 
-	public SolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter) {
+	public SolrTemplate(SolrClientFactory solrClientFactory, @Nullable SolrConverter solrConverter) {
 		this(solrClientFactory, solrConverter, RequestMethod.GET);
 	}
 
@@ -140,8 +141,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @param defaultRequestMethod can be {@literal null}. Will be defaulted to {@link RequestMethod#GET}
 	 * @since 2.0
 	 */
-	public SolrTemplate(SolrClientFactory solrClientFactory, SolrConverter solrConverter,
-			RequestMethod defaultRequestMethod) {
+	public SolrTemplate(SolrClientFactory solrClientFactory, @Nullable SolrConverter solrConverter,
+			@Nullable RequestMethod defaultRequestMethod) {
 
 		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'.");
 
@@ -288,12 +289,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return Optional.empty();
 	}
 
-	private <T> SolrResultPage<T> doQueryForPage(Query query, Class<T> clazz, RequestMethod requestMethod) {
-		return doQueryForPage(null, query, clazz, requestMethod);
-	}
-
 	private <T> SolrResultPage<T> doQueryForPage(String collection, Query query, Class<T> clazz,
-			RequestMethod requestMethod) {
+			@Nullable RequestMethod requestMethod) {
 
 		QueryResponse response = null;
 		NamedObjectsQuery namedObjectsQuery = new NamedObjectsQuery(query);
@@ -490,18 +487,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		return page;
 	}
 
-	final QueryResponse querySolr(SolrDataQuery query, Class<?> clazz) {
-		return querySolr(query, clazz, defaultRequestMethod);
-	}
-
-	final QueryResponse querySolr(SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
-		return querySolr(null, query, clazz, requestMethod);
-	}
-
-	final QueryResponse querySolr(String collection, SolrDataQuery query, Class<?> clazz, RequestMethod requestMethod) {
+	final QueryResponse querySolr(String collection, SolrDataQuery query, @Nullable Class<?> clazz,
+			@Nullable RequestMethod requestMethod) {
 
 		Assert.notNull(query, "Query must not be 'null'");
-		Assert.notNull(requestMethod, "RequestMethod must not be 'null'");
 
 		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
 
@@ -725,7 +714,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		}
 	}
 
-	private SolrRequest.METHOD getSolrRequestMethod(RequestMethod requestMethod) {
+	private SolrRequest.METHOD getSolrRequestMethod(@Nullable RequestMethod requestMethod) {
 
 		RequestMethod rm = requestMethod != null ? requestMethod : getDefaultRequestMethod();
 

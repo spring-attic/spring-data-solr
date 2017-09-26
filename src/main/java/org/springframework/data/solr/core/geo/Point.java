@@ -15,13 +15,15 @@
  */
 package org.springframework.data.solr.core.geo;
 
+import org.springframework.lang.Nullable;
+
 /**
  * @author Christoph Strobl
  * @since 1.1
  */
 public class Point extends org.springframework.data.geo.Point {
 
-	private Double z;
+	private @Nullable Double z;
 
 	public Point(double x, double y) {
 		super(x, y);
@@ -32,6 +34,7 @@ public class Point extends org.springframework.data.geo.Point {
 		this.z = z;
 	}
 
+	@Nullable
 	public Double getZ() {
 		return z;
 	}

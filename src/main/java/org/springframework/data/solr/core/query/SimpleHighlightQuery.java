@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.query;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 
 /**
  * Trivial implementation of {@link HighlightQuery} extending {@link SimpleQuery}.
@@ -24,13 +25,13 @@ import org.springframework.data.domain.Pageable;
  */
 public class SimpleHighlightQuery extends SimpleQuery implements HighlightQuery {
 
-	private HighlightOptions highlightOptions;
+	private @Nullable HighlightOptions highlightOptions;
 
 	public SimpleHighlightQuery() {
 		super();
 	}
 
-	public SimpleHighlightQuery(Criteria criteria, Pageable pageable) {
+	public SimpleHighlightQuery(Criteria criteria, @Nullable Pageable pageable) {
 		super(criteria, pageable);
 	}
 
@@ -45,6 +46,7 @@ public class SimpleHighlightQuery extends SimpleQuery implements HighlightQuery 
 		return (T) this;
 	}
 
+	@Nullable
 	@Override
 	public HighlightOptions getHighlightOptions() {
 		return this.highlightOptions;

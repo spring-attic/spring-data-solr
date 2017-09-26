@@ -16,10 +16,11 @@
 package org.springframework.data.solr.core.mapping;
 
 import org.springframework.data.mapping.context.AbstractMappingContext;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator;
 import org.springframework.data.util.TypeInformation;
-import org.springframework.data.mapping.model.Property;
+import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implementation of {@link org.springframework.data.mapping.context.MappingContext}
@@ -33,7 +34,7 @@ public class SimpleSolrMappingContext
 		this(null);
 	}
 
-	public SimpleSolrMappingContext(SolrPersistentEntitySchemaCreator schemaCreator) {
+	public SimpleSolrMappingContext(@Nullable SolrPersistentEntitySchemaCreator schemaCreator) {
 		if (schemaCreator != null) {
 			setApplicationEventPublisher(new SolrMappingEventPublisher(schemaCreator));
 		}

@@ -21,6 +21,7 @@ import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -47,7 +48,8 @@ public class SolrSchemaResolver {
 		return schemaDefinition;
 	}
 
-	protected FieldDefinition createFieldDefinitionForProperty(SolrPersistentProperty property) {
+	@Nullable
+	protected FieldDefinition createFieldDefinitionForProperty(@Nullable SolrPersistentProperty property) {
 
 		if (property == null || property.isReadonly() || property.isTransient()) {
 			return null;

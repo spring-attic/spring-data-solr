@@ -26,6 +26,7 @@ import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -52,9 +53,9 @@ public class FacetOptions {
 
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
-	private String facetPrefix;
+	private @Nullable String facetPrefix;
 	private FacetSort facetSort = DEFAULT_FACET_SORT;
-	private Pageable pageable;
+	private @Nullable Pageable pageable;
 
 	public FacetOptions() {}
 
@@ -310,6 +311,7 @@ public class FacetOptions {
 	 * 
 	 * @return
 	 */
+	@Nullable
 	public String getFacetPrefix() {
 		return facetPrefix;
 	}
@@ -380,7 +382,7 @@ public class FacetOptions {
 
 	public static class FacetParameter extends QueryParameterImpl {
 
-		public FacetParameter(String parameter, Object value) {
+		public FacetParameter(String parameter, @Nullable Object value) {
 			super(parameter, value);
 		}
 
@@ -388,7 +390,7 @@ public class FacetOptions {
 
 	public static class FieldWithFacetParameters extends FieldWithQueryParameters<FacetParameter> {
 
-		private FacetSort sort;
+		private @Nullable FacetSort sort;
 
 		public FieldWithFacetParameters(String name) {
 			super(name);
@@ -405,6 +407,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public String getPrefix() {
 			return getQueryParameterValue(FacetParams.FACET_PREFIX);
 		}
@@ -420,6 +423,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public FacetSort getSort() {
 			return this.sort;
 		}
@@ -435,6 +439,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Integer getLimit() {
 			return getQueryParameterValue(FacetParams.FACET_LIMIT);
 		}
@@ -450,6 +455,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Integer getOffset() {
 			return getQueryParameterValue(FacetParams.FACET_OFFSET);
 		}
@@ -481,6 +487,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Boolean getMissing() {
 			return getQueryParameterValue(FacetParams.FACET_MISSING);
 		}
@@ -497,6 +504,7 @@ public class FacetOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public String getMethod() {
 			return getQueryParameterValue(FacetParams.FACET_METHOD);
 		}
@@ -507,11 +515,11 @@ public class FacetOptions {
 		 * @param parameterName
 		 * @param value
 		 */
-		public FieldWithFacetParameters addFacetParameter(String parameterName, Object value) {
+		public FieldWithFacetParameters addFacetParameter(String parameterName, @Nullable Object value) {
 			return addFacetParameter(parameterName, value, false);
 		}
 
-		protected FieldWithFacetParameters addFacetParameter(String parameterName, Object value,
+		protected FieldWithFacetParameters addFacetParameter(String parameterName, @Nullable Object value,
 				boolean removeIfValueIsNull) {
 			if (removeIfValueIsNull && value == null) {
 				removeQueryParameter(parameterName);
@@ -593,6 +601,7 @@ public class FacetOptions {
 		 * @return if hard end should be used, <code>null</code> will be returned if not set
 		 * @see FacetParams#FACET_RANGE_HARD_END
 		 */
+		@Nullable
 		public Boolean getHardEnd() {
 			return getQueryParameterValue(FacetParams.FACET_RANGE_HARD_END);
 		}
@@ -617,6 +626,7 @@ public class FacetOptions {
 		 * @return null which other counts shall be added to the facet result
 		 * @see FacetParams.FACET_RANGE_OTHER
 		 */
+		@Nullable
 		public FacetRangeOther getOther() {
 			return getQueryParameterValue(FacetParams.FACET_RANGE_OTHER);
 		}
@@ -641,6 +651,7 @@ public class FacetOptions {
 		 * @return null if not set
 		 * @see FacetParams.FACET_RANGE_INCLUDE
 		 */
+		@Nullable
 		public FacetRangeInclude getInclude() {
 			return getQueryParameterValue(FacetParams.FACET_RANGE_INCLUDE);
 		}

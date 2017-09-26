@@ -26,6 +26,7 @@ import org.springframework.data.convert.EntityReader;
 import org.springframework.data.convert.EntityWriter;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -42,7 +43,7 @@ EntityConverter<SolrPersistentEntity<?>, SolrPersistentProperty, Object, SolrDoc
 	 * @param type
 	 * @return empty list if {@code source == null || source.isEmpty()}
 	 */
-	<S, R> List<R> read(SolrDocumentList source, Class<R> type);
+	<S, R> List<R> read(@Nullable SolrDocumentList source, Class<R> type);
 
 	/**
 	 * Write values to {@link List} of {@link SolrInputDocument}

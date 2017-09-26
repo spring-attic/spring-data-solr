@@ -46,6 +46,7 @@ import org.springframework.data.solr.repository.query.SolrQueryMethod;
 import org.springframework.data.solr.repository.query.StringBasedSolrQuery;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -57,7 +58,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	private SolrOperations solrOperations;
 	private final SolrEntityInformationCreator entityInformationCreator;
-	private SolrClientFactory factory;
+	private @Nullable SolrClientFactory factory;
 	private SolrTemplateHolder templateHolder = new SolrTemplateHolder();
 	private boolean schemaCreationSupport;
 
@@ -95,7 +96,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 
 	}
 
-	private SolrTemplate createTemplate(SolrClient solrClient, SolrConverter converter) {
+	private SolrTemplate createTemplate(SolrClient solrClient, @Nullable SolrConverter converter) {
 
 		SolrTemplate template = new SolrTemplate(solrClient);
 
@@ -155,7 +156,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	}
 
 	@Override
-	protected Optional<QueryLookupStrategy> getQueryLookupStrategy(Key key,
+	protected Optional<QueryLookupStrategy> getQueryLookupStrategy(@Nullable Key key,
 			EvaluationContextProvider evaluationContextProvider) {
 
 		return Optional.of(new SolrQueryLookupStrategy());

@@ -17,6 +17,7 @@ package org.springframework.data.solr.core.query;
 
 import java.util.Collections;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -62,7 +63,8 @@ public class CurrencyFunction extends AbstractFunction {
 	 * @param currencyCode
 	 * @return
 	 */
-	public static CurrencyFunction currency(Field field, String currencyCode) {
+	public static CurrencyFunction currency(Field field, @Nullable String currencyCode) {
+
 		Assert.notNull(field, "Field for currency function must not be 'null'.");
 
 		return currency(field.getName(), currencyCode);
@@ -76,7 +78,7 @@ public class CurrencyFunction extends AbstractFunction {
 	 * @param currencyCode
 	 * @return
 	 */
-	public static CurrencyFunction currency(String fieldname, String currencyCode) {
+	public static CurrencyFunction currency(String fieldname, @Nullable String currencyCode) {
 		Assert.hasText(fieldname, "Fieldname for currency function must not be 'empty'.");
 
 		CurrencyFunction function = new CurrencyFunction(fieldname);

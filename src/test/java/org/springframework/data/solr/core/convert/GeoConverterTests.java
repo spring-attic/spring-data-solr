@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ public class GeoConverterTests {
 
 	public static class DistanceConverterTests {
 
-		@Test
+		@Test(expected = IllegalArgumentException.class)
 		public void testConvertDistanceToStringWithNull() {
-			Assert.assertNull(GeoConverters.DistanceToStringConverter.INSTANCE.convert(null));
+			GeoConverters.DistanceToStringConverter.INSTANCE.convert(null);
 		}
 
 		@Test
@@ -61,9 +61,9 @@ public class GeoConverterTests {
 
 	public static class PointConverterTests {
 
-		@Test
+		@Test(expected = IllegalArgumentException.class)
 		public void testConvertPointToStringWithNull() {
-			Assert.assertNull(GeoConverters.Point3DToStringConverter.INSTANCE.convert(null));
+			GeoConverters.Point3DToStringConverter.INSTANCE.convert(null);
 		}
 
 		@Test

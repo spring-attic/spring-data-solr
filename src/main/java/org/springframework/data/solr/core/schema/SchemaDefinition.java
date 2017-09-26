@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -35,12 +36,12 @@ import org.springframework.util.ObjectUtils;
  */
 public class SchemaDefinition {
 
-	private String collectionName;
-	private List<FieldDefinition> fields;
-	private List<CopyFieldDefinition> copyFields;
-	private String name;
-	private Double version;
-	private String uniqueKey;
+	private @Nullable String collectionName;
+	private List<FieldDefinition> fields = new ArrayList<>();
+	private List<CopyFieldDefinition> copyFields = new ArrayList<>();
+	private @Nullable String name;
+	private @Nullable Double version;
+	private @Nullable String uniqueKey;
 
 	public SchemaDefinition() {}
 
@@ -49,6 +50,7 @@ public class SchemaDefinition {
 		this.fields = new ArrayList<>();
 	}
 
+	@Nullable
 	public String getCollectionName() {
 		return collectionName;
 	}
@@ -57,10 +59,11 @@ public class SchemaDefinition {
 		return fields;
 	}
 
-	public void setFields(List<FieldDefinition> fields) {
+	public void setFields(@Nullable List<FieldDefinition> fields) {
 		this.fields = fields != null ? fields : new ArrayList<>();
 	}
 
+	@Nullable
 	public String getName() {
 		return name;
 	}
@@ -69,6 +72,7 @@ public class SchemaDefinition {
 		this.name = name;
 	}
 
+	@Nullable
 	public Double getVersion() {
 		return version;
 	}
@@ -77,6 +81,7 @@ public class SchemaDefinition {
 		this.version = version;
 	}
 
+	@Nullable
 	public String getUniqueKey() {
 		return uniqueKey;
 	}
@@ -89,6 +94,7 @@ public class SchemaDefinition {
 		return getFieldDefinition(name) != null;
 	}
 
+	@Nullable
 	public FieldDefinition getFieldDefinition(String name) {
 
 		if (CollectionUtils.isEmpty(this.fields)) {
@@ -105,18 +111,10 @@ public class SchemaDefinition {
 	}
 
 	public void addFieldDefinition(FieldDefinition fieldDef) {
-
-		if (this.fields == null) {
-			this.fields = new ArrayList<>();
-		}
 		this.fields.add(fieldDef);
 	}
 
 	public void addCopyField(CopyFieldDefinition copyField) {
-
-		if (this.copyFields == null) {
-			this.copyFields = new ArrayList<>();
-		}
 		this.copyFields.add(copyField);
 	}
 
@@ -142,14 +140,14 @@ public class SchemaDefinition {
 	@NoArgsConstructor
 	public static class FieldDefinition implements SchemaField {
 
-		private String name;
-		private String type;
+		private @Nullable String name;
+		private @Nullable String type;
 		private boolean stored;
 		private boolean indexed;
-		private Object defaultValue;
-		private List<String> copyFields;
-		private List<Filter> filters;
-		private List<Tokenizer> tokenizers;
+		private @Nullable Object defaultValue;
+		private List<String> copyFields = Collections.emptyList();
+		private List<Filter> filters = Collections.emptyList();
+		private List<Tokenizer> tokenizers = Collections.emptyList();
 		private boolean multiValued;
 		private boolean required;
 
@@ -178,7 +176,7 @@ public class SchemaDefinition {
 			return values;
 		}
 
-		private void addIfNotNull(String key, Object value, Map<String, Object> dest) {
+		private void addIfNotNull(String key, @Nullable Object value, Map<String, Object> dest) {
 			if (value != null) {
 				dest.put(key, value);
 			}
@@ -205,7 +203,7 @@ public class SchemaDefinition {
 			return fd;
 		}
 
-		private static <T> T valueFromMap(String key, Map<String, Object> source, T defaultValue) {
+		private static <T> T valueFromMap(String key, Map<String, Object> source, @Nullable T defaultValue) {
 
 			if (source.containsKey(key)) {
 				return (T) source.get(key);
@@ -289,8 +287,8 @@ public class SchemaDefinition {
 	@Data
 	public static class CopyFieldDefinition implements SchemaField {
 
-		String source;
-		List<String> destination;
+		@Nullable String source;
+		List<String> destination = Collections.emptyList();
 
 		public static CopyFieldDefinition fromMap(Map<String, Object> fieldValueMap) {
 
@@ -301,7 +299,9 @@ public class SchemaDefinition {
 			if (dest instanceof Collection) {
 				cfd.destination = new ArrayList<>((Collection<String>) dest);
 			} else if (fieldValueMap.get("dest") instanceof String) {
-				cfd.destination = Collections.<String> singletonList(dest.toString());
+				cfd.destination = Collections.singletonList(dest.toString());
+			} else {
+				cfd.destination = Collections.emptyList();
 			}
 
 			return cfd;
@@ -356,10 +356,10 @@ public class SchemaDefinition {
 	 */
 	public static class Filter {
 
-		String clazz;
-		String pattern;
-		String replace;
-		String replacement;
+		@Nullable String clazz;
+		@Nullable String pattern;
+		@Nullable String replace;
+		@Nullable String replacement;
 	}
 
 	/**
@@ -368,7 +368,7 @@ public class SchemaDefinition {
 	 */
 	public static class Tokenizer {
 
-		String clazz;
+		@Nullable String clazz;
 	}
 
 	public static class FieldDefinitionBuilder {

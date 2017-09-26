@@ -266,7 +266,7 @@ public class SimpleQueryTests {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
 		query.addSort(null);
 
-		Assert.assertNull(query.getSort());
+		Assert.assertEquals(query.getSort(), Sort.unsorted());
 	}
 
 	@Test

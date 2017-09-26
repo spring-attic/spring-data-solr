@@ -21,12 +21,14 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Set of options that could be set for a {@link Query} in order to have grouped results.
  * 
  * @author Francisco Spaeth
+ * @author Christoph Strobl
  * @since 1.4
  */
 public class GroupOptions {
@@ -38,10 +40,10 @@ public class GroupOptions {
 	private List<Function> groupByFunctions = new ArrayList<>(0);
 	private List<Query> groupByQuery = new ArrayList<>(0);
 
-	private Integer offset = null;
-	private Integer limit = null;
+	private @Nullable Integer offset = null;
+	private @Nullable Integer limit = null;
 
-	private Sort sort;
+	private @Nullable Sort sort;
 
 	private boolean truncateFacets = false;
 	private boolean groupFacets = false;
@@ -135,7 +137,7 @@ public class GroupOptions {
 	 * @param offset
 	 * @return
 	 */
-	public GroupOptions setOffset(Integer offset) {
+	public GroupOptions setOffset(@Nullable Integer offset) {
 
 		this.offset = offset == null ? null : Math.max(0, offset);
 		return this;
@@ -144,6 +146,7 @@ public class GroupOptions {
 	/**
 	 * @return initial offset of each group
 	 */
+	@Nullable
 	public Integer getOffset() {
 		return offset;
 	}
@@ -151,6 +154,7 @@ public class GroupOptions {
 	/**
 	 * @return the number of rows to return for each group.
 	 */
+	@Nullable
 	public Integer getLimit() {
 		return limit;
 	}
@@ -173,7 +177,7 @@ public class GroupOptions {
 	 * @param sort
 	 * @return
 	 */
-	public GroupOptions addSort(Sort sort) {
+	public GroupOptions addSort(@Nullable Sort sort) {
 
 		if (sort == null) {
 			return this;
@@ -191,6 +195,7 @@ public class GroupOptions {
 	/**
 	 * @return sort instruction on how to sort elements within a single group.
 	 */
+	@Nullable
 	public Sort getSort() {
 		return sort;
 	}
@@ -290,6 +295,7 @@ public class GroupOptions {
 		return groupMain;
 	}
 
+	@Nullable
 	public Pageable getPageRequest() {
 
 		if (this.limit == null && this.offset == null) {

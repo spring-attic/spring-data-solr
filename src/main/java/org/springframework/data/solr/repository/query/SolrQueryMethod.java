@@ -41,6 +41,7 @@ import org.springframework.data.solr.repository.Spellcheck;
 import org.springframework.data.solr.repository.Stats;
 import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -79,6 +80,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return this.method.getAnnotation(Query.class) != null;
 	}
 
+	@Nullable
 	String getAnnotatedQuery() {
 		return getAnnotationValueAsStringOrNullIfBlank(getQueryAnnotation(), "value");
 	}
@@ -90,6 +92,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return getAnnotatedNamedQueryName() != null;
 	}
 
+	@Nullable
 	String getAnnotatedNamedQueryName() {
 		return getAnnotationValueAsStringOrNullIfBlank(getQueryAnnotation(), "name");
 	}
@@ -119,6 +122,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return null if {@link Query#timeAllowed()} is null or negative
 	 */
+	@Nullable
 	public Integer getTimeAllowed() {
 		if (hasQueryAnnotation()) {
 			return getAnnotationValueAsIntOrNullIfNegative(getQueryAnnotation(), "timeAllowed");
@@ -183,6 +187,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return hasFacetAnnotation() && !CollectionUtils.isEmpty(getFacetQueries());
 	}
 
+	@Nullable
 	private Facet getFacetAnnotation() {
 		return this.method.getAnnotation(Facet.class);
 	}
@@ -190,6 +195,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Facet#limit()}
 	 */
+	@Nullable
 	public Integer getFacetLimit() {
 
 		Facet facetAnnotation = getFacetAnnotation();
@@ -204,6 +210,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Facet#minCount()}
 	 */
+	@Nullable
 	public Integer getFacetMinCount() {
 
 		Facet facetAnnotation = getFacetAnnotation();
@@ -218,6 +225,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Facet#prefix()}
 	 */
+	@Nullable
 	public String getFacetPrefix() {
 		return getAnnotationValueAsStringOrNullIfBlank(getFacetAnnotation(), "prefix");
 	}
@@ -225,6 +233,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return the {@link Stats} annotation, null if there is none
 	 */
+	@Nullable
 	private Stats getStatsAnnotation() {
 		return this.method.getAnnotation(Stats.class);
 	}
@@ -318,6 +327,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return hasQueryAnnotation() && (Boolean) AnnotationUtils.getValue(getQueryAnnotation(), "delete");
 	}
 
+	@Nullable
 	private Annotation getHighlightAnnotation() {
 		return this.method.getAnnotation(Highlight.class);
 	}
@@ -346,6 +356,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return null if {@link Highlight#query()} is blank
 	 */
+	@Nullable
 	public String getHighlightQuery() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "query");
@@ -356,6 +367,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Highlight#snipplets()} or null if negative
 	 */
+	@Nullable
 	public Integer getHighlighSnipplets() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsIntOrNullIfNegative(getHighlightAnnotation(), "snipplets");
@@ -366,6 +378,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Highlight#fragsize()} or null if negative
 	 */
+	@Nullable
 	public Integer getHighlightFragsize() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsIntOrNullIfNegative(getHighlightAnnotation(), "fragsize");
@@ -376,6 +389,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Highlight#formatter()} or null if blank
 	 */
+	@Nullable
 	public String getHighlightFormatter() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "formatter");
@@ -386,6 +400,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Highlight#prefix()} or null if blank
 	 */
+	@Nullable
 	public String getHighlightPrefix() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "prefix");
@@ -396,6 +411,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return value of {@link Highlight#postfix()} or null if blank
 	 */
+	@Nullable
 	public String getHighlightPostfix() {
 		if (hasHighlightAnnotation()) {
 			return getAnnotationValueAsStringOrNullIfBlank(getHighlightAnnotation(), "postfix");
@@ -419,6 +435,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 *         {@link org.springframework.data.solr.core.query.Query.Operator#NONE} if not set
 	 */
 	public org.springframework.data.solr.core.query.Query.Operator getDefaultOperator() {
+
 		if (hasQueryAnnotation()) {
 			return getQueryAnnotation().defaultOperator();
 		}
@@ -428,6 +445,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return null if {@link Query#defType()} not set
 	 */
+	@Nullable
 	public String getDefType() {
 		if (hasQueryAnnotation()) {
 			return getQueryAnnotation().defType();
@@ -438,6 +456,7 @@ public class SolrQueryMethod extends QueryMethod {
 	/**
 	 * @return null if {@link Query#requestHandler()} not set
 	 */
+	@Nullable
 	public String getRequestHandler() {
 		if (hasQueryAnnotation()) {
 			return getQueryAnnotation().requestHandler();
@@ -449,6 +468,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return
 	 * @since 2.1
 	 */
+	@Nullable
 	public Spellcheck getSpellcheckAnnotation() {
 		return AnnotatedElementUtils.findMergedAnnotation(this.method, Spellcheck.class);
 	}
@@ -465,6 +485,7 @@ public class SolrQueryMethod extends QueryMethod {
 	 * @return
 	 * @since 2.1
 	 */
+	@Nullable
 	public SpellcheckOptions getSpellcheckOptions() {
 
 		Spellcheck spellcheck = getSpellcheckAnnotation();
@@ -518,7 +539,7 @@ public class SolrQueryMethod extends QueryMethod {
 		return sc;
 	}
 
-	private String getAnnotationValueAsStringOrNullIfBlank(Annotation annotation, String attributeName) {
+	private String getAnnotationValueAsStringOrNullIfBlank(@Nullable Annotation annotation, String attributeName) {
 
 		if (annotation == null) {
 			return null;
@@ -529,7 +550,8 @@ public class SolrQueryMethod extends QueryMethod {
 		return StringUtils.hasText(value) ? value : null;
 	}
 
-	private Integer getAnnotationValueAsIntOrNullIfNegative(Annotation annotation, String attributeName) {
+	@Nullable
+	private Integer getAnnotationValueAsIntOrNullIfNegative(@Nullable Annotation annotation, String attributeName) {
 
 		if (annotation == null) {
 			return null;
@@ -545,7 +567,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<String> getAnnotationValuesAsStringList(Annotation annotation, String attribute) {
+	private List<String> getAnnotationValuesAsStringList(@Nullable Annotation annotation, String attribute) {
 
 		if (annotation == null) {
 			return Collections.emptyList();
@@ -559,7 +581,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> List<T> getAnnotationValuesList(Annotation annotation, String attribute, Class<T> clazz) {
+	private <T> List<T> getAnnotationValuesList(@Nullable Annotation annotation, String attribute, Class<T> clazz) {
 
 		if (annotation == null) {
 			return Collections.emptyList();

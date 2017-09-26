@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.lang.Nullable;
 
 /**
  * Specialization of {@link StatsResult} to represent statistic information for a field.
@@ -55,6 +56,7 @@ public interface FieldStatsResult extends StatsResult {
 	 * 
 	 * @return distinct count, {@literal null} when not requested
 	 */
+	@Nullable
 	Long getDistinctCount();
 
 	/**

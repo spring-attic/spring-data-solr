@@ -320,11 +320,9 @@ public class MappingSolrConverterTests {
 		Assert.assertEquals(1995, ((Map<String, Object>) solrDocument.getFieldValue("since")).get("set"));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testWriteNullToSolrInputDocumentColletion() {
-		Collection<?> result = converter.write((Iterable<?>) null);
-		Assert.assertNotNull(result);
-		Assert.assertThat(result, IsEmptyCollection.empty());
+		converter.write(null);
 	}
 
 	@Test

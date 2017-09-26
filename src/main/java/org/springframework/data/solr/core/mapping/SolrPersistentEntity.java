@@ -16,6 +16,7 @@
 package org.springframework.data.solr.core.mapping;
 
 import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.lang.Nullable;
 
 /**
  * @param <T>
@@ -40,6 +41,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	/**
 	 * @return entity's boost value if {@link #isBoosted()}, null otherwise
 	 */
+	@Nullable
 	Float getBoost();
 
 	/**
@@ -58,6 +60,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	 * @return the score {@link SolrPersistentProperty} of the {@link PersistentEntity} or {@literal null} if not defined.
 	 * @since 1.4
 	 */
+	@Nullable
 	SolrPersistentProperty getScoreProperty();
 
 }

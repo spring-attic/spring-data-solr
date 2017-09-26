@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -25,9 +26,9 @@ import org.springframework.util.Assert;
  */
 public class Join {
 
-	private Field from;
-	private Field to;
-	private String fromIndex;
+	private @Nullable Field from;
+	private @Nullable Field to;
+	private @Nullable String fromIndex;
 
 	private Join() {
 		// hide default constructor
@@ -45,7 +46,7 @@ public class Join {
 	 * @param fromIndex
 	 * @since 2.0
 	 */
-	public Join(Field from, Field to, String fromIndex) {
+	public Join(Field from, Field to, @Nullable String fromIndex) {
 		this.from = from;
 		this.to = to;
 		this.fromIndex = fromIndex;
@@ -70,6 +71,7 @@ public class Join {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Field getFrom() {
 		return from;
 	}
@@ -77,6 +79,7 @@ public class Join {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Field getTo() {
 		return to;
 	}
@@ -85,6 +88,7 @@ public class Join {
 	 * @return can be {@literal null}.
 	 * @since 2.0
 	 */
+	@Nullable
 	public String getFromIndex() {
 		return fromIndex;
 	}

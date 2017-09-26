@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -369,7 +369,7 @@ public class SolrTemplateTests {
 		};
 
 		solrTemplate.registerQueryParser(SimpleQuery.class, parser);
-		solrTemplate.querySolr(new SimpleQuery(new SimpleStringCriteria("my:criteria")), null);
+		solrTemplate.querySolr("collection-1", new SimpleQuery(new SimpleStringCriteria("my:criteria")), null, null);
 
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
 
@@ -485,7 +485,7 @@ public class SolrTemplateTests {
 
 		when(solrClientMock.query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.POST)))
 				.thenReturn(new QueryResponse());
-		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class);
+		solrTemplate.querySolr(COLLECTION_NAME, new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, null);
 
 		verify(solrClientMock, times(1)).query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.POST));
 	}
@@ -498,7 +498,8 @@ public class SolrTemplateTests {
 
 		when(solrClientMock.query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.PUT)))
 				.thenReturn(new QueryResponse());
-		solrTemplate.querySolr(new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class, RequestMethod.PUT);
+		solrTemplate.querySolr(COLLECTION_NAME, new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class,
+				RequestMethod.PUT);
 
 		verify(solrClientMock, times(1)).query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.PUT));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,19 +48,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.FacetOptions;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.GroupOptions;
-import org.springframework.data.solr.core.query.PivotField;
-import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.SimpleFacetQuery;
-import org.springframework.data.solr.core.query.SimpleField;
-import org.springframework.data.solr.core.query.SimplePivotField;
-import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.FacetFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
 import org.springframework.data.solr.core.query.result.FacetQueryEntry;
@@ -389,12 +377,12 @@ public class ResultHelperTests {
 			Assert.assertNotNull(pivot.get(0).getField());
 			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
 			Assert.assertEquals(7, pivot.get(0).getValueCount());
-			Assert.assertNull(pivot.get(0).getPivot());
+			Assert.assertEquals(pivot.get(0).getPivot(), Collections.emptyList());
 			Assert.assertEquals("value_1_2", pivot.get(1).getValue());
 			Assert.assertNotNull(pivot.get(1).getField());
 			Assert.assertEquals("field_2", pivot.get(1).getField().getName());
 			Assert.assertEquals(3, pivot.get(1).getValueCount());
-			Assert.assertNull(pivot.get(1).getPivot());
+			Assert.assertEquals(pivot.get(1).getPivot(), Collections.emptyList());
 		}
 
 		{
@@ -403,7 +391,7 @@ public class ResultHelperTests {
 			Assert.assertNotNull(pivot.get(0).getField());
 			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
 			Assert.assertEquals(2, pivot.get(0).getValueCount());
-			Assert.assertNull(pivot.get(0).getPivot());
+			Assert.assertEquals(pivot.get(0).getPivot(), Collections.emptyList());
 		}
 
 		Assert.assertNotNull(resultPivot.get(0).getPivot().get(0));

@@ -26,6 +26,7 @@ import javax.activation.MimeTypeParseException;
 import org.apache.solr.client.solrj.ResponseParser;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StreamUtils;
 
 /**
@@ -42,7 +43,7 @@ public class MappingJacksonResponseParser extends ResponseParser {
 		this(defaultMimeType());
 	}
 
-	public MappingJacksonResponseParser(MimeType responseType) {
+	public MappingJacksonResponseParser(@Nullable MimeType responseType) {
 		this.responseType = responseType != null ? responseType : defaultMimeType();
 	}
 

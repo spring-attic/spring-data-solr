@@ -26,6 +26,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.convert.CustomConversions;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 /**
  * @author Christoph Strobl
@@ -37,10 +39,9 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 	private CustomConversions customConversions = new SolrCustomConversions(Collections.emptyList());
 
 	@Override
-	public Collection<SolrInputDocument> write(Iterable<?> source) {
-		if (source == null) {
-			return Collections.emptyList();
-		}
+	public Collection<SolrInputDocument> write(@Nullable Iterable<?> source) {
+
+		Assert.notNull(source, "Source must not be null!");
 
 		List<SolrInputDocument> resultList = new ArrayList<>();
 		for (Object bean : source) {
@@ -131,7 +132,7 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 	/**
 	 * @param customConversions
 	 */
-	public void setCustomConversions(CustomConversions customConversions) {
+	public void setCustomConversions(@Nullable CustomConversions customConversions) {
 		this.customConversions = customConversions != null ? customConversions : new SolrCustomConversions(Collections.emptyList());
 	}
 
@@ -156,6 +157,7 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 	 * @param targetType
 	 * @return
 	 */
+	@Nullable
 	protected <T> T convert(Object source, Class<T> targetType) {
 		return this.conversionService.convert(source, targetType);
 	}

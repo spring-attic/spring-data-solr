@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implementation of {@code Pageable} allowing zero sized pages.
@@ -27,7 +28,7 @@ import org.springframework.data.domain.Sort.Direction;
  */
 public class SolrPageRequest implements Pageable {
 
-	private Sort sort;
+	private @Nullable Sort sort;
 	private int page;
 	private int size;
 
@@ -38,7 +39,7 @@ public class SolrPageRequest implements Pageable {
 	 * @param size the size of the page to be returned.
 	 */
 	public SolrPageRequest(int page, int size) {
-		this(page, size, null);
+		this(page, size, Sort.unsorted());
 	}
 
 	/**
@@ -60,7 +61,7 @@ public class SolrPageRequest implements Pageable {
 	 * @param size the size of the page to be returned.
 	 * @param sort can be {@literal null}.
 	 */
-	public SolrPageRequest(int page, int size, Sort sort) {
+	public SolrPageRequest(int page, int size, @Nullable Sort sort) {
 		this.page = page;
 		this.size = size;
 		this.sort = sort;
@@ -99,7 +100,7 @@ public class SolrPageRequest implements Pageable {
 	 */
 	@Override
 	public Sort getSort() {
-		return sort;
+		return sort != null ? sort : Sort.unsorted();
 	}
 
 	/*

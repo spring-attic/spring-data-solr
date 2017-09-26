@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.util.Assert;
 
@@ -24,8 +25,8 @@ import org.springframework.util.Assert;
  */
 public class SolrTransactionSynchronizationAdapterBuilder {
 
-	SolrTransactionSynchronizationAdapter adapter;
-	private String collectionName;
+	@Nullable SolrTransactionSynchronizationAdapter adapter;
+	@Nullable private String collectionName;
 
 	/**
 	 * @param solrOperations must not be {@literal null}

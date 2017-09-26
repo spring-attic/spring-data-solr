@@ -55,6 +55,7 @@ import org.springframework.data.solr.core.query.QueryParameter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.SpellcheckOptions;
 import org.springframework.data.solr.core.query.StatsOptions;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -250,7 +251,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		SpellcheckOptions options = query.getSpellcheckOptions();
 
-		if (options.getQuery() != null) {
+		if (options.getQuery() != null && options.getQuery().getCriteria() != null) {
 			solrQuery.set(SpellingParams.SPELLCHECK_Q, createQueryStringFromCriteria(options.getQuery().getCriteria()));
 		}
 
@@ -461,7 +462,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	 * @param solrQuery
 	 * @param sort
 	 */
-	protected void appendSort(SolrQuery solrQuery, Sort sort) {
+	protected void appendSort(SolrQuery solrQuery, @Nullable Sort sort) {
 		if (sort == null) {
 			return;
 		}

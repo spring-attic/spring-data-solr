@@ -32,6 +32,7 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -51,18 +52,18 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<>(1);
 	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<>();
 	private Map<PageKey, Page<FacetFieldEntry>> facetRangeResultPages = new LinkedHashMap<>(1);
-	private Page<FacetQueryEntry> facetQueryResult;
-	private List<HighlightEntry<T>> highlighted;
-	private Float maxScore;
+	private @Nullable Page<FacetQueryEntry> facetQueryResult;
+	private List<HighlightEntry<T>> highlighted = Collections.emptyList();
+	private @Nullable Float maxScore;
 	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
-	private Map<String, FieldStatsResult> fieldStatsResults;
+	private Map<String, FieldStatsResult> fieldStatsResults = Collections.emptyMap();
 	private Map<String, List<Alternative>> suggestions = new LinkedHashMap<>();
 
 	public SolrResultPage(List<T> content) {
 		super(content);
 	}
 
-	public SolrResultPage(List<T> content, Pageable pageable, long total, Float maxScore) {
+	public SolrResultPage(List<T> content, Pageable pageable, long total, @Nullable Float maxScore) {
 		super(content, pageable, total);
 		this.maxScore = maxScore;
 	}
@@ -200,7 +201,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public List<HighlightEntry<T>> getHighlighted() {
-		return this.highlighted != null ? this.highlighted : Collections.<HighlightEntry<T>> emptyList();
+		return this.highlighted;
 	}
 
 	public void setHighlighted(List<HighlightEntry<T>> highlighted) {
@@ -209,7 +210,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public List<Highlight> getHighlights(T entity) {
-		if (entity != null && this.highlighted != null) {
+		if (entity != null) {
 			for (HighlightEntry<T> highlightEntry : this.highlighted) {
 				if (highlightEntry != null && ObjectUtils.nullSafeEquals(highlightEntry.getEntity(), entity)) {
 					return highlightEntry.getHighlights();
@@ -231,6 +232,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.result.ScoredPage#getMaxScore()
 	 */
+	@Nullable
 	@Override
 	public Float getMaxScore() {
 		return maxScore;

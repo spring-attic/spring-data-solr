@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.solr.common.params.HighlightParams;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -35,7 +36,7 @@ public class HighlightOptions {
 	public static final Field ALL_FIELDS = () -> Criteria.WILDCARD;
 
 	private final ParameterHolder<HighlightParameter> parameterHolder = new ParameterHolder<>();
-	private FilterQuery query;
+	private @Nullable FilterQuery query;
 	private final List<Field> fields = new ArrayList<>(1);
 
 	/**
@@ -94,6 +95,7 @@ public class HighlightOptions {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public FilterQuery getQuery() {
 		return this.query;
 	}
@@ -111,6 +113,7 @@ public class HighlightOptions {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Integer getFragsize() {
 		return this.parameterHolder.getParameterValue(HighlightParams.FRAGSIZE);
 	}
@@ -128,6 +131,7 @@ public class HighlightOptions {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public String getFormatter() {
 		return this.parameterHolder.getParameterValue(HighlightParams.FORMATTER);
 	}
@@ -145,6 +149,7 @@ public class HighlightOptions {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Integer getNrSnipplets() {
 		return this.parameterHolder.getParameterValue(HighlightParams.SNIPPETS);
 	}
@@ -172,6 +177,7 @@ public class HighlightOptions {
 	/**
 	 * @return
 	 */
+	@Nullable
 	public String getSimplePrefix() {
 		return this.parameterHolder.getParameterValue(HighlightParams.SIMPLE_PRE);
 	}
@@ -189,6 +195,7 @@ public class HighlightOptions {
 	/**
 	 * @return
 	 */
+	@Nullable
 	public String getSimplePostfix() {
 		return this.parameterHolder.getParameterValue(HighlightParams.SIMPLE_POST);
 	}
@@ -236,6 +243,7 @@ public class HighlightOptions {
 	 * @param parameterName
 	 * @return null if not present
 	 */
+	@Nullable
 	public <S> S getHighlightParameterValue(String parameterName) {
 		return this.parameterHolder.getParameterValue(parameterName);
 	}
@@ -302,6 +310,7 @@ public class HighlightOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Integer getNrSnipplets() {
 			return getQueryParameterValue(HighlightParams.SNIPPETS);
 		}
@@ -317,6 +326,7 @@ public class HighlightOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Integer getFragsize() {
 			return getQueryParameterValue(HighlightParams.FRAGSIZE);
 		}
@@ -334,6 +344,7 @@ public class HighlightOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Boolean isMergeContigous() {
 			return getQueryParameterValue(HighlightParams.MERGE_CONTIGUOUS_FRAGMENTS);
 		}
@@ -349,6 +360,7 @@ public class HighlightOptions {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public String getFormatter() {
 			return getQueryParameterValue(HighlightParams.FORMATTER);
 		}

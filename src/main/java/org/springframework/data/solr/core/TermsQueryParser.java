@@ -90,7 +90,7 @@ public class TermsQueryParser extends QueryParserBase<TermsQuery> {
 	}
 
 	protected void appendTermsFieldToSolrQuery(Field field, SolrQuery solrQuery) {
-		if (field != null && StringUtils.hasText(field.getName())) {
+		if (StringUtils.hasText(field.getName())) {
 			solrQuery.addTermsField(field.getName());
 		}
 	}

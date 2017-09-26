@@ -29,6 +29,7 @@ import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -45,7 +46,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
 	private String collectionName;
-	private Float boost;
+	private @Nullable Float boost;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
@@ -77,6 +78,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 	}
 
+	@Nullable
 	private Float derivateDocumentBoost() {
 
 		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
@@ -108,6 +110,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getBoost()
 	 */
+	@Nullable
 	@Override
 	public Float getBoost() {
 		return boost;
@@ -126,6 +129,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getScoreProperty()
 	 */
+	@Nullable
 	@Override
 	public SolrPersistentProperty getScoreProperty() {
 		return getPersistentProperty(Score.class);
@@ -161,7 +165,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private static class ScoreFieldUniquenessHandler implements PropertyHandler<SolrPersistentProperty> {
 
 		private static final String AMBIGUOUS_FIELD_MAPPING = "Ambiguous score field mapping detected! Both %s and %s marked as target for score value. Disambiguate using @Score annotation!";
-		private SolrPersistentProperty scoreProperty;
+		private @Nullable SolrPersistentProperty scoreProperty;
 
 		/*
 		 * (non-Javadoc)

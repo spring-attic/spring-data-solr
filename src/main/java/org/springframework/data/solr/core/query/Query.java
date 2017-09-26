@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 
 /**
  * A Query that can be translated into a solr understandable Query.
@@ -134,6 +135,7 @@ public interface Query extends SolrDataQuery {
 	 * 
 	 * @since 1.3
 	 */
+	@Nullable
 	Long getOffset();
 
 	/**
@@ -142,6 +144,7 @@ public interface Query extends SolrDataQuery {
 	 * @return
 	 * @since 1.3
 	 */
+	@Nullable
 	Integer getRows();
 
 	/**
@@ -169,6 +172,7 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	Sort getSort();
 
 	/**
@@ -176,6 +180,7 @@ public interface Query extends SolrDataQuery {
 	 * 
 	 * @return
 	 */
+	@Nullable
 	Integer getTimeAllowed();
 
 	/**
@@ -191,6 +196,7 @@ public interface Query extends SolrDataQuery {
 	 * 
 	 * @return
 	 */
+	@Nullable
 	Operator getDefaultOperator();
 
 	/**
@@ -199,6 +205,7 @@ public interface Query extends SolrDataQuery {
 	 * 
 	 * @return
 	 */
+	@Nullable
 	String getDefType();
 
 	/**
@@ -209,6 +216,7 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * Returns the request handler.
 	 */
+	@Nullable
 	String getRequestHandler();
 
 	/**
@@ -227,6 +235,7 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * @return group options
 	 */
+	@Nullable
 	GroupOptions getGroupOptions();
 
 	/**
@@ -242,6 +251,7 @@ public interface Query extends SolrDataQuery {
 	 * @return {@link StatsOptions} or null if not set.
 	 * @since 1.4
 	 */
+	@Nullable
 	StatsOptions getStatsOptions();
 
 	/**
@@ -257,6 +267,7 @@ public interface Query extends SolrDataQuery {
 	 * @return {@literal null} if not set.
 	 * @since 2.1
 	 */
+	@Nullable
 	SpellcheckOptions getSpellcheckOptions();
 
 }

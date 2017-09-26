@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.data.mapping.context.MappingContextEvent;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -47,7 +48,7 @@ public class SolrPersistentEntitySchemaCreator implements ApplicationListener<Ma
 		this(solrClientFactory, null);
 	}
 
-	public SolrPersistentEntitySchemaCreator(SolrClientFactory factory, SolrSchemaWriter schemaWriter) {
+	public SolrPersistentEntitySchemaCreator(SolrClientFactory factory, @Nullable SolrSchemaWriter schemaWriter) {
 		super();
 		this.factory = factory;
 		this.schemaWriter = schemaWriter != null ? schemaWriter : new SolrSchemaWriter(this.factory);
@@ -86,7 +87,7 @@ public class SolrPersistentEntitySchemaCreator implements ApplicationListener<Ma
 		}
 	}
 
-	public SolrPersistentEntitySchemaCreator enable(Feature feature) {
+	public SolrPersistentEntitySchemaCreator enable(@Nullable Feature feature) {
 
 		if (feature != null) {
 			this.features.add(feature);

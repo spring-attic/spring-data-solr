@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
+import org.springframework.util.Assert;
 
 /**
  * Converts a Date values into a solr readable String that can be directly used within the {@code q} parameter. Note
@@ -34,9 +35,7 @@ import org.springframework.data.convert.WritingConverter;
  * <code>
  *   Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
  *   calendar.set(2012, 7, 23, 6, 10, 0);
- * </code>
- * 
- * will be formatted as
+ * </code> will be formatted as
  * 
  * <pre>
  * 2012-08-23T06:10:00.000Z
@@ -54,7 +53,6 @@ public final class DateTimeConverters {
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public enum JodaDateTimeConverter implements Converter<ReadableInstant, String> {
@@ -62,9 +60,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public String convert(ReadableInstant source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return (ClientUtils.escapeQueryChars(FORMATTER.print(source.getMillis())));
 		}
 
@@ -76,9 +74,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public DateTime convert(String source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return DateTime.parse(source, FORMATTER_WITHOUT_MILLIS);
 		}
 	}
@@ -87,7 +85,6 @@ public final class DateTimeConverters {
 	 * Reading {@link Converter} parses {@link Date} from {@link org.apache.solr.common.SolrDocument} to {@link DateTime}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@ReadingConverter
 	public enum DateToJodaDateTimeConverter implements Converter<Date, DateTime> {
@@ -95,9 +92,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public DateTime convert(Date source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return new DateTime(source.getTime());
 		}
 	}
@@ -107,7 +104,6 @@ public final class DateTimeConverters {
 	 * {@link org.apache.solr.common.SolrInputDocument}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public enum JodaDateTimeToDateConverter implements Converter<DateTime, Date> {
@@ -115,9 +111,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public Date convert(DateTime source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return source.toDate();
 		}
 
@@ -128,7 +124,6 @@ public final class DateTimeConverters {
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public enum JodaLocalDateTimeConverter implements Converter<LocalDateTime, String> {
@@ -136,9 +131,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public String convert(LocalDateTime source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return ClientUtils.escapeQueryChars(FORMATTER.print(source.toDateTime(DateTimeZone.UTC).getMillis()));
 		}
 
@@ -149,7 +144,6 @@ public final class DateTimeConverters {
 	 * {@link org.apache.solr.common.SolrInputDocument}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public enum JodaLocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
@@ -157,9 +151,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public Date convert(LocalDateTime source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return source.toDate();
 		}
 
@@ -170,7 +164,6 @@ public final class DateTimeConverters {
 	 * {@link LocalDateTime}
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@ReadingConverter
 	public enum DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
@@ -178,9 +171,9 @@ public final class DateTimeConverters {
 
 		@Override
 		public LocalDateTime convert(Date source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
+
 			return new LocalDateTime(source.getTime());
 		}
 
@@ -191,7 +184,6 @@ public final class DateTimeConverters {
 	 * {@link org.apache.solr.client.solrj.SolrQuery} query string values
 	 * 
 	 * @author Christoph Strobl
-	 * 
 	 */
 	@WritingConverter
 	public enum JavaDateConverter implements Converter<Date, String> {
@@ -199,9 +191,8 @@ public final class DateTimeConverters {
 
 		@Override
 		public String convert(Date source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
 
 			return ClientUtils.escapeQueryChars(FORMATTER.print(source.getTime()));
 		}

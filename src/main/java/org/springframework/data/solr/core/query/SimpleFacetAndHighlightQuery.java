@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,20 @@
 package org.springframework.data.solr.core.query;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Trivial implementation of {@link FacetAndHighlightQuery}
  *
  * @author David Webb
+ * @author Christoph Strobl
  * @since 2.1.0
  */
 public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAndHighlightQuery {
 
-	private FacetOptions facetOptions;
-	private HighlightOptions highlightOptions;
+	private @Nullable FacetOptions facetOptions;
+	private @Nullable HighlightOptions highlightOptions;
 
 	public SimpleFacetAndHighlightQuery() {
 		super();
@@ -37,7 +39,7 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 		this(criteria, null);
 	}
 
-	public SimpleFacetAndHighlightQuery(Criteria criteria, Pageable pageable) {
+	public SimpleFacetAndHighlightQuery(Criteria criteria, @Nullable Pageable pageable) {
 		super(criteria, pageable);
 	}
 
@@ -47,7 +49,7 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <T extends SolrDataQuery> T setFacetOptions(FacetOptions facetOptions) {
+	public final <T extends SolrDataQuery> T setFacetOptions(@Nullable FacetOptions facetOptions) {
 
 		if (facetOptions != null) {
 			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries.");
@@ -60,6 +62,7 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.FacetQuery#getFacetOptions()
 	 */
+	@Nullable
 	@Override
 	public FacetOptions getFacetOptions() {
 		return this.facetOptions;
@@ -90,6 +93,7 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.HighlightQuery#getHighlightOptions()
 	 */
+	@Nullable
 	@Override
 	public HighlightOptions getHighlightOptions() {
 		return this.highlightOptions;

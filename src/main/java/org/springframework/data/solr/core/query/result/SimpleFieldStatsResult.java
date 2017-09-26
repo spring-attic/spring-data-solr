@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -31,8 +32,8 @@ import org.springframework.util.Assert;
  */
 public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldStatsResult {
 
-	private Map<String, Map<String, StatsResult>> facetStatsResult;
-	private Long distinctCount;
+	private Map<String, Map<String, StatsResult>> facetStatsResult = Collections.emptyMap();
+	private @Nullable Long distinctCount;
 	private Collection<Object> distinctValues = Collections.emptyList();
 
 	@Override
@@ -56,6 +57,7 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 		return facetStatsResult.get(fieldName);
 	}
 
+	@Nullable
 	@Override
 	public Long getDistinctCount() {
 		return distinctCount;
@@ -70,7 +72,7 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 		return Collections.unmodifiableCollection(this.distinctValues);
 	}
 
-	public void setDistinctValues(Collection<Object> distinctValues) {
+	public void setDistinctValues(@Nullable  Collection<Object> distinctValues) {
 		if (distinctValues == null) {
 			this.distinctValues = Collections.emptyList();
 		} else {
@@ -81,9 +83,9 @@ public class SimpleFieldStatsResult extends SimpleStatsResult implements FieldSt
 
 	@Override
 	public String toString() {
-		return "SimpleFieldStatsResult [min=" + getMin() + ", max=" + getMax() + ", sum=" + getSum() + ", mean="
-				+ getMean() + ", count=" + getCount() + ", missing=" + getMissing() + ", stddev=" + getStddev()
-				+ ", statsResults=" + facetStatsResult + "]";
+		return "SimpleFieldStatsResult [min=" + getMin() + ", max=" + getMax() + ", sum=" + getSum() + ", mean=" + getMean()
+				+ ", count=" + getCount() + ", missing=" + getMissing() + ", stddev=" + getStddev() + ", statsResults="
+				+ facetStatsResult + "]";
 	}
 
 }
