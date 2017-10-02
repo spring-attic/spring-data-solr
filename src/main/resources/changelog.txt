@@ -1,6 +1,15 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.0.RELEASE (2017-10-02)
+---------------------------------------------
+* DATASOLR-423 - Introduce nullable annotations for API validation.
+* DATASOLR-422 - Add explicit automatic module name for Java 9.
+* DATASOLR-421 - Upgrade to OpenWebBeans 2.0.1.
+* DATASOLR-420 - Release 3.0 GA (Kay).
+* DATASOLR-414 - Allow ping() with explicit core name.
+
+
 Changes in version 3.0.0.RC3 (2017-09-11)
 -----------------------------------------
 * DATASOLR-418 - Upgrade to Solr 6.6.1.
