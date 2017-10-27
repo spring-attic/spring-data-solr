@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.1.RELEASE (2017-10-27)
+---------------------------------------------
+* DATASOLR-429 - Adapt to changes in AbstractPersistentProperty.
+* DATASOLR-424 - Release 3.0.1 (Kay SR1).
+
+
 Changes in version 2.1.8.RELEASE (2017-10-11)
 ---------------------------------------------
 * DATASOLR-419 - Release 2.1.8 (Ingalls SR8).
