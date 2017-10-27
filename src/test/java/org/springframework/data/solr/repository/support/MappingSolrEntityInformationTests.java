@@ -70,7 +70,8 @@ public class MappingSolrEntityInformationTests {
 		when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, SimpleTypeHolder.DEFAULT);
+				Property.of(ClassTypeInformation.from(ProductBean.class), ProductBean.class.getDeclaredField("id")),
+				persistentEntity, SimpleTypeHolder.DEFAULT);
 		when(persistentEntity.getRequiredIdProperty()).thenReturn(property);
 
 		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity);
@@ -83,8 +84,9 @@ public class MappingSolrEntityInformationTests {
 				.thenReturn(ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ProductBeanWithLongIdFieldType.class.getDeclaredField("id")), persistentEntityWithLongIdFieldType,
-				SimpleTypeHolder.DEFAULT);
+				Property.of(ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class),
+						ProductBeanWithLongIdFieldType.class.getDeclaredField("id")),
+				persistentEntityWithLongIdFieldType, SimpleTypeHolder.DEFAULT);
 		when(persistentEntityWithLongIdFieldType.getRequiredIdProperty()).thenReturn(property);
 
 		SolrEntityInformation<ProductBeanWithLongIdFieldType, Long> entityInformation = new MappingSolrEntityInformation<>(
@@ -96,7 +98,8 @@ public class MappingSolrEntityInformationTests {
 	public void testGetIdAttribute() throws NoSuchFieldException, SecurityException {
 		when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ProductBean.class.getDeclaredField("id")), persistentEntity, SimpleTypeHolder.DEFAULT);
+				Property.of(ClassTypeInformation.from(ProductBean.class), ProductBean.class.getDeclaredField("id")),
+				persistentEntity, SimpleTypeHolder.DEFAULT);
 		when(persistentEntity.getRequiredIdProperty()).thenReturn(property);
 
 		SolrEntityInformation<ProductBean, String> entityInformation = new MappingSolrEntityInformation<>(persistentEntity);
@@ -109,7 +112,8 @@ public class MappingSolrEntityInformationTests {
 				.thenReturn(ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ProductBeanWithAlternateFieldNameForId.class.getDeclaredField("productId")),
+				Property.of(ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class),
+						ProductBeanWithAlternateFieldNameForId.class.getDeclaredField("productId")),
 				persistentEntityWithAlternateFieldNameForId, SimpleTypeHolder.DEFAULT);
 		when(persistentEntityWithAlternateFieldNameForId.getRequiredIdProperty()).thenReturn(property);
 

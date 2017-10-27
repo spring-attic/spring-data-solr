@@ -75,7 +75,8 @@ public class SimpleSolrPersistentPropertyBoostTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(Property.of(field, descriptor), persistentEntity, SimpleTypeHolder.DEFAULT);
+		return new SimpleSolrPersistentProperty(Property.of(ClassTypeInformation.from(clazz), field, descriptor),
+				persistentEntity, SimpleTypeHolder.DEFAULT);
 	}
 
 	static class BeanWithSolrFieldAnnotation {
