@@ -82,20 +82,20 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 
 	static class BeanWithSolrFieldAnnotation {
 
-		@Field//
+		@Field //
 		private String fieldWithSolrjFieldAnnotation;
 
-		@Field("solrj")//
+		@Field("solrj") //
 		private String fieldWithSolrjFieldAnnotationAndValue;
 
-		@Indexed//
+		@Indexed //
 		private String fieldWithIndexedAnnotation;
 
-		@Indexed("indexed")//
+		@Indexed("indexed") //
 		private String fieldWithIndexedAnnotationAndValue;
 
-		@Field("solrj")//
-		@Indexed("indexed")//
+		@Field("solrj") //
+		@Indexed("indexed") //
 		private String fieldWithBothAnnotations;
 
 		public String getFieldWithSolrjFieldAnnotation() {
