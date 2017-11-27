@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mockito;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Christoph Strobl
+ * @author Oliver Gierke
  */
 @RunWith(Parameterized.class)
 public class SimpleSolrPersitentPropertyFieldNameTests {
-
-	@SuppressWarnings("rawtypes")//
-	private TypeInformation typeInfoMock;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
 
@@ -50,13 +48,13 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 		this.expectedFieldname = expectedFieldname;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		typeInfoMock = Mockito.mock(TypeInformation.class);
 
-		Mockito.when(typeInfoMock.getType()).thenReturn(BeanWithSolrFieldAnnotation.class);
-		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInfoMock);
+		TypeInformation<BeanWithSolrFieldAnnotation> typeInformation = ClassTypeInformation
+				.from(BeanWithSolrFieldAnnotation.class);
+
+		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInformation);
 	}
 
 	@Parameters
