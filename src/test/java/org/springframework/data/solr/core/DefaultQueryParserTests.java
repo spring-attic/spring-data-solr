@@ -82,6 +82,7 @@ import org.springframework.data.solr.core.query.StatsOptions;
  * @author Philipp Jardas
  * @author Francisco Spaeth
  * @author Petar Tahchiev
+ * @author Michael Rocke
  */
 public class DefaultQueryParserTests {
 
@@ -204,6 +205,24 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").is("with \"quote");
 		assertEquals("field_1:\"with \\\"quote\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test //DATASOLR-437
+	public void testCriteriaWithANDOperator() {
+		Criteria criteria = new Criteria("field_1").is("AND");
+		assertEquals("field_1:\"AND\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test //DATASOLR-437
+	public void testCriteriaWithOROperator() {
+		Criteria criteria = new Criteria("field_1").is("OR");
+		assertEquals("field_1:\"OR\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test //DATASOLR-437
+	public void testCriteriaWithNOTOperator() {
+		Criteria criteria = new Criteria("field_1").is("NOT");
+		assertEquals("field_1:\"NOT\"", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
 	@Test
