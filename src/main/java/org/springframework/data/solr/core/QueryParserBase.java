@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -66,6 +67,7 @@ import org.springframework.util.CollectionUtils;
  * @author Francisco Spaeth
  * @author Radek Mensik
  * @author David Webb
+ * @author Michael Rocke
  */
 public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
@@ -494,10 +496,13 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		protected static final String DOUBLEQUOTE = "\"";
 
+		protected final Set<String> BOOLEAN_OPERATORS = Sets.newHashSet("NOT", "AND", "OR");
+
 		protected final String[] RESERVED_CHARS = { DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]",
 				"^", "~", "*", "?", ":", "\\" };
 		protected String[] RESERVED_CHARS_REPLACEMENT = { "\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!",
 				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
+
 
 		@Override
 		public Object process(@Nullable Predicate predicate, @Nullable Field field) {
@@ -523,7 +528,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		private String processWhiteSpaces(String criteriaValue) {
-			if (StringUtils.contains(criteriaValue, CRITERIA_VALUE_SEPERATOR)) {
+			if (StringUtils.contains(criteriaValue, CRITERIA_VALUE_SEPERATOR) || BOOLEAN_OPERATORS.contains(criteriaValue)) {
 				return DOUBLEQUOTE + criteriaValue + DOUBLEQUOTE;
 			}
 			return criteriaValue;
