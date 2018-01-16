@@ -16,14 +16,15 @@
 package org.springframework.data.solr.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -496,13 +497,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		protected static final String DOUBLEQUOTE = "\"";
 
-		protected final Set<String> BOOLEAN_OPERATORS = Sets.newHashSet("NOT", "AND", "OR");
+		protected final Set<String> BOOLEAN_OPERATORS = new HashSet<>(Arrays.asList("NOT", "AND", "OR"));
 
 		protected final String[] RESERVED_CHARS = { DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]",
 				"^", "~", "*", "?", ":", "\\" };
 		protected String[] RESERVED_CHARS_REPLACEMENT = { "\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!",
 				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
-
 
 		@Override
 		public Object process(@Nullable Predicate predicate, @Nullable Field field) {
@@ -646,8 +646,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			return nearFragment;
 		}
 
-		protected String createSpatialFunctionFragment(@Nullable String fieldName, org.springframework.data.geo.Point location,
-				Distance distance, String function) {
+		protected String createSpatialFunctionFragment(@Nullable String fieldName,
+				org.springframework.data.geo.Point location, Distance distance, String function) {
 			String spatialFragment = "{!" + function + " " + SpatialParams.POINT + "=";
 			spatialFragment += filterCriteriaValue(location);
 			spatialFragment += " " + SpatialParams.FIELD + "=" + fieldName;
