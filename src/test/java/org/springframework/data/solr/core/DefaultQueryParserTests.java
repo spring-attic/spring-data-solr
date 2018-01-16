@@ -48,31 +48,13 @@ import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
-import org.springframework.data.solr.core.query.AnyCriteria;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FacetSort;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.GroupOptions;
-import org.springframework.data.solr.core.query.HighlightOptions;
-import org.springframework.data.solr.core.query.Join;
-import org.springframework.data.solr.core.query.MaxFunction;
-import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
-import org.springframework.data.solr.core.query.SimpleFacetQuery;
-import org.springframework.data.solr.core.query.SimpleField;
-import org.springframework.data.solr.core.query.SimpleFilterQuery;
-import org.springframework.data.solr.core.query.SimpleHighlightQuery;
-import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SimpleStringCriteria;
-import org.springframework.data.solr.core.query.SolrDataQuery;
-import org.springframework.data.solr.core.query.SolrPageRequest;
-import org.springframework.data.solr.core.query.SpellcheckOptions;
-import org.springframework.data.solr.core.query.StatsOptions;
 
 /**
  * @author Christoph Strobl
@@ -207,20 +189,30 @@ public class DefaultQueryParserTests {
 		assertEquals("field_1:\"with \\\"quote\"", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	@Test //DATASOLR-437
-	public void testCriteriaWithANDOperator() {
+	@Test // DATASOLR-437
+	public void testCriteriaWithANDKeyword() {
+
 		Criteria criteria = new Criteria("field_1").is("AND");
 		assertEquals("field_1:\"AND\"", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	@Test //DATASOLR-437
-	public void testCriteriaWithOROperator() {
+	@Test // DATASOLR-437
+	public void testCriteriaWithMultipleWorkdsContainingANDKeyword() {
+
+		Criteria criteria = new Criteria("field_1").is("this AND that");
+		assertEquals("field_1:\"this AND that\"", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test // DATASOLR-437
+	public void testCriteriaWithORKeyword() {
+
 		Criteria criteria = new Criteria("field_1").is("OR");
 		assertEquals("field_1:\"OR\"", queryParser.createQueryStringFromCriteria(criteria));
 	}
 
-	@Test //DATASOLR-437
-	public void testCriteriaWithNOTOperator() {
+	@Test // DATASOLR-437
+	public void testCriteriaWithNOTKeyword() {
+
 		Criteria criteria = new Criteria("field_1").is("NOT");
 		assertEquals("field_1:\"NOT\"", queryParser.createQueryStringFromCriteria(criteria));
 	}
