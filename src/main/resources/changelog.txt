@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.3.RELEASE (2018-01-24)
+---------------------------------------------
+* DATASOLR-441 - Fix line endings.
+* DATASOLR-437 - Boolean Operator Words not Escaped.
+* DATASOLR-435 - Release 3.0.3 (Kay SR3).
+
+
 Changes in version 2.1.10.RELEASE (2018-01-24)
 ----------------------------------------------
 * DATASOLR-437 - Boolean Operator Words not Escaped.
