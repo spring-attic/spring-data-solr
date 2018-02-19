@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.4.RELEASE (2018-02-19)
+---------------------------------------------
+* DATASOLR-442 - Release 3.0.4 (Kay SR4).
+
+
 Changes in version 3.1.0.M1 (2018-02-06)
 ----------------------------------------
 * DATASOLR-441 - Fix line endings.
