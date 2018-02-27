@@ -89,6 +89,7 @@ import org.springframework.util.CollectionUtils;
  * @author David Webb
  * @author Petar Tahchiev
  * @author Mark Paluch
+ * @author Juan Manuel de Blas
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -282,7 +283,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
-				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
+				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list", query);
 			}
 			return Optional.ofNullable(convertSolrDocumentListToBeans(response.getResults(), clazz).get(0));
 		}
@@ -501,7 +502,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		}
 
-		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
+		LOGGER.debug("Executing query '{}' against solr.", solrQuery);
 
 		return executeSolrQuery(collection, solrQuery, getSolrRequestMethod(requestMethod));
 	}
