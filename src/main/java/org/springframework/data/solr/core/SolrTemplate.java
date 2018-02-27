@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,13 +92,14 @@ import org.springframework.util.StringUtils;
 
 /**
  * Implementation of {@link SolrOperations}
- * 
+ *
  * @author Christoph Strobl
  * @author Joachim Uhrlass
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
  * @author David Webb
  * @author Petar Tahchiev
+ * @author Juan Manuel de Blas
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -601,7 +602,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		if (response.getResults().size() > 0) {
 			if (response.getResults().size() > 1) {
-				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list");
+				LOGGER.warn("More than 1 result found for singe result query ('{}'), returning first entry in list", query);
 			}
 			return convertSolrDocumentListToBeans(response.getResults(), clazz).get(0);
 		}
@@ -1018,7 +1019,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		}
 
-		LOGGER.debug("Executing query '" + solrQuery + "' against solr.");
+		LOGGER.debug("Executing query '{}' against solr.", solrQuery);
 
 		return executeSolrQuery(collectionName, solrQuery, getSolrRequestMethod(requestMethod));
 	}

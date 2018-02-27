@@ -75,6 +75,7 @@ import org.springframework.util.ObjectUtils;
  * @author Francisco Spaeth
  * @author Joachim Uhrlaß
  * @author Petar Tahchiev
+ * @author Juan Manuel de Blas
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -120,9 +121,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		processStatsOptions(solrQuery, query);
 		processSpellcheckOptions(solrQuery, query);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Constructed SolrQuery:\r\n %s", solrQuery);
-		}
+		LOGGER.debug("Constructed SolrQuery:\r\n {}", solrQuery);
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {

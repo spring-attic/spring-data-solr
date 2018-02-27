@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ import org.springframework.util.ReflectionUtils;
  * configured via an {@link Resource}. Configuration options will be copied to a temp folder and removed afterwards.
  *
  * @author Christoph Strobl
+ * @author Juan Manuel de Blas
  */
 public class EmbeddedSolrServer extends ExternalResource implements SolrClientFactory {
 
@@ -158,14 +159,14 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 		folder = new TemporaryFolder();
 		folder.create();
 
-		LOGGER.debug(String.format("Created temp folder %s", folder.getRoot().getPath()));
+		LOGGER.debug("Created temp folder {}", folder.getRoot().getPath());
 
 		if (configDir != null && configDir.exists() && configDir.getFile().isDirectory()) {
 
 			FileUtils.copyDirectory(configDir.getFile(), folder.getRoot());
 
-			LOGGER.debug(String.format("Copied %s files from %s to temp folder.", configDir.getFile().list().length,
-					configDir.getFile().getPath()));
+			LOGGER.debug("Copied {} files from {} to temp folder.", configDir.getFile().list().length,
+					configDir.getFile().getPath());
 		}
 
 		init(folder.getRoot().getPath());
@@ -188,7 +189,7 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 			LOGGER.error("Error shutting down CoreContainer", e);
 		}
 
-		LOGGER.debug(String.format("Removing temp folder %s", folder.getRoot().getPath()));
+		LOGGER.debug("Removing temp folder {}", folder.getRoot().getPath());
 
 		folder.delete();
 	}
@@ -198,7 +199,7 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 		Method createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", String.class,
 				File.class);
 
-		LOGGER.debug("Starting CoreContainer %s and loading cores.");
+		LOGGER.debug("Starting CoreContainer {} and loading cores.", solrHome);
 
 		if (createAndLoadMethod != null) {
 			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null, solrHome,
