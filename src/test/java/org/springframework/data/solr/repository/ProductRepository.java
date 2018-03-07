@@ -106,6 +106,10 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByLocationNear(Box bbox);
 
+	List<ProductBean> findByLocationWithinAndNameLike(Point location, Distance distance, String name);
+
+	List<ProductBean> findByNameLikeAndLocationWithin(String name, Point location, Distance distance);
+
 	List<ProductBean> findByAvailableTrueOrderByPopularityDesc();
 
 	@Query("inStock:?0")

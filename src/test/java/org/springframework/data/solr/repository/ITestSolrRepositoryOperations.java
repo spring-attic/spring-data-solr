@@ -1070,6 +1070,36 @@ public class ITestSolrRepositoryOperations {
 		assertThat(result, contains(html));
 	}
 
+	@Test // DATASOLR-451
+	public void testFindByWithinAnd() {
+
+		ProductBean locatedInBuffalow = createProductBean("100", 5, true, "awesome");
+		locatedInBuffalow.setLocation("45.17614,-93.87341");
+
+		ProductBean locatedInNYC = createProductBean("200", 5, true, "super-awesome");
+		locatedInNYC.setLocation("40.7143,-74.006");
+
+		repo.saveAll(Arrays.asList(locatedInBuffalow, locatedInNYC));
+
+		List<ProductBean> found = repo.findByLocationWithinAndNameLike(new Point(45.15, -93.85), new Distance(5), "super");
+		Assert.assertEquals(0, found.size());
+	}
+
+	@Test // DATASOLR-451
+	public void testFindByWithinAnd2() {
+
+		ProductBean locatedInBuffalow = createProductBean("100", 5, true, "awesome");
+		locatedInBuffalow.setLocation("45.17614,-93.87341");
+
+		ProductBean locatedInNYC = createProductBean("200", 5, true, "super-awesome");
+		locatedInNYC.setLocation("40.7143,-74.006");
+
+		repo.saveAll(Arrays.asList(locatedInBuffalow, locatedInNYC));
+
+		List<ProductBean> found = repo.findByNameLikeAndLocationWithin("awesome", new Point(45.15, -93.85), new Distance(5));
+		Assert.assertEquals(1, found.size());
+	}
+
 	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {
 
 		List<ProductBean> beans = new ArrayList<>(nrToCreate);

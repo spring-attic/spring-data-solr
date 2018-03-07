@@ -273,7 +273,17 @@ public class Crotch extends Criteria {
 		}
 
 		node.setParent(this);
-		this.siblings.add((Criteria) node);
+
+		boolean containsNearFunction = this.siblings.stream().anyMatch(criteria -> criteria.getPredicates().stream()
+				.anyMatch(predicate -> predicate.getKey().equalsIgnoreCase("$within")));
+
+		Criteria criteria = (Criteria) node;
+		if (containsNearFunction) {
+			this.siblings.add(0, criteria);
+		} else {
+			this.siblings.add(criteria);
+		}
+
 		this.mostRecentSibling = node;
 	}
 
