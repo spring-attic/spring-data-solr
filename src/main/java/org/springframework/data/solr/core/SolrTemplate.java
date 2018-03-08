@@ -61,6 +61,7 @@ import org.springframework.data.solr.core.convert.SolrConverter;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.AbstractQueryDecorator;
 import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
@@ -202,7 +203,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		return execute(solrClient -> {
 
-			SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
+			SolrQuery solrQuery = constructQuery(query);
 			solrQuery.setStart(0);
 			solrQuery.setRows(0);
 
@@ -493,7 +494,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		Assert.notNull(query, "Query must not be 'null'");
 
-		SolrQuery solrQuery = queryParsers.getForClass(query.getClass()).constructSolrQuery(query);
+		SolrQuery solrQuery = constructQuery(query);
 
 		if (clazz != null) {
 			SolrPersistentEntity<?> persistedEntity = mappingContext.getRequiredPersistentEntity(clazz);
@@ -514,6 +515,26 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	final QueryResponse executeSolrQuery(String collection, final SolrQuery solrQuery, final SolrRequest.METHOD method) {
 
 		return execute(solrServer -> solrServer.query(collection, solrQuery, method));
+	}
+
+	/**
+	 * Create the native {@link SolrQuery} from a given {@link SolrDataQuery}.
+	 *
+	 * @param query never {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 3.0.6
+	 */
+	protected SolrQuery constructQuery(SolrDataQuery query) {
+		return lookupQueryParser(query).constructSolrQuery(query);
+	}
+
+	private QueryParser lookupQueryParser(SolrDataQuery query) {
+
+		if (query instanceof AbstractQueryDecorator) {
+			return queryParsers.getForClass((Class) ((AbstractQueryDecorator) query).getQueryType());
+		}
+
+		return queryParsers.getForClass(query.getClass());
 	}
 
 	@Override
@@ -558,7 +579,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public <T> Cursor<T> queryForCursor(String collection, Query query, final Class<T> clazz) {
 
-		return new DelegatingCursor<T>(queryParsers.getForClass(query.getClass()).constructSolrQuery(query)) {
+		return new DelegatingCursor<T>(constructQuery(query)) {
 
 			@Override
 			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
