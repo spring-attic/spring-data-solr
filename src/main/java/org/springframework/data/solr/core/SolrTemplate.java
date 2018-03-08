@@ -550,7 +550,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	@Override
 	public void rollback(String collection) {
-		execute(SolrClient::rollback);
+		execute(solrClient -> solrClient.rollback(collection));
 	}
 
 	/*

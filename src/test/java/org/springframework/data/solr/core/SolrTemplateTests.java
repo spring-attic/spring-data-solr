@@ -343,10 +343,11 @@ public class SolrTemplateTests {
 		verify(solrClientMock, times(1)).commit(eq(COLLECTION_NAME), eq(true), eq(true), eq(true));
 	}
 
-	@Test
+	@Test // DATASOLR-405, DATASOLR-438
 	public void testRollback() throws SolrServerException, IOException {
+
 		solrTemplate.rollback(COLLECTION_NAME);
-		verify(solrClientMock, times(1)).rollback();
+		verify(solrClientMock, times(1)).rollback(COLLECTION_NAME);
 	}
 
 	@Test
