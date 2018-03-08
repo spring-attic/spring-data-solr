@@ -19,16 +19,16 @@ import java.net.MalformedURLException;
 
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.auth.params.AuthPNames;
-import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Christoph Strobl
@@ -40,7 +40,7 @@ public class HttpSolrClientFactoryTests {
 
 	@Before
 	public void setUp() throws MalformedURLException {
-		solrClient = new HttpSolrClient(URL);
+		solrClient = new HttpSolrClient.Builder().withBaseSolrUrl(URL).build();
 	}
 
 	@After
@@ -65,15 +65,18 @@ public class HttpSolrClientFactoryTests {
 		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient,
 				new UsernamePasswordCredentials("username", "password"), "BASIC");
 
-		AbstractHttpClient solrHttpClient = (AbstractHttpClient) ((HttpSolrClient) factory.getSolrClient()).getHttpClient();
-		Assert.assertNotNull(solrHttpClient.getCredentialsProvider().getCredentials(AuthScope.ANY));
-		Assert.assertNotNull(solrHttpClient.getParams().getParameter(AuthPNames.TARGET_AUTH_PREF));
+		HttpClient solrHttpClient = ((HttpSolrClient) factory.getSolrClient()).getHttpClient();
+
+		CredentialsProvider provider = (CredentialsProvider) ReflectionTestUtils.getField(solrHttpClient,
+				"credentialsProvider");
+
+		Assert.assertNotNull(provider.getCredentials(AuthScope.ANY));
+
 		Assert.assertEquals("username",
-				((UsernamePasswordCredentials) solrHttpClient.getCredentialsProvider().getCredentials(AuthScope.ANY))
-						.getUserName());
+				((UsernamePasswordCredentials) provider.getCredentials(AuthScope.ANY)).getUserName());
+
 		Assert.assertEquals("password",
-				((UsernamePasswordCredentials) solrHttpClient.getCredentialsProvider().getCredentials(AuthScope.ANY))
-						.getPassword());
+				((UsernamePasswordCredentials) provider.getCredentials(AuthScope.ANY)).getPassword());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

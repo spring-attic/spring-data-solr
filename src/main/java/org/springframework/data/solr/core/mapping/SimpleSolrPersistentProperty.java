@@ -149,33 +149,6 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isBoosted()
-	 */
-	@Override
-	public boolean isBoosted() {
-
-		Float boost = getBoost();
-		return boost != null && !Float.isNaN(boost);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#getBoost()
-	 */
-	@Nullable
-	@Override
-	public Float getBoost() {
-
-		Float boost = Float.NaN;
-		Indexed indexedAnnotation = getIndexAnnotation();
-		if (indexedAnnotation != null) {
-			boost = indexedAnnotation.boost();
-		}
-		return Float.isNaN(boost) ? null : boost;
-	}
-
-	/*
-	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentProperty#isSearchable()
 	 */
 	@Override

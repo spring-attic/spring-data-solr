@@ -21,7 +21,7 @@
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
-		<solr>6.6.1</solr>
+		<solr>7.2.1</solr>
 		<springdata.commons>2.1.0.BUILD-SNAPSHOT</springdata.commons>
 		<java-module-name>spring.data.solr</java-module-name>
 	</properties>
@@ -274,7 +274,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>solr-next</id>
+			<id>solr7-next</id>
 			<repositories>
 				<repository>
 					<id>apache.snapshots</id>
@@ -286,7 +286,23 @@
 				</repository>
 			</repositories>
 			<properties>
-				<solr>6.7.0-SNAPSHOT</solr>
+				<solr>7.3.0-SNAPSHOT</solr>
+			</properties>
+		</profile>
+		<profile>
+			<id>solr8-next</id>
+			<repositories>
+				<repository>
+					<id>apache.snapshots</id>
+					<name>Apache Snapshot Repository</name>
+					<url>http://repository.apache.org/snapshots</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<properties>
+				<solr>8.0.0-SNAPSHOT</solr>
 			</properties>
 		</profile>
 	</profiles>

@@ -45,14 +45,6 @@ public @interface SolrDocument {
 	String solrCoreName() default "";
 
 	/**
-	 * Index time boost value for document.
-	 * 
-	 * @return
-	 * @since 1.2
-	 */
-	float boost() default Float.NaN;
-
-	/**
 	 * @return
 	 * @since 3.0
 	 */

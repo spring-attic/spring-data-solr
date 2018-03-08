@@ -113,7 +113,7 @@
        or Solr won't start. _version_ and update log are required for SolrCloud
     -->
     <!-- doc values are enabled by default for primitive types such as long so we don't index the version field  -->
-    <field name="_version_" type="long" indexed="false" stored="false"/>
+    <field name="_version_" type="plong" indexed="false" stored="false"/>
 
     <!-- points to the root document of a block of nested documents. Required for nested
        document support, may be removed otherwise
@@ -196,24 +196,26 @@
         RESTRICTION: the glob-like pattern in the name attribute must have
         a "*" only at the start or the end.  -->
 
-    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
-    <dynamicField name="*_is" type="int"    indexed="true"  stored="true"  multiValued="true"/>
+    <dynamicField name="*_i"  type="pint"    indexed="true"  stored="true"/>
+    <dynamicField name="*_is" type="pint"    indexed="true"  stored="true"  multiValued="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
+    <dynamicField name="*_s_ns"  type="string"  indexed="true"  stored="false" />
     <dynamicField name="*_ss" type="string"  indexed="true"  stored="true" multiValued="true"/>
-    <dynamicField name="*_l"  type="long"   indexed="true"  stored="true"/>
-    <dynamicField name="*_ls" type="long"   indexed="true"  stored="true"  multiValued="true"/>
+    <dynamicField name="*_l"  type="plong"   indexed="true"  stored="true"/>
+    <dynamicField name="*_l_ns"  type="plong"   indexed="true"  stored="false"/>
+    <dynamicField name="*_ls" type="plong"   indexed="true"  stored="true"  multiValued="true"/>
     <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
     <dynamicField name="*_txt" type="text_general"   indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_en"  type="text_en"    indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_b"  type="boolean" indexed="true" stored="true"/>
     <dynamicField name="*_bs" type="boolean" indexed="true" stored="true"  multiValued="true"/>
-    <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
-    <dynamicField name="*_fs" type="float"  indexed="true"  stored="true"  multiValued="true"/>
-    <dynamicField name="*_d"  type="double" indexed="true"  stored="true"/>
-    <dynamicField name="*_ds" type="double" indexed="true"  stored="true"  multiValued="true"/>
+    <dynamicField name="*_f"  type="pfloat"  indexed="true"  stored="true"/>
+    <dynamicField name="*_fs" type="pfloat"  indexed="true"  stored="true"  multiValued="true"/>
+    <dynamicField name="*_d"  type="pdouble" indexed="true"  stored="true"/>
+    <dynamicField name="*_ds" type="pdouble" indexed="true"  stored="true"  multiValued="true"/>
 
-    <dynamicField name="*_dt"  type="date"    indexed="true"  stored="true"/>
-    <dynamicField name="*_dts" type="date"    indexed="true"  stored="true" multiValued="true"/>
+    <dynamicField name="*_dt"  type="pdate"    indexed="true"  stored="true"/>
+    <dynamicField name="*_dts" type="pdate"    indexed="true"  stored="true" multiValued="true"/>
     <dynamicField name="*_p"  type="location" indexed="true" stored="true"/>
 
     <!-- KD-tree (point) numerics -->
@@ -762,7 +764,7 @@
                               ratesFileLocation: URL or path to rates JSON file (default latest.json on the web)
                               refreshInterval: Number of minutes between each rates fetch (default: 1440, min: 60)
     -->
-    <fieldType name="currency" class="solr.CurrencyField" precisionStep="8" defaultCurrency="USD" currencyConfig="currency.xml" />
+    <fieldType name="currency" class="solr.CurrencyField" precisionStep="8" amountLongSuffix="_l_ns" codeStrSuffix="_s_ns" defaultCurrency="USD" currencyConfig="currency.xml" />
 
 
 

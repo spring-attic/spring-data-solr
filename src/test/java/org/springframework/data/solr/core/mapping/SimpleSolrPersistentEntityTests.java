@@ -92,29 +92,6 @@ public class SimpleSolrPersistentEntityTests {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Test // DATASOLR-88
-	public void testPersistentEntityShouldReadDocumentBoostFromSolrDocumentAnnotation() {
-
-		when(typeInfo.getType()).thenReturn(DocumentWithBoost.class);
-
-		SimpleSolrPersistentEntity<DocumentWithBoost> pe = new SimpleSolrPersistentEntity<>(typeInfo);
-		assertThat(pe.isBoosted(), is(true));
-		assertThat(pe.getBoost(), is(100f));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test // DATASOLR-88
-	public void testPersistentEntityShouldNotBeBoostenWhenSolrDocumentAnnotationHasDefaultBoostValue() {
-
-		when(typeInfo.getType()).thenReturn(SearchableBeanWithEmptySolrDocumentAnnotation.class);
-
-		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
-				typeInfo);
-		assertThat(pe.isBoosted(), is(false));
-		assertThat(pe.getBoost(), nullValue());
-	}
-
-	@SuppressWarnings("unchecked")
 	@Test // DATASOLR-210
 	public void testPersistentEntityWithScoreProperty() {
 
@@ -221,9 +198,6 @@ public class SimpleSolrPersistentEntityTests {
 	static class ParentClassWithSolrDocumentAnnotation {}
 
 	static class InheritingClass extends ParentClassWithSolrDocumentAnnotation {}
-
-	@SolrDocument(boost = 100)
-	static class DocumentWithBoost {}
 
 	static class DocumentWithScore {}
 

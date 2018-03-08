@@ -60,12 +60,12 @@ public class SimpleSolrRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullEntityClass() {
 		new SimpleSolrRepository<ExampleSolrBean, String>(
-				new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null), (Class) null);
+				new SolrTemplate(Mockito.mock(HttpSolrClient.class), null), (Class) null);
 	}
 
 	@Test
 	public void testInitRepository() {
-		repository = new SimpleSolrRepository<>(new SolrTemplate(new HttpSolrClient("http://localhost:8080/solr"), null),
+		repository = new SimpleSolrRepository<>(new SolrTemplate(Mockito.mock(HttpSolrClient.class), null),
 				ExampleSolrBean.class);
 		Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
 	}

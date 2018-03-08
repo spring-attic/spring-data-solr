@@ -34,17 +34,6 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	String getCollectionName();
 
 	/**
-	 * @return true if this entity is boosted
-	 */
-	boolean isBoosted();
-
-	/**
-	 * @return entity's boost value if {@link #isBoosted()}, null otherwise
-	 */
-	@Nullable
-	Float getBoost();
-
-	/**
 	 * Returns whether the {@link SolrPersistentEntity} has an score property. If this call returns {@literal true},
 	 * {@link #getScoreProperty()} will return a non-{@literal null} value.
 	 *

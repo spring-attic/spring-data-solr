@@ -33,10 +33,17 @@ public final class VersionUtil {
 	private static final boolean IS_JODATIME_AVAILABLE = ClassUtils.isPresent("org.joda.time.DateTime",
 			VersionUtil.class.getClassLoader());
 
+	private static final boolean IS_SOLR_7 = ClassUtils.isPresent("org.apache.solr.client.solrj.V2RequestSupport",
+			VersionUtil.class.getClassLoader());
+
 	/**
 	 * @return true if {@code org.joda.time.DateTime} is in path
 	 */
 	public static boolean isJodaTimeAvailable() {
 		return IS_JODATIME_AVAILABLE;
+	}
+
+	public static boolean isIsSolr7() {
+		return IS_SOLR_7;
 	}
 }

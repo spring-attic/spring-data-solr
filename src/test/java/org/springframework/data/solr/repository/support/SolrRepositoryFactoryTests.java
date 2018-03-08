@@ -83,7 +83,7 @@ public class SolrRepositoryFactoryTests {
 	@Test(expected = MappingException.class)
 	public void testGetRepositoryOfUnmanageableType() {
 
-		SolrTemplate template = new SolrTemplate(new HttpSolrClient("http://solrserver:8983/solr"), null);
+		SolrTemplate template = new SolrTemplate(Mockito.mock(HttpSolrClient.class), null);
 		template.afterPropertiesSet();
 		new SolrRepositoryFactory(template).getRepository(UnmanagedEntityRepository.class);
 	}

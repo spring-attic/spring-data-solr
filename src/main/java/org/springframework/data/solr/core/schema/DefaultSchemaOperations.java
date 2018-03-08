@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.response.schema.SchemaRepresentation;
 import org.apache.solr.client.solrj.response.schema.SchemaResponse.UpdateResponse;
+import org.apache.solr.common.SolrException;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.schema.SchemaDefinition.CopyFieldDefinition;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
@@ -160,14 +161,19 @@ public class DefaultSchemaOperations implements SchemaOperations {
 
 		template.execute(solrClient -> {
 
-			UpdateResponse response = new SchemaRequest.DeleteField(name).process(solrClient, collection);
-			if (hasErrors(response)) {
-				throw new SchemaModificationException(
-						String.format("Removing field with name %s from collection %s failed with status %s. Server returned %s.",
-								name, collection, response.getStatus(), response));
-			}
+			try {
+				UpdateResponse response = new SchemaRequest.DeleteField(name).process(solrClient, collection);
+				if (hasErrors(response)) {
+					throw new SchemaModificationException(
+							String.format("Removing field with name %s from collection %s failed with status %s. Server returned %s.",
+									name, collection, response.getStatus(), response));
+				}
 
-			return Integer.valueOf(response.getStatus());
+				return Integer.valueOf(response.getStatus());
+			} catch (Exception e) {
+				throw new SchemaModificationException(
+						String.format("Removing field with name %s from collection %s failed.", name, collection));
+			}
 		});
 	}
 

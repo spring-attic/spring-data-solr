@@ -91,8 +91,6 @@ public class SolrTemplateTests {
 	private SolrTemplate solrTemplate;
 
 	private static final SimpleJavaObject SIMPLE_OBJECT = new SimpleJavaObject("simple-string-id", 123l);
-	private static final SimpleBoostedJavaObject SIMPLE_BOOSTED_OBJECT = new SimpleBoostedJavaObject("simple-string-id",
-			123l, "simple-string-boost");
 	private static final SolrInputDocument SIMPLE_DOCUMENT = new SolrInputDocument();
 	private static final String COLLECTION_NAME = "collection-1";
 
@@ -376,39 +374,6 @@ public class SolrTemplateTests {
 
 		verify(solrClientMock, times(1)).query(nullable(String.class), captor.capture(), eq(SolrRequest.METHOD.GET));
 		assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
-	}
-
-	@Test // DATASOLR-88
-	public void testSaveBoostedShouldUseDocumentBoost()
-			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
-
-		solrTemplate.saveBean(COLLECTION_NAME, SIMPLE_BOOSTED_OBJECT);
-
-		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
-		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
-
-		assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
-		assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
-
-		float entityBoost = AnnotationUtils.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass(), SolrDocument.class).boost();
-		assertThat(captor.getValue().getDocumentBoost(), Is.is(entityBoost));
-	}
-
-	@Test // DATASOLR-88
-	public void testSaveBoostedShouldUseFieldBoostViaIndexedAnnotation()
-			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
-
-		solrTemplate.saveBean(COLLECTION_NAME, SIMPLE_BOOSTED_OBJECT);
-
-		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
-		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
-
-		assertEquals(SIMPLE_BOOSTED_OBJECT.getId(), captor.getValue().getFieldValue("id"));
-		assertEquals(SIMPLE_BOOSTED_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
-
-		float fieldBoost = AnnotationUtils
-				.getAnnotation(SIMPLE_BOOSTED_OBJECT.getClass().getDeclaredField("boostedField"), Indexed.class).boost();
-		assertThat(captor.getValue().getField("boostedField").getBoost(), Is.is(fieldBoost));
 	}
 
 	@Test // DATASOLR-72, DATASOLR-313, DATASOLR-309
