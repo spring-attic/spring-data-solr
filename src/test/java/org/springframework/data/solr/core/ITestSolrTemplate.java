@@ -754,6 +754,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
+	@Ignore("https://issues.apache.org/jira/browse/SOLR-12069")
 	public void testQueryWithDefaultOperator() {
 		List<ExampleSolrBean> values = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
@@ -1246,7 +1247,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	@Test // DATSOLR-364
 	public void shouldUseBaseUrlInCollectionCallbackWhenExecutingCommands() {
 
-		final HttpSolrClient client = new HttpSolrClient("http://127.0.0.1/solr/");
+		final HttpSolrClient client = new HttpSolrClient.Builder().withBaseSolrUrl("http://127.0.0.1/solr/").build();
 
 		SolrTemplate solrTemplate = new SolrTemplate(new HttpSolrClientFactory(client));
 

@@ -48,17 +48,6 @@ public interface SolrPersistentProperty extends PersistentProperty<SolrPersisten
 	boolean containsWildcard();
 
 	/**
-	 * @return true if property is boosted
-	 */
-	boolean isBoosted();
-
-	/**
-	 * @return property boost value if {@link #isBoosted()}, null otherwise
-	 */
-	@Nullable
-	Float getBoost();
-
-	/**
 	 * @return true if property shall be indexed in solr.
 	 * @since 1.3
 	 */

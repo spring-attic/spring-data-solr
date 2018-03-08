@@ -15,16 +15,14 @@
  */
 package org.springframework.data.solr.server.support;
 
-import java.util.Collections;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.auth.params.AuthPNames;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -64,22 +62,26 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 	}
 
 	private void appendAuthentication(Credentials credentials, String authPolicy, SolrClient solrClient) {
+
 		if (isHttpSolrClient(solrClient)) {
+
 			HttpSolrClient httpSolrClient = (HttpSolrClient) solrClient;
 
 			if (credentials != null && StringUtils.isNotBlank(authPolicy)
 					&& assertHttpClientInstance(httpSolrClient.getHttpClient())) {
-				AbstractHttpClient httpClient = (AbstractHttpClient) httpSolrClient.getHttpClient();
-				httpClient.getCredentialsProvider().setCredentials(new AuthScope(AuthScope.ANY), credentials);
-				httpClient.getParams().setParameter(AuthPNames.TARGET_AUTH_PREF, Collections.singletonList(authPolicy));
+
+				HttpClient httpClient = httpSolrClient.getHttpClient();
+
+				DirectFieldAccessor df = new DirectFieldAccessor(httpClient);
+				CredentialsProvider provider = (CredentialsProvider) df.getPropertyValue("credentialsProvider");
+
+				provider.setCredentials(new AuthScope(AuthScope.ANY), credentials);
 			}
 		}
 	}
 
 	private boolean assertHttpClientInstance(HttpClient httpClient) {
-		Assert.isInstanceOf(AbstractHttpClient.class, httpClient,
-				"HttpClient has to be derivate of AbstractHttpClient in order to allow authentication.");
-		return true;
+		return httpClient.getClass().getName().contains("InternalHttpClient");
 	}
 
 }

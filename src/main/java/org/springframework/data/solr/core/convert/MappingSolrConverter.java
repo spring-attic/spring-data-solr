@@ -299,9 +299,8 @@ public class MappingSolrConverter extends SolrConverterBase
 						+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
 			}
 
-			Collection<SolrInputField> fields = null;
 			if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
-				fields = writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value);
+				writeWildcardMapPropertyToTarget(target, persistentProperty, (Map<?, ?>) value);
 			} else if (persistentProperty.isEntity() && persistentProperty.isChildProperty()) {
 
 				List<SolrInputDocument> nestedDocs = new ArrayList<>();
@@ -321,20 +320,9 @@ public class MappingSolrConverter extends SolrConverterBase
 
 				target.addChildDocuments(nestedDocs);
 			} else {
-				fields = writeRegularPropertyToTarget(target, persistentProperty, value);
-			}
-
-			if (fields != null && persistentProperty.isBoosted()) {
-				for (SolrInputField field : fields) {
-					field.setBoost(persistentProperty.getBoost());
-				}
+				writeRegularPropertyToTarget(target, persistentProperty, value);
 			}
 		});
-
-		if (entity.isBoosted() && target instanceof SolrInputDocument) {
-			((SolrInputDocument) target).setDocumentBoost(entity.getBoost());
-		}
-
 	}
 
 	private Collection<SolrInputField> writeWildcardMapPropertyToTarget(SolrDocumentBase target,
@@ -360,16 +348,16 @@ public class MappingSolrConverter extends SolrConverterBase
 			if (value instanceof Iterable) {
 
 				for (Object o : (Iterable<?>) value) {
-					field.addValue(convertToSolrType(rawMapType, o), 1f);
+					field.addValue(convertToSolrType(rawMapType, o));
 				}
 			} else {
 
 				if (rawMapType.isArray()) {
 					for (Object o : (Object[]) value) {
-						field.addValue(convertToSolrType(rawMapType, o), 1f);
+						field.addValue(convertToSolrType(rawMapType, o));
 					}
 				} else {
-					field.addValue(convertToSolrType(rawMapType, value), 1f);
+					field.addValue(convertToSolrType(rawMapType, value));
 				}
 
 			}
@@ -391,16 +379,16 @@ public class MappingSolrConverter extends SolrConverterBase
 			for (Object o : collection) {
 				if (o != null) {
 					if (o instanceof Enum) {
-						field.addValue(this.getConversionService().convert(o, String.class), 1f);
+						field.addValue(this.getConversionService().convert(o, String.class));
 					} else {
-						field.addValue(convertToSolrType(persistentProperty.getType(), o), 1f);
+						field.addValue(convertToSolrType(persistentProperty.getType(), o));
 					}
 				}
 			}
 		} else if (fieldValue instanceof Enum) {
-			field.setValue(this.getConversionService().convert(fieldValue, String.class), 1f);
+			field.setValue(this.getConversionService().convert(fieldValue, String.class));
 		} else {
-			field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue), 1f);
+			field.setValue(convertToSolrType(persistentProperty.getType(), fieldValue));
 		}
 
 		target.put(persistentProperty.getFieldName(), field);

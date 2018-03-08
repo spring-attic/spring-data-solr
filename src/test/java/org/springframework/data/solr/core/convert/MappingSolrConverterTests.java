@@ -1005,60 +1005,6 @@ public class MappingSolrConverterTests {
 		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
 	}
 
-	@Test // DATASOLR-235
-	public void testRegularFieldBoosting() {
-
-		BeanWithBoost bean = new BeanWithBoost();
-		bean.boostedRegularField = "value";
-		bean.regularField = "value";
-
-		SolrInputDocument target = new SolrInputDocument();
-		converter.write(bean, target);
-
-		// configured boost
-		Assert.assertEquals(0.5f, target.get("boostedRegularField").getBoost(), 0);
-		// default boost
-		Assert.assertEquals(1, target.get("regularField").getBoost(), 0);
-	}
-
-	@Test // DATASOLR-235
-	public void testMapWildcardFieldBoosting() {
-
-		BeanWithBoost bean = new BeanWithBoost();
-
-		bean.boostedMapWildcardField = new HashMap<>();
-		bean.boostedMapWildcardField.put("val1_boostedMapWildcardField", "value");
-		bean.boostedMapWildcardField.put("val2_boostedMapWildcardField", "value");
-
-		bean.mapWildcardField = new HashMap<>();
-		bean.mapWildcardField.put("val1_mapWildcardField", "value");
-		bean.mapWildcardField.put("val2_mapWildcardField", "value");
-
-		SolrInputDocument target = new SolrInputDocument();
-		converter.write(bean, target);
-
-		// configured boost
-		Assert.assertEquals(0.5f, target.get("val1_boostedMapWildcardField").getBoost(), 0);
-		Assert.assertEquals(0.5f, target.get("val2_boostedMapWildcardField").getBoost(), 0);
-		// default boost
-		Assert.assertEquals(1, target.get("val1_mapWildcardField").getBoost(), 0);
-		Assert.assertEquals(1, target.get("val2_mapWildcardField").getBoost(), 0);
-	}
-
-	@Test // DATASOLR-235
-	public void testDocumentBoosting() {
-		SolrInputDocument boostedDocument = new SolrInputDocument();
-		SolrInputDocument regularDocument = new SolrInputDocument();
-
-		converter.write(new BeanWithBoost(), boostedDocument);
-		converter.write(new BeanBase(), regularDocument);
-
-		// configured boost
-		Assert.assertEquals(0.5f, boostedDocument.getDocumentBoost(), 0);
-		// default boost
-		Assert.assertEquals(1, regularDocument.getDocumentBoost(), 0);
-	}
-
 	@Test // DATASOLR-375
 	public void writeEnumValues() {
 
@@ -1281,17 +1227,4 @@ public class MappingSolrConverterTests {
 		}
 
 	}
-
-	@org.springframework.data.solr.core.mapping.SolrDocument(boost = 0.5f)
-	public static class BeanWithBoost {
-
-		@Indexed(boost = 0.5f) String boostedRegularField;
-
-		@Indexed(name = "*_boostedMapWildcardField", boost = 0.5f) Map<String, String> boostedMapWildcardField;
-
-		@Indexed String regularField;
-
-		@Indexed(name = "*_mapWildcardField") Map<String, String> mapWildcardField;
-	}
-
 }

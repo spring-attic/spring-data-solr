@@ -353,29 +353,7 @@ Page<Product> findByNameOrDescription(@Boost(2) String name, String description)
 [[solr.misc.boost.index-time]]
 === Index Time Boosts
 
-Boosting documents score can be done on index time by using `@SolrDocument` annotation on classes (for Solr documents) and/or `@Indexed` on fields (for Solr fields).
-
-====
-[source,java]
-----
-import org.apache.solr.client.solrj.beans.Field;
-import org.springframework.data.solr.repository.Boost;
-
-@SolrDocument(boost = 0.8f)
-public class MyEntity {
-
-    @Id
-    @Indexed
-    private String id;
-    
-    @Indexed(boost = 1.0f)
-    private String name;
-    
-    // setters and getters ...
-
-}	            
-----
-====
+Both document and field based index time boosting have been removed for Apache Solr 7 and therefore Spring Data for Apache Solr 4.x.
 
 [[solr.misc.requesthandler]]
 == Select Request Handler

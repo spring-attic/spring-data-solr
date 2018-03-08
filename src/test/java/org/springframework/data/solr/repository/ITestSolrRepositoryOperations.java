@@ -36,6 +36,7 @@ import org.joda.time.DateTimeZone;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -752,6 +753,7 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	@Ignore("https://issues.apache.org/jira/browse/SOLR-12069")
 	public void testDefaultAndOperator() {
 		List<ProductBean> found = repo.findByAvailableIn(Collections.singletonList(Boolean.TRUE));
 		Assert.assertEquals(3, found.size());
@@ -761,6 +763,7 @@ public class ITestSolrRepositoryOperations {
 	}
 
 	@Test
+	@Ignore("https://issues.apache.org/jira/browse/SOLR-12069")
 	public void testDefaultOrOperator() {
 		List<ProductBean> found = repo.findByAvailableInWithOrOperator(Collections.singletonList(Boolean.TRUE));
 		Assert.assertEquals(3, found.size());

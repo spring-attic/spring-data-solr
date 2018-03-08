@@ -46,7 +46,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
 	private String collectionName;
-	private @Nullable Float boost;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
@@ -54,7 +53,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		this.context = new StandardEvaluationContext();
 		this.typeInformation = typeInformation;
 		this.collectionName = derivateSolrCollectionName();
-		this.boost = derivateDocumentBoost();
 	}
 
 	/*
@@ -78,16 +76,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 	}
 
-	@Nullable
-	private Float derivateDocumentBoost() {
-
-		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument != null && !Float.isNaN(solrDocument.boost())) {
-			return solrDocument.boost();
-		}
-		return null;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getCollectionName()
@@ -95,25 +83,6 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	@Override
 	public String getCollectionName() {
 		return this.collectionName;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#isBoosted()
-	 */
-	@Override
-	public boolean isBoosted() {
-		return boost != null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getBoost()
-	 */
-	@Nullable
-	@Override
-	public Float getBoost() {
-		return boost;
 	}
 
 	/*

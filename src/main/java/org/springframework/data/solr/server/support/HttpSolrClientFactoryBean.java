@@ -15,12 +15,12 @@
  */
 package org.springframework.data.solr.server.support;
 
-import java.net.MalformedURLException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -56,26 +56,32 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory
 	}
 
 	private void createHttpSolrClient() {
-		HttpSolrClient httpSolrClient = new HttpSolrClient(this.url);
+
+		HttpSolrClient.Builder builder = new HttpSolrClient.Builder().withBaseSolrUrl(this.url);
+
 		if (timeout != null) {
-			httpSolrClient.setConnectionTimeout(timeout);
+			builder = builder.withConnectionTimeout(timeout);
 		}
+
 		if (maxConnections != null) {
-			httpSolrClient.setMaxTotalConnections(maxConnections);
+
+			ModifiableSolrParams params = new ModifiableSolrParams();
+			params.set(HttpClientUtil.PROP_MAX_CONNECTIONS, maxConnections);
+
+			builder.withHttpClient(HttpClientUtil.createClient(params));
 		}
-		this.setSolrClient(httpSolrClient);
+
+		this.setSolrClient(builder.build());
 	}
 
 	private void createLoadBalancedHttpSolrClient() {
-		try {
-			LBHttpSolrClient lbHttpSolrClient = new LBHttpSolrClient(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
-			if (timeout != null) {
-				lbHttpSolrClient.setConnectionTimeout(timeout);
-			}
-			this.setSolrClient(lbHttpSolrClient);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Unable to create Load Balanced Http Solr Server", e);
+
+		LBHttpSolrClient.Builder builder = new LBHttpSolrClient.Builder()
+				.withBaseSolrUrls(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
+		if (timeout != null) {
+			builder.withConnectionTimeout(timeout);
 		}
+		this.setSolrClient(builder.build());
 	}
 
 	@Override
