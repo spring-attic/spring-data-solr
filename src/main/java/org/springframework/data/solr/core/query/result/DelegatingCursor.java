@@ -52,7 +52,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 		this.referenceQuery = query;
 		this.cursorMark = StringUtils.hasText(initalCursorMark) ? initalCursorMark : CursorMarkParams.CURSOR_MARK_START;
-		this.state = State.REDAY;
+		this.state = State.READY;
 		this.delegate = Collections.<T> emptyList().iterator();
 	}
 
@@ -224,7 +224,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 	 * @return true if {@link State#REDAY}
 	 */
 	public boolean isReady() {
-		return State.REDAY.equals(state);
+		return State.REDAY.equals(state) || State.READY.equals(state);
 	}
 
 	/*

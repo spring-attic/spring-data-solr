@@ -30,7 +30,12 @@ import org.springframework.lang.Nullable;
 public interface Cursor<T> extends Iterator<T>, Closeable {
 
 	enum State {
-		REDAY, OPEN, FINISHED, CLOSED
+
+		/**
+		 * @deprecated since 3.1. Please use READY instead.
+		 */
+		@Deprecated
+		REDAY, READY, OPEN, FINISHED, CLOSED
 	}
 
 	/**
@@ -43,7 +48,7 @@ public interface Cursor<T> extends Iterator<T>, Closeable {
 
 	/**
 	 * Opens the cursor. <br />
-	 * Only {@link State#REDAY} cursors can be opened.
+	 * Only {@link State#READY} cursors can be opened.
 	 * 
 	 * @return
 	 */
