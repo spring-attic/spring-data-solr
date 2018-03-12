@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 
 /**
  * Uses {@link CdiRepositoryBean} to create {@link SolrRepository} instances.
- * 
+ *
  * @author Christoph Strobl
  * @author Mark Paluch
  */
@@ -59,17 +59,15 @@ public class SolrRepositoryBean<T> extends CdiRepositoryBean<T> {
 	}
 
 	/*
-		 * (non-Javadoc)
-		 * @see org.springframework.data.repository.cdi.CdiRepositoryBean#create(javax.enterprise.context.spi.CreationalContext, java.lang.Class, java.lang.Object)
-		 */
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.cdi.CdiRepositoryBean#create(javax.enterprise.context.spi.CreationalContext, java.lang.Class)
+	 */
 	@Override
-	protected T create(CreationalContext<T> creationalContext, Class<T> repositoryType,
-			Optional<Object> customImplementation) {
+	protected T create(CreationalContext<T> creationalContext, Class<T> repositoryType) {
+
 		SolrOperations solrOperations = getDependencyInstance(solrOperationsBean, SolrOperations.class);
 
-		return customImplementation.isPresent()
-				? new SolrRepositoryFactory(solrOperations).getRepository(repositoryType, customImplementation.get())
-				: new SolrRepositoryFactory(solrOperations).getRepository(repositoryType);
+		return create(() -> new SolrRepositoryFactory(solrOperations), repositoryType);
 	}
 
 	/*
