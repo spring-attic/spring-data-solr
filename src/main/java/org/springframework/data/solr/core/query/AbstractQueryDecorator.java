@@ -230,4 +230,12 @@ public abstract class AbstractQueryDecorator implements Query {
 		return ClassUtils.getUserClass(query.getClass());
 	}
 
+	/**
+	 * @return the decorated {@link Query}. Never {@literal null}.
+	 * @since 3.0.6
+	 */
+	public Query getDecoratedQuery() {
+		return query;
+	}
+
 }
