@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.11.RELEASE (2018-04-04)
+----------------------------------------------
+* DATASOLR-454 - Remove explicit declaration of Jackson library versions.
+* DATASOLR-448 - %s is logged instead of the actual query.
+* DATASOLR-441 - Fix line endings.
+* DATASOLR-440 - Release 2.1.11 (Ingalls SR11).
+
+
 Changes in version 3.0.5.RELEASE (2018-02-28)
 ---------------------------------------------
 * DATASOLR-446 - Release 3.0.5 (Kay SR5).
