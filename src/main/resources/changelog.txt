@@ -1,6 +1,16 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.6.RELEASE (2018-04-04)
+---------------------------------------------
+* DATASOLR-454 - Remove explicit declaration of Jackson library versions.
+* DATASOLR-452 - Can't register custom QueryParser because the Query object is wrapped with NamedObjects just before parse.
+* DATASOLR-449 - Release 3.0.6 (Kay SR6).
+* DATASOLR-448 - %s is logged instead of the actual query.
+* DATASOLR-447 - Dependency Conflict : Conflicting classes existing in different libraries.
+* DATASOLR-438 - Rollback method.
+
+
 Changes in version 2.1.11.RELEASE (2018-04-04)
 ----------------------------------------------
 * DATASOLR-454 - Remove explicit declaration of Jackson library versions.
