@@ -1,6 +1,22 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.0.M2 (2018-04-13)
+----------------------------------------
+* DATASOLR-459 - Release 4.0 M2 (Lovelace).
+* DATASOLR-458 - Adapt to API changes in Spring Data Commons.
+* DATASOLR-454 - Remove explicit declaration of Jackson library versions.
+* DATASOLR-453 - Export composable repositories via CDI.
+* DATASOLR-452 - Can't register custom QueryParser because the Query object is wrapped with NamedObjects just before parse.
+* DATASOLR-451 - SolrCrudRepository with spatial query is order-sensitive.
+* DATASOLR-448 - %s is logged instead of the actual query.
+* DATASOLR-447 - Dependency Conflict : Conflicting classes existing in different libraries.
+* DATASOLR-445 - Cursor.State enum is "REDAY" not "READY".
+* DATASOLR-443 - Release 3.1 M2 (Lovelace).
+* DATASOLR-438 - Rollback method.
+* DATASOLR-427 - Upgrade to Solr 7 (requires major version bump to 4).
+
+
 Changes in version 3.0.6.RELEASE (2018-04-04)
 ---------------------------------------------
 * DATASOLR-454 - Remove explicit declaration of Jackson library versions.
