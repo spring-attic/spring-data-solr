@@ -20,14 +20,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.lang.Nullable;
-
+import java.io.Serializable;
 /**
  * Solr specific implementation of {@code Pageable} allowing zero sized pages.
  * 
  * @author Christoph Strobl
  */
-public class SolrPageRequest implements Pageable {
-
+public class SolrPageRequest implements Pageable, Serializable{
+	private static final long serialVersionUID = 1232825578694716871L;
 	private @Nullable Sort sort;
 	private int page;
 	private int size;
