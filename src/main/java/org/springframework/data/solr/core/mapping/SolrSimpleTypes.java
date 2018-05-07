@@ -35,11 +35,10 @@ public class SolrSimpleTypes {
 	}
 
 	static {
-		Set<Class<?>> classes = new HashSet<>();
-		classes.add(BigInteger.class);
-		classes.add(SolrInputDocument.class);
-
 		Set<Class<?>> simpleTypes = new HashSet<>();
+		simpleTypes.add(BigInteger.class);
+		simpleTypes.add(SolrInputDocument.class);
+
 		SOLR_SIMPLE_TYPES = Collections.unmodifiableSet(simpleTypes);
 	}
 
