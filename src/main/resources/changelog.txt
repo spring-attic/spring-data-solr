@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.7.RELEASE (2018-05-08)
+---------------------------------------------
+* DATASOLR-461 - On server startup annoying warn message for spring provided converters.
+* DATASOLR-457 - Release 3.0.7 (Kay SR7).
+
+
 Changes in version 2.1.12.RELEASE (2018-05-08)
 ----------------------------------------------
 * DATASOLR-456 - Release 2.1.12 (Ingalls SR12).
