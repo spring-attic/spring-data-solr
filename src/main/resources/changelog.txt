@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.0.M3 (2018-05-17)
+----------------------------------------
+* DATASOLR-467 - Adapt to SpEL extension API changes in Spring Data Commons.
+* DATASOLR-461 - On server startup annoying warn message for spring provided converters.
+* DATASOLR-460 - Release 4.0 M3 (Lovelace).
+
+
 Changes in version 3.0.7.RELEASE (2018-05-08)
 ---------------------------------------------
 * DATASOLR-461 - On server startup annoying warn message for spring provided converters.
