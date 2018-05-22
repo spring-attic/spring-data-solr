@@ -28,6 +28,11 @@ import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
 import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.LiteralExpression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
@@ -47,12 +52,15 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	private final StandardEvaluationContext context;
 	private String collectionName;
 
+	private final @Nullable Expression expression;
+
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
 		super(typeInformation);
 		this.context = new StandardEvaluationContext();
 		this.typeInformation = typeInformation;
 		this.collectionName = derivateSolrCollectionName();
+		this.expression = potentiallyExtractCollectionExpresssion(collectionName);
 	}
 
 	/*
@@ -76,13 +84,29 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
 	}
 
+	private static Expression potentiallyExtractCollectionExpresssion(String collectionName) {
+
+		Expression expression = new SpelExpressionParser().parseExpression(collectionName,
+				ParserContext.TEMPLATE_EXPRESSION);
+
+		return expression instanceof LiteralExpression ? null : expression;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getCollectionName()
 	 */
 	@Override
 	public String getCollectionName() {
-		return this.collectionName;
+
+		if (expression == null) {
+			return collectionName;
+		}
+
+		EvaluationContext ctx = getEvaluationContext(null);
+		ctx.setVariable("targetType", typeInformation.getType());
+
+		return expression.getValue(ctx, String.class);
 	}
 
 	/*

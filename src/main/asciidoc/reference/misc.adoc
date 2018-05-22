@@ -3,6 +3,25 @@
 
 This chapter covers additional support for Solr operations (such as faceting) that cannot be directly accessed via the repository interface. It is recommended to add those operations as custom implementation as described in <<repositories.custom-implementations>> .
 
+[[solr.misc.collection-name]]
+== Collection / Core Name
+
+Using the `@SolrDocument` annotation it is possible to customize the used collection name by either giving it a
+static value or use https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[mongodb-driver-sync] for dynamic evaluation.
+
+====
+[source,java]
+----
+@SolrDocument(collection = "techproducts")
+class StaticCollectionName { ... }
+
+@SolrDocument(collection = "#{@someBean.getCollectionName()}")
+class DynamicCollectionName { ... }
+----
+====
+
+NOTE: The the type annotated with `@SolrDocument` is available via the `targetType` variable within the expression.
+
 [[solr.misc.partialUpdates]]
 == Partial Updates
 
