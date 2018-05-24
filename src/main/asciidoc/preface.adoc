@@ -1,22 +1,24 @@
 = Preface
 
-The Spring Data for Apache Solr project applies core Spring concepts to the development of solutions using the Apache Solr Search Engine. We provide a "template" as a high-level abstraction for storing and querying documents. You will notice similarities to the mongodb support in the Spring Framework.
+The Spring Data for Apache Solr project applies core Spring concepts to the development of solutions by using the Apache Solr Search Engine. We provide a "`template`" as a high-level abstraction for storing and querying documents. You may notice similarities to the MongoDB support in the Spring Framework.
 
 [[project]]
 [preface]
 == Project Metadata
 
-* Version Control - https://github.com/spring-projects/spring-data-solr
-* Bugtacker - https://jira.spring.io/browse/DATASOLR
-* Release repository - https://repo.spring.io/libs-release
-* Milestone repository - https://repo.spring.io/libs-milestone
-* Snapshot repository - https://repo.spring.io/libs-snapshot
+* Version Control: https://github.com/spring-projects/spring-data-solr
+* Bugtacker: https://jira.spring.io/browse/DATASOLR
+* Release repository: https://repo.spring.io/libs-release
+* Milestone repository: https://repo.spring.io/libs-milestone
+* Snapshot repository: https://repo.spring.io/libs-snapshot
 
 [[requirements]]
 [preface]
 == Requirements
 
-Requires Java 8 runtime and http://lucene.apache.org/solr/[Apache Solr] 7.2. Preferably the latest 7.2.x version.
+Spring Data Solr requires Java 8 runtime and http://lucene.apache.org/solr/[Apache Solr] 7.2. We recommend using the latest 7.2.x version.
+
+The following Maven dependency snippet shows how to include Apache Solr in your project:
 
 [source,xml]
 ----
