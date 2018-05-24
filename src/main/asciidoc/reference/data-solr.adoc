@@ -1,19 +1,18 @@
 [[solr.repositories]]
 = Solr Repositories
 
-This chapter includes details of the Solr repository implementation.
-
-[[solr.introduction]]
-== Introduction
+This chapter covers details of the Solr repository implementation.
 
 [[solr.namespace]]
 === Spring Namespace
 
-The Spring Data Solr module contains a custom namespace allowing definition of repository beans as well as elements for instantiating a `SolrClient` .
+The Spring Data Solr module contains a custom namespace that allows definition of repository beans and has elements for instantiating a `SolrClient` .
 
-Using the `repositories` element looks up Spring Data repositories as described in <<repositories.create-instances>> .
+Using the `repositories` element looks up Spring Data repositories as described in <<repositories.create-instances>>.
 
-.Setting up Solr repositories using Namespace
+The following example shows how to set up Solr repositories that use the Spring Data Solr namespace:
+
+.Setting up Solr repositories using the namespace
 ====
 [source,xml]
 ----
@@ -33,7 +32,9 @@ Using the `repositories` element looks up Spring Data repositories as described 
 
 Using the `solr-server` or `embedded-solr-server` element registers an instance of `SolrClient` in the context.
 
-.HttpSolrClient using Namespace
+The following examples shows how to set up a Solr client for HTTP:
+
+.`HttpSolrClient` using the namespace
 ====
 [source,xml]
 ----
@@ -51,7 +52,9 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
 ----
 ====
 
-.LBSolrClient using Namespace
+The following example shows how to set up a load-balancing Solr client:
+
+.`LBSolrClient` using the namespace
 ====
 [source,xml]
 ----
@@ -69,7 +72,9 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
 ----
 ====
 
-.EmbeddedSolrServer using Namespace
+The following example shows how to set up an embedded Solr server:
+
+.EmbeddedSolrServer using the namespace
 ====
 [source,xml]
 ----
@@ -88,11 +93,13 @@ Using the `solr-server` or `embedded-solr-server` element registers an instance 
 ====
 
 [[solr.annotation]]
-=== Annotation based configuration
+=== Annotation-based Configuration
 
-The Spring Data Solr repositories support cannot only be activated through an XML namespace but also using an annotation through JavaConfig.
+The Spring Data Solr repositories support can be activated both through an XML namespace and by using an annotation through Java configuration.
 
-.Spring Data Solr repositories using JavaConfig
+The following example shows how to set up Solr repositories with Java configuration:
+
+.Spring Data Solr repositories using Java configuration
 ====
 [source,java]
 ----
@@ -114,14 +121,14 @@ class ApplicationConfig {
 ----
 ====
 
-The configuration above sets up an `EmbeddedSolrServer` which is used by the `SolrTemplate` . Spring Data Solr Repositories are activated using the `@EnableSolrRepositories` annotation, which essentially carries the same attributes as the XML namespace does. If no base package is configured, it will use the one the configuration class resides in.
+The preceding configuration sets up an `EmbeddedSolrServer`, which is used by the `SolrTemplate` . Spring Data Solr repositories are activated by using the `@EnableSolrRepositories` annotation, which essentially carries the same attributes as the XML namespace. If no base package is configured, it use the package in which the configuration class resides.
 
 [[solr.cdi]]
-=== Solr Repositores using CDI
+=== Using CDI to Set up Solr Repositores
 
-The Spring Data Solr repositories can also be set up using CDI functionality.
+You can also use CDI to set up the Spring Data Solr repositories, as the following example shows:
 
-.Spring Data Solr repositories using JavaConfig
+.Spring Data Solr repositories using Java configuration
 ====
 [source,java]
 ----
@@ -153,7 +160,9 @@ class ProductService {
 [[solr.transactions]]
 === Transaction Support
 
-Solr supports transactions on server level means create, updaet, delete actions since the last commit/optimize/rollback are queued on the server and committed/optimized/rolled back at once. Spring Data Solr Repositories will participate in Spring Managed Transactions and commit/rollback changes on complete.
+Solr support for transactions on the server level means that create, update, and delete actions since the last commit, optimization, or rollback are queued on the server and committed, optimized, or rolled back as a group. Spring Data Solr repositories participate in Spring Managed Transactions and commit or rollback changes on complete.
+
+The following example shows how to use the `@Transactional` annotation to define a transaction (a save in this case):
 
 ====
 [source,java]
@@ -168,21 +177,25 @@ public Product save(Product product) {
 ====
 
 [[solr.query-methods]]
-== Query methods
+== Query Methods
+
+This section covers creating queries by using methods within Java classes.
 
 [[solr.query-methods.finders]]
-=== Query lookup strategies
+=== Query Lookup Strategies
 
-The Solr module supports defining a query manually as String or have it being derived from the method name. NOTE: There is no QueryDSL Support present at this time.
+The Solr module supports defining a query manually as `String` or having it be derived from the method name.
 
-==== Declared queries
+NOTE: There is no QueryDSL support at this time.
 
-Deriving the query from the method name is not always sufficient and/or may result in unreadable method names. In this case one might make either use of Solr named queries (see <<solr.query-methods.named-queries>> ) or use the `@Query` annotation (see <<solr.query-methods.at-query>> ).
+==== Declared Queries
+
+Deriving the query from the method name is not always sufficient and may result in unreadable method names. In this case you can either use Solr named queries (see "`<<solr.query-methods.named-queries>>`") or use the `@Query` annotation (see "`<<solr.query-methods.at-query>>`").
 
 [[solr.query-methods.criterions]]
-=== Query creation
+=== Query Creation
 
-Generally the query creation mechanism for Solr works as described in <<repositories.query-methods>> . Here's a short example of what a Solr query method translates into:
+Generally, the query creation mechanism for Solr works as described in <<repositories.query-methods>> . The following example shows what a Solr query method:
 
 .Query creation from method names
 ====
@@ -194,21 +207,25 @@ public interface ProductRepository extends Repository<Product, String> {
 ----
 ====
 
-The method name above will be translated into the following solr query
+The preceding example translates into the following Solr query:
 
+====
 [source]
 ----
 q=name:?0 AND popularity:?1
 ----
+====
 
-A list of supported keywords for Solr is shown below.
+The following table describes the supported keywords for Solr:
 
 [cols="1,2,3", options="header"]
 .Supported keywords inside method names
 |===
 | Keyword
 | Sample
-| Solr Query String| `And`
+| Solr Query String
+
+| `And`
 | `findByNameAndPopularity`
 | `q=name:?0 AND popularity:?1`
 
@@ -330,9 +347,9 @@ Page<Product> findByNameLike(Collection<String> name);
 ----
 
 [[solr.query-methods.at-query]]
-=== Using @Query Annotation
+=== Using the `@Query` Annotation
 
-Using named queries ( <<solr.query-methods.named-queries>> ) to declare queries for entities is a valid approach and works fine for a small number of queries. As the queries themselves are tied to the Java method that executes them, you actually can bind them directly using the Spring Data Solr `@Query` annotation.
+Using named queries (see "`<<solr.query-methods.named-queries>>`") to declare queries for entities is a valid approach and works fine for a small number of queries. As the queries themselves are tied to the Java method that executes them, you actually can bind them directly by using the Spring Data Solr `@Query` annotation. The following example uses the `@Query` annotation to declare a query:
 
 .Declare query at the method using the `@Query` annotation.
 ====
@@ -346,11 +363,11 @@ public interface ProductRepository extends SolrRepository<Product, String> {
 ====
 
 [[solr.query-methods.named-queries]]
-=== Using NamedQueries
+=== Using Named Queries
 
-Named queries can be kept in a properties file and wired to the accroding method. Please mind the naming convention described in <<repositories.query-methods.query-lookup-strategies>> or use `@Query` .
+Named queries can be kept in a properties file and wired to the corresponding method. You should keep in mind the naming convention described in "`<<repositories.query-methods.query-lookup-strategies>>`" or use `@Query`. The following example shows how to declare name queries in a properties file:
 
-.Declare named query in properties file
+.Declare named query in a properties file
 ====
 [source]
 ----
@@ -358,6 +375,8 @@ Product.findByNamedQuery=popularity:?0
 Product.findByName=name:?0
 ----
 ====
+
+The following example uses one of the named queries (`findByName`) declared in the preceding example:
 
 [source,java]
 ----
@@ -374,12 +393,14 @@ public interface ProductRepository extends SolrCrudRepository<Product, String> {
 [[solr.mapping]]
 == Document Mapping
 
-Though there is already support for Entity Mapping within SolrJ, Spring Data Solr ships with its own mapping mechanism shown in the following section. NOTE: DocumentObjectBinder has superior performance. Therefore usage is recommended if there is not need for custom type mapping. You can switch to DocumentObjectBinder by registering SolrJConverter within SolrTemplate.
+Though there is already support for Entity Mapping within SolrJ, Spring Data Solr ships with its own mapping mechanism (described in the following section).
+
+NOTE: `DocumentObjectBinder` has superior performance. Therefore, we recommend using it if you have no need for customer mapping. You can switch to `DocumentObjectBinder` by registering `SolrJConverter` within `SolrTemplate`.
 
 [[solr.mapping.mappingSolr]]
-=== Mapping Solr Converter
+=== `MappingSolrConverter`
 
-`MappingSolrConverter` allows you to register custom converters for your `SolrDocument` and `SolrInputDocument` as well as for other types nested within your beans. The Converter is not 100% compartible with `DocumentObjectBinder` and `@Indexed` has to be added with `readonly=true` to ignore fields from beeing written to solr.
+`MappingSolrConverter` lets you register custom converters for your `SolrDocument` and `SolrInputDocument` as well as for other types nested within your beans. The converter is not 100% compatible with `DocumentObjectBinder`, and `@Indexed` has to be added with `readonly=true` to ignore fields from being written to Solr. The following example maps a number of fields within a document:
 
 .Sample Document Mapping
 ====
@@ -413,12 +434,14 @@ public class Product {
 ----
 ====
 
-Taking a look as the above `MappingSolrConverter` will do as follows:
+The following table describes the properties you can map with `MappingSolrConverter`:
 
 [cols="1,3", options="header"]
 |===
 | Property
-| Write Mapping| simpleProperty
+| Write Mapping
+
+| simpleProperty
 | `<field name="simpleProperty">value</field>`
 
 | namedPropery
@@ -440,7 +463,7 @@ Taking a look as the above `MappingSolrConverter` will do as follows:
 | `<field name="location">48.362893,14.534437</field>`
 |===
 
-To register a custom converter one must add `CustomConversions` to `SolrTemplate` initializing it with own `Converter` implementation.
+You can register a custom converter by adding `CustomConversions` to `SolrTemplate` and initializing it with your own `Converter` implementation, as the following example shows:
 
 ====
 [source]
