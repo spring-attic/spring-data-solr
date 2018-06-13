@@ -54,7 +54,7 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.ScoredPage;
-import org.springframework.data.solr.repository.Score;
+import org.springframework.data.solr.core.mapping.Score;
 import org.xml.sax.SAXException;
 
 /**

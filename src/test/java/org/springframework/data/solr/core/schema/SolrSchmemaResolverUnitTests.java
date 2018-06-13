@@ -35,7 +35,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
-import org.springframework.data.solr.repository.Score;
+import org.springframework.data.solr.core.mapping.Score;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
