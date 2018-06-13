@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.8.RELEASE (2018-06-13)
+---------------------------------------------
+* DATASOLR-465 - Release 3.0.8 (Kay SR8).
+
+
 Changes in version 2.1.13.RELEASE (2018-06-13)
 ----------------------------------------------
 * DATASOLR-464 - Release 2.1.13 (Ingalls SR13).
