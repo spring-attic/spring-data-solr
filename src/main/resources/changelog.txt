@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.13.RELEASE (2018-06-13)
+----------------------------------------------
+* DATASOLR-464 - Release 2.1.13 (Ingalls SR13).
+
+
 Changes in version 4.0.0.M3 (2018-05-17)
 ----------------------------------------
 * DATASOLR-467 - Adapt to SpEL extension API changes in Spring Data Commons.
