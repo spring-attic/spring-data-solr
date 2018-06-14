@@ -112,6 +112,8 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByAvailableTrueOrderByPopularityDesc();
 
+	List<ProductBean> findByOrderByAvailableDesc();
+
 	@Query("inStock:?0")
 	List<ProductBean> findByAvailableWithAnnotatedQueryUsingSort(boolean available, Sort sort);
 

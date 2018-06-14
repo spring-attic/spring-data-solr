@@ -40,21 +40,21 @@ public class ExistsFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static ExistsFunction exists(Field field) {
-		Assert.notNull(field, "Field cannot be 'null' for exists operation.");
 
-		return exists(field.getName());
+		Assert.notNull(field, "Field cannot be 'null' for exists operation.");
+		return new ExistsFunction(field);
 	}
 
 	/**
 	 * Creates new {@link ExistsFunction} representing {@code exists(fieldname)}
 	 *
-	 * @param fieldname
+	 * @param fieldName
 	 * @return
 	 */
-	public static ExistsFunction exists(String fieldname) {
-		Assert.hasText(fieldname, "Fieldname cannot be 'empty' for exists operation.");
+	public static ExistsFunction exists(String fieldName) {
 
-		return new ExistsFunction(fieldname);
+		Assert.hasText(fieldName, "fieldName cannot be 'empty' for exists operation.");
+		return exists(new SimpleField(fieldName));
 	}
 
 	/**
@@ -64,8 +64,8 @@ public class ExistsFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static ExistsFunction exists(Function function) {
-		Assert.notNull(function, "Function cannot be 'null' for exists operation.");
 
+		Assert.notNull(function, "Function cannot be 'null' for exists operation.");
 		return new ExistsFunction(function);
 	}
 

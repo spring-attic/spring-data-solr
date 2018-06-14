@@ -20,8 +20,13 @@ import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -32,7 +37,7 @@ public class QueryParsersTests {
 
 	@Before
 	public void setUp() {
-		this.parsers = new QueryParsers();
+		this.parsers = new QueryParsers(new SimpleSolrMappingContext());
 	}
 
 	@Test
@@ -57,8 +62,12 @@ public class QueryParsersTests {
 
 	private class CustomQueryParser extends QueryParserBase<SolrDataQuery> {
 
+		public CustomQueryParser() {
+			super(new SimpleSolrMappingContext());
+		}
+
 		@Override
-		public SolrQuery doConstructSolrQuery(SolrDataQuery query) {
+		public SolrQuery doConstructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
 			return null;
 		}
 

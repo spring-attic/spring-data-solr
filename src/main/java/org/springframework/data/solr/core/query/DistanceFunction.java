@@ -31,6 +31,7 @@ public class DistanceFunction extends AbstractFunction {
 	private static final String OPERATION = "dist";
 
 	public enum Power {
+
 		SPARSENESS_CALCULATION("0"), MANHATTAN_DISTANCE("1"), EUCLIDEAN_DISTANCE("2"), INFINITE_NORM("Infinite");
 
 		private String value;
@@ -95,12 +96,13 @@ public class DistanceFunction extends AbstractFunction {
 		private DistanceFunction function;
 
 		public Builder(Power power) {
-			Assert.notNull(power, "Calculation type must not be 'null'.");
 
+			Assert.notNull(power, "Calculation type must not be 'null'.");
 			function = new DistanceFunction(power);
 		}
 
 		public DistanceFunction between(Point point1, Point point2) {
+
 			Assert.notNull(point1, "Parameter 'point1' must not be null");
 			Assert.notNull(point2, "Parameter 'point2' must not be null");
 

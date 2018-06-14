@@ -39,8 +39,8 @@ public class GeoHashFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static GeoHashFunction geohash(Point location) {
-		Assert.notNull(location, "Location for geohash function must not be 'null'");
 
+		Assert.notNull(location, "Location for geohash function must not be 'null'");
 		return new GeoHashFunction(location);
 	}
 

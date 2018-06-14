@@ -29,8 +29,8 @@ public class DefaultValueFunction extends AbstractFunction {
 
 	private static final String OPERATION = "def";
 
-	private DefaultValueFunction(Object fieldName, Object defaultValue) {
-		super(Arrays.asList(fieldName, defaultValue));
+	private DefaultValueFunction(Object field, Object defaultValue) {
+		super(Arrays.asList(field, defaultValue));
 	}
 
 	/**
@@ -41,10 +41,11 @@ public class DefaultValueFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static DefaultValueFunction defaultValue(String fieldName, Object defaultValue) {
+
 		Assert.hasText(fieldName, "Fieldname must not be 'empty' for default value operation.");
 		Assert.notNull(defaultValue, "DefaultValue must not be 'null'.");
 
-		return new DefaultValueFunction(fieldName, defaultValue);
+		return defaultValue(new SimpleField(fieldName), defaultValue);
 	}
 
 	/**
@@ -55,9 +56,10 @@ public class DefaultValueFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static DefaultValueFunction defaultValue(Field field, Object defaultValue) {
+
 		Assert.notNull(field, "Field must not be 'null' for default value operation.");
 
-		return defaultValue(field.getName(), defaultValue);
+		return new DefaultValueFunction(field, defaultValue);
 	}
 
 	/**
@@ -68,6 +70,7 @@ public class DefaultValueFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static DefaultValueFunction defaultValue(Function function, Object defaultValue) {
+
 		Assert.notNull(function, "Function must not be 'null' for default value operation.");
 		Assert.notNull(defaultValue, "DefaultValue must not be 'null'.");
 

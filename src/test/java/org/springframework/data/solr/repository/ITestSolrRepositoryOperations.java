@@ -1099,8 +1099,18 @@ public class ITestSolrRepositoryOperations {
 
 		repo.saveAll(Arrays.asList(locatedInBuffalow, locatedInNYC));
 
-		List<ProductBean> found = repo.findByNameLikeAndLocationWithin("awesome", new Point(45.15, -93.85), new Distance(5));
+		List<ProductBean> found = repo.findByNameLikeAndLocationWithin("awesome", new Point(45.15, -93.85),
+				new Distance(5));
 		Assert.assertEquals(1, found.size());
+	}
+
+	@Test // DATASOLR-466
+	public void testOrderByConsidersMappedFieldName() {
+
+		List<ProductBean> result = repo.findByOrderByAvailableDesc();
+
+		assertTrue(result.get(0).isAvailable());
+		assertFalse(result.get(result.size() - 1).isAvailable());
 	}
 
 	private static List<ProductBean> createProductBeans(int nrToCreate, String prefix) {

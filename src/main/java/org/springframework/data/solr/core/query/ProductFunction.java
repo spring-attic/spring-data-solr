@@ -46,17 +46,19 @@ public class ProductFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static Builder product(Field field) {
-		Assert.notNull(field, "Field must not be 'null'");
 
-		return product(field.getName());
+		Assert.notNull(field, "Field must not be 'null'");
+		return new Builder(field);
 	}
 
 	/**
-	 * @param fieldname
+	 * @param fieldName
 	 * @return
 	 */
-	public static Builder product(String fieldname) {
-		return new Builder(fieldname);
+	public static Builder product(String fieldName) {
+
+		Assert.hasText(fieldName, "FieldName must not be empty");
+		return product(new SimpleField(fieldName));
 	}
 
 	/**
@@ -77,20 +79,20 @@ public class ProductFunction extends AbstractFunction {
 		private ProductFunction function;
 
 		/**
-		 * @param fieldname
+		 * @param field
 		 */
-		public Builder(String fieldname) {
-			Assert.hasText(fieldname, "Fieldname must not be 'empty'.");
+		public Builder(Field field) {
 
-			this.function = new ProductFunction(fieldname);
+			Assert.notNull(field, "field must not be 'null'.");
+			this.function = new ProductFunction(field);
 		}
 
 		/**
 		 * @param value
 		 */
 		public Builder(Number value) {
-			Assert.notNull(value, "Argument 'value' must not be 'null'.");
 
+			Assert.notNull(value, "Argument 'value' must not be 'null'.");
 			this.function = new ProductFunction(value);
 		}
 
@@ -98,8 +100,8 @@ public class ProductFunction extends AbstractFunction {
 		 * @param function
 		 */
 		public Builder(Function function) {
-			Assert.notNull(function, "Argument 'function' must not be 'null'.");
 
+			Assert.notNull(function, "Argument 'function' must not be 'null'.");
 			this.function = new ProductFunction(function);
 		}
 
@@ -108,20 +110,20 @@ public class ProductFunction extends AbstractFunction {
 		 * @return
 		 */
 		public Builder times(Field field) {
-			Assert.notNull(field, "Argument 'field' must not be 'null'.");
 
-			return times(field.getName());
+			Assert.notNull(field, "Argument 'field' must not be 'null'.");
+			this.function.addArgument(field);
+			return this;
 		}
 
 		/**
-		 * @param fieldname must not be null
+		 * @param fieldName must not be null
 		 * @return
 		 */
-		public Builder times(String fieldname) {
-			Assert.hasText(fieldname, "Fieldname must not be 'empty'.");
+		public Builder times(String fieldName) {
 
-			this.function.addArgument(fieldname);
-			return this;
+			Assert.hasText(fieldName, "fieldName must not be 'empty'.");
+			return times(new SimpleField(fieldName));
 		}
 
 		/**
@@ -129,8 +131,8 @@ public class ProductFunction extends AbstractFunction {
 		 * @return
 		 */
 		public Builder times(Number value) {
-			Assert.notNull(value, "Argument 'value' must not be 'null'.");
 
+			Assert.notNull(value, "Argument 'value' must not be 'null'.");
 			this.function.addArgument(value);
 			return this;
 		}
@@ -140,8 +142,8 @@ public class ProductFunction extends AbstractFunction {
 		 * @return
 		 */
 		public Builder times(Function function) {
-			Assert.notNull(function, "Argument 'function' must not be 'null'.");
 
+			Assert.notNull(function, "Argument 'function' must not be 'null'.");
 			this.function.addArgument(function);
 			return this;
 		}
@@ -149,7 +151,5 @@ public class ProductFunction extends AbstractFunction {
 		public ProductFunction build() {
 			return this.function;
 		}
-
 	}
-
 }

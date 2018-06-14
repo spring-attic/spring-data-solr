@@ -31,18 +31,20 @@ public class CurrencyFunction extends AbstractFunction {
 
 	private static final String OPERATION = "currency";
 
-	private CurrencyFunction(String fieldname) {
-		super(Collections.singletonList(fieldname));
+	private CurrencyFunction(Field field) {
+		super(Collections.singletonList(field));
 	}
 
 	/**
 	 * Create new {@link CurrencyFunction} representing {@code currency(fieldname)}
 	 *
-	 * @param fieldname
+	 * @param fieldName
 	 * @return
 	 */
-	public static CurrencyFunction currency(String fieldname) {
-		return currency(fieldname, null);
+	public static CurrencyFunction currency(String fieldName) {
+
+		Assert.hasText(fieldName, "FieldName must not be empty!");
+		return currency(fieldName, null);
 	}
 
 	/**
@@ -67,25 +69,25 @@ public class CurrencyFunction extends AbstractFunction {
 
 		Assert.notNull(field, "Field for currency function must not be 'null'.");
 
-		return currency(field.getName(), currencyCode);
+		CurrencyFunction function = new CurrencyFunction(field);
+		if (StringUtils.hasText(currencyCode)) {
+			function.addArgument(currencyCode);
+		}
+		return function;
 	}
 
 	/**
 	 * Create new {@link CurrencyFunction} using ISO-4217 currencyCode representing
 	 * {@code currency(fieldname,currencyCode)}
 	 *
-	 * @param fieldname
+	 * @param fieldName
 	 * @param currencyCode
 	 * @return
 	 */
-	public static CurrencyFunction currency(String fieldname, @Nullable String currencyCode) {
-		Assert.hasText(fieldname, "Fieldname for currency function must not be 'empty'.");
+	public static CurrencyFunction currency(String fieldName, @Nullable String currencyCode) {
 
-		CurrencyFunction function = new CurrencyFunction(fieldname);
-		if (StringUtils.hasText(currencyCode)) {
-			function.addArgument(currencyCode);
-		}
-		return function;
+		Assert.hasText(fieldName, "FieldName for currency function must not be 'empty'.");
+		return currency(new SimpleField(fieldName), currencyCode);
 	}
 
 	@Override

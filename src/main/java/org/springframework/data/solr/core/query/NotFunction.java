@@ -38,19 +38,19 @@ public class NotFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static NotFunction not(Field field) {
-		Assert.notNull(field, "Field for not function must not be 'null'");
 
-		return not(field.getName());
+		Assert.notNull(field, "Field for not function must not be 'null'");
+		return new NotFunction(field);
 	}
 
 	/**
-	 * @param fieldname must not be empty
+	 * @param fieldName must not be empty
 	 * @return
 	 */
-	public static NotFunction not(String fieldname) {
-		Assert.hasText(fieldname, "Fieldname for not function must not be 'empty'.");
+	public static NotFunction not(String fieldName) {
 
-		return new NotFunction(fieldname);
+		Assert.notNull(fieldName, "FieldName must not be null!");
+		return not(new SimpleField(fieldName));
 	}
 
 	/**
@@ -58,8 +58,8 @@ public class NotFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static NotFunction not(Function condition) {
-		Assert.notNull(condition, "Condition for not function must not be 'null'");
 
+		Assert.notNull(condition, "Condition for not function must not be 'null'");
 		return new NotFunction(condition);
 	}
 

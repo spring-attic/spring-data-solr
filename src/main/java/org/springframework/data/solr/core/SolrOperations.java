@@ -40,6 +40,7 @@ import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.schema.SchemaOperations;
+import org.springframework.lang.Nullable;
 
 /**
  * Interface that specifies a basic set of Solr operations.
@@ -85,7 +86,32 @@ public interface SolrOperations {
 	 * @return total number of documents matching given query.
 	 * @since 3.0
 	 */
-	long count(String collection, SolrDataQuery query);
+	default long count(String collection, SolrDataQuery query) {
+		return count(collection, query, (Class) null);
+	}
+
+	/**
+	 * return number of elements found by for given query
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param domainType can be {@literal null}.
+	 * @return total number of documents matching given query.
+	 * @since 4.0
+	 */
+	long count(String collection, SolrDataQuery query, @Nullable Class<?> domainType);
+
+	/**
+	 * return number of elements found by for given query
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param domainType can be {@literal null}.
+	 * @param method must not be {@literal null}.
+	 * @return total number of documents matching given query.
+	 * @since 4.0
+	 */
+	long count(String collection, SolrDataQuery query, @Nullable Class<?> domainType, RequestMethod method);
 
 	/**
 	 * return number of elements found by for given query
@@ -96,7 +122,9 @@ public interface SolrOperations {
 	 * @return total number of documents matching given query.
 	 * @since 3.0
 	 */
-	long count(String collection, SolrDataQuery query, RequestMethod method);
+	default long count(String collection, SolrDataQuery query, RequestMethod method) {
+		return count(collection, query, null, method);
+	}
 
 	/**
 	 * Execute add operation against solr, which will do either insert or update.
@@ -196,7 +224,19 @@ public interface SolrOperations {
 	 * @return {@link UpdateResponse} containing delete result.
 	 * @since 3.0
 	 */
-	UpdateResponse delete(String collection, SolrDataQuery query);
+	default UpdateResponse delete(String collection, SolrDataQuery query) {
+		return delete(collection, query, null);
+	}
+
+	/**
+	 * Find and delete all objects matching the provided Query.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @return {@link UpdateResponse} containing delete result.
+	 * @since 4.0
+	 */
+	UpdateResponse delete(String collection, SolrDataQuery query, @Nullable Class<?> domainType);
 
 	/**
 	 * Detele the one object with provided id.

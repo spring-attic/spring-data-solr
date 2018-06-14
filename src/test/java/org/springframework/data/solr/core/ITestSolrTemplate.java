@@ -66,20 +66,7 @@ import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeP
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
 import org.springframework.data.solr.core.query.Query.Operator;
-import org.springframework.data.solr.core.query.result.Cursor;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetQueryEntry;
-import org.springframework.data.solr.core.query.result.FieldStatsResult;
-import org.springframework.data.solr.core.query.result.GroupEntry;
-import org.springframework.data.solr.core.query.result.GroupPage;
-import org.springframework.data.solr.core.query.result.GroupResult;
-import org.springframework.data.solr.core.query.result.HighlightQueryResult;
-import org.springframework.data.solr.core.query.result.SpellcheckedPage;
-import org.springframework.data.solr.core.query.result.StatsPage;
-import org.springframework.data.solr.core.query.result.StatsResult;
-import org.springframework.data.solr.core.query.result.TermsFieldEntry;
-import org.springframework.data.solr.core.query.result.TermsPage;
+import org.springframework.data.solr.core.query.result.*;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 import org.xml.sax.SAXException;
 
@@ -1256,6 +1243,43 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 			assertThat(((HttpSolrClient) solrClient).getBaseURL(), is("http://127.0.0.1/solr"));
 			return null;
 		});
+	}
+
+	@Test // DATASOLR-466
+	public void countShouldUseMappedFieldName() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
+		bean1.setManufacturerId("man-1");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
+		bean2.setManufacturerId("man-2");
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
+		bean3.setManufacturerId("man-1");
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		assertThat(solrTemplate.count(COLLECTION_NAME, new SimpleQuery(Criteria.where("manufacturerId").is("man-1")),
+				ExampleSolrBean.class), is(2L));
+	}
+
+	@Test // DATASOLR-466
+	public void deleteShouldUseMappedFieldName() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", null);
+		bean1.setManufacturerId("man-1");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", null);
+		bean2.setManufacturerId("man-2");
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", null);
+		bean3.setManufacturerId("man-1");
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		solrTemplate.delete(COLLECTION_NAME, new SimpleQuery(Criteria.where("manufacturerId").is("man-1")),
+				ExampleSolrBean.class);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		assertThat(solrTemplate.count(COLLECTION_NAME, new SimpleQuery(AnyCriteria.any())), is(1L));
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {

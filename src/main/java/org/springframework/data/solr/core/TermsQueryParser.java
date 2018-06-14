@@ -17,9 +17,13 @@ package org.springframework.data.solr.core;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.TermsOptions;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -30,12 +34,22 @@ import org.springframework.util.StringUtils;
  */
 public class TermsQueryParser extends QueryParserBase<TermsQuery> {
 
+	/**
+	 *
+	 * @param mappingContext
+	 * @since 4.0
+	 */
+	public TermsQueryParser(
+			@Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+		super(mappingContext);
+	}
+
 	@Override
-	public SolrQuery doConstructSolrQuery(TermsQuery query) {
+	public SolrQuery doConstructSolrQuery(TermsQuery query, @Nullable Class<?> domainType) {
 		Assert.notNull(query, "Cannot construct solrQuery from null value.");
 
 		SolrQuery solrQuery = new SolrQuery();
-		String queryString = getQueryString(query);
+		String queryString = getQueryString(query, domainType);
 		if (StringUtils.hasText(queryString)) {
 			solrQuery.setParam(CommonParams.Q, queryString);
 		}

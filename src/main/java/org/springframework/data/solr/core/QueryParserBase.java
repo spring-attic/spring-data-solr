@@ -34,28 +34,17 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
 import org.springframework.data.solr.core.convert.NumberConverters;
 import org.springframework.data.solr.core.geo.GeoConverters;
-import org.springframework.data.solr.core.query.AbstractFacetAndHighlightQueryDecorator;
-import org.springframework.data.solr.core.query.AbstractFacetQueryDecorator;
-import org.springframework.data.solr.core.query.AbstractHighlightQueryDecorator;
-import org.springframework.data.solr.core.query.AbstractQueryDecorator;
-import org.springframework.data.solr.core.query.CalculatedField;
-import org.springframework.data.solr.core.query.Criteria;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
-import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.Function;
-import org.springframework.data.solr.core.query.HighlightQuery;
-import org.springframework.data.solr.core.query.Node;
-import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.Query.Operator;
-import org.springframework.data.solr.core.query.QueryStringHolder;
-import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -80,6 +69,8 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	protected final GenericConversionService conversionService = new GenericConversionService();
 	private final List<PredicateProcessor> critieraEntryProcessors = new ArrayList<>();
 	private final PredicateProcessor defaultProcessor = new DefaultProcessor();
+
+	private final @Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
 	{
 		if (!conversionService.canConvert(java.util.Date.class, String.class)) {
@@ -112,14 +103,25 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		critieraEntryProcessors.add(new FunctionProcessor());
 	}
 
+	/**
+	 * @param mappingContext
+	 * @since 4.0
+	 */
+	public QueryParserBase(
+			@Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+
+		this.mappingContext = mappingContext;
+	}
+
 	@Override
-	public String getQueryString(SolrDataQuery query) {
+	public String getQueryString(SolrDataQuery query, @Nullable Class<?> domainType) {
+
 		if (query.getCriteria() == null) {
 			return null;
 		}
 
-		String queryString = createQueryStringFromNode(query.getCriteria());
-		queryString = prependJoin(queryString, query);
+		String queryString = createQueryStringFromNode(query.getCriteria(), domainType);
+		queryString = prependJoin(queryString, query, domainType);
 		return queryString;
 	}
 
@@ -137,11 +139,54 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		this.critieraEntryProcessors.add(processor);
 	}
 
+	/**
+	 * Create the plain query string representation of the given node.
+	 *
+	 * @param node
+	 * @return
+	 * @deprecated since 4.0. Use {@link #createQueryStringFromNode(Node, Class)} instead
+	 */
+	@Deprecated
 	public String createQueryStringFromNode(Node node) {
-		return createQueryStringFromNode(node, 0);
+		return createQueryStringFromNode(node, null);
 	}
 
+	/**
+	 * Create the plain query string representation of the given node using mapping information derived from the domain
+	 * type.
+	 *
+	 * @param node
+	 * @param domainType can be {@literal null}.
+	 * @return
+	 * @since 4.0
+	 */
+	public String createQueryStringFromNode(Node node, @Nullable Class<?> domainType) {
+		return createQueryStringFromNode(node, 0, domainType);
+	}
+
+	/**
+	 * Create the plain query string representation of the given node.
+	 *
+	 * @param node
+	 * @return
+	 * @deprecated since 4.0. Use {@link #createQueryStringFromNode(Node, int, Class)} instead.
+	 */
+	@Deprecated
 	public String createQueryStringFromNode(Node node, int position) {
+		return createQueryStringFromNode(node, position, null);
+	}
+
+	/**
+	 * Create the plain query string representation of the given node using mapping information derived from the domain
+	 * type.
+	 *
+	 * @param node
+	 * @param position
+	 * @param domainType can be {@literal null}.
+	 * @return
+	 * @since 4.0
+	 */
+	public String createQueryStringFromNode(Node node, int position, @Nullable Class<?> domainType) {
 
 		StringBuilder query = new StringBuilder();
 		if (position > 0) {
@@ -158,14 +203,14 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 			int i = 0;
 			for (Node nested : node.getSiblings()) {
-				query.append(createQueryStringFromNode(nested, i++));
+				query.append(createQueryStringFromNode(nested, i++, domainType));
 			}
 
 			if (!node.isRoot() || (node.isRoot() && node.isNegating())) {
 				query.append(')');
 			}
 		} else {
-			query.append(createQueryFragmentForCriteria((Criteria) node));
+			query.append(createQueryFragmentForCriteria((Criteria) node, domainType));
 		}
 		return query.toString();
 	}
@@ -176,25 +221,44 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 *
 	 * @param criteria
 	 * @return
+	 * @deprecated since 4.0. Use {@link #createQueryStringFromCriteria(Criteria, Class)} instead.
 	 */
+	@Deprecated
 	protected String createQueryStringFromCriteria(Criteria criteria) {
-		return createQueryStringFromNode(criteria);
+		return createQueryStringFromCriteria(criteria, null);
 	}
 
 	/**
-	 * Creates query string representation of a single critiera
+	 * Iterates criteria list and concats query string fragments to form a valid query string to be used with
+	 * {@link org.apache.solr.client.solrj.SolrQuery#setQuery(String)}
 	 *
+	 * @param criteria
+	 * @param domainType
+	 * @return
+	 * @since 4.0
+	 */
+	protected String createQueryStringFromCriteria(Criteria criteria, @Nullable Class<?> domainType) {
+		return createQueryStringFromNode(criteria, domainType);
+	}
+
+	/**
+	 * Creates query string representation of a single critiera.
+	 *
+	 * @param part
+	 * @param domainType
 	 * @return
 	 */
-	protected String createQueryFragmentForCriteria(Criteria part) {
+	protected String createQueryFragmentForCriteria(Criteria part, @Nullable Class<?> domainType) {
+
 		Criteria criteria = part;
 		StringBuilder queryFragment = new StringBuilder();
 		boolean singeEntryCriteria = (criteria.getPredicates().size() == 1);
+
 		if (criteria instanceof QueryStringHolder) {
 			return ((QueryStringHolder) criteria).getQueryString();
 		}
 
-		String fieldName = getNullsafeFieldName(criteria.getField());
+		String fieldName = getNullsafeFieldName(criteria.getField(), domainType);
 		if (criteria.isNegating()) {
 			fieldName = NOT + fieldName;
 		}
@@ -213,7 +277,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			queryFragment.append("(");
 		}
 
-		CriteriaQueryStringValueProvider valueProvider = new CriteriaQueryStringValueProvider(criteria);
+		CriteriaQueryStringValueProvider valueProvider = new CriteriaQueryStringValueProvider(criteria, domainType);
 		while (valueProvider.hasNext()) {
 			queryFragment.append(valueProvider.next());
 			if (valueProvider.hasNext()) {
@@ -231,11 +295,48 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		return queryFragment.toString();
 	}
 
-	private String getNullsafeFieldName(@Nullable Field field) {
+	private String getNullsafeFieldName(@Nullable Field field, Class<?> domainType) {
+
 		if (field == null || field.getName() == null) {
 			return "";
 		}
-		return field.getName();
+
+		return getMappedFieldName(field, domainType);
+	}
+
+	/**
+	 * Get the mapped field name using meta information derived from the given domain type.
+	 *
+	 * @param field
+	 * @param domainType
+	 * @return
+	 * @since 4.0
+	 */
+	protected String getMappedFieldName(Field field, @Nullable Class<?> domainType) {
+		return getMappedFieldName(field.getName(), domainType);
+	}
+
+	/**
+	 * Get the mapped field name using meta information derived from the given domain type.
+	 *
+	 * @param fieldName
+	 * @param domainType
+	 * @return
+	 * @since 4.0
+	 */
+	protected String getMappedFieldName(String fieldName, @Nullable Class<?> domainType) {
+
+		if (domainType == null || mappingContext == null) {
+			return fieldName;
+		}
+
+		SolrPersistentEntity entity = mappingContext.getPersistentEntity(domainType);
+		if (entity == null) {
+			return fieldName;
+		}
+
+		SolrPersistentProperty property = entity.getPersistentProperty(fieldName);
+		return property != null ? property.getFieldName() : fieldName;
 	}
 
 	/**
@@ -245,10 +346,10 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @return
 	 * @since 1.1
 	 */
-	protected String createCalculatedFieldFragment(CalculatedField calculatedField) {
+	protected String createCalculatedFieldFragment(CalculatedField calculatedField, @Nullable Class<?> domainType) {
 		return StringUtils.isNotBlank(calculatedField.getAlias())
-				? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField.getFunction(), 0))
-				: createFunctionFragment(calculatedField.getFunction(), 0);
+				? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField.getFunction(), 0, domainType))
+				: createFunctionFragment(calculatedField.getFunction(), 0, domainType);
 	}
 
 	/**
@@ -258,7 +359,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @return
 	 * @since 1.1
 	 */
-	protected String createFunctionFragment(Function function, int level) {
+	protected String createFunctionFragment(Function function, int level, @Nullable Class<?> domainType) {
 
 		StringBuilder sb = new StringBuilder();
 		if (level <= 0) {
@@ -272,13 +373,13 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			for (Object arg : function.getArguments()) {
 				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
 				if (arg instanceof Function) {
-					solrReadableArguments.add(createFunctionFragment((Function) arg, level + 1));
+					solrReadableArguments.add(createFunctionFragment((Function) arg, level + 1, domainType));
 				} else if (arg instanceof Criteria) {
-					solrReadableArguments.add(createQueryStringFromNode((Criteria) arg));
+					solrReadableArguments.add(createQueryStringFromNode((Criteria) arg, domainType));
 				} else if (arg instanceof Field) {
-					solrReadableArguments.add(((Field) arg).getName());
+					solrReadableArguments.add(getMappedFieldName((Field) arg, domainType));
 				} else if (arg instanceof Query) {
-					solrReadableArguments.add(getQueryString((Query) arg));
+					solrReadableArguments.add(getQueryString((Query) arg, domainType));
 				} else if (arg instanceof String || !conversionService.canConvert(arg.getClass(), String.class)) {
 					solrReadableArguments.add(arg.toString());
 				} else {
@@ -296,16 +397,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 *
 	 * @param queryString
 	 * @param query
+	 * @param domainType
 	 * @return
 	 */
-	protected String prependJoin(String queryString, @Nullable SolrDataQuery query) {
+	protected String prependJoin(String queryString, @Nullable SolrDataQuery query, @Nullable Class<?> domainType) {
 		if (query == null || query.getJoin() == null) {
 			return queryString;
 		}
 
 		String fromIndex = query.getJoin().getFromIndex() != null ? " fromIndex=" + query.getJoin().getFromIndex() : "";
-		return "{!join from=" + query.getJoin().getFrom().getName() + " to=" + query.getJoin().getTo().getName() + fromIndex
-				+ "}" + queryString;
+		return "{!join from=" + getMappedFieldName(query.getJoin().getFrom(), domainType) + " to="
+				+ getMappedFieldName(query.getJoin().getTo(), domainType) + fromIndex + "}" + queryString;
 	}
 
 	/**
@@ -325,22 +427,28 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 	}
 
+	@Deprecated
+	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
+		appendProjectionOnFields(solrQuery, fields, null);
+	}
+
 	/**
 	 * Append field list to {@link SolrQuery}
 	 *
 	 * @param solrQuery
 	 * @param fields
 	 */
-	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields) {
+	protected void appendProjectionOnFields(SolrQuery solrQuery, List<Field> fields, @Nullable Class<?> domainType) {
+
 		if (CollectionUtils.isEmpty(fields)) {
 			return;
 		}
 		List<String> solrReadableFields = new ArrayList<>();
 		for (Field field : fields) {
 			if (field instanceof CalculatedField) {
-				solrReadableFields.add(createCalculatedFieldFragment((CalculatedField) field));
+				solrReadableFields.add(createCalculatedFieldFragment((CalculatedField) field, domainType));
 			} else {
-				solrReadableFields.add(field.getName());
+				solrReadableFields.add(getMappedFieldName(field, domainType));
 			}
 		}
 		solrQuery.setParam(CommonParams.FL, StringUtils.join(solrReadableFields, ","));
@@ -407,11 +515,11 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SolrQuery constructSolrQuery(SolrDataQuery query) {
-		return doConstructSolrQuery((QUERYTPYE) query);
+	public SolrQuery constructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
+		return doConstructSolrQuery((QUERYTPYE) query, domainType);
 	}
 
-	public abstract SolrQuery doConstructSolrQuery(QUERYTPYE query);
+	public abstract SolrQuery doConstructSolrQuery(QUERYTPYE query, @Nullable Class<?> domainType);
 
 	/**
 	 * {@link PredicateProcessor} creates a solr reable query string representation for a given {@link Predicate}
@@ -433,7 +541,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		 * @param field
 		 * @return
 		 */
-		Object process(@Nullable Predicate predicate, @Nullable Field field);
+		Object process(@Nullable Predicate predicate, @Nullable Field field, Class<?> domainType);
 
 	}
 
@@ -444,19 +552,21 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		private final Criteria criteria;
 		private Iterator<Predicate> delegate;
+		private @Nullable Class<?> domainType;
 
-		CriteriaQueryStringValueProvider(Criteria criteria) {
+		CriteriaQueryStringValueProvider(Criteria criteria, @Nullable Class<?> domainType) {
 			Assert.notNull(criteria, "Unable to provide values for 'null' criteria");
 
 			this.criteria = criteria;
 			this.delegate = criteria.getPredicates().iterator();
+			this.domainType = domainType;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Nullable
 		private <T> T getPredicateValue(Predicate predicate) {
 			PredicateProcessor processor = findMatchingProcessor(predicate);
-			return (T) processor.process(predicate, criteria.getField());
+			return (T) processor.process(predicate, criteria.getField(), domainType);
 		}
 
 		private PredicateProcessor findMatchingProcessor(Predicate predicate) {
@@ -489,7 +599,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 	/**
 	 * Base implementation of {@link PredicateProcessor} handling null values and delegating calls to
-	 * {@link BasePredicateProcessor#doProcess(Predicate, Field)}
+	 * {@link BasePredicateProcessor#doProcess(Predicate, Field, Class)}
 	 *
 	 * @author Christoph Strobl
 	 */
@@ -505,11 +615,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
 
 		@Override
-		public Object process(@Nullable Predicate predicate, @Nullable Field field) {
+		public Object process(@Nullable Predicate predicate, @Nullable Field field, @Nullable Class<?> domainType) {
+
 			if (predicate == null || predicate.getValue() == null) {
 				return null;
 			}
-			return doProcess(predicate, field);
+			return doProcess(predicate, field, domainType);
 		}
 
 		protected Object filterCriteriaValue(Object criteriaValue) {
@@ -535,7 +646,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Nullable
-		protected abstract Object doProcess(@Nullable Predicate predicate, Field field);
+		protected abstract Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType);
 
 	}
 
@@ -552,13 +663,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Override
-		public Object doProcess(@Nullable Predicate predicate, Field field) {
+		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
 			return filterCriteriaValue(predicate.getValue());
 		}
-
 	}
 
 	/**
@@ -574,12 +684,11 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Override
-		public Object doProcess(@Nullable Predicate predicate, Field field) {
+		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 			Assert.notNull(predicate, "Predicate must not be null!");
 
 			return predicate.getValue().toString();
 		}
-
 	}
 
 	/**
@@ -597,7 +706,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Override
-		public Object doProcess(@Nullable Predicate predicate, Field field) {
+		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 			Object[] args = (Object[]) predicate.getValue();
 			String rangeFragment = (Boolean) args[2] ? "[" : "{";
 			rangeFragment += createRangeFragment(args[0], args[1]);
@@ -612,7 +721,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			rangeFragment += (rangeEnd != null ? filterCriteriaValue(rangeEnd) : Criteria.WILDCARD);
 			return rangeFragment;
 		}
-
 	}
 
 	/**
@@ -628,7 +736,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Override
-		public Object doProcess(@Nullable Predicate predicate, Field field) {
+		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
@@ -636,12 +744,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			Object[] args = (Object[]) predicate.getValue();
 			if (args[0] instanceof Box) {
 				Box box = (Box) args[0];
-				nearFragment = field.getName() + ":[";
+				nearFragment = getMappedFieldName(field, domainType) + ":[";
 				nearFragment += createRangeFragment(box.getFirst(), box.getSecond());
 				nearFragment += "]";
 			} else {
-				nearFragment = createSpatialFunctionFragment(field.getName(), (org.springframework.data.geo.Point) args[0],
-						(Distance) args[1], "bbox");
+				nearFragment = createSpatialFunctionFragment(getMappedFieldName(field, domainType),
+						(org.springframework.data.geo.Point) args[0], (Distance) args[1], "bbox");
 			}
 			return nearFragment;
 		}
@@ -655,7 +763,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			spatialFragment += "}";
 			return spatialFragment;
 		}
-
 	}
 
 	/**
@@ -672,15 +779,14 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Nullable
 		@Override
-		public Object doProcess(@Nullable Predicate predicate, Field field) {
+		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
 			Object[] args = (Object[]) predicate.getValue();
-			return createSpatialFunctionFragment(field.getName(), (org.springframework.data.geo.Point) args[0],
-					(Distance) args[1], "geofilt");
+			return createSpatialFunctionFragment(getMappedFieldName(field, domainType),
+					(org.springframework.data.geo.Point) args[0], (Distance) args[1], "geofilt");
 		}
-
 	}
 
 	/**
@@ -697,7 +803,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Nullable
 		@Override
-		protected Object doProcess(@Nullable Predicate predicate, Field field) {
+		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
@@ -705,7 +811,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			Float distance = (Float) args[1];
 			return filterCriteriaValue(args[0]) + "~" + (distance.isNaN() ? "" : distance);
 		}
-
 	}
 
 	/**
@@ -722,7 +827,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Nullable
 		@Override
-		protected Object doProcess(@Nullable Predicate predicate, Field field) {
+		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
@@ -730,7 +835,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			Integer distance = (Integer) args[1];
 			return filterCriteriaValue(args[0]) + "~" + distance;
 		}
-
 	}
 
 	/**
@@ -749,7 +853,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 
 		@Override
-		protected Object doProcess(@Nullable Predicate predicate, Field field) {
+		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
@@ -779,13 +883,12 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Override
 		@Nullable
-		protected Object doProcess(@Nullable Predicate predicate, Field field) {
+		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
-			return createFunctionFragment((Function) predicate.getValue(), 0);
+			return createFunctionFragment((Function) predicate.getValue(), 0, domainType);
 		}
-
 	}
 
 	private static void setObjectName(Map<String, Object> namesAssociation, Object object, String name) {

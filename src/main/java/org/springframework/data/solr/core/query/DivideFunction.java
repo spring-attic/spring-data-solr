@@ -40,21 +40,21 @@ public class DivideFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static Builder divide(Field field) {
-		Assert.notNull(field, "Field cannot be 'null' for divide function.");
 
-		return divide(field.getName());
+		Assert.notNull(field, "Field cannot be 'null' for divide function.");
+		return new Builder(field);
 	}
 
 	/**
 	 * creates new {@link Builder} for dividing value in field with given name
 	 *
-	 * @param fieldname must not be empty
+	 * @param fieldName must not be empty
 	 * @return
 	 */
-	public static Builder divide(String fieldname) {
-		Assert.hasText(fieldname, "Fieldname cannot be 'empty' for divide function.");
+	public static Builder divide(String fieldName) {
 
-		return new Builder(fieldname);
+		Assert.hasText(fieldName, "Fieldname cannot be 'empty' for divide function.");
+		return divide(new SimpleField(fieldName));
 	}
 
 	/**
@@ -87,8 +87,8 @@ public class DivideFunction extends AbstractFunction {
 		private Object dividend;
 
 		public Builder(Object dividend) {
-			Assert.notNull(dividend, "Dividend must not be 'null'");
 
+			Assert.notNull(dividend, "Dividend must not be 'null'");
 			this.dividend = dividend;
 		}
 
@@ -109,13 +109,13 @@ public class DivideFunction extends AbstractFunction {
 		}
 
 		/**
-		 * @param fieldname must not be empty
+		 * @param fieldName must not be empty
 		 * @return
 		 */
-		public DivideFunction by(String fieldname) {
-			Assert.hasText(fieldname, "Fieldname for devide function must not be 'empty'.");
+		public DivideFunction by(String fieldName) {
 
-			return by((Object) fieldname);
+			Assert.hasText(fieldName, "Fieldname for devide function must not be 'empty'.");
+			return by(new SimpleField(fieldName));
 		}
 
 		/**
@@ -123,16 +123,15 @@ public class DivideFunction extends AbstractFunction {
 		 * @return
 		 */
 		public DivideFunction by(Field field) {
-			Assert.notNull(field, "Field must not be 'null'.");
 
-			return by(field.getName());
+			Assert.notNull(field, "Field must not be 'null'.");
+			return by((Object) field);
 		}
 
 		private DivideFunction by(Object divisor) {
-			Assert.notNull(divisor, "Cannot divide by 'null'.");
 
+			Assert.notNull(divisor, "Cannot divide by 'null'.");
 			return new DivideFunction(dividend, divisor);
 		}
 	}
-
 }

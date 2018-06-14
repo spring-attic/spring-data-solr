@@ -36,7 +36,7 @@ public class MaxFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Number value) {
-		return new MaxFunction(fieldName, value);
+		return new MaxFunction(new SimpleField(fieldName), value);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class MaxFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, String compareFieldName) {
-		return new MaxFunction(fieldName, compareFieldName);
+		return new MaxFunction(new SimpleField(fieldName), new SimpleField(compareFieldName));
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class MaxFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Function function) {
-		return new MaxFunction(fieldName, function);
+		return new MaxFunction(new SimpleField(fieldName), function);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class MaxFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static MaxFunction max(Function function, String fieldname) {
-		return new MaxFunction(function, fieldname);
+		return new MaxFunction(function, new SimpleField(fieldname));
 	}
 
 	/**
@@ -87,8 +87,8 @@ public class MaxFunction extends AbstractFunction {
 	/**
 	 * @return
 	 */
-	public static MaxFunction max(Number value, String fieldname) {
-		return new MaxFunction(value, fieldname);
+	public static MaxFunction max(Number value, String fieldName) {
+		return new MaxFunction(value, new SimpleField(fieldName));
 	}
 
 	/**
@@ -102,5 +102,4 @@ public class MaxFunction extends AbstractFunction {
 	public String getOperation() {
 		return OPERATION;
 	}
-
 }

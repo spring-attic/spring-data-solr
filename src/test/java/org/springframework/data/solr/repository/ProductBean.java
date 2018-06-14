@@ -15,6 +15,10 @@
  */
 package org.springframework.data.solr.repository;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +30,9 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
  * @author Christoph Strobl
  */
 @SolrDocument(collection = "collection1")
+@Getter
+@Setter
+@ToString
 public class ProductBean {
 
 	@Id @Field("id") private String id;
@@ -52,96 +59,7 @@ public class ProductBean {
 
 	@Field("last_modified") private Date lastModified;
 
-	@Field("content_type_s")
-	private ContentType contentType;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public List<String> getTitle() {
-		return title;
-	}
-
-	public void setTitle(List<String> title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public List<String> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(List<String> categories) {
-		this.categories = categories;
-	}
-
-	public Float getWeight() {
-		return weight;
-	}
-
-	public void setWeight(Float weight) {
-		this.weight = weight;
-	}
-
-	public Float getPrice() {
-		return price;
-	}
-
-	public void setPrice(Float price) {
-		this.price = price;
-	}
-
-	public Integer getPopularity() {
-		return popularity;
-	}
-
-	public void setPopularity(Integer popularity) {
-		this.popularity = popularity;
-	}
-
-	public boolean isAvailable() {
-		return available;
-	}
-
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public Date getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(Date lastModified) {
-		this.lastModified = lastModified;
-	}
+	@Field("content_type_s") private ContentType contentType;
 
 	@Override
 	public int hashCode() {
@@ -168,22 +86,6 @@ public class ProductBean {
 			return false;
 		}
 		return true;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public ContentType getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(ContentType contentType) {
-		this.contentType = contentType;
 	}
 
 	public enum ContentType {

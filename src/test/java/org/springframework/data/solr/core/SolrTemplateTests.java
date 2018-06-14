@@ -76,6 +76,7 @@ import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
 import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -353,13 +354,13 @@ public class SolrTemplateTests {
 			public void registerConverter(Converter<?, ?> converter) {}
 
 			@Override
-			public String getQueryString(SolrDataQuery query) {
+			public String getQueryString(SolrDataQuery query, Class<?> domainType) {
 				return "*:*";
 			}
 
 			@Override
-			public SolrQuery constructSolrQuery(SolrDataQuery query) {
-				return new SolrQuery(getQueryString(query));
+			public SolrQuery constructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
+				return new SolrQuery(getQueryString(query, domainType));
 			}
 
 		};

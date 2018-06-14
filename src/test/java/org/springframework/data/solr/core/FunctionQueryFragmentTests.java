@@ -45,6 +45,7 @@ import org.springframework.data.solr.core.query.QueryFunction;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.TermFrequencyFunction;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -52,10 +53,10 @@ import org.springframework.data.solr.core.query.TermFrequencyFunction;
 @RunWith(Parameterized.class)
 public class FunctionQueryFragmentTests {
 
-	private QueryParserBase<SimpleQuery> queryParser = new QueryParserBase<SimpleQuery>() {
+	private QueryParserBase<SimpleQuery> queryParser = new QueryParserBase<SimpleQuery>(null) {
 
 		@Override
-		public SolrQuery doConstructSolrQuery(SimpleQuery query) {
+		public SolrQuery doConstructSolrQuery(SimpleQuery query, @Nullable Class<?> domainType) {
 			return null;
 		}
 
@@ -162,7 +163,7 @@ public class FunctionQueryFragmentTests {
 
 	@Test // DATAREDIS-307
 	public void queryParserConstructsExpectedFragment() {
-		Assert.assertThat(queryParser.createFunctionFragment(this.function, 0),
+		Assert.assertThat(queryParser.createFunctionFragment(this.function, 0, null),
 				IsEqual.equalTo(this.expectedQueryFragment));
 	}
 

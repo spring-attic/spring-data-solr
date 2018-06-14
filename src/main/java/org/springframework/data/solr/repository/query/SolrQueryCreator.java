@@ -30,6 +30,7 @@ import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.AnyCriteria;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
@@ -88,8 +89,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 	}
 
 	@Override
-	protected Query complete(Query query, Sort sort) {
-		return query.addSort(sort);
+	protected Query complete(@Nullable Query query, Sort sort) {
+		return (query != null ? query : new SimpleQuery(AnyCriteria.any())).addSort(sort);
 	}
 
 	private Criteria from(Type type, @Nullable Criteria instance, Iterator<?> parameters) {

@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.solr.core.query.SolrDataQuery;
+import org.springframework.lang.Nullable;
 
 /**
  * The QueryParser takes a spring-data-solr Query and returns a SolrQuery. All Query parameters are translated into the
@@ -37,16 +38,44 @@ public interface QueryParser {
 	 *
 	 * @param query
 	 * @return
+	 * @deprecated since 4.0. Use {@link #constructSolrQuery(SolrDataQuery, Class)} instead.
 	 */
-	SolrQuery constructSolrQuery(SolrDataQuery query);
+	@Deprecated
+	default SolrQuery constructSolrQuery(SolrDataQuery query) {
+		return constructSolrQuery(query, null);
+	}
+
+	/**
+	 * Convert given Query into a SolrQuery executable via {@link SolrClient}
+	 *
+	 * @param query
+	 * @param domainType used for mapping fields to properties. Can be {@literal null}.
+	 * @return
+	 * @since 4.0
+	 */
+	SolrQuery constructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType);
 
 	/**
 	 * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
 	 *
 	 * @param query
 	 * @return String representation of query without faceting, pagination, projection...
+	 * @deprecated since 4.0. Use {@link #getQueryString(SolrDataQuery, Class)} instead.
 	 */
-	String getQueryString(SolrDataQuery query);
+	@Deprecated
+	default String getQueryString(SolrDataQuery query) {
+		return getQueryString(query, null);
+	}
+
+	/**
+	 * Get the queryString to use withSolrQuery.setParam(CommonParams.Q, "queryString"}
+	 *
+	 * @param query
+	 * @param domainType used for mapping fields to properties. Can be {@literal null}.
+	 * @return String representation of query without faceting, pagination, projection...
+	 * @since 4.0
+	 */
+	String getQueryString(SolrDataQuery query, @Nullable Class<?> domainType);
 
 	/**
 	 * Register an additional converter for transforming object values to solr readable format

@@ -21,11 +21,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -34,19 +38,28 @@ import org.springframework.util.ClassUtils;
  */
 public class QueryParsers {
 
-	private static final QueryParser DEFAULT_QUERY_PARSER = new DefaultQueryParser();
+	private final QueryParser defaultQueryParser;
 
 	private final List<QueryParserPair> parserPairs;
 
 	private final Map<Class<?>, QueryParser> cache = new LinkedHashMap<>();
+	private final @Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
-	public QueryParsers() {
+	/**
+	 * @param mappingContext can be {@literal null}.
+	 * @since 4.0
+	 */
+	public QueryParsers(
+			@Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+
 		this.parserPairs = new ArrayList<>(4);
+		this.mappingContext = mappingContext;
+		this.defaultQueryParser = new DefaultQueryParser(mappingContext);
 
-		parserPairs.add(new QueryParserPair(TermsQuery.class, new TermsQueryParser()));
-		parserPairs.add(new QueryParserPair(FacetQuery.class, DEFAULT_QUERY_PARSER));
-		parserPairs.add(new QueryParserPair(HighlightQuery.class, DEFAULT_QUERY_PARSER));
-		parserPairs.add(new QueryParserPair(Query.class, DEFAULT_QUERY_PARSER));
+		parserPairs.add(new QueryParserPair(TermsQuery.class, new TermsQueryParser(mappingContext)));
+		parserPairs.add(new QueryParserPair(FacetQuery.class, defaultQueryParser));
+		parserPairs.add(new QueryParserPair(HighlightQuery.class, defaultQueryParser));
+		parserPairs.add(new QueryParserPair(Query.class, defaultQueryParser));
 	}
 
 	/**
@@ -56,6 +69,7 @@ public class QueryParsers {
 	 * @return {@link DefaultQueryParser} if no matching parser found
 	 */
 	public QueryParser getForClass(Class<? extends SolrDataQuery> clazz) {
+
 		QueryParser queryParser = cache.get(clazz);
 		if (queryParser == null) {
 			for (QueryParserPair pair : parserPairs) {
@@ -67,7 +81,7 @@ public class QueryParsers {
 			}
 		}
 
-		return queryParser != null ? queryParser : DEFAULT_QUERY_PARSER;
+		return queryParser != null ? queryParser : defaultQueryParser;
 	}
 
 	/**

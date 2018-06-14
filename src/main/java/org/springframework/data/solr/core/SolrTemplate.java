@@ -96,7 +96,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SolrTemplate.class);
 	private static final PersistenceExceptionTranslator EXCEPTION_TRANSLATOR = new SolrExceptionTranslator();
-	private final QueryParsers queryParsers = new QueryParsers();
+	private @Nullable QueryParsers queryParsers;
 	private @Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext;
 
 	private @Nullable ApplicationContext applicationContext;
@@ -151,6 +151,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		this.solrClientFactory = solrClientFactory;
 		this.defaultRequestMethod = defaultRequestMethod != null ? defaultRequestMethod : RequestMethod.GET;
 		this.solrConverter = solrConverter;
+		this.queryParsers = new QueryParsers(this.mappingContext);
 	}
 
 	/*
@@ -190,12 +191,12 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public long count(String collection, SolrDataQuery query) {
-		return count(collection, query, getDefaultRequestMethod());
+	public long count(String collection, SolrDataQuery query, @Nullable Class<?> domainType) {
+		return count(collection, query, domainType, getDefaultRequestMethod());
 	}
 
 	@Override
-	public long count(String collection, SolrDataQuery query, RequestMethod method) {
+	public long count(String collection, SolrDataQuery query, @Nullable Class<?> domainType, RequestMethod method) {
 
 		Assert.notNull(collection, "Collection must not be null!");
 		Assert.notNull(query, "Query must not be 'null'.");
@@ -203,7 +204,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		return execute(solrClient -> {
 
-			SolrQuery solrQuery = constructQuery(query);
+			SolrQuery solrQuery = constructQuery(query, domainType);
+			solrQuery.clearSorts();
 			solrQuery.setStart(0);
 			solrQuery.setRows(0);
 
@@ -238,11 +240,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	}
 
 	@Override
-	public UpdateResponse delete(String collection, SolrDataQuery query) {
+	public UpdateResponse delete(String collection, SolrDataQuery query, @Nullable Class<?> domainType) {
 
 		Assert.notNull(query, "Query must not be 'null'.");
 
-		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query);
+		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query, domainType);
 
 		return execute(solrClient -> solrClient.deleteByQuery(collection, queryString));
 	}
@@ -494,7 +496,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		Assert.notNull(query, "Query must not be 'null'");
 
-		SolrQuery solrQuery = constructQuery(query);
+		SolrQuery solrQuery = constructQuery(query, clazz);
 
 		if (clazz != null) {
 			SolrPersistentEntity<?> persistedEntity = mappingContext.getRequiredPersistentEntity(clazz);
@@ -524,8 +526,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 * @return never {@literal null}.
 	 * @since 2.1.11
 	 */
-	protected SolrQuery constructQuery(SolrDataQuery query) {
-		return lookupQueryParser(query).constructSolrQuery(query);
+	protected SolrQuery constructQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
+		return lookupQueryParser(query).constructSolrQuery(query, domainType);
 	}
 
 	private QueryParser lookupQueryParser(SolrDataQuery query) {
@@ -579,7 +581,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public <T> Cursor<T> queryForCursor(String collection, Query query, final Class<T> clazz) {
 
-		return new DelegatingCursor<T>(constructQuery(query)) {
+		return new DelegatingCursor<T>(constructQuery(query, clazz)) {
 
 			@Override
 			protected org.springframework.data.solr.core.query.result.DelegatingCursor.PartialResult<T> doLoad(
@@ -723,6 +725,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		if (this.solrConverter == null) {
 			this.solrConverter = getDefaultSolrConverter();
 		}
+
+		this.queryParsers = new QueryParsers(this.mappingContext);
 		registerPersistenceExceptionTranslator();
 	}
 

@@ -52,4 +52,7 @@ public interface SolrPersistentEntity<T> extends PersistentEntity<T, SolrPersist
 	@Nullable
 	SolrPersistentProperty getScoreProperty();
 
+	@Nullable
+	@Override
+	SolrPersistentProperty getPersistentProperty(String name);
 }
