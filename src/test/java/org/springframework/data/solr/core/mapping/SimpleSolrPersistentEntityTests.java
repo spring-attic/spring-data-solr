@@ -237,6 +237,24 @@ public class SimpleSolrPersistentEntityTests {
 		assertThat(entity2.getCollectionName()).isEqualTo("doc2");
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test // DATASOLR-471
+	public void deprecatedScoreAnnotationShouldBeConsidered() {
+
+		when(typeInfo.getType()).thenReturn(BeanWithScore.class);
+		when(property.isScoreProperty()).thenReturn(true);
+		when(property.isAnnotationPresent(eq(org.springframework.data.solr.repository.Score.class))).thenReturn(true);
+		when(property.getFieldName()).thenReturn("myScoreProperty");
+
+		SimpleSolrPersistentEntity<BeanWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
+
+		entity.addPersistentProperty(property);
+
+		assertTrue(entity.hasScoreProperty());
+		assertEquals(property, entity.getScoreProperty());
+		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
+	}
+
 	@SolrDocument(solrCoreName = CORE_NAME)
 	static class SearchableBeanWithSolrDocumentAnnotation {}
 

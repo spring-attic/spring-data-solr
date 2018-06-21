@@ -67,6 +67,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.UncategorizedSolrException;
 import org.springframework.data.solr.core.mapping.Indexed;
+import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
@@ -74,7 +75,6 @@ import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.schema.SolrPersistentEntitySchemaCreator.Feature;
-import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.server.SolrClientFactory;
 import org.springframework.lang.Nullable;
 
@@ -441,6 +441,18 @@ public class SolrTemplateTests {
 		assertNull(captor.getValue().getFieldValue("score"));
 	}
 
+	@Test // DATASOLR-471
+	public void testSaveShouldNotSaveDeprecatedScoreField()
+			throws IOException, SolrServerException, SecurityException, NoSuchFieldException {
+
+		solrTemplate.saveBean(COLLECTION_NAME, new DocumentWithDeprecatedScoreAnnotation());
+
+		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
+		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
+
+		assertNull(captor.getValue().getFieldValue("score"));
+	}
+
 	@Test // DATASOLR-215
 	public void usesTemplateDefaultRequestMethodForQuery() throws SolrServerException, IOException {
 
@@ -478,5 +490,11 @@ public class SolrTemplateTests {
 
 		@Id String id;
 		@Score Float scoreProperty;
+	}
+
+	static class DocumentWithDeprecatedScoreAnnotation {
+
+		@Id String id;
+		@org.springframework.data.solr.repository.Score Float scoreProperty;
 	}
 }

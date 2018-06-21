@@ -20,6 +20,7 @@ import static org.hamcrest.core.IsEqual.*;
 import static org.junit.Assert.*;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,13 +49,13 @@ import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.mapping.ChildDocument;
 import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
+import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.ScoredPage;
-import org.springframework.data.solr.core.mapping.Score;
 import org.xml.sax.SAXException;
 
 /**
@@ -171,6 +172,32 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 				new SimpleQuery("description:spring solr"), BeanWithScore.class);
 
 		List<BeanWithScore> content = page.getContent();
+		assertEquals(3, page.getTotalElements());
+
+		assertNotNull(content.get(0).score);
+		assertEquals("spring data solr", content.get(0).description);
+		assertNotNull(content.get(1).score);
+		assertEquals("spring", content.get(1).description);
+		assertNotNull(content.get(2).score);
+		assertEquals("apache solr", content.get(2).description);
+	}
+
+	@Test // DATASOLR-471
+	public void testProcessesDeprecatedScoreCorrectly() {
+
+		Collection<BeanWithDeprecatedScore> beans = new ArrayList<>();
+		beans.add(new BeanWithDeprecatedScore("1", "spring"));
+		beans.add(new BeanWithDeprecatedScore("2", "spring data solr"));
+		beans.add(new BeanWithDeprecatedScore("3", "apache solr"));
+		beans.add(new BeanWithDeprecatedScore("4", "apache lucene"));
+
+		solrTemplate.saveBeans(COLLECTION_NAME, beans);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		ScoredPage<BeanWithDeprecatedScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
+				new SimpleQuery("description:spring solr"), BeanWithDeprecatedScore.class);
+
+		List<BeanWithDeprecatedScore> content = page.getContent();
 		assertEquals(3, page.getTotalElements());
 
 		assertNotNull(content.get(0).score);
@@ -341,6 +368,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	}
 
 	private static class BeanWithScore {
+
 		@Id @Field //
 		private String id;
 
@@ -354,6 +382,19 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 			this.id = id;
 			this.description = description;
 		}
+	}
+
+	@RequiredArgsConstructor
+	private static class BeanWithDeprecatedScore {
+
+		@Id @Field //
+		private final String id;
+
+		@Indexed(type = "text") //
+		private final String description;
+
+		@org.springframework.data.solr.repository.Score //
+		private Float score;
 
 	}
 

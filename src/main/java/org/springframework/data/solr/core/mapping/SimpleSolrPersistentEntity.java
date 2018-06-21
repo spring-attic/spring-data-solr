@@ -124,7 +124,13 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	@Nullable
 	@Override
 	public SolrPersistentProperty getScoreProperty() {
-		return getPersistentProperty(Score.class);
+
+		SolrPersistentProperty scoreProperty = getPersistentProperty(Score.class);
+		if (scoreProperty != null) {
+			return scoreProperty;
+		}
+
+		return getPersistentProperty(org.springframework.data.solr.repository.Score.class);
 	}
 
 	/*

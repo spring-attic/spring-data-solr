@@ -254,7 +254,12 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 	 */
 	@Override
 	public boolean isScoreProperty() {
-		return findAnnotation(Score.class) != null;
+
+		if (findAnnotation(Score.class) != null) {
+			return true;
+		}
+
+		return findAnnotation(org.springframework.data.solr.repository.Score.class) != null;
 	}
 
 	/*

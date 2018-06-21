@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.solr.core.mapping;
+package org.springframework.data.solr.repository;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -27,12 +27,15 @@ import org.springframework.data.annotation.ReadOnlyProperty;
  * Defines the annotated field to store the score of a document within search result.
  * 
  * @author Christoph Strobl
- * @since 4.0
+ * @author Francisco Spaeth
+ * @since 1.4
+ * @deprecated since 4.0. Use {@link org.springframework.data.solr.core.mapping.Score} instead.
  */
 @ReadOnlyProperty
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
+@Deprecated
 public @interface Score {
 
 }
