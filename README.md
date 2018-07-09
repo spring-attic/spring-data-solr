@@ -110,17 +110,17 @@ public interface SolrProductRepositoryCustom {
 
 public class SolrProductRepositoryImpl implements SolrProductRepositoryCustom {
   
-  private SolrOperations solrTemplate;
+  private SolrOperations operations;
   
   @Override
   public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
     Query query = new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page);
-    return solrTemplate.queryForPage(query, Product.class);
+    return solrTemplate.queryForPage("collection1", query, Product.class);
   }
   
   @Autowired
   public void setOperations(SolrOperations operations) {
-    this.operations = operations;
+    this.solrTemplate = operations;
   }
   
 }
