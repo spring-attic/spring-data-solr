@@ -1,6 +1,15 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.0.RC1 (2018-07-26)
+-----------------------------------------
+* DATASOLR-471 - Move @Score to core.mapping package.
+* DATASOLR-469 - Full editing pass for spring-data-solr documentation.
+* DATASOLR-468 - Release 4.0 RC1 (Lovelace).
+* DATASOLR-466 - OrderBy uses field name value instead of @Field value.
+* DATASOLR-463 - Allow SpEL expressions for collection in @SolrDocument.
+
+
 Changes in version 3.0.8.RELEASE (2018-06-13)
 ---------------------------------------------
 * DATASOLR-465 - Release 3.0.8 (Kay SR8).
