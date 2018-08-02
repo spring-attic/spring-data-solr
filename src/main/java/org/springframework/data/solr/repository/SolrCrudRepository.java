@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import java.io.Serializable;
+import java.time.Duration;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -23,8 +24,17 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @param <T>
  * @param <ID>
  * @author Christoph Strobl
+ * @author Mayank Kumar
  */
 public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>,
 		PagingAndSortingRepository<T, ID> {
+
+	/**
+	 * Saves a given entity and commits withing given Duration.
+	 *
+	 * @param entity must not be {@literal null}.
+	 * @return the saved entity will never be {@literal null}.
+	 */
+	<S extends T> S save(S entity, Duration commitWithin);
 
 }

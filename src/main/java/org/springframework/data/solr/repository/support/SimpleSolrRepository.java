@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository.support;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +47,9 @@ import org.springframework.util.Assert;
  * @Param <ID>
  * @author Christoph Strobl
  * @author Mark Paluch
+ * @author Mayank Kumar
  */
-public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
+public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T,ID> {
 
 	private static final String DEFAULT_ID_FIELD = "id";
 
@@ -255,5 +257,14 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
 			this.solrOperations.commit(solrCollectionName);
 		}
+	}
+
+	@Override
+	public <S extends T> S save(S entity, Duration commitWithin) {
+		Assert.notNull(entity, "Cannot save 'null' entity.");
+		registerTransactionSynchronisationIfSynchronisationActive();
+		getSolrOperations().saveBean(solrCollectionName, entity, commitWithin);
+		commitIfTransactionSynchronisationIsInactive();
+		return entity;
 	}
 }
