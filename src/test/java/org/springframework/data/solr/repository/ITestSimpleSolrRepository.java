@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.springframework.data.solr.core.SolrTemplate;
 
 /**
  * @author Christoph Strobl
+ * @author Mayank Kumar
  */
 public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServer {
 
@@ -94,5 +96,28 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 		repository.deleteAll();
 
 		Assert.assertEquals(0, repository.count());
+	}
+
+	@Test
+	public void testBeanLifecyleWithCommitWithin() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		ExampleSolrBean savedBean = repository.save(toInsert, Duration.ofSeconds(10));
+
+		Assert.assertSame(toInsert, savedBean);
+
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
+
+		ExampleSolrBean retrieved = repository.findById(savedBean.getId()).get();
+		Assert.assertNotNull(retrieved);
+		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
+
+		Assert.assertEquals(1, repository.count());
+
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
+
+		repository.delete(savedBean);
+
+		Assert.assertEquals(0, repository.count());
+		Assert.assertFalse(repository.findById(savedBean.getId()).isPresent());
 	}
 }
