@@ -98,7 +98,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 		Assert.assertEquals(0, repository.count());
 	}
 
-	@Test
+	@Test //DATASOLR-332
 	public void testBeanLifecyleWithCommitWithin() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		ExampleSolrBean savedBean = repository.save(toInsert, Duration.ofSeconds(10));
