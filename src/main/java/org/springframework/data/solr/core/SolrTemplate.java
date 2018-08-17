@@ -404,7 +404,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 		Assert.notNull(clazz, "Target class must not be 'null'.");
 
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
-		QueryResponse response = querySolr(collection, namedObjectsQuery, clazz, getDefaultRequestMethod());
+		QueryResponse response = querySolr(collection, namedObjectsQuery, clazz, method);
 
 		return createSolrResultPage(query, clazz, response, namedObjectsQuery.getNamesAssociation());
 	}

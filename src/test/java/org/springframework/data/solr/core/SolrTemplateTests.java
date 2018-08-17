@@ -71,6 +71,7 @@ import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.PartialUpdate;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleHighlightQuery;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.SolrDataQuery;
@@ -476,6 +477,21 @@ public class SolrTemplateTests {
 				.thenReturn(new QueryResponse());
 		solrTemplate.querySolr(COLLECTION_NAME, new SimpleQuery("*:*"), DocumentWithIndexAnnotations.class,
 				RequestMethod.PUT);
+
+		verify(solrClientMock, times(1)).query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.PUT));
+	}
+
+	@Test // DATASOLR-475
+	public void queryForHighlightPageShouldUseRequestMethodCorrectly() throws IOException, SolrServerException {
+
+		solrTemplate = new SolrTemplate(solrClientMock, RequestMethod.POST);
+		solrTemplate.afterPropertiesSet();
+
+		when(solrClientMock.query(any(), any(SolrParams.class), any(SolrRequest.METHOD.class)))
+				.thenReturn(new QueryResponse());
+
+		solrTemplate.queryForHighlightPage(COLLECTION_NAME, new SimpleHighlightQuery(new SimpleStringCriteria("*:*")),
+				DocumentWithIndexAnnotations.class, RequestMethod.PUT);
 
 		verify(solrClientMock, times(1)).query(any(), any(SolrParams.class), eq(SolrRequest.METHOD.PUT));
 	}
