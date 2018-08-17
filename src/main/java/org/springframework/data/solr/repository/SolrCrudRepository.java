@@ -26,15 +26,24 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author Christoph Strobl
  * @author Mayank Kumar
  */
-public interface SolrCrudRepository<T, ID extends Serializable> extends SolrRepository<T, ID>,
-		PagingAndSortingRepository<T, ID> {
+public interface SolrCrudRepository<T, ID extends Serializable>
+		extends SolrRepository<T, ID>, PagingAndSortingRepository<T, ID> {
 
 	/**
-	 * Saves a given entity and commits withing given Duration.
+	 * Saves a given entity and commits withing given {@link Duration}.
 	 *
 	 * @param entity must not be {@literal null}.
 	 * @return the saved entity will never be {@literal null}.
+	 * @since 4.0
 	 */
 	<S extends T> S save(S entity, Duration commitWithin);
 
+	/**
+	 * Saves all given entities and commits withing given {@link Duration}.
+	 *
+	 * @param entities must not be {@literal null}.
+	 * @return the saved entity will never be {@literal null}.
+	 * @since 4.0
+	 */
+	<S extends T> Iterable<S> saveAll(Iterable<S> entities, Duration commitWithin);
 }

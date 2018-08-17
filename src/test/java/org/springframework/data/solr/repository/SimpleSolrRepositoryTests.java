@@ -17,6 +17,7 @@ package org.springframework.data.solr.repository;
 
 import static org.hamcrest.CoreMatchers.*;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -100,6 +101,15 @@ public class SimpleSolrRepositoryTests {
 
 		Assert.assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged(), is(true));
 		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
+	}
+
+	@Test //DATASOLR-332
+	public void saveAllShouldPassOnCommitWithinCorrectly() {
+
+		Duration commitWithin = Duration.ofSeconds(1);
+		repository.saveAll(Arrays.asList(new ExampleSolrBean("id-1", "foo", "bar")), commitWithin);
+
+		Mockito.verify(solrOperationsMock).saveBeans(Mockito.anyString(), Mockito.anyCollection(), Mockito.eq(commitWithin));
 	}
 
 	static class BeanWithLongIdType {

@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  * @author Mark Paluch
  * @author Mayank Kumar
  */
-public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T,ID> {
+public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCrudRepository<T, ID> {
 
 	private static final String DEFAULT_ID_FIELD = "id";
 
@@ -140,15 +140,25 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public <S extends T> S save(S entity) {
+		return save(entity, Duration.ZERO);
+	}
+
+	@Override
+	public <S extends T> S save(S entity, Duration commitWithin) {
 		Assert.notNull(entity, "Cannot save 'null' entity.");
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.saveBean(solrCollectionName, entity);
+		getSolrOperations().saveBean(solrCollectionName, entity, commitWithin);
 		commitIfTransactionSynchronisationIsInactive();
 		return entity;
 	}
 
 	@Override
 	public <S extends T> Iterable<S> saveAll(Iterable<S> entities) {
+		return saveAll(entities, Duration.ZERO);
+	}
+
+	@Override
+	public <S extends T> Iterable<S> saveAll(Iterable<S> entities, Duration commitWithin) {
 		Assert.notNull(entities, "Cannot insert 'null' as a List.");
 
 		if (!(entities instanceof Collection<?>)) {
@@ -156,7 +166,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		}
 
 		registerTransactionSynchronisationIfSynchronisationActive();
-		this.solrOperations.saveBeans(solrCollectionName, (Collection<? extends T>) entities);
+		this.solrOperations.saveBeans(solrCollectionName, (Collection<? extends T>) entities, commitWithin);
 		commitIfTransactionSynchronisationIsInactive();
 		return entities;
 	}
@@ -257,14 +267,5 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
 			this.solrOperations.commit(solrCollectionName);
 		}
-	}
-
-	@Override
-	public <S extends T> S save(S entity, Duration commitWithin) {
-		Assert.notNull(entity, "Cannot save 'null' entity.");
-		registerTransactionSynchronisationIfSynchronisationActive();
-		getSolrOperations().saveBean(solrCollectionName, entity, commitWithin);
-		commitIfTransactionSynchronisationIsInactive();
-		return entity;
 	}
 }
