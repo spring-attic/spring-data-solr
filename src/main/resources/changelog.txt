@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.0.RC2 (2018-08-20)
+-----------------------------------------
+* DATASOLR-476 - Release 4.0 RC2 (Lovelace).
+* DATASOLR-475 - Solr template - queryForHighlightPage ignore RequestMethod parameter.
+* DATASOLR-474 - Upgarde to Apache Solr 7.4.
+* DATASOLR-332 - Alllow commitWithin on respository save method.
+
+
 Changes in version 2.1.14.RELEASE (2018-07-27)
 ----------------------------------------------
 * DATASOLR-472 - Release 2.1.14 (Ingalls SR14).
