@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.10.RELEASE (2018-09-10)
+----------------------------------------------
+* DATASOLR-477 - Release 3.0.10 (Kay SR10).
+* DATASOLR-475 - Solr template - queryForHighlightPage ignore RequestMethod parameter.
+
+
 Changes in version 2.1.15.RELEASE (2018-09-10)
 ----------------------------------------------
 * DATASOLR-478 - Release 2.1.15 (Ingalls SR15).
