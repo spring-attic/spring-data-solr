@@ -397,6 +397,8 @@ Though there is already support for Entity Mapping within SolrJ, Spring Data Sol
 
 NOTE: `DocumentObjectBinder` has superior performance. Therefore, we recommend using it if you have no need for customer mapping. You can switch to `DocumentObjectBinder` by registering `SolrJConverter` within `SolrTemplate`.
 
+include::../{spring-data-commons-docs}/object-mapping.adoc[leveloffset=+2]
+
 [[solr.mapping.mappingSolr]]
 === `MappingSolrConverter`
 
