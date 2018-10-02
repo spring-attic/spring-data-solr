@@ -38,6 +38,7 @@ import org.springframework.data.solr.core.query.Criteria.Predicate;
  * @author Christoph Strobl
  * @author John Dorman
  * @author Philipp Jardas
+ * @author Radek Mensik
  */
 public class CriteriaTests {
 
@@ -309,6 +310,13 @@ public class CriteriaTests {
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
 		Assert.assertEquals(2f, criteria.getBoost(), 0);
+	}
+
+	@Test
+	public void testConstantScore() {
+		Criteria criteria = new Criteria("field_1").is("value_1").constantScore(4f);
+		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
+		Assert.assertEquals(4f, criteria.getScore(), 0);
 	}
 
 	@Test

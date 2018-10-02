@@ -25,6 +25,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
+ * @author Radek Mensik
  * @since 1.2
  */
 public abstract class Node {
@@ -174,6 +175,8 @@ public abstract class Node {
 	public abstract Node expression(String nativeSolrQueryExpression);
 
 	public abstract Node boost(float value);
+
+	public abstract Node constantScore(float score);
 
 	public abstract Node between(Object lowerBound, Object upperBound);
 

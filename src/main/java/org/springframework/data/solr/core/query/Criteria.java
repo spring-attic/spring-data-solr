@@ -37,6 +37,7 @@ import org.springframework.util.Assert;
  * @author Christoph Strobl
  * @author Philipp Jardas
  * @author Francisco Spaeth
+ * @author Radek Mensik
  */
 public class Criteria extends Node {
 
@@ -45,6 +46,7 @@ public class Criteria extends Node {
 
 	private @Nullable Field field;
 	private float boost = Float.NaN;
+	private float score = Float.NaN;
 
 	private Set<Predicate> predicates = new LinkedHashSet<>();
 
@@ -391,6 +393,14 @@ public class Criteria extends Node {
 		return this;
 	}
 
+	public Criteria constantScore(float score) {
+		if (score < 0) {
+			throw new InvalidDataAccessApiUsageException("Score must not be negative.");
+		}
+		this.score = score;
+		return this;
+	}
+
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [lowerBound TO upperBound]}
 	 * 
@@ -600,6 +610,10 @@ public class Criteria extends Node {
 	 */
 	public float getBoost() {
 		return this.boost;
+	}
+
+	public float getScore() {
+		return score;
 	}
 
 	/**
