@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.1.RELEASE (2018-10-15)
+---------------------------------------------
+* DATASOLR-483 - Release 4.0.1 (Lovelace SR1).
+
+
 Changes in version 4.0.0.RELEASE (2018-09-21)
 ---------------------------------------------
 * DATASOLR-482 - Include documentation about Object Mapping Fundamentals.
