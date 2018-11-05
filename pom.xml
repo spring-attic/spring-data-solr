@@ -285,7 +285,7 @@
 				</repository>
 			</repositories>
 			<properties>
-				<solr>7.3.0-SNAPSHOT</solr>
+				<solr>7.6.0-SNAPSHOT</solr>
 			</properties>
 		</profile>
 		<profile>
