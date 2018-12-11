@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.M1 (2018-12-11)
+----------------------------------------
+* DATASOLR-497 - Favor spring-jcl over jcl-over-slf4j.
+* DATASOLR-496 - Simplify reference documentation setup.
+* DATASOLR-495 - Release 4.1 M1 (Moore).
+* DATASOLR-490 - Travis fails with missing dependency.
+
+
 Changes in version 4.0.3.RELEASE (2018-11-27)
 ---------------------------------------------
 * DATASOLR-489 - Release 4.0.3 (Lovelace SR3).
