@@ -239,7 +239,7 @@ public interface SolrOperations {
 	UpdateResponse delete(String collection, SolrDataQuery query, @Nullable Class<?> domainType);
 
 	/**
-	 * Detele the one object with provided id.
+	 * Delete the one object with provided id.
 	 *
 	 * @param collection must not be {@literal null}.
 	 * @param id must not be {@literal null}.
