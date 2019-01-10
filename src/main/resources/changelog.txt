@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.13.RELEASE (2019-01-10)
+----------------------------------------------
+* DATASOLR-500 - Update copyright years to 2019.
+* DATASOLR-493 - Release 3.0.13 (Kay SR13).
+
+
 Changes in version 2.1.18.RELEASE (2019-01-10)
 ----------------------------------------------
 * DATASOLR-500 - Update copyright years to 2019.
