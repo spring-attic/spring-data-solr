@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.4.RELEASE (2019-01-10)
+---------------------------------------------
+* DATASOLR-500 - Update copyright years to 2019.
+* DATASOLR-497 - Favor spring-jcl over jcl-over-slf4j.
+* DATASOLR-494 - Release 4.0.4 (Lovelace SR4).
+
+
 Changes in version 3.0.13.RELEASE (2019-01-10)
 ----------------------------------------------
 * DATASOLR-500 - Update copyright years to 2019.
