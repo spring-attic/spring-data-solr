@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.18.RELEASE (2019-01-10)
+----------------------------------------------
+* DATASOLR-500 - Update copyright years to 2019.
+* DATASOLR-492 - Release 2.1.18 (Ingalls SR18).
+
+
 Changes in version 4.1.0.M1 (2018-12-11)
 ----------------------------------------
 * DATASOLR-497 - Favor spring-jcl over jcl-over-slf4j.
