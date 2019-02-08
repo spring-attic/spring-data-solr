@@ -178,7 +178,7 @@ final class ResultHelper {
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<>();
 
 		Pageable pageable = query.getFacetOptions().getPageable();
-		int initalPageSize = pageable.getPageSize();
+		int initalPageSize = Math.max(1, query.getFacetOptions().getPageable().getPageSize());
 		for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
 
 			if (rangeFacet == null || !StringUtils.hasText(rangeFacet.getName())) {
