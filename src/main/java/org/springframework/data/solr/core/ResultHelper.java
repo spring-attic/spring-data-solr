@@ -82,6 +82,7 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Venil Noronha
+ * @author Vitezslav Zak
  */
 final class ResultHelper {
 
@@ -201,7 +202,7 @@ final class ResultHelper {
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<Field, Page<FacetFieldEntry>>();
 
 		Pageable pageable = query.getFacetOptions().getPageable();
-		int initalPageSize = pageable.getPageSize();
+		int initalPageSize = Math.max(1, pageable.getPageSize());
 		for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
 
 			if (rangeFacet == null || !StringUtils.hasText(rangeFacet.getName())) {

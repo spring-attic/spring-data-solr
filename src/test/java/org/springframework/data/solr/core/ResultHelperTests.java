@@ -76,6 +76,7 @@ import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Vitezslav Zak
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultHelperTests {
@@ -763,6 +764,26 @@ public class ResultHelperTests {
 		query.getFacetOptions().setFacetLimit(-1);
 
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response);
+		Assert.assertNotNull(result);
+		Assert.assertEquals(1, result.size());
+	}
+
+	@Test // /DATASOLR-506
+	public void testconvertFacetQueryResponseToRangeFacetPageMapForNegativeFacetLimit() {
+		RangeFacet.Numeric rangeFacet = new RangeFacet.Numeric("name", 10, 20, 2, 4, 6, 8);
+		rangeFacet.addCount("count1", 1);
+		rangeFacet.addCount("count2", 2);
+
+
+		List<RangeFacet> rangeFacetList = new ArrayList<RangeFacet>(1);
+		rangeFacetList.add(rangeFacet);
+
+		Mockito.when(response.getFacetRanges()).thenReturn(rangeFacetList);
+
+		FacetQuery query = createFacetQuery("field_1");
+		query.getFacetOptions().setFacetLimit(-1);
+
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query, response);
 		Assert.assertNotNull(result);
 		Assert.assertEquals(1, result.size());
 	}
