@@ -65,6 +65,7 @@ import org.springframework.util.StringUtils;
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Venil Noronha
+ * @author Vitezslav Zak
  */
 final class ResultHelper {
 

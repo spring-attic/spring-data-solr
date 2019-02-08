@@ -64,6 +64,7 @@ import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Vitezslav Zak
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class ResultHelperTests {
