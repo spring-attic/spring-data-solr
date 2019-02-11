@@ -399,7 +399,7 @@ public class ResultHelperTests {
 
 	}
 
-	@Test
+	@Test // DATASOLR-507
 	public void testConvertFacetQueryResponseWithRangesToFacetPivotMap() {
 		NamedList<List<org.apache.solr.client.solrj.response.PivotField>> pivotData = new NamedList<>();
 		List<org.apache.solr.client.solrj.response.PivotField> vals = new ArrayList<>();
