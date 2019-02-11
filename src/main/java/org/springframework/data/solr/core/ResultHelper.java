@@ -133,14 +133,14 @@ final class ResultHelper {
 			for (int i = 0; i < facetPivot.size(); i++) {
 				String name = facetPivot.getName(i);
 				List<PivotField> pivotResult = facetPivot.get(name);
-				facetResult.put(new SimplePivotField(name), convertPivotResult(pivotResult));
+				facetResult.put(new SimplePivotField(name), convertPivotResult(query, pivotResult));
 			}
 		}
 
 		return facetResult;
 	}
 
-	private static List<FacetPivotFieldEntry> convertPivotResult(List<PivotField> pivotResult) {
+	private static List<FacetPivotFieldEntry> convertPivotResult(FacetQuery query, List<PivotField> pivotResult) {
 		if (CollectionUtils.isEmpty(pivotResult)) {
 			return Collections.emptyList();
 		}
@@ -148,12 +148,19 @@ final class ResultHelper {
 		ArrayList<FacetPivotFieldEntry> pivotFieldEntries = new ArrayList<>();
 
 		for (PivotField pivotField : pivotResult) {
-			SimpleFacetPivotEntry pivotFieldEntry = new SimpleFacetPivotEntry(new SimpleField(pivotField.getField()),
-					String.valueOf(pivotField.getValue()), pivotField.getCount());
+			SimpleFacetPivotEntry pivotFieldEntry;
+			if(!CollectionUtils.isEmpty(pivotField.getFacetRanges())) {
+				pivotFieldEntry = new SimpleFacetPivotRangesEntry(new SimpleField(pivotField.getField()),
+						String.valueOf(pivotField.getValue()), pivotField.getCount(),
+						convertFacetRangesToRangeFacetPageMap(query, pivotField.getFacetRanges()));
+			} else {
+				pivotFieldEntry = new SimpleFacetPivotEntry(new SimpleField(pivotField.getField()),
+						String.valueOf(pivotField.getValue()), pivotField.getCount());
+			}
 
 			List<PivotField> pivot = pivotField.getPivot();
 			if (pivot != null) {
-				pivotFieldEntry.setPivot(convertPivotResult(pivot));
+				pivotFieldEntry.setPivot(convertPivotResult(query, pivot));
 			}
 
 			pivotFieldEntries.add(pivotFieldEntry);
@@ -177,9 +184,25 @@ final class ResultHelper {
 		}
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<>();
 
+		return convertFacetRangesToRangeFacetPageMap(query, response.getFacetRanges());
+	}
+
+	/**
+	 * @param query
+	 * @param facetRanges
+	 * @return
+	 * @since 1.5
+	 */
+	static Map<Field, Page<FacetFieldEntry>> convertFacetRangesToRangeFacetPageMap(FacetQuery query,
+			List<RangeFacet> facetRanges) {
+		if (CollectionUtils.isEmpty(facetRanges)) {
+			return Collections.emptyMap();
+		}
+		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<>();
+
 		Pageable pageable = query.getFacetOptions().getPageable();
 		int initalPageSize = pageable.getPageSize();
-		for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
+		for (RangeFacet<?, ?> rangeFacet : facetRanges) {
 
 			if (rangeFacet == null || !StringUtils.hasText(rangeFacet.getName())) {
 				continue;
