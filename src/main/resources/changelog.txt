@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.M2 (2019-03-07)
+----------------------------------------
+* DATASOLR-501 - Introduce Concourse CI.
+* DATASOLR-500 - Update copyright years to 2019.
+* DATASOLR-498 - Release 4.1 M2 (Moore).
+
+
 Changes in version 4.0.5.RELEASE (2019-02-13)
 ---------------------------------------------
 * DATASOLR-504 - Release 4.0.5 (Lovelace SR5).
