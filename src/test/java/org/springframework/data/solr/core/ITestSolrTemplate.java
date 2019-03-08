@@ -21,6 +21,7 @@ import static org.hamcrest.core.Is.*;
 import static org.hamcrest.core.IsEqual.*;
 import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.*;
+import static org.springframework.data.solr.core.query.Field.*;
 
 import lombok.Data;
 
@@ -906,8 +907,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 	}
 
 	@Test
-	@Ignore("No longer supported in Solr 6 - A ValueSource isn't directly available from this field. Instead try a query using the distance as the score.")
 	public void testFunctionQueryInFieldProjection() {
+
 		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
 		bean1.setStore("45.17614,-93.87341");
 		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
@@ -917,12 +918,76 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit(COLLECTION_NAME);
 
 		Query q = new SimpleQuery("*:*");
+
 		q.addProjectionOnField(new DistanceField("distance", "store", new Point(45.15, -93.85)));
+
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
 		for (ExampleSolrBean bean : result) {
 			assertThat(bean.getDistance(), notNullValue());
 		}
+	}
 
+	@Test // DATASOLR-511
+	public void testFunctionQueryInFieldProjectionWhenUsingQuery() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setStore("45.17614,-93.87341");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
+		bean2.setStore("40.7143,-74.006");
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		Query q = Query.query(Criteria.where(GeoDistanceFunction.distanceFrom("store").to(new Point(45.15, -93.85)))) //
+				.projectAllFields() //
+				.addProjectionOnField(distance("distance"));
+
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
+		for (ExampleSolrBean bean : result) {
+			assertThat(bean.getDistance(), notNullValue());
+		}
+	}
+
+	@Test // DATASOLR-511
+	public void testFunctionQueryInFieldProjectionWhenUsingFilterQuery() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setStore("45.17614,-93.87341");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
+		bean2.setStore("40.7143,-74.006");
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		Query q = Query.all() //
+				.addFilterQuery(FilterQuery.geoFilter("store", new Point(45.15, -93.85))) //
+				.projectAllFields() //
+				.addProjectionOnField(distance("distance")); //
+
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
+		for (ExampleSolrBean bean : result) {
+			assertThat(bean.getDistance(), notNullValue());
+		}
+	}
+
+	@Test // DATASOLR-511
+	public void testGeoFunctionQueryWithSort() {
+
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "one", null);
+		bean1.setStore("45.17614,-93.87341");
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "one two", null);
+		bean2.setStore("40.7143,-74.006");
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		Query q = Query.all() //
+				.addFilterQuery(FilterQuery.geoFilter("store", new Point(45.15, -93.85))) //
+				.addSort(Sort.by(Direction.DESC, "geodist()"));
+
+		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME, q, ExampleSolrBean.class);
+		assertThat(result.getContent().get(0).getId(), is(bean2.getId()));
+		assertThat(result.getContent().get(1).getId(), is(bean1.getId()));
 	}
 
 	@Test // DATASOLR-162

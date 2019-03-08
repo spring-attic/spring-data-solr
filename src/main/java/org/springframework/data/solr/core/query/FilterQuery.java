@@ -15,13 +15,37 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.data.geo.Point;
+
 /**
- * Filter Queries are simple solr Queries applied after executing the original query.
- * 
- * This corresponds to the {@code fq} Parameter within solr.
+ * Filter Queries are simple solr Queries applied after executing the original query. This corresponds to the {@code fq}
+ * Parameter within solr.
  * 
  * @author Christoph Strobl
  */
 public interface FilterQuery extends SolrDataQuery {
+
+	/**
+	 * Create a new {@link FilterQuery} with the given {@link Criteria}.
+	 *
+	 * @param criteria must not be {@literal null}.
+	 * @return new instance of {@link FilterQuery}.
+	 * @since 4.1
+	 */
+	static FilterQuery filter(Criteria criteria) {
+		return new SimpleFilterQuery(criteria);
+	}
+
+	/**
+	 * Create a new {@link FilterQuery} applying a {@code geodist} function.
+	 * 
+	 * @param from must not be {@literal null}.
+	 * @param to must not be {@literal null}.
+	 * @return new instance of {@link FilterQuery}.
+	 * @since 4.1
+	 */
+	static FilterQuery geoFilter(String from, Point to) {
+		return filter(Criteria.where(GeoDistanceFunction.distanceFrom(from).to(to)));
+	}
 
 }

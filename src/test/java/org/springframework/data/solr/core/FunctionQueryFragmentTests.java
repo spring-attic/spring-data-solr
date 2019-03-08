@@ -118,10 +118,10 @@ public class FunctionQueryFragmentTests {
 				{ ExistsFunction.exists(new Foo()), "{!func}exists(foo())" },
 				{ ExistsFunction.exists(new SimpleField("field_1")), "{!func}exists(field_1)" },
 				{ GeoDistanceFunction.distanceFrom("field_1").to(new org.springframework.data.geo.Point(12, 13)),
-						"{!func}geodist(field_1,12.0,13.0)" },
+						"{!func}geodist()" },
 				{ GeoDistanceFunction.distanceFrom(new SimpleField("field_1"))
-						.to(new org.springframework.data.geo.Point(12, 13)), "{!func}geodist(field_1,12.0,13.0)" },
-				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "{!func}geodist(field_1,12.0,13.0)" },
+						.to(new org.springframework.data.geo.Point(12, 13)), "{!func}geodist()" },
+				{ GeoDistanceFunction.distanceFrom("field_1").to(12D, 13D), "{!func}geodist()" },
 				{ GeoHashFunction.geohash(new org.springframework.data.geo.Point(1, 2)), "{!func}geohash(1.0,2.0)" },
 				{ GeoHashFunction.geohash(1, 2), "{!func}geohash(1.0,2.0)" },
 				{ IfFunction.when(new Foo()).then("field_1").otherwise(3), "{!func}if(foo(),field_1,3)" },

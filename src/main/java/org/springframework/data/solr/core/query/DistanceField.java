@@ -26,12 +26,69 @@ import org.springframework.lang.Nullable;
  */
 public class DistanceField extends SimpleCalculatedField {
 
+	/**
+	 * As of 4.1 please use {@link #distanceAs(String)} along with a {@link FilterQuery}.
+	 *
+	 * <pre>
+	 *     <code>
+	 *
+	 * Query q = new SimpleQuery("*:*");
+	 * q.addFilterQuery(FilterQuery.geoFilter("store", new Point(45.15, -93.85)));
+	 * q.projectAllFields();
+	 * q.addProjectionOnField(Field.distance("distance"));
+	 *     </code>
+	 * </pre>
+	 *
+	 * @param geoFieldName
+	 * @param location
+	 * @deprecated since 4.1. Replace with: {@link #distanceAs(String)} and add an explicit {@link FilterQuery} with a
+	 *             {@link DistanceFunction}.
+	 */
+	@Deprecated
 	public DistanceField(String geoFieldName, Point location) {
 		this(null, geoFieldName, location);
 	}
 
+	/**
+	 * As of 4.1 please use {@link #distanceAs(String)} along with a {@link FilterQuery}.
+	 * 
+	 * <pre>
+	 *     <code>
+	 *
+	 * Query q = new SimpleQuery("*:*");
+	 * q.addFilterQuery(FilterQuery.geoFilter("store", new Point(45.15, -93.85)));
+	 * q.projectAllFields();
+	 * q.addProjectionOnField(Field.distance("distance"));
+	 *     </code>
+	 * </pre>
+	 * 
+	 * @param alias
+	 * @param geoFieldName
+	 * @param location
+	 * @deprecated since 4.1. Replace with: {@link #distanceAs(String)} and add an explicit {@link FilterQuery} with a
+	 *             {@link DistanceFunction}.
+	 */
+	@Deprecated
 	public DistanceField(@Nullable String alias, String geoFieldName, Point location) {
 		super(alias, GeoDistanceFunction.distanceFrom(geoFieldName).to(location));
+	}
+
+	/**
+	 * Create a new {@link DistanceField}.
+	 *
+	 * @param alias the field alias to use.
+	 * @since 4.1
+	 */
+	public DistanceField(String alias) {
+		super(alias, GeoDistanceFunction.geodist());
+	}
+
+	/**
+	 * @param alias the field alias to use.
+	 * @since 4.1
+	 */
+	public static DistanceField distanceAs(String alias) {
+		return new DistanceField(alias);
 	}
 
 }
