@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,8 @@ import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.Criteria.OperationKey;
 import org.springframework.data.solr.core.query.Criteria.Predicate;
+import org.springframework.data.solr.core.query.Function.Context;
+import org.springframework.data.solr.core.query.Function.Context.Target;
 import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -349,8 +352,9 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 */
 	protected String createCalculatedFieldFragment(CalculatedField calculatedField, @Nullable Class<?> domainType) {
 		return StringUtils.isNotBlank(calculatedField.getAlias())
-				? (calculatedField.getAlias() + ":" + createFunctionFragment(calculatedField.getFunction(), 0, domainType))
-				: createFunctionFragment(calculatedField.getFunction(), 0, domainType);
+				? (calculatedField.getAlias() + ":"
+						+ createFunctionFragment(calculatedField.getFunction(), 0, domainType, Target.PROJECTION))
+				: createFunctionFragment(calculatedField.getFunction(), 0, domainType, Target.PROJECTION);
 	}
 
 	/**
@@ -361,36 +365,26 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * @since 1.1
 	 */
 	protected String createFunctionFragment(Function function, int level, @Nullable Class<?> domainType) {
+		return createFunctionFragment(function, level, domainType, Target.QUERY);
+	}
 
-		StringBuilder sb = new StringBuilder();
-		if (level <= 0) {
-			sb.append("{!func}");
+	/**
+	 * Create {@link SolrClient} readable String representation for {@link Function}
+	 *
+	 * @param function
+	 * @return
+	 * @since 4.1
+	 */
+	protected String createFunctionFragment(Function function, int level, @Nullable Class<?> domainType,
+			Context.Target target) {
+
+		String result = function.toSolrFunction(newFunctionContext(domainType, target));
+
+		if (level > 0 && result.startsWith("{!func}")) {
+			return result.substring(7);
 		}
 
-		sb.append(function.getOperation());
-		sb.append('(');
-		if (function.hasArguments()) {
-			List<String> solrReadableArguments = new ArrayList<>();
-			for (Object arg : function.getArguments()) {
-				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
-				if (arg instanceof Function) {
-					solrReadableArguments.add(createFunctionFragment((Function) arg, level + 1, domainType));
-				} else if (arg instanceof Criteria) {
-					solrReadableArguments.add(createQueryStringFromNode((Criteria) arg, domainType));
-				} else if (arg instanceof Field) {
-					solrReadableArguments.add(getMappedFieldName((Field) arg, domainType));
-				} else if (arg instanceof Query) {
-					solrReadableArguments.add(getQueryString((Query) arg, domainType));
-				} else if (arg instanceof String || !conversionService.canConvert(arg.getClass(), String.class)) {
-					solrReadableArguments.add(arg.toString());
-				} else {
-					solrReadableArguments.add(conversionService.convert(arg, String.class));
-				}
-			}
-			sb.append(StringUtils.join(solrReadableArguments, ','));
-		}
-		sb.append(')');
-		return sb.toString();
+		return result;
 	}
 
 	/**
@@ -503,6 +497,58 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 	}
 
+	/**
+	 * Append a geo filter query if the {@link Query} does not already define one but contains a distance projection.
+	 *
+	 * @param query must not be {@literal null}.
+	 * @since 4.1
+	 */
+	protected void appendGeoParametersIfRequired(SolrQuery solrQuery, Query query, @Nullable Class<?> domainType) {
+
+		addGeoParamsForFunctionIfRequired(solrQuery, Collections.singletonList(query), domainType);
+		addGeoParamsForFunctionIfRequired(solrQuery, query.getFilterQueries(), domainType);
+
+		DistanceField distanceField = CollectionUtils.findValueOfType(query.getProjectionOnFields(), DistanceField.class);
+		if (distanceField == null || !query.getFilterQueries().isEmpty()) {
+			return;
+		}
+
+		for (Entry<String, String> entry : distanceField.getFunction()
+				.getArgumentMap(newFunctionContext(domainType, Target.QUERY)).entrySet()) {
+
+			if (solrQuery.get(entry.getKey()) == null) { // do not override other stuff
+				solrQuery.add(entry.getKey(), entry.getValue());
+			}
+		}
+
+	}
+
+	private void addGeoParamsForFunctionIfRequired(SolrQuery solrQuery, List<? extends SolrDataQuery> queries,
+			@Nullable Class<?> domainType) {
+
+		for (SolrDataQuery fq : queries) {
+
+			Criteria c = fq.getCriteria();
+			if (c == null || CollectionUtils.isEmpty(c.getPredicates())) {
+				continue;
+			}
+
+			for (Predicate predicate : c.getPredicates()) {
+
+				if (predicate.isFunction()) {
+					Function f = (Function) predicate.getValue();
+					for (Entry<String, String> entry : f.getArgumentMap(newFunctionContext(domainType, Target.QUERY))
+							.entrySet()) {
+
+						if (solrQuery.get(entry.getKey()) == null) { // do not override other stuff
+							solrQuery.add(entry.getKey(), entry.getValue());
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private boolean containsFunctionCriteria(Set<Predicate> chainedCriterias) {
 		for (Predicate entry : chainedCriterias) {
 			if (StringUtils.equals(OperationKey.WITHIN.getKey(), entry.getKey())) {
@@ -543,7 +589,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		 * @return
 		 */
 		Object process(@Nullable Predicate predicate, @Nullable Field field, Class<?> domainType);
-
 	}
 
 	/**
@@ -595,7 +640,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public void remove() {
 			this.delegate.remove();
 		}
-
 	}
 
 	/**
@@ -631,6 +675,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 				}
 				return criteriaValue;
 			}
+
 			String value = escapeCriteriaValue((String) criteriaValue);
 			return processWhiteSpaces(value);
 		}
@@ -648,7 +693,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Nullable
 		protected abstract Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType);
-
 	}
 
 	/**
@@ -899,7 +943,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 			Assert.notNull(predicate, "Predicate must not be null!");
 
-			return createFunctionFragment((Function) predicate.getValue(), 0, domainType);
+			return createFunctionFragment((Function) predicate.getValue(), 0, domainType, Target.QUERY);
 		}
 	}
 
@@ -916,7 +960,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		void setName(Object object, String name);
 
 		Map<String, Object> getNamesAssociation();
-
 	}
 
 	/**
@@ -941,7 +984,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public Map<String, Object> getNamesAssociation() {
 			return Collections.unmodifiableMap(namesAssociation);
 		}
-
 	}
 
 	/**
@@ -965,7 +1007,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public Map<String, Object> getNamesAssociation() {
 			return Collections.unmodifiableMap(namesAssociation);
 		}
-
 	}
 
 	/**
@@ -989,7 +1030,6 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public Map<String, Object> getNamesAssociation() {
 			return Collections.unmodifiableMap(namesAssociation);
 		}
-
 	}
 
 	/**
@@ -1022,5 +1062,44 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		public Map<String, Object> getNamesAssociation() {
 			return Collections.unmodifiableMap(namesAssociation);
 		}
+	}
+
+	/**
+	 * Create new new {@link Context} for rendering {@link Function functions}.
+	 *
+	 * @param domainType can be {@literal null}.
+	 * @param target context {@link Target}. Must not be {@literal null}.
+	 * @return new instance of {@link Context}.
+	 * @since 4.1
+	 */
+	protected Context newFunctionContext(@Nullable Class<?> domainType, Target target) {
+
+		return new Context() {
+
+			@Override
+			public String convert(Object value) {
+
+				Assert.notNull(value, "Unable to parse 'null' within function arguments.");
+
+				if (value instanceof Function) {
+					return createFunctionFragment((Function) value, 1, domainType, target);
+				} else if (value instanceof Criteria) {
+					return createQueryStringFromNode((Criteria) value, domainType);
+				} else if (value instanceof Field) {
+					return getMappedFieldName((Field) value, domainType);
+				} else if (value instanceof Query) {
+					return getQueryString((Query) value, domainType);
+				} else if (value instanceof String || !conversionService.canConvert(value.getClass(), String.class)) {
+					return value.toString();
+				} else {
+					return conversionService.convert(value, String.class);
+				}
+			}
+
+			@Override
+			public Target getTarget() {
+				return target;
+			}
+		};
 	}
 }
