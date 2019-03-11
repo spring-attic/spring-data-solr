@@ -34,6 +34,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.core.convert.DateTimeConverters;
@@ -760,6 +761,17 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			spatialFragment += filterCriteriaValue(location);
 			spatialFragment += " " + SpatialParams.FIELD + "=" + fieldName;
 			spatialFragment += " " + SpatialParams.DISTANCE + "=" + filterCriteriaValue(distance);
+
+			if (Metrics.KILOMETERS.equals(distance.getMetric())) {
+				spatialFragment += " " + "score=kilometers";
+			} else if (Metrics.MILES.equals(distance.getMetric())) {
+				spatialFragment += " " + "score=miles";
+			} else {
+				if (!Metrics.NEUTRAL.equals(distance.getMetric())) {
+					spatialFragment += " " + "score=" + distance.getUnit();
+				}
+			}
+
 			spatialFragment += "}";
 			return spatialFragment;
 		}

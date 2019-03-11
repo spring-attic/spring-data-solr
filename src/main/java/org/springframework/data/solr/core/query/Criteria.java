@@ -491,7 +491,9 @@ public class Criteria extends Node {
 	}
 
 	/**
-	 * Creates new {@link Predicate} for {@code !geodist}
+	 * Creates new {@link Predicate} for {@code !getfilt}. <br />
+	 * Uses non {@link org.springframework.data.geo.Metrics#NEUTRAL neutral} {@link Distance#getMetric() metric} to set
+	 * the local {@code score} property for the function.
 	 *
 	 * @param location {@link Point} in degrees
 	 * @param distance
@@ -506,7 +508,7 @@ public class Criteria extends Node {
 	}
 
 	/**
-	 * Creates new {@link Predicate} for {@code !geodist}.
+	 * Creates new {@link Predicate} for {@code !getfilt}.
 	 *
 	 * @param circle
 	 * @return
@@ -519,7 +521,7 @@ public class Criteria extends Node {
 	}
 
 	/**
-	 * Creates new {@link Predicate} for {@code !bbox} with exact coordinates
+	 * Creates new {@link Predicate} for {@code !bbox} with exact coordinates.
 	 *
 	 * @param box
 	 * @return
@@ -531,7 +533,9 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates new {@link Predicate} for {@code !bbox} for a specified distance. The difference between this and
-	 * {@code within} is this is approximate while {@code within} is exact.
+	 * {@code within} is this is approximate while {@code within} is exact. <br />
+	 * Uses non {@link org.springframework.data.geo.Metrics#NEUTRAL neutral} {@link Distance#getMetric() metric} to set
+	 * the local {@code score} property for the function.
 	 *
 	 * @param location
 	 * @param distance
@@ -550,7 +554,9 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates new {@link Predicate} for {@code !circle} for a specified distance. The difference between this and
-	 * {@link #within(Circle)} is this is approximate while {@code within} is exact.
+	 * {@link #within(Circle)} is this is approximate while {@code within} is exact. <br />
+	 * Uses non {@link org.springframework.data.geo.Metrics#NEUTRAL neutral} {@link Distance#getMetric() metric} to set
+	 * the local {@code score} property for the function.
 	 *
 	 * @param circle
 	 * @return

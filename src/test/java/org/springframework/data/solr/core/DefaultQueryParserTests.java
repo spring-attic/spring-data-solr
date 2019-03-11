@@ -48,6 +48,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metric;
 import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
@@ -389,7 +390,7 @@ public class DefaultQueryParserTests {
 	public void testNearWithDistanceUnitMiles() {
 
 		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES));
-		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
+		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}",
 				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
@@ -398,7 +399,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
 				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
@@ -415,7 +416,7 @@ public class DefaultQueryParserTests {
 	public void testWithinWithDistanceUnitMiles() {
 
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344}",
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}",
 				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
@@ -424,7 +425,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
 				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
@@ -438,7 +439,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1")
 				.within(new Circle(new Point(48.303056, 14.290556), new Distance(1, Metrics.KILOMETERS)));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
 				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
@@ -1733,7 +1734,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("renamedField").within(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=renamed-field d=1.0}",
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=renamed-field d=1.0 score=kilometers}",
 				queryParser.createQueryStringFromCriteria(criteria, Sample.class));
 	}
 
@@ -1787,6 +1788,34 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
 		assertEquals("{!func}max(field1,renamed-field)", solrQuery.get(GroupParams.GROUP_FUNC));
+	}
+
+	@Test // DATASOLR-510
+	public void doesNotAddScoreForNeutralDistance() {
+
+		Criteria criteria = new Criteria("field_1")
+				.within(new Circle(new Point(48.303056, 14.290556), new Distance(1, Metrics.NEUTRAL)));
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
+				queryParser.createQueryStringFromCriteria(criteria, null));
+	}
+
+	@Test // DATASOLR-510
+	public void usesCustomDistanceForScore() {
+
+		Criteria criteria = new Criteria("field_1")
+				.within(new Circle(new Point(48.303056, 14.290556), new Distance(1, new Metric() {
+					@Override
+					public double getMultiplier() {
+						return 1;
+					}
+
+					@Override
+					public String getAbbreviation() {
+						return "distance";
+					}
+				})));
+		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=distance}",
+				queryParser.createQueryStringFromCriteria(criteria, null));
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
