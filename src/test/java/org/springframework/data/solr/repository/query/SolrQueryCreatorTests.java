@@ -333,7 +333,7 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344}",
+		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}",
 				queryParser.getQueryString(query, ProductBean.class));
 	}
 
@@ -353,7 +353,7 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344}",
+		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}",
 				queryParser.getQueryString(query, ProductBean.class));
 	}
 
