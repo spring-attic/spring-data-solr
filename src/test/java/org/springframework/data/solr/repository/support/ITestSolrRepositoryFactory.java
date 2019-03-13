@@ -93,7 +93,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 		repository.save(initial);
 
-		Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
+		Page<ProductBean> result = repository.findByAnnotatedQuery("na", PageRequest.of(0, 5));
 		Assert.assertEquals(1, result.getContent().size());
 	}
 
@@ -104,7 +104,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 		repository.save(initial);
 
-		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", new PageRequest(0, 5));
+		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", PageRequest.of(0, 5));
 		Assert.assertEquals(1, result.getContent().size());
 		Assert.assertEquals(Float.valueOf(1), result.getMaxScore());
 	}
@@ -120,7 +120,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
 		Assert.assertEquals(2, repository.count());
 
-		Page<ProductBean> result = repository.findByAvailableTrue(new PageRequest(0, 10));
+		Page<ProductBean> result = repository.findByAvailableTrue(PageRequest.of(0, 10));
 		Assert.assertEquals(1, result.getTotalElements());
 		Assert.assertEquals(availableProduct.getId(), result.getContent().get(0).getId());
 	}

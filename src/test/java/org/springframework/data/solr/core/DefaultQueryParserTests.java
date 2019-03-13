@@ -752,7 +752,7 @@ public class DefaultQueryParserTests {
 
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort("field_2"));
+		query.addSort(Sort.by("field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 		assertEquals("field_2 asc", solrQuery.getSortField());
 		assertEquals(1, solrQuery.getSorts().size());
@@ -763,7 +763,7 @@ public class DefaultQueryParserTests {
 
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort(Sort.Direction.DESC, "field_2"));
+		query.addSort(Sort.by(Sort.Direction.DESC, "field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 		assertEquals("field_2 desc", solrQuery.getSortField());
 		assertEquals(1, solrQuery.getSorts().size());
@@ -774,7 +774,7 @@ public class DefaultQueryParserTests {
 
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort("field_2", "field_3"));
+		query.addSort(Sort.by("field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 		assertEquals("field_2 asc,field_3 asc", solrQuery.getSortField());
 		assertEquals(2, solrQuery.getSorts().size());
@@ -785,7 +785,7 @@ public class DefaultQueryParserTests {
 
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort(Sort.Direction.DESC, "field_2", "field_3"));
+		query.addSort(Sort.by(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 		assertEquals("field_2 desc,field_3 desc", solrQuery.getSortField());
 		assertEquals(2, solrQuery.getSorts().size());
@@ -796,8 +796,8 @@ public class DefaultQueryParserTests {
 
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
-		query.addSort(new Sort("field_1"));
-		query.addSort(new Sort(Sort.Direction.DESC, "field_2", "field_3"));
+		query.addSort(Sort.by("field_1"));
+		query.addSort(Sort.by(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 		assertEquals("field_1 asc,field_2 desc,field_3 desc", solrQuery.getSortField());
 		assertEquals(3, solrQuery.getSorts().size());
@@ -1267,7 +1267,7 @@ public class DefaultQueryParserTests {
 		groupOptions.addGroupByField("field_1");
 		groupOptions.addGroupByFunction(MaxFunction.max("field_1", "field_2"));
 		groupOptions.addGroupByQuery(new SimpleQuery("*:*"));
-		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		groupOptions.addSort(Sort.by(Sort.Direction.DESC, "field_3"));
 		groupOptions.setTotalCount(true);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
@@ -1291,7 +1291,7 @@ public class DefaultQueryParserTests {
 		query.setGroupOptions(groupOptions);
 		groupOptions.setLimit(-1);
 		groupOptions.addGroupByField("field_1");
-		groupOptions.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		groupOptions.addSort(Sort.by(Sort.Direction.DESC, "field_3"));
 		groupOptions.setTotalCount(true);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
@@ -1768,7 +1768,7 @@ public class DefaultQueryParserTests {
 		query.addCriteria(AnyCriteria.any());
 		query.setGroupOptions(groupOptions);
 		groupOptions.addGroupByField("field1");
-		groupOptions.addSort(new Sort(Sort.Direction.DESC, "renamedField"));
+		groupOptions.addSort(Sort.by(Sort.Direction.DESC, "renamedField"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
 		assertEquals("renamed-field desc", solrQuery.get(GroupParams.GROUP_SORT));

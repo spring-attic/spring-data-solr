@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implementation of {@code Pageable} allowing zero sized pages.
- * 
+ *
  * @author Christoph Strobl
  */
 public class SolrPageRequest implements Pageable {
@@ -34,7 +34,7 @@ public class SolrPageRequest implements Pageable {
 
 	/**
 	 * Creates a new {@link SolrPageRequest}. Pages are zero indexed.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 */
@@ -44,19 +44,19 @@ public class SolrPageRequest implements Pageable {
 
 	/**
 	 * Creates a new {@link SolrPageRequest} with sort parameters applied.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 * @param direction the direction of the {@link Sort} to be specified, can be {@literal null}.
 	 * @param properties the properties to sort by, must not be {@literal null} or empty.
 	 */
 	public SolrPageRequest(int page, int size, Direction direction, String... properties) {
-		this(page, size, new Sort(direction, properties));
+		this(page, size, Sort.by(direction, properties));
 	}
 
 	/**
 	 * Creates a new {@link SolrPageRequest} with sort parameters applied.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 * @param sort can be {@literal null}.
@@ -141,7 +141,7 @@ public class SolrPageRequest implements Pageable {
 
 	/**
 	 * Returns the {@link Pageable} requesting the previous {@link Page}.
-	 * 
+	 *
 	 * @return
 	 */
 	public Pageable previous() {
@@ -152,7 +152,7 @@ public class SolrPageRequest implements Pageable {
 	public int hashCode() {
 		int result = sort.hashCode();
 		result = 31 * result + page;
-		result = 31 * result + (int) (size ^ (size >>> 32));
+		result = 31 * result + (size ^ size >>> 32);
 		return result;
 	}
 

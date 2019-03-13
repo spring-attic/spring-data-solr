@@ -81,7 +81,7 @@ public class SimpleQueryTests {
 		Assert.assertNull(query.getOffset());
 		Assert.assertNull(query.getRows());
 
-		Pageable alteredPage = new PageRequest(0, 20);
+		Pageable alteredPage = PageRequest.of(0, 20);
 
 		query.setPageRequest(alteredPage);
 		Assert.assertThat(query.getPageRequest(), IsEqual.equalTo(alteredPage));
@@ -92,7 +92,7 @@ public class SimpleQueryTests {
 	public void testSetPageRequestWithSort() {
 		SimpleQuery query = new SimpleQuery();
 
-		Pageable alteredPage = new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2");
+		Pageable alteredPage = PageRequest.of(0, 20, Sort.Direction.DESC, "value_1", "value_2");
 
 		query.setPageRequest(alteredPage);
 		Assert.assertThat(query.getPageRequest(), IsEqual.equalTo(alteredPage));
@@ -108,7 +108,7 @@ public class SimpleQueryTests {
 	@Test
 	public void testCreateQueryWithSortedPageRequest() {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("*:*"),
-				new PageRequest(0, 20, Sort.Direction.DESC, "value_1", "value_2"));
+				PageRequest.of(0, 20, Sort.Direction.DESC, "value_1", "value_2"));
 		Assert.assertNotNull(query.getPageRequest());
 		Assert.assertNotNull(query.getSort());
 
@@ -210,7 +210,7 @@ public class SimpleQueryTests {
 	@Test
 	public void testCloneQueryWithSort() {
 		Query source = new SimpleQuery(new Criteria("field_1").is("value_1"));
-		source.addSort(new Sort(Sort.Direction.DESC, "field_3"));
+		source.addSort(Sort.by(Sort.Direction.DESC, "field_3"));
 
 		Query destination = SimpleQuery.fromQuery(source);
 		Assert.assertEquals(source.getSort(), destination.getSort());
@@ -254,7 +254,7 @@ public class SimpleQueryTests {
 
 	@Test
 	public void testAddSort() {
-		Sort sort = new Sort("field_2", "field_3");
+		Sort sort = Sort.by("field_2", "field_3");
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
 		query.addSort(sort);
 
@@ -271,7 +271,7 @@ public class SimpleQueryTests {
 
 	@Test
 	public void testAddNullToExistingSort() {
-		Sort sort = new Sort("field_2", "field_3");
+		Sort sort = Sort.by("field_2", "field_3");
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
 		query.addSort(sort);
 		query.addSort(null);
@@ -282,8 +282,8 @@ public class SimpleQueryTests {
 
 	@Test
 	public void testAddMultipleSort() {
-		Sort sort1 = new Sort("field_2", "field_3");
-		Sort sort2 = new Sort("field_1");
+		Sort sort1 = Sort.by("field_2", "field_3");
+		Sort sort2 = Sort.by("field_1");
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
 		query.addSort(sort1);
 		query.addSort(sort2);
@@ -305,7 +305,7 @@ public class SimpleQueryTests {
 
 	@Test
 	public void shouldOverridePagableArgsByUsingExplicitSetters() {
-		SimpleQuery query = new SimpleQuery("*:*").setPageRequest(new PageRequest(1, 10));
+		SimpleQuery query = new SimpleQuery("*:*").setPageRequest(PageRequest.of(1, 10));
 		query.setOffset(2L);
 		query.setRows(20);
 

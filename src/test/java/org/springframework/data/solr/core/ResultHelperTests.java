@@ -49,17 +49,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.core.query.*;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetQueryEntry;
-import org.springframework.data.solr.core.query.result.FieldStatsResult;
-import org.springframework.data.solr.core.query.result.GroupEntry;
-import org.springframework.data.solr.core.query.result.GroupResult;
-import org.springframework.data.solr.core.query.result.HighlightEntry;
+import org.springframework.data.solr.core.query.result.*;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
-import org.springframework.data.solr.core.query.result.SolrResultPage;
-import org.springframework.data.solr.core.query.result.StatsResult;
-import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
 /**
  * @author Christoph Strobl
@@ -480,7 +471,7 @@ public class ResultHelperTests {
 		GroupOptions groupOptions = new GroupOptions();
 		groupOptions.setLimit(1);
 
-		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
+		Mockito.when(query.getPageRequest()).thenReturn(PageRequest.of(0, 1));
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
 
 		Object group1Key = new Object();
@@ -541,7 +532,7 @@ public class ResultHelperTests {
 		GroupOptions groupOptions = new GroupOptions();
 		groupOptions.setLimit(1);
 
-		Mockito.when(query.getPageRequest()).thenReturn(new PageRequest(0, 1));
+		Mockito.when(query.getPageRequest()).thenReturn(PageRequest.of(0, 1));
 		Mockito.when(query.getGroupOptions()).thenReturn(groupOptions);
 
 		Object group1Key = new Object();

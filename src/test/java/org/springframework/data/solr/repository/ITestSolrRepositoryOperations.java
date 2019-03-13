@@ -389,7 +389,7 @@ public class ITestSolrRepositoryOperations {
 		repo.saveAll(values);
 
 		List<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSort(true,
-				new Sort(Direction.DESC, "popularity"));
+				Sort.by(Direction.DESC, "popularity"));
 
 		ProductBean prev = found.get(0);
 		for (int i = 1; i < found.size(); i++) {
@@ -410,7 +410,7 @@ public class ITestSolrRepositoryOperations {
 		repo.saveAll(values);
 
 		Page<ProductBean> found = repo.findByAvailableWithAnnotatedQueryUsingSortInPageable(true,
-				new PageRequest(0, 50, new Sort(Direction.DESC, "popularity")));
+				PageRequest.of(0, 50, Sort.by(Direction.DESC, "popularity")));
 
 		ProductBean prev = found.getContent().get(0);
 		for (int i = 1; i < found.getContent().size(); i++) {
@@ -430,7 +430,7 @@ public class ITestSolrRepositoryOperations {
 		}
 		repo.saveAll(values);
 
-		List<ProductBean> found = repo.findByAvailableWithSort(true, new Sort(Direction.DESC, "popularity"));
+		List<ProductBean> found = repo.findByAvailableWithSort(true, Sort.by(Direction.DESC, "popularity"));
 
 		ProductBean prev = found.get(0);
 		for (int i = 1; i < found.size(); i++) {
@@ -451,7 +451,7 @@ public class ITestSolrRepositoryOperations {
 		repo.saveAll(values);
 
 		Page<ProductBean> found = repo.findByAvailableWithSort(true,
-				new PageRequest(0, 30, new Sort(Direction.DESC, "popularity")));
+				PageRequest.of(0, 30, Sort.by(Direction.DESC, "popularity")));
 
 		ProductBean prev = found.getContent().get(0);
 		for (int i = 1; i < found.getContent().size(); i++) {
@@ -472,13 +472,13 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testPagination() {
-		Pageable pageable = new PageRequest(0, 2);
+		Pageable pageable = PageRequest.of(0, 2);
 		Page<ProductBean> page1 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(pageable.getPageSize(), page1.getNumberOfElements());
 		Assert.assertTrue(page1.hasNext());
 		Assert.assertEquals(3, page1.getTotalElements());
 
-		pageable = new PageRequest(1, 2);
+		pageable = PageRequest.of(1, 2);
 		Page<ProductBean> page2 = repo.findByNameStartingWith("name", pageable);
 		Assert.assertEquals(1, page2.getNumberOfElements());
 		Assert.assertFalse(page2.hasNext());
@@ -487,7 +487,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testPaginationNoElementsFound() {
-		Pageable pageable = new PageRequest(0, 2);
+		Pageable pageable = PageRequest.of(0, 2);
 		Page<ProductBean> page = repo.findByNameStartingWith("hpotsirhc", pageable);
 		Assert.assertEquals(0, page.getNumberOfElements());
 		Assert.assertTrue(page.getContent().isEmpty());
@@ -517,7 +517,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetOnSingleField() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularity(new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularity(PageRequest.of(0, 10));
 		Assert.assertEquals(1, facetPage.getFacetFields().size());
 		Page<FacetFieldEntry> page = facetPage.getFacetResultPage(facetPage.getFacetFields().iterator().next());
 		Assert.assertEquals(3, page.getContent().size());
@@ -528,7 +528,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetOnMultipleFields() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularityAndAvailable(new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnPopularityAndAvailable(PageRequest.of(0, 10));
 		Assert.assertEquals(2, facetPage.getFacetFields().size());
 
 		Page<FacetFieldEntry> popularityPage = facetPage.getFacetResultPage(new SimpleField("popularity"));
@@ -546,7 +546,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetOnSingleQuery() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(PageRequest.of(0, 10));
 		Assert.assertEquals(0, facetPage.getFacetFields().size());
 		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
 		Assert.assertEquals(1, facets.getContent().size());
@@ -556,7 +556,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetWithParametrizedQuery() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(3, new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryPopularity(3, PageRequest.of(0, 10));
 		Assert.assertEquals(0, facetPage.getFacetFields().size());
 		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
 		Assert.assertEquals(1, facets.getContent().size());
@@ -566,7 +566,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetOnMulipleQueries() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryAvailableTrueAndAvailableFalse(new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetQueryAvailableTrueAndAvailableFalse(PageRequest.of(0, 10));
 		Assert.assertEquals(0, facetPage.getFacetFields().size());
 		Page<FacetQueryEntry> facets = facetPage.getFacetQueryResult();
 		Assert.assertEquals(2, facets.getContent().size());
@@ -578,7 +578,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetWithStaticPrefix() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithStaticPrefix(new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithStaticPrefix(PageRequest.of(0, 10));
 		Assert.assertEquals(1, facetPage.getFacetFields().size());
 		Page<FacetFieldEntry> page = facetPage.getFacetResultPage("name");
 		Assert.assertEquals(1, page.getContent().size());
@@ -590,7 +590,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testFacetWithDynamicPrefix() {
-		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithDynamicPrefix("pro", new PageRequest(0, 10));
+		FacetPage<ProductBean> facetPage = repo.findAllFacetOnNameWithDynamicPrefix("pro", PageRequest.of(0, 10));
 		Assert.assertEquals(1, facetPage.getFacetFields().size());
 		Page<FacetFieldEntry> page = facetPage.getFacetResultPage("name");
 		Assert.assertEquals(1, page.getContent().size());
@@ -603,7 +603,7 @@ public class ITestSolrRepositoryOperations {
 	@Test // DATASOLR-244
 	public void testQueryWithFacetAndHighlight() {
 
-		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAll("na", new PageRequest(0, 10));
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAll("na", PageRequest.of(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
 
 		Assert.assertTrue(page.getFacetFields().size() > 0);
@@ -625,7 +625,7 @@ public class ITestSolrRepositoryOperations {
 	public void testFacetAndHighlightWithPrefixPostfix() {
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnInStockHighlightAllWithPreAndPostfix("na",
-				new PageRequest(0, 10));
+				PageRequest.of(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
 		Assert.assertTrue(page.getFacetFields().size() > 0);
 
@@ -650,7 +650,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(beanWithText);
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("na",
-				new PageRequest(0, 10));
+				PageRequest.of(0, 10));
 		Assert.assertEquals(4, page.getNumberOfElements());
 		Assert.assertTrue(page.getFacetFields().size() > 0);
 
@@ -679,7 +679,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(beanWithText);
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("",
-				new PageRequest(0, 10));
+				PageRequest.of(0, 10));
 		Assert.assertEquals(5, page.getNumberOfElements());
 		Assert.assertTrue(page.getFacetFields().size() > 0);
 
@@ -712,7 +712,7 @@ public class ITestSolrRepositoryOperations {
 		repo.save(beanWithText);
 
 		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnStoreHighlightWihtQueryOverride("na", "some",
-				new PageRequest(0, 10));
+				PageRequest.of(0, 10));
 		Assert.assertEquals(4, page.getNumberOfElements());
 		Assert.assertTrue(page.getFacetFields().size() > 0);
 
@@ -824,7 +824,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testQueryWithHighlight() {
-		HighlightPage<ProductBean> page = repo.findByNameHighlightAll("na", new PageRequest(0, 10));
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAll("na", PageRequest.of(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
 
 		for (ProductBean product : page) {
@@ -842,7 +842,7 @@ public class ITestSolrRepositoryOperations {
 
 	@Test
 	public void testHighlightWithPrefixPostfix() {
-		HighlightPage<ProductBean> page = repo.findByNameHighlightAllWithPreAndPostfix("na", new PageRequest(0, 10));
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAllWithPreAndPostfix("na", PageRequest.of(0, 10));
 		Assert.assertEquals(3, page.getNumberOfElements());
 
 		for (ProductBean product : page) {
@@ -864,7 +864,7 @@ public class ITestSolrRepositoryOperations {
 		beanWithText.setDescription("some text with name in it");
 		repo.save(beanWithText);
 
-		HighlightPage<ProductBean> page = repo.findByNameHighlightAllLimitToFields("na", new PageRequest(0, 10));
+		HighlightPage<ProductBean> page = repo.findByNameHighlightAllLimitToFields("na", PageRequest.of(0, 10));
 		Assert.assertEquals(4, page.getNumberOfElements());
 
 		for (ProductBean product : page) {
@@ -890,7 +890,7 @@ public class ITestSolrRepositoryOperations {
 		beanWithText.setDescription("some text with name in it");
 		repo.save(beanWithText);
 
-		HighlightPage<ProductBean> page = repo.findByNameHighlightWihtQueryOverride("na", "some", new PageRequest(0, 10));
+		HighlightPage<ProductBean> page = repo.findByNameHighlightWihtQueryOverride("na", "some", PageRequest.of(0, 10));
 		Assert.assertEquals(4, page.getNumberOfElements());
 
 		for (ProductBean product : page) {
@@ -960,7 +960,7 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> beans = createProductBeans(10, "top");
 		repo.saveAll(beans);
 
-		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(0, 2));
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", PageRequest.of(0, 2));
 		assertThat(result.getNumberOfElements(), IsEqual.equalTo(2));
 		assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(0), beans.get(1)));
 	}
@@ -971,7 +971,7 @@ public class ITestSolrRepositoryOperations {
 		List<ProductBean> beans = createProductBeans(10, "top");
 		repo.saveAll(beans);
 
-		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 2));
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", PageRequest.of(1, 2));
 		assertThat(result.getNumberOfElements(), IsEqual.equalTo(1));
 		assertThat(result.getContent(), IsCollectionContaining.hasItems(beans.get(2)));
 	}
@@ -981,7 +981,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.saveAll(createProductBeans(10, "top"));
 
-		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", new PageRequest(1, 5));
+		Page<ProductBean> result = repo.findTop3ByNameStartsWith("to", PageRequest.of(1, 5));
 		assertThat(result.getNumberOfElements(), IsEqual.equalTo(0));
 		assertThat(result.hasNext(), IsEqual.equalTo(false));
 	}
@@ -991,7 +991,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.saveAll(createProductBeans(10, "slice"));
 
-		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 2));
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", PageRequest.of(0, 2));
 		assertThat(slice.getNumberOfElements(), Is.is(2));
 	}
 
@@ -1000,7 +1000,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.saveAll(createProductBeans(10, "slice"));
 
-		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(0, 20));
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", PageRequest.of(0, 20));
 		assertThat(slice.getNumberOfElements(), Is.is(10));
 	}
 
@@ -1009,7 +1009,7 @@ public class ITestSolrRepositoryOperations {
 
 		repo.saveAll(createProductBeans(10, "slice"));
 
-		Slice<ProductBean> slice = repo.findProductBeanByName("slice", new PageRequest(1, 20));
+		Slice<ProductBean> slice = repo.findProductBeanByName("slice", PageRequest.of(1, 20));
 		assertThat(slice.hasContent(), Is.is(false));
 	}
 
@@ -1051,7 +1051,7 @@ public class ITestSolrRepositoryOperations {
 		ProductBean greenProduct = createProductBean("5", 3, true, "green");
 		repo.save(greenProduct);
 
-		SpellcheckedPage<ProductBean> found = repo.findByName("gren", new PageRequest(0, 20));
+		SpellcheckedPage<ProductBean> found = repo.findByName("gren", PageRequest.of(0, 20));
 		assertThat(found.hasContent(), Is.is(false));
 		assertThat(found.getSuggestions().size(), Is.is(Matchers.greaterThan(0)));
 		assertThat(found.getSuggestions(), Matchers.contains("green"));
@@ -1117,7 +1117,7 @@ public class ITestSolrRepositoryOperations {
 
 		List<ProductBean> beans = new ArrayList<>(nrToCreate);
 		for (int i = 0; i < nrToCreate; i++) {
-			String id = StringUtils.hasText(prefix) ? (prefix + "-" + i) : Integer.toString(i);
+			String id = StringUtils.hasText(prefix) ? prefix + "-" + i : Integer.toString(i);
 			beans.add(createProductBean(id, 0, true, id));
 		}
 		return beans;

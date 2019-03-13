@@ -181,7 +181,7 @@ public class StringBasedSolrQueryTests {
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreatorMock);
 
 		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
-		Sort sort = new Sort(Direction.DESC, "popularity", "price");
+		Sort sort = Sort.by(Direction.DESC, "popularity", "price");
 
 		org.springframework.data.solr.core.query.Query query = solrQuery
 				.createQuery(new SolrParametersParameterAccessor(queryMethod, new Object[] { "spring", sort }));
@@ -196,10 +196,10 @@ public class StringBasedSolrQueryTests {
 		SolrQueryMethod queryMethod = new SolrQueryMethod(method, metadata, factory, entityInformationCreatorMock);
 
 		StringBasedSolrQuery solrQuery = new StringBasedSolrQuery(queryMethod, solrOperationsMock);
-		Sort sort = new Sort(Direction.DESC, "popularity", "price");
+		Sort sort = Sort.by(Direction.DESC, "popularity", "price");
 
 		org.springframework.data.solr.core.query.Query query = solrQuery.createQuery(
-				new SolrParametersParameterAccessor(queryMethod, new Object[] { "spring", new PageRequest(0, 10, sort) }));
+				new SolrParametersParameterAccessor(queryMethod, new Object[] { "spring", PageRequest.of(0, 10, sort) }));
 
 		Assert.assertEquals("name:spring", queryParser.getQueryString(query, ProductBean.class));
 		Assert.assertEquals(sort, query.getSort());

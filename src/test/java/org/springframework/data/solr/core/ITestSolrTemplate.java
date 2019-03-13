@@ -42,6 +42,8 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
+import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
+import org.apache.solr.common.params.FacetParams.FacetRangeOther;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -477,7 +479,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 								.setFacetLimit(5) //
 								.setFacetMinCount(1) //
 								.setFacetSort(FacetSort.COUNT) //
-								.setPageable(new PageRequest(1, 10)));
+								.setPageable(PageRequest.of(1, 10)));
 
 		org.springframework.data.solr.core.query.result.FacetQueryResult<ExampleSolrBean> page = solrTemplate
 				.queryForFacetPage(COLLECTION_NAME, q, ExampleSolrBean.class);
@@ -697,7 +699,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(COLLECTION_NAME, values);
 		solrTemplate.commit(COLLECTION_NAME);
 
-		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "name"));
+		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(Sort.by(Sort.Direction.DESC, "name"));
 		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
@@ -719,8 +721,8 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.saveBeans(COLLECTION_NAME, values);
 		solrTemplate.commit(COLLECTION_NAME);
 
-		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(new Sort(Sort.Direction.DESC, "inStock"))
-				.addSort(new Sort(Sort.Direction.ASC, "name"));
+		Query query = new SimpleQuery(new SimpleStringCriteria("*:*")).addSort(Sort.by(Sort.Direction.DESC, "inStock"))
+				.addSort(Sort.by(Sort.Direction.ASC, "name"));
 		Page<ExampleSolrBean> page = solrTemplate.queryForPage(COLLECTION_NAME, query, ExampleSolrBean.class);
 
 		ExampleSolrBean prev = page.getContent().get(0);
@@ -932,7 +934,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit(COLLECTION_NAME);
 
 		Cursor<ExampleSolrBean> cursor = solrTemplate.queryForCursor(COLLECTION_NAME,
-				new SimpleQuery("*:*").addSort(new Sort(Direction.DESC, "id")), ExampleSolrBean.class);
+				new SimpleQuery("*:*").addSort(Sort.by(Direction.DESC, "id")), ExampleSolrBean.class);
 
 		int i = 0;
 		while (cursor.hasNext()) {
@@ -959,7 +961,7 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		SimpleQuery groupQuery = new SimpleQuery(new SimpleStringCriteria("*:*"));
 		GroupOptions groupOptions = new GroupOptions();
 		groupQuery.setGroupOptions(groupOptions);
-		groupOptions.addSort(new Sort("name", "id"));
+		groupOptions.addSort(Sort.by("name", "id"));
 		groupOptions.addGroupByField("name");
 		groupOptions.addGroupByFunction(f);
 		groupOptions.addGroupByQuery(q1);

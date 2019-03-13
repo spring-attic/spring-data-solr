@@ -20,14 +20,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.data.repository.config.AnnotationRepositoryConfigurationSource;
@@ -36,7 +32,6 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
 import org.springframework.data.repository.config.RepositoryConfigurationSource;
 import org.springframework.data.repository.config.XmlRepositoryConfigurationSource;
 import org.springframework.data.solr.core.SolrExceptionTranslator;
-import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.convert.MappingSolrConverter;
 import org.springframework.data.solr.core.convert.SolrCustomConversions;
@@ -99,6 +94,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 	public void postProcess(BeanDefinitionBuilder builder, AnnotationRepositoryConfigurationSource config) {
 
 		AnnotationAttributes attributes = config.getAttributes();
+
 		builder.addPropertyReference(BeanDefinitionName.SOLR_OPERATIONS.getBeanName(),
 				attributes.getString("solrTemplateRef"));
 		builder.addPropertyValue("schemaCreationSupport", attributes.getBoolean("schemaCreationSupport"));
@@ -107,20 +103,23 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		builder.addPropertyReference(BeanDefinitionName.SOLR_CONVERTER.getBeanName(), "solrConverter");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport#registerBeansForRoot(org.springframework.beans.factory.support.BeanDefinitionRegistry, org.springframework.data.repository.config.RepositoryConfigurationSource)
+	 */
 	@Override
-	public void registerBeansForRoot(BeanDefinitionRegistry registry, RepositoryConfigurationSource configurationSource) {
+	public void registerBeansForRoot(BeanDefinitionRegistry registry, RepositoryConfigurationSource configuration) {
 
-		super.registerBeansForRoot(registry, configurationSource);
+		super.registerBeansForRoot(registry, configuration);
 
-		registeCustomConversionsIfNotPresent(registry, configurationSource);
-		registerSolrMappingContextIfNotPresent(registry, configurationSource);
-		registerSolrConverterIfNotPresent(registry, configurationSource);
-		registerSolrTemplateIfNotPresent(registry, configurationSource);
+		registeCustomConversionsIfNotPresent(registry, configuration);
+		registerSolrMappingContextIfNotPresent(registry, configuration);
+		registerSolrConverterIfNotPresent(registry, configuration);
+		registerSolrTemplateIfNotPresent(registry, configuration);
 
 		registerIfNotAlreadyRegistered(
-				BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class).getBeanDefinition(), registry,
-				"solrExceptionTranslator", configurationSource);
-
+				() -> BeanDefinitionBuilder.genericBeanDefinition(SolrExceptionTranslator.class).getBeanDefinition(), registry,
+				"solrExceptionTranslator", configuration.getSource());
 	}
 
 	/*
@@ -137,6 +136,7 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		if (StringUtils.hasText(element.getAttribute("schema-creation-support"))) {
 			builder.addPropertyValue("schemaCreationSupport", element.getAttribute("schema-creation-support"));
 		}
+
 		builder.addPropertyReference(BeanDefinitionName.SOLR_MAPPTING_CONTEXT.getBeanName(), "solrMappingContext");
 		builder.addPropertyReference(BeanDefinitionName.SOLR_CONVERTER.getBeanName(), "solrConverter");
 	}
@@ -159,72 +159,76 @@ public class SolrRepositoryConfigExtension extends RepositoryConfigurationExtens
 		return Arrays.asList(SolrRepository.class, SolrCrudRepository.class);
 	}
 
-	private void registeCustomConversionsIfNotPresent(BeanDefinitionRegistry registry,
-			RepositoryConfigurationSource configurationSource) {
+	private static void registeCustomConversionsIfNotPresent(BeanDefinitionRegistry registry,
+			RepositoryConfigurationSource configuration) {
 
-		RootBeanDefinition definition = new RootBeanDefinition(SolrCustomConversions.class);
+		registerIfNotAlreadyRegistered(() -> {
 
-		definition.getConstructorArgumentValues().addGenericArgumentValue(Collections.emptyList());
-		definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
-		definition.setSource(configurationSource.getSource());
+			RootBeanDefinition definition = new RootBeanDefinition(SolrCustomConversions.class);
 
-		registerIfNotAlreadyRegistered(definition, registry, BeanDefinitionName.CUSTOM_CONVERSIONS.getBeanName(),
-				definition);
+			definition.getConstructorArgumentValues().addGenericArgumentValue(Collections.emptyList());
+			definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
+
+			return definition;
+
+		}, registry, BeanDefinitionName.CUSTOM_CONVERSIONS.getBeanName(), configuration.getSource());
 	}
 
-	private void registerSolrMappingContextIfNotPresent(BeanDefinitionRegistry registry,
-			RepositoryConfigurationSource configurationSource) {
+	private static void registerSolrMappingContextIfNotPresent(BeanDefinitionRegistry registry,
+			RepositoryConfigurationSource configuration) {
 
 		RootBeanDefinition definition = new RootBeanDefinition(SimpleSolrMappingContext.class);
 		definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
-		definition.setSource(configurationSource.getSource());
+		definition.setSource(configuration.getSource());
 
-		registerIfNotAlreadyRegistered(definition, registry, BeanDefinitionName.SOLR_MAPPTING_CONTEXT.getBeanName(),
-				definition);
+		registerIfNotAlreadyRegistered(() -> {
+
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(SimpleSolrMappingContext.class);
+
+			builder.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
+
+			return builder.getBeanDefinition();
+
+		}, registry, BeanDefinitionName.SOLR_MAPPTING_CONTEXT.getBeanName(), configuration.getSource());
 	}
 
-	private void registerSolrConverterIfNotPresent(BeanDefinitionRegistry registry,
-			RepositoryConfigurationSource configurationSource) {
+	private static void registerSolrConverterIfNotPresent(BeanDefinitionRegistry registry,
+			RepositoryConfigurationSource configuration) {
 
-		RootBeanDefinition definition = new RootBeanDefinition(MappingSolrConverter.class);
-		ConstructorArgumentValues ctorArgs = new ConstructorArgumentValues();
-		ctorArgs.addIndexedArgumentValue(0,
-				new RuntimeBeanReference(BeanDefinitionName.SOLR_MAPPTING_CONTEXT.getBeanName()));
-		definition.setConstructorArgumentValues(ctorArgs);
+		registerIfNotAlreadyRegistered(() -> {
 
-		MutablePropertyValues properties = new MutablePropertyValues();
-		properties.add("customConversions", new RuntimeBeanReference(BeanDefinitionName.CUSTOM_CONVERSIONS.getBeanName()));
-		definition.setPropertyValues(properties);
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(MappingSolrConverter.class);
 
-		definition.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
-		definition.setSource(configurationSource.getSource());
+			builder.addConstructorArgReference(BeanDefinitionName.SOLR_MAPPTING_CONTEXT.getBeanName());
+			builder.addPropertyReference("customConversions", BeanDefinitionName.CUSTOM_CONVERSIONS.getBeanName());
+			builder.setRole(AbstractBeanDefinition.ROLE_INFRASTRUCTURE);
 
-		registerIfNotAlreadyRegistered(definition, registry, BeanDefinitionName.SOLR_CONVERTER.getBeanName(), definition);
+			return builder.getBeanDefinition();
+
+		}, registry, BeanDefinitionName.SOLR_CONVERTER.getBeanName(), configuration.getSource());
 	}
 
-	private void registerSolrTemplateIfNotPresent(BeanDefinitionRegistry registry,
-			RepositoryConfigurationSource configurationSource) {
+	private static void registerSolrTemplateIfNotPresent(BeanDefinitionRegistry registry,
+			RepositoryConfigurationSource configuration) {
 
-		RootBeanDefinition solrTemplateDefinition = new RootBeanDefinition(SolrTemplate.class);
-		solrTemplateDefinition.setTargetType(SolrOperations.class);
+		registerIfNotAlreadyRegistered(() -> {
 
-		ConstructorArgumentValues ctorArgs = new ConstructorArgumentValues();
+			BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(SolrTemplate.class);
 
-		ctorArgs.addIndexedArgumentValue(0, createHttpSolrClientFactory());
-		ctorArgs.addIndexedArgumentValue(1, new RuntimeBeanReference(BeanDefinitionName.SOLR_CONVERTER.getBeanName()));
+			builder.addConstructorArgValue(createHttpSolrClientFactory());
+			builder.addConstructorArgReference(BeanDefinitionName.SOLR_CONVERTER.getBeanName());
 
-		solrTemplateDefinition.setConstructorArgumentValues(ctorArgs);
+			return builder.getBeanDefinition();
 
-		registerIfNotAlreadyRegistered(solrTemplateDefinition, registry, "solrTemplate", solrTemplateDefinition);
+		}, registry, "solrTemplate", configuration.getSource());
 	}
 
-	private BeanDefinition createHttpSolrClientFactory() {
+	private static BeanDefinition createHttpSolrClientFactory() {
 
-		GenericBeanDefinition solrClientFactory = new GenericBeanDefinition();
-		solrClientFactory.setBeanClass(HttpSolrClientFactory.class);
-		ConstructorArgumentValues args = new ConstructorArgumentValues();
-		args.addIndexedArgumentValue(0, new RuntimeBeanReference(BeanDefinitionName.SOLR_CLIENT.getBeanName()));
-		solrClientFactory.setConstructorArgumentValues(args);
-		return solrClientFactory;
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(HttpSolrClientFactory.class);
+
+		builder.addConstructorArgReference(BeanDefinitionName.SOLR_CLIENT.getBeanName());
+
+		return builder.getBeanDefinition();
 	}
 }
