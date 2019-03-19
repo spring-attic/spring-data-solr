@@ -9,7 +9,7 @@
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
-	<url>http://github.com/spring-projects/spring-data-solr</url>
+	<url>https://github.com/spring-projects/spring-data-solr</url>
 
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
@@ -288,7 +288,7 @@
 				<repository>
 					<id>apache.snapshots</id>
 					<name>Apache Snapshot Repository</name>
-					<url>http://repository.apache.org/snapshots</url>
+					<url>https://repository.apache.org/snapshots</url>
 					<releases>
 						<enabled>false</enabled>
 					</releases>
@@ -304,7 +304,7 @@
 				<repository>
 					<id>apache.snapshots</id>
 					<name>Apache Snapshot Repository</name>
-					<url>http://repository.apache.org/snapshots</url>
+					<url>https://repository.apache.org/snapshots</url>
 					<releases>
 						<enabled>false</enabled>
 					</releases>
@@ -329,7 +329,7 @@
 
 	<ciManagement>
 		<system>Bamboo</system>
-		<url>http://build.spring.io/browse/DATASOLR</url>
+		<url>https://build.spring.io/browse/DATASOLR</url>
 	</ciManagement>
 
 	<repositories>
