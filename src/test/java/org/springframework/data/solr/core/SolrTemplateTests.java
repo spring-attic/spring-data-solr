@@ -406,7 +406,7 @@ public class SolrTemplateTests {
 
 		assertThat(capturedRequest.getMethod(), IsEqual.equalTo(SolrRequest.METHOD.POST));
 		assertThat(capturedRequest.getPath(), IsEqual.equalTo("/schema"));
-		assertThat(capturedRequest.getContentStreams(), IsNull.notNullValue());
+		assertThat(capturedRequest.getContentWriter("json"), IsNull.notNullValue());
 	}
 
 	@Test // DATASOLR-83
