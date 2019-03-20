@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>7.7.1</luceneMatchVersion>
+  <luceneMatchVersion>8.0.0</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load any Jars
        identified and use them to resolve any "plugins" specified in
@@ -243,7 +243,7 @@
          Setting The value to true will instruct the underlying Lucene
          IndexWriter to write its debugging info the specified file
       -->
-    <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> -->
+     <infoStream>true</infoStream>
   </indexConfig>
 
 
@@ -737,6 +737,7 @@
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
       <!-- <str name="df">text</str> -->
+      <bool name="preferLocalShards">false</bool>
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
@@ -894,7 +895,7 @@
     <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">_text_</str>
+      <str name="field">text</str>
       <str name="classname">solr.DirectSolrSpellChecker</str>
       <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
       <str name="distanceMeasure">internal</str>
@@ -948,6 +949,7 @@
            collations (re-written queries) can include a combination of
            corrections from both spellcheckers -->
       <str name="spellcheck.dictionary">default</str>
+      <str name="spellcheck.dictionary">wordbreak</str>
       <str name="spellcheck">on</str>
       <str name="spellcheck.extendedResults">true</str>
       <str name="spellcheck.count">10</str>
