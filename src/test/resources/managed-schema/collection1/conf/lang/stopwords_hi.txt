@@ -1,4 +1,4 @@
-# Also see http://www.opensource.org/licenses/bsd-license.html
+# Also see https://www.opensource.org/licenses/bsd-license.html
 # See http://members.unine.ch/jacques.savoy/clef/index.html.
 # This file was created by Jacques Savoy and is distributed under the BSD license.
 # Note: by default this file also contains forms normalized by HindiNormalizer 
