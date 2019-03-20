@@ -2,7 +2,7 @@
   Default configuration for the STC clustering algorithm.
 
   This file can be loaded (and saved) by Carrot2 Workbench.
-  http://project.carrot2.org/download.html
+  https://project.carrot2.org/download.html
 -->
 <attribute-sets default="attributes">
     <attribute-set id="attributes">
