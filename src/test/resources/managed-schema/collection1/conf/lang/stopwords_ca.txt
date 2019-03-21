@@ -1,4 +1,4 @@
-# Catalan stopwords from http://github.com/vcl/cue.language (Apache 2 Licensed)
+# Catalan stopwords from https://github.com/vcl/cue.language (Apache 2 Licensed)
 a
 abans
 ací

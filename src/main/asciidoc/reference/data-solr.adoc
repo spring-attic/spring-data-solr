@@ -21,9 +21,9 @@ The following example shows how to set up Solr repositories that use the Spring 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:solr="http://www.springframework.org/schema/data/solr"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
+    https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/data/solr
-    http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+    https://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
   <solr:repositories base-package="com.acme.repositories" />
 </beans>
@@ -43,11 +43,11 @@ The following examples shows how to set up a Solr client for HTTP:
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:solr="http://www.springframework.org/schema/data/solr"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
+    https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/data/solr
-    http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+    https://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
-  <solr:solr-client id="solrClient" url="http://locahost:8983/solr" />
+  <solr:solr-client id="solrClient" url="https://locahost:8983/solr" />
 </beans>
 ----
 ====
@@ -63,11 +63,11 @@ The following example shows how to set up a load-balancing Solr client:
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:solr="http://www.springframework.org/schema/data/solr"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
+    https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/data/solr
-    http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+    https://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
-  <solr:solr-client id="solrClient" url="http://locahost:8983/solr,http://localhost:8984/solr" />
+  <solr:solr-client id="solrClient" url="https://locahost:8983/solr,http://localhost:8984/solr" />
 </beans>
 ----
 ====
@@ -83,9 +83,9 @@ The following example shows how to set up an embedded Solr server:
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:solr="http://www.springframework.org/schema/data/solr"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd
+    https://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/data/solr
-    http://www.springframework.org/schema/data/solr/spring-solr.xsd">
+    https://www.springframework.org/schema/data/solr/spring-solr.xsd">
 
   <solr:embedded-solr-server id="solrClient" solrHome="classpath:com/acme/solr" />
 </beans>
