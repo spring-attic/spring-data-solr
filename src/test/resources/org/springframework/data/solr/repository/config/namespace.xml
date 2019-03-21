@@ -2,8 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:solr="http://www.springframework.org/schema/data/solr"
-	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr https://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<solr:repositories base-package="org.springframework.data.solr.repository.config" />
 	<solr:embedded-solr-server id="solrClient" solrHome="classpath:static-schema" />

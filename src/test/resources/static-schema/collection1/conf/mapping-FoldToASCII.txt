@@ -35,7 +35,7 @@
 # - Alphabetic Presentation Forms: http://www.unicode.org/charts/PDF/UFB00.pdf
 # - Halfwidth and Fullwidth Forms: http://www.unicode.org/charts/PDF/UFF00.pdf
 #  
-# See: http://en.wikipedia.org/wiki/Latin_characters_in_Unicode
+# See: https://en.wikipedia.org/wiki/Latin_characters_in_Unicode
 #
 # The set of character conversions supported by this map is a superset of
 # those supported by the map represented by mapping-ISOLatin1Accent.txt.
@@ -77,7 +77,7 @@
 # Ą  [LATIN CAPITAL LETTER A WITH OGONEK]
 "\u0104" => "A"
 
-# Ə  http://en.wikipedia.org/wiki/Schwa  [LATIN CAPITAL LETTER SCHWA]
+# Ə  https://en.wikipedia.org/wiki/Schwa  [LATIN CAPITAL LETTER SCHWA]
 "\u018F" => "A"
 
 # Ǎ  [LATIN CAPITAL LETTER A WITH CARON]
@@ -1085,7 +1085,7 @@
 # ｈ  [FULLWIDTH LATIN SMALL LETTER H]
 "\uFF48" => "h"
 
-# Ƕ  http://en.wikipedia.org/wiki/Hwair  [LATIN CAPITAL LETTER HWAIR]
+# Ƕ  https://en.wikipedia.org/wiki/Hwair  [LATIN CAPITAL LETTER HWAIR]
 "\u01F6" => "HV"
 
 # ⒣  [PARENTHESIZED LATIN SMALL LETTER H]
@@ -1595,7 +1595,7 @@
 # Ň  [LATIN CAPITAL LETTER N WITH CARON]
 "\u0147" => "N"
 
-# Ŋ  http://en.wikipedia.org/wiki/Eng_(letter)  [LATIN CAPITAL LETTER ENG]
+# Ŋ  https://en.wikipedia.org/wiki/Eng_(letter)  [LATIN CAPITAL LETTER ENG]
 "\u014A" => "N"
 
 # Ɲ  [LATIN CAPITAL LETTER N WITH LEFT HOOK]
@@ -1646,7 +1646,7 @@
 # ŉ  [LATIN SMALL LETTER N PRECEDED BY APOSTROPHE]
 "\u0149" => "n"
 
-# ŋ  http://en.wikipedia.org/wiki/Eng_(letter)  [LATIN SMALL LETTER ENG]
+# ŋ  https://en.wikipedia.org/wiki/Eng_(letter)  [LATIN SMALL LETTER ENG]
 "\u014B" => "n"
 
 # ƞ  [LATIN SMALL LETTER N WITH LONG RIGHT LEG]
@@ -1985,7 +1985,7 @@
 # Ꝏ  [LATIN CAPITAL LETTER OO]
 "\uA74E" => "OO"
 
-# Ȣ  http://en.wikipedia.org/wiki/OU  [LATIN CAPITAL LETTER OU]
+# Ȣ  https://en.wikipedia.org/wiki/OU  [LATIN CAPITAL LETTER OU]
 "\u0222" => "OU"
 
 # ᴕ  [LATIN LETTER SMALL CAPITAL OU]
@@ -2003,7 +2003,7 @@
 # ꝏ  [LATIN SMALL LETTER OO]
 "\uA74F" => "oo"
 
-# ȣ  http://en.wikipedia.org/wiki/OU  [LATIN SMALL LETTER OU]
+# ȣ  https://en.wikipedia.org/wiki/OU  [LATIN SMALL LETTER OU]
 "\u0223" => "ou"
 
 # Ƥ  [LATIN CAPITAL LETTER P WITH HOOK]
@@ -2090,7 +2090,7 @@
 # Ｑ  [FULLWIDTH LATIN CAPITAL LETTER Q]
 "\uFF31" => "Q"
 
-# ĸ  http://en.wikipedia.org/wiki/Kra_(letter)  [LATIN SMALL LETTER KRA]
+# ĸ  https://en.wikipedia.org/wiki/Kra_(letter)  [LATIN SMALL LETTER KRA]
 "\u0138" => "q"
 
 # ɋ  [LATIN SMALL LETTER Q WITH HOOK TAIL]
@@ -2297,7 +2297,7 @@
 # š  [LATIN SMALL LETTER S WITH CARON]
 "\u0161" => "s"
 
-# ſ  http://en.wikipedia.org/wiki/Long_S  [LATIN SMALL LETTER LONG S]
+# ſ  https://en.wikipedia.org/wiki/Long_S  [LATIN SMALL LETTER LONG S]
 "\u017F" => "s"
 
 # ș  [LATIN SMALL LETTER S WITH COMMA BELOW]
@@ -2777,7 +2777,7 @@
 # Ŵ  [LATIN CAPITAL LETTER W WITH CIRCUMFLEX]
 "\u0174" => "W"
 
-# Ƿ  http://en.wikipedia.org/wiki/Wynn  [LATIN CAPITAL LETTER WYNN]
+# Ƿ  https://en.wikipedia.org/wiki/Wynn  [LATIN CAPITAL LETTER WYNN]
 "\u01F7" => "W"
 
 # ᴡ  [LATIN LETTER SMALL CAPITAL W]
@@ -2810,7 +2810,7 @@
 # ŵ  [LATIN SMALL LETTER W WITH CIRCUMFLEX]
 "\u0175" => "w"
 
-# ƿ  http://en.wikipedia.org/wiki/Wynn  [LATIN LETTER WYNN]
+# ƿ  https://en.wikipedia.org/wiki/Wynn  [LATIN LETTER WYNN]
 "\u01BF" => "w"
 
 # ʍ  [LATIN SMALL LETTER TURNED W]
@@ -2987,7 +2987,7 @@
 # Ƶ  [LATIN CAPITAL LETTER Z WITH STROKE]
 "\u01B5" => "Z"
 
-# Ȝ  http://en.wikipedia.org/wiki/Yogh  [LATIN CAPITAL LETTER YOGH]
+# Ȝ  https://en.wikipedia.org/wiki/Yogh  [LATIN CAPITAL LETTER YOGH]
 "\u021C" => "Z"
 
 # Ȥ  [LATIN CAPITAL LETTER Z WITH HOOK]
@@ -3029,7 +3029,7 @@
 # ƶ  [LATIN SMALL LETTER Z WITH STROKE]
 "\u01B6" => "z"
 
-# ȝ  http://en.wikipedia.org/wiki/Yogh  [LATIN SMALL LETTER YOGH]
+# ȝ  https://en.wikipedia.org/wiki/Yogh  [LATIN SMALL LETTER YOGH]
 "\u021D" => "z"
 
 # ȥ  [LATIN SMALL LETTER Z WITH HOOK]

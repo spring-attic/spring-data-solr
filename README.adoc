@@ -185,7 +185,6 @@ You can set up repository scanning via xml configuration, which will happily cre
   xmlns:solr="http://www.springframework.org/schema/data/solr"
   xsi:schemaLocation="http://www.springframework.org/schema/data/solr https://www.springframework.org/schema/data/solr/spring-solr.xsd
     http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
-
   <solr:repositories base-package="com.acme.repository" />
   <solr:solr-client id="solrClient" url="http://localhost:8983/solr" />
 

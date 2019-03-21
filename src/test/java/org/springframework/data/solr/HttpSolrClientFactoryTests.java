@@ -35,7 +35,7 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 public class HttpSolrClientFactoryTests {
 
-	private static final String URL = "http://solr.server.url";
+	private static final String URL = "https://solr.server.url";
 	private SolrClient solrClient;
 
 	@Before

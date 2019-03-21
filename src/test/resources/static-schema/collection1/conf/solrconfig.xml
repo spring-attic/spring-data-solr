@@ -18,7 +18,7 @@
 
 <!--
      For more details about configurations options that may appear in
-     this file, see http://wiki.apache.org/solr/SolrConfigXml.
+     this file, see https://wiki.apache.org/solr/SolrConfigXml.
 -->
 <config>
   <!-- In all configuration below, a prefix of "solr." for class names
@@ -206,7 +206,7 @@
                    'simple' is the default
 
          More details on the nuances of each LockFactory...
-         http://wiki.apache.org/lucene-java/AvailableLockFactories
+         https://wiki.apache.org/lucene-java/AvailableLockFactories
     -->
     <lockType>${solr.lock.type:none}</lockType>
 
@@ -260,7 +260,7 @@
        parameters. Remove this to disable exposing Solr configuration
        and statistics to JMX.
 
-       For more details see http://wiki.apache.org/solr/SolrJmx
+       For more details see https://wiki.apache.org/solr/SolrJmx
     -->
   <jmx />
   <!-- If you want to connect to a particular server, specify the
@@ -298,7 +298,7 @@
          Instead of enabling autoCommit, consider using "commitWithin"
          when adding documents.
 
-         http://wiki.apache.org/solr/UpdateXmlMessages
+         https://wiki.apache.org/solr/UpdateXmlMessages
 
          maxDocs - Maximum number of documents to add since the last
                    commit before automatically triggering a new commit.
@@ -700,7 +700,7 @@
 
   <!-- Request Handlers
 
-       http://wiki.apache.org/solr/SolrRequestHandler
+       https://wiki.apache.org/solr/SolrRequestHandler
 
        Incoming queries will be dispatched to a specific handler by name
        based on the path specified in the request.
@@ -711,7 +711,7 @@
     -->
   <!-- SearchHandler
 
-       http://wiki.apache.org/solr/SearchHandler
+       https://wiki.apache.org/solr/SearchHandler
 
        For processing Search Queries, the primary Request Handler
        provided with Solr is "SearchHandler" It delegates to a sequent
@@ -943,7 +943,7 @@
 
   <!-- Solr Cell Update Request Handler
 
-       http://wiki.apache.org/solr/ExtractingRequestHandler
+       https://wiki.apache.org/solr/ExtractingRequestHandler
 
     -->
   <requestHandler name="/update/extract"
@@ -1008,7 +1008,7 @@
         The spell check component can return a list of alternative spelling
         suggestions.
 
-        http://wiki.apache.org/solr/SpellCheckComponent
+        https://wiki.apache.org/solr/SpellCheckComponent
      -->
   <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
 
@@ -1102,7 +1102,7 @@
        IN OTHER WORDS, THERE IS REALLY GOOD CHANCE THE SETUP BELOW IS
        NOT WHAT YOU WANT FOR YOUR PRODUCTION SYSTEM!
 
-       See http://wiki.apache.org/solr/SpellCheckComponent for details
+       See https://wiki.apache.org/solr/SpellCheckComponent for details
        on the request parameters.
     -->
   <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
@@ -1135,7 +1135,7 @@
 
        More information about this component and other configuration options are described in the
        "Suggester" section of the reference guide available at
-       http://archive.apache.org/dist/lucene/solr/ref-guide
+       https://archive.apache.org/dist/lucene/solr/ref-guide
     -->
   <searchComponent name="suggest" class="solr.SuggestComponent">
     <lst name="suggester">
@@ -1163,7 +1163,7 @@
 
   <!-- Term Vector Component
 
-       http://wiki.apache.org/solr/TermVectorComponent
+       https://wiki.apache.org/solr/TermVectorComponent
     -->
   <searchComponent name="tvComponent" class="solr.TermVectorComponent"/>
 
@@ -1201,7 +1201,7 @@
       * org.carrot2.clustering.lingo.LingoClusteringAlgorithm
       * org.carrot2.clustering.stc.STCClusteringAlgorithm
       * org.carrot2.clustering.kmeans.BisectingKMeansClusteringAlgorithm
-    See http://project.carrot2.org/algorithms.html for more information.
+    See https://project.carrot2.org/algorithms.html for more information.
 
     Commercial algorithm Lingo3G (needs to be installed separately):
       * com.carrotsearch.lingo3g.Lingo3GClusteringAlgorithm
@@ -1274,7 +1274,7 @@
 
   <!-- Terms Component
 
-       http://wiki.apache.org/solr/TermsComponent
+       https://wiki.apache.org/solr/TermsComponent
 
        A component to return terms and document frequency of those
        terms
@@ -1295,7 +1295,7 @@
 
   <!-- Query Elevation Component
 
-       http://wiki.apache.org/solr/QueryElevationComponent
+       https://wiki.apache.org/solr/QueryElevationComponent
 
        a search component that enables you to configure the top
        results for a given query regardless of the normal lucene
@@ -1319,7 +1319,7 @@
 
   <!-- Highlighting Component
 
-       http://wiki.apache.org/solr/HighlightingParameters
+       https://wiki.apache.org/solr/HighlightingParameters
     -->
   <searchComponent class="solr.HighlightComponent" name="highlight">
     <highlighting>
@@ -1429,7 +1429,7 @@
        Requests can be declared, and then used by name in Update
        Request Processors
 
-       http://wiki.apache.org/solr/UpdateRequestProcessor
+       https://wiki.apache.org/solr/UpdateRequestProcessor
 
     -->
   <!-- Deduplication
@@ -1463,7 +1463,7 @@
        The fields used for detection are text, title, subject and description,
        making this example suitable for detecting languages form full-text
        rich documents injected via ExtractingRequestHandler.
-       See more about langId at http://wiki.apache.org/solr/LanguageDetection
+       See more about langId at https://wiki.apache.org/solr/LanguageDetection
     -->
     <!--
      <updateRequestProcessorChain name="langid">
@@ -1481,7 +1481,7 @@
 
     This example hooks in an update processor implemented using JavaScript.
 
-    See more about the script update processor at http://wiki.apache.org/solr/ScriptUpdateProcessor
+    See more about the script update processor at https://wiki.apache.org/solr/ScriptUpdateProcessor
   -->
   <!--
     <updateRequestProcessorChain name="script">
@@ -1497,7 +1497,7 @@
 
   <!-- Response Writers
 
-       http://wiki.apache.org/solr/QueryResponseWriter
+       https://wiki.apache.org/solr/QueryResponseWriter
 
        Request responses will be written using the writer specified by
        the 'wt' request parameter matching the name of a registered
@@ -1561,7 +1561,7 @@
 
   <!-- Function Parsers
 
-       http://wiki.apache.org/solr/FunctionQuery
+       https://wiki.apache.org/solr/FunctionQuery
 
        Multiple ValueSourceParsers can be registered by name, and then
        used as function names when using the "func" QParser.
@@ -1585,7 +1585,7 @@
   <queryParser enable="${solr.ltr.enabled:false}" name="ltr" class="org.apache.solr.ltr.search.LTRQParserPlugin"/>
 
   <!-- Document Transformers
-       http://wiki.apache.org/solr/DocTransformers
+       https://wiki.apache.org/solr/DocTransformers
     -->
   <!--
      Could be something like:

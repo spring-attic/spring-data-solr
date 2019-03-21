@@ -4,10 +4,10 @@
 	xmlns:solr="http://www.springframework.org/schema/data/solr"
 	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xsi:schemaLocation="http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/data/solr https://www.springframework.org/schema/data/solr/spring-solr-2.0.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/jdbc https://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
 	<bean id="solrClient" class="org.springframework.data.solr.test.util.GenericMockFactory">
 		<property name="type" value="org.apache.solr.client.solrj.SolrClient" />
