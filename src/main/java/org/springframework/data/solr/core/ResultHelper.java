@@ -78,7 +78,7 @@ import org.springframework.util.StringUtils;
 /**
  * Use Result Helper to extract various parameters from the QueryResponse and convert it into a proper Format taking
  * care of non existent and null elements with the response.
- * 
+ *
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Venil Noronha
@@ -120,12 +120,13 @@ final class ResultHelper {
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<Field, Page<FacetFieldEntry>>();
 
 		if (!CollectionUtils.isEmpty(response.getFacetFields())) {
-			int initalPageSize = Math.max(1, query.getFacetOptions().getPageable().getPageSize());
+
+			int initialPageSize = Math.max(1, query.getFacetOptions().getPageable().getPageSize());
 			for (FacetField facetField : response.getFacetFields()) {
 				if (facetField != null && StringUtils.hasText(facetField.getName())) {
 					Field field = new SimpleField(facetField.getName());
 					if (!CollectionUtils.isEmpty(facetField.getValues())) {
-						List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initalPageSize);
+						List<FacetFieldEntry> pageEntries = new ArrayList<FacetFieldEntry>(initialPageSize);
 						for (Count count : facetField.getValues()) {
 							if (count != null) {
 								pageEntries.add(new SimpleFacetFieldEntry(field, count.getName(), count.getCount()));
@@ -202,7 +203,7 @@ final class ResultHelper {
 		Map<Field, Page<FacetFieldEntry>> facetResult = new LinkedHashMap<Field, Page<FacetFieldEntry>>();
 
 		Pageable pageable = query.getFacetOptions().getPageable();
-		int initalPageSize = Math.max(1, pageable.getPageSize());
+		int initialPageSize = Math.max(1, pageable.getPageSize());
 		for (RangeFacet<?, ?> rangeFacet : response.getFacetRanges()) {
 
 			if (rangeFacet == null || !StringUtils.hasText(rangeFacet.getName())) {
@@ -214,7 +215,7 @@ final class ResultHelper {
 			List<FacetFieldEntry> entries;
 			long total;
 			if (!CollectionUtils.isEmpty(rangeFacet.getCounts())) {
-				entries = new ArrayList<FacetFieldEntry>(initalPageSize);
+				entries = new ArrayList<FacetFieldEntry>(initialPageSize);
 				for (RangeFacet.Count count : rangeFacet.getCounts()) {
 					entries.add(new SimpleFacetFieldEntry(field, count.getValue(), count.getCount()));
 				}
