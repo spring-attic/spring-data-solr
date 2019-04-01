@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 3.0.14.RELEASE (2019-04-01)
+----------------------------------------------
+* DATASOLR-506 - ResultHelper - negative initial size of arraylist.
+* DATASOLR-503 - Release 3.0.14 (Kay SR14).
+
+
 Changes in version 2.1.20.RELEASE (2019-04-01)
 ----------------------------------------------
 * DATASOLR-518 - Release 2.1.20 (Ingalls SR20).
