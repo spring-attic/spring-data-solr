@@ -1,6 +1,14 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.M3 (2019-04-11)
+----------------------------------------
+* DATASOLR-515 - Upgrade to Apache Solr 8.
+* DATASOLR-514 - Move off deprecations in Spring Data Commons.
+* DATASOLR-512 - Release 4.1 M3 (Moore).
+* DATASOLR-506 - ResultHelper - negative initial size of arraylist.
+
+
 Changes in version 4.0.6.RELEASE (2019-04-01)
 ---------------------------------------------
 * DATASOLR-517 - Upgrade to Apache Solr 7.7.
