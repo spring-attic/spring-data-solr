@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,10 +22,12 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.solr.core.mapping.SolrDocument;
 
 /**
  * @author Christoph Strobl
  */
+@SolrDocument(solrCoreName = "collection1")
 public class ExampleSolrBean {
 
 	@Field private String id;
@@ -51,7 +53,7 @@ public class ExampleSolrBean {
 	@Version @Field("_version_") private Long version;
 
 	public ExampleSolrBean() {
-		this.category = new ArrayList<String>();
+		this.category = new ArrayList<>();
 	}
 
 	public ExampleSolrBean(String id, String name, String category) {

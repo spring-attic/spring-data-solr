@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -34,24 +35,21 @@ public class SolrSchemaResolver {
 
 		Assert.notNull(entity, "Schema cannot be resolved for 'null'.");
 
-		final SchemaDefinition schemaDefinition = new SchemaDefinition(entity.getSolrCoreName());
+		final SchemaDefinition schemaDefinition = new SchemaDefinition(entity.getCollectionName());
 
-		entity.doWithProperties(new PropertyHandler<SolrPersistentProperty>() {
+		entity.doWithProperties((PropertyHandler<SolrPersistentProperty>) persistentProperty -> {
 
-			@Override
-			public void doWithPersistentProperty(SolrPersistentProperty persistentProperty) {
-
-				FieldDefinition fieldDefinition = createFieldDefinitionForProperty(persistentProperty);
-				if (fieldDefinition != null) {
-					schemaDefinition.addFieldDefinition(fieldDefinition);
-				}
+			FieldDefinition fieldDefinition = createFieldDefinitionForProperty(persistentProperty);
+			if (fieldDefinition != null) {
+				schemaDefinition.addFieldDefinition(fieldDefinition);
 			}
 		});
 
 		return schemaDefinition;
 	}
 
-	protected FieldDefinition createFieldDefinitionForProperty(SolrPersistentProperty property) {
+	@Nullable
+	protected FieldDefinition createFieldDefinitionForProperty(@Nullable SolrPersistentProperty property) {
 
 		if (property == null || property.isReadonly() || property.isTransient()) {
 			return null;

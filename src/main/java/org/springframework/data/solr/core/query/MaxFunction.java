@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 /**
  * Implementation of {@code max(field|function,value)}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -33,11 +33,10 @@ public class MaxFunction extends AbstractFunction {
 
 	/**
 	 * @param fieldName
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Number value) {
-		return new MaxFunction(fieldName, value);
+		return new MaxFunction(new SimpleField(fieldName), value);
 	}
 
 	/**
@@ -46,21 +45,18 @@ public class MaxFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, String compareFieldName) {
-		return new MaxFunction(fieldName, compareFieldName);
+		return new MaxFunction(new SimpleField(fieldName), new SimpleField(compareFieldName));
 	}
 
 	/**
 	 * @param fieldName
-	 * @param compareFieldName
 	 * @return
 	 */
 	public static MaxFunction max(String fieldName, Function function) {
-		return new MaxFunction(fieldName, function);
+		return new MaxFunction(new SimpleField(fieldName), function);
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, Number value) {
@@ -68,17 +64,13 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, String fieldname) {
-		return new MaxFunction(function, fieldname);
+		return new MaxFunction(function, new SimpleField(fieldname));
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Function function, Function compareFunction) {
@@ -86,8 +78,6 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Number value, Number compareValue) {
@@ -95,17 +85,13 @@ public class MaxFunction extends AbstractFunction {
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
-	public static MaxFunction max(Number value, String fieldname) {
-		return new MaxFunction(value, fieldname);
+	public static MaxFunction max(Number value, String fieldName) {
+		return new MaxFunction(value, new SimpleField(fieldName));
 	}
 
 	/**
-	 * @param candidate
-	 * @param maxValue
 	 * @return
 	 */
 	public static MaxFunction max(Number value, Function compareFunction) {
@@ -116,5 +102,4 @@ public class MaxFunction extends AbstractFunction {
 	public String getOperation() {
 		return OPERATION;
 	}
-
 }

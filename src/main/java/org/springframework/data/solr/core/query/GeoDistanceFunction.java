@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 
 /**
  * Implementation of {@code geodist(sfield, latitude, longitude)}
- * 
+ *
  * @author Christoph Stobl
  * @since 1.1
  */
@@ -30,30 +30,32 @@ public class GeoDistanceFunction extends AbstractFunction {
 
 	private static final String OPERATION = "geodist";
 
-	private GeoDistanceFunction(String fieldName, Point location) {
-		super(Arrays.asList(fieldName, location));
+	private GeoDistanceFunction(Field field, Point location) {
+		super(Arrays.asList(field, location));
 	}
 
 	/**
 	 * Creates new {@link Builder}
-	 * 
-	 * @param fieldname
+	 *
+	 * @param fieldName
 	 * @return
 	 */
-	public static Builder distanceFrom(String fieldname) {
-		return new Builder(fieldname);
+	public static Builder distanceFrom(String fieldName) {
+
+		Assert.hasText(fieldName, "FieldName must not be empty!");
+		return distanceFrom(new SimpleField(fieldName));
 	}
 
 	/**
 	 * Creates new {@link Builder}
-	 * 
+	 *
 	 * @param field must not be null
 	 * @return
 	 */
 	public static Builder distanceFrom(Field field) {
-		Assert.notNull(field, "Field cannot be 'null' for geodistance function.");
 
-		return distanceFrom(field.getName());
+		Assert.notNull(field, "Field cannot be 'null' for geodistance function.");
+		return new Builder(field);
 	}
 
 	@Override
@@ -63,15 +65,15 @@ public class GeoDistanceFunction extends AbstractFunction {
 
 	public static class Builder {
 
-		private final String fieldname;
+		private final Field field;
 
 		/**
-		 * @param fieldname must not be empty
+		 * @param field must not be empty
 		 */
-		public Builder(String fieldname) {
-			Assert.hasText(fieldname, "Fieldname must not be an empty.");
+		public Builder(Field field) {
 
-			this.fieldname = fieldname;
+			Assert.notNull(field, "field must not be an null.");
+			this.field = field;
 		}
 
 		/**
@@ -79,9 +81,9 @@ public class GeoDistanceFunction extends AbstractFunction {
 		 * @return
 		 */
 		public GeoDistanceFunction to(Point location) {
-			Assert.notNull(location, "Location for geodist function must not be 'null'");
 
-			return new GeoDistanceFunction(this.fieldname, location);
+			Assert.notNull(location, "Location for geodist function must not be 'null'");
+			return new GeoDistanceFunction(this.field, location);
 		}
 
 		/**

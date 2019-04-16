@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,8 @@ class SolrTemplateProducer {
 	@Produces
 	public SolrOperations createSolrTemplate() throws IOException, ParserConfigurationException, SAXException {
 
-		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(ResourceUtils.getURL(
-				"classpath:org/springframework/data/solr").getPath());
+		EmbeddedSolrServerFactory factory = new EmbeddedSolrServerFactory(
+				ResourceUtils.getURL("classpath:static-schema").getPath());
 
 		SolrTemplate template = new SolrTemplate(factory);
 		template.afterPropertiesSet();
@@ -57,16 +57,11 @@ class SolrTemplateProducer {
 		SolrOperations template;
 		try {
 			template = createSolrTemplate();
-			template.delete(new SimpleQuery(new SimpleStringCriteria("*:*")));
-			template.commit();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		} catch (SAXException e) {
+			template.delete("collection1", new SimpleQuery(new SimpleStringCriteria("*:*")));
+			template.commit("collection1");
+		} catch (IOException | SAXException | ParserConfigurationException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,13 @@
  */
 package org.springframework.data.solr.core.query;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.springframework.util.Assert;
 
 /**
  * Implementation of {@code not(field|function)}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -30,7 +30,7 @@ public class NotFunction extends AbstractFunction {
 	private static final String OPERATION = "not";
 
 	private NotFunction(Object condition) {
-		super(Arrays.asList(condition));
+		super(Collections.singletonList(condition));
 	}
 
 	/**
@@ -38,19 +38,19 @@ public class NotFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static NotFunction not(Field field) {
-		Assert.notNull(field, "Field for not function must not be 'null'");
 
-		return not(field.getName());
+		Assert.notNull(field, "Field for not function must not be 'null'");
+		return new NotFunction(field);
 	}
 
 	/**
-	 * @param fieldname must not be empty
+	 * @param fieldName must not be empty
 	 * @return
 	 */
-	public static NotFunction not(String fieldname) {
-		Assert.hasText(fieldname, "Fieldname for not function must not be 'empty'.");
+	public static NotFunction not(String fieldName) {
 
-		return new NotFunction(fieldname);
+		Assert.notNull(fieldName, "FieldName must not be null!");
+		return not(new SimpleField(fieldName));
 	}
 
 	/**
@@ -58,8 +58,8 @@ public class NotFunction extends AbstractFunction {
 	 * @return
 	 */
 	public static NotFunction not(Function condition) {
-		Assert.notNull(condition, "Condition for not function must not be 'null'");
 
+		Assert.notNull(condition, "Condition for not function must not be 'null'");
 		return new NotFunction(condition);
 	}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,20 +23,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.data.mapping.PersistentPropertyPath;
 import org.springframework.data.mapping.context.MappingContext;
-import org.springframework.data.mapping.context.PersistentPropertyPath;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.AnyCriteria;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleQuery;
+import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implmentation of an {@link AbstractQueryCreator} that constructs {@link Query}
- * 
+ *
  * @author Christoph Strobl
  * @author John Dorman
  */
@@ -58,7 +60,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 	}
 
 	@Override
-	protected Query and(Part part, Query base, Iterator<Object> iterator) {
+	protected Query and(Part part, @Nullable Query base, Iterator<Object> iterator) {
 		if (base == null) {
 			return create(part, iterator);
 		}
@@ -87,14 +89,11 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 	}
 
 	@Override
-	protected Query complete(Query query, Sort sort) {
-		if (query == null) {
-			return null;
-		}
-		return query.addSort(sort);
+	protected Query complete(@Nullable Query query, Sort sort) {
+		return (query != null ? query : new SimpleQuery(AnyCriteria.any())).addSort(sort);
 	}
 
-	private Criteria from(Type type, Criteria instance, Iterator<?> parameters) {
+	private Criteria from(Type type, @Nullable Criteria instance, Iterator<?> parameters) {
 		Criteria criteria = instance;
 		if (criteria == null) {
 			criteria = new Criteria();
@@ -168,7 +167,8 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 		return criteria;
 	}
 
-	private Object getBindableValue(BindableSolrParameter parameter) {
+	@Nullable
+	private Object getBindableValue(@Nullable BindableSolrParameter parameter) {
 		if (parameter == null) {
 			return null;
 		}

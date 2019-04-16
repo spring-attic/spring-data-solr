@@ -1,11 +1,11 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,17 @@ package org.springframework.data.solr.repository.cdi;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import org.apache.webbeans.cditest.CdiTestContainer;
-import org.apache.webbeans.cditest.CdiTestContainerLoader;
+import java.util.Optional;
+
+import javax.enterprise.inject.se.SeContainer;
+import javax.enterprise.inject.se.SeContainerInitializer;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.springframework.data.solr.repository.ProductBean;
 
 /**
@@ -33,32 +37,35 @@ import org.springframework.data.solr.repository.ProductBean;
  */
 public class ITestCdiRepository {
 
-	private static CdiTestContainer cdiContainer;
+	private static SeContainer cdiContainer;
 	private CdiProductRepository repository;
 	private SamplePersonRepository samplePersonRepository;
 
 	@BeforeClass
-	public static void init() throws Exception {
-		cdiContainer = CdiTestContainerLoader.getCdiContainer();
-		cdiContainer.startApplicationScope();
-		cdiContainer.bootContainer();
+	public static void init() {
+
+		cdiContainer = SeContainerInitializer.newInstance() //
+				.disableDiscovery() //
+				.addPackages(CdiRepositoryClient.class) //
+				.initialize();
 	}
 
 	@AfterClass
-	public static void shutdown() throws Exception {
-		cdiContainer.stopContexts();
-		cdiContainer.shutdownContainer();
+	public static void shutdown() {
+		cdiContainer.close();
 	}
 
 	@Before
 	public void setUp() {
-		CdiRepositoryClient client = cdiContainer.getInstance(CdiRepositoryClient.class);
+
+		CdiRepositoryClient client = cdiContainer.select(CdiRepositoryClient.class).get();
 		repository = client.getRepository();
 		samplePersonRepository = client.getSamplePersonRepository();
 	}
 
-	@Test
+	@Test // DATASOLR-106
 	public void testCdiRepository() {
+
 		Assert.assertNotNull(repository);
 
 		ProductBean bean = new ProductBean();
@@ -67,31 +74,26 @@ public class ITestCdiRepository {
 
 		repository.save(bean);
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		Assert.assertTrue(repository.existsById(bean.getId()));
 
-		ProductBean retrieved = repository.findOne(bean.getId());
-		Assert.assertNotNull(retrieved);
-		Assert.assertEquals(bean.getId(), retrieved.getId());
-		Assert.assertEquals(bean.getName(), retrieved.getName());
+		Optional<ProductBean> retrieved = repository.findById(bean.getId());
+		Assert.assertTrue(retrieved.isPresent());
+		Assert.assertEquals(bean.getId(), retrieved.get().getId());
+		Assert.assertEquals(bean.getName(), retrieved.get().getName());
 
 		Assert.assertEquals(1, repository.count());
 
-		Assert.assertTrue(repository.exists(bean.getId()));
+		Assert.assertTrue(repository.existsById(bean.getId()));
 
 		repository.delete(bean);
 
 		Assert.assertEquals(0, repository.count());
-		retrieved = repository.findOne(bean.getId());
-		Assert.assertNull(retrieved);
+		retrieved = repository.findById(bean.getId());
+		Assert.assertFalse(retrieved.isPresent());
 	}
 
-	/**
-	 * @see DATASOLR-187
-	 */
-	@Test
+	@Test // DATASOLR-187
 	public void returnOneFromCustomImpl() {
-
 		assertThat(samplePersonRepository.returnOne(), is(1));
 	}
-
 }

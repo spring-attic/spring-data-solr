@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,9 +36,9 @@ public class GeoConverterTests {
 
 	public static class DistanceConverterTests {
 
-		@Test
+		@Test(expected = IllegalArgumentException.class)
 		public void testConvertDistanceToStringWithNull() {
-			Assert.assertNull(GeoConverters.DistanceToStringConverter.INSTANCE.convert(null));
+			GeoConverters.DistanceToStringConverter.INSTANCE.convert(null);
 		}
 
 		@Test
@@ -52,17 +52,18 @@ public class GeoConverterTests {
 					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.MILES)));
 		}
 
-		@Test
-		public void testConvertDistanceWithNullUnitToString() {
-			Assert.assertEquals("1.0", GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, null)));
+		@Test // DATASOLR-31, DATASOLR-408
+		public void testConvertDistanceWithNeutralUnitToString() {
+			Assert.assertEquals("1.0",
+					GeoConverters.DistanceToStringConverter.INSTANCE.convert(new Distance(1, Metrics.NEUTRAL)));
 		}
 	}
 
 	public static class PointConverterTests {
 
-		@Test
+		@Test(expected = IllegalArgumentException.class)
 		public void testConvertPointToStringWithNull() {
-			Assert.assertNull(GeoConverters.Point3DToStringConverter.INSTANCE.convert(null));
+			GeoConverters.Point3DToStringConverter.INSTANCE.convert(null);
 		}
 
 		@Test
@@ -87,6 +88,33 @@ public class GeoConverterTests {
 		public void testConvertPointXYZToStringWithNegativeValue() {
 			Assert.assertEquals("45.17614,-93.87341,-12.78",
 					GeoConverters.Point3DToStringConverter.INSTANCE.convert(new Point(45.17614, -93.87341, -12.78)));
+		}
+
+		@Test // DATASOLR-307
+		public void shouldConvertYCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("53.549999,10.0",
+					GeoConverters.Point2DToStringConverter.INSTANCE.convert(new Point(53.549999, 10.000000)));
+		}
+
+		@Test // DATASOLR-307
+		public void shouldConvertXCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("10.0,53.549999",
+					GeoConverters.Point2DToStringConverter.INSTANCE.convert(new Point(10.000000, 53.549999)));
+		}
+
+		@Test // DATASOLR-307
+		public void shouldConvertZCoordWithZeroScaleCorrectly() {
+
+			Assert.assertEquals("123.456,53.549999,10.0", GeoConverters.Point3DToStringConverter.INSTANCE
+					.convert(new org.springframework.data.solr.core.geo.Point(123.456, 53.549999, 10.00)));
+		}
+
+		@Test // DATASOLR-307
+		public void shouldConvertXYZCoordWithZeroScaleCorrectly() {
+			Assert.assertEquals("123.0,456.0,789.0", GeoConverters.Point3DToStringConverter.INSTANCE
+					.convert(new org.springframework.data.solr.core.geo.Point(123, 456, 789)));
 		}
 
 	}

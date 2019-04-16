@@ -1,11 +1,11 @@
 /*
- * Copyright 2012-2014 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.enterprise.event.Observes;
@@ -38,7 +39,7 @@ import org.springframework.data.solr.core.SolrOperations;
  */
 public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 
-	private final Map<String, Bean<SolrOperations>> solrOperationsMap = new HashMap<String, Bean<SolrOperations>>();
+	private final Map<String, Bean<SolrOperations>> solrOperationsMap = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
 	<T> void processBean(@Observes ProcessBean<T> processBean) {
@@ -61,7 +62,8 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 		}
 	}
 
-	private <T> Bean<T> createRepositoryBean(Class<T> repositoryType, Set<Annotation> qualifiers, BeanManager beanManager) {
+	private <T> Bean<T> createRepositoryBean(Class<T> repositoryType, Set<Annotation> qualifiers,
+			BeanManager beanManager) {
 		Bean<SolrOperations> solrOperationBeans = this.solrOperationsMap.get(qualifiers.toString());
 
 		if (solrOperationBeans == null) {
@@ -69,8 +71,8 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 					SolrOperations.class.getName(), qualifiers));
 		}
 
-		return new SolrRepositoryBean<T>(solrOperationBeans, qualifiers, repositoryType, beanManager,
-				getCustomImplementationDetector());
+		return new SolrRepositoryBean<>(solrOperationBeans, qualifiers, repositoryType, beanManager,
+				Optional.ofNullable(getCustomImplementationDetector()));
 	}
 
 }

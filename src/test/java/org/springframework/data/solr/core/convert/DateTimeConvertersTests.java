@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,9 +30,9 @@ import org.junit.Test;
  */
 public class DateTimeConvertersTests {
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testJodaDateTimeConverterWithNullValue() {
-		Assert.assertNull(DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(null));
+		DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(null);
 	}
 
 	@Test
@@ -49,24 +49,24 @@ public class DateTimeConvertersTests {
 		Assert.assertThat(dateTime, IsEqual.equalTo(new DateTime(2013, 6, 18, 6, 0, 0, DateTimeZone.UTC)));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testDateToJodaDateTimeConverterWithNull() {
-		Assert.assertNull(DateTimeConverters.DateToJodaDateTimeConverter.INSTANCE.convert(null));
+		DateTimeConverters.DateToJodaDateTimeConverter.INSTANCE.convert(null);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testDateToJodaLocalDateTimeConverter() {
-		Assert.assertNull(DateTimeConverters.DateToLocalDateTimeConverter.INSTANCE.convert(null));
+		DateTimeConverters.DateToLocalDateTimeConverter.INSTANCE.convert(null);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testStringToJodaDateTimeWithNullValue() {
-		Assert.assertNull(DateTimeConverters.StringToJodaDateTimeConverter.INSTANCE.convert(null));
+		DateTimeConverters.StringToJodaDateTimeConverter.INSTANCE.convert(null);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testJodaLocalDateTimeConverterWithNullValue() {
-		Assert.assertNull(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(null));
+		DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(null);
 	}
 
 	@Test
@@ -77,9 +77,9 @@ public class DateTimeConvertersTests {
 				DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testJavaDateConverterWithNullValue() {
-		Assert.assertNull(DateTimeConverters.JavaDateConverter.INSTANCE.convert(null));
+		DateTimeConverters.JavaDateConverter.INSTANCE.convert(null);
 	}
 
 	@Test

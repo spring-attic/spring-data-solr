@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.data.solr.core;
 import java.net.ConnectException;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
 import org.springframework.dao.DataAccessException;
@@ -32,14 +33,20 @@ import org.springframework.util.ClassUtils;
  * Implementation of {@link org.springframework.dao.support.PersistenceExceptionTranslator} capable of translating
  * {@link org.apache.solr.client.solrj.SolrServerException} instances to Spring's
  * {@link org.springframework.dao.DataAccessException} hierarchy.
- * 
+ *
  * @author Christoph Strobl
  */
 public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 
 	@Override
 	public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+
+		if (ex instanceof DataAccessException) {
+			return (DataAccessException) ex;
+		}
+
 		if (ex.getCause() instanceof SolrServerException) {
+
 			SolrServerException solrServerException = (SolrServerException) ex.getCause();
 			if (solrServerException.getCause() instanceof SolrException) {
 				SolrException solrException = (SolrException) solrServerException.getCause();
@@ -72,6 +79,11 @@ public class SolrExceptionTranslator implements PersistenceExceptionTranslator {
 						solrServerException.getCause());
 			}
 		}
+
+		if (ex instanceof RemoteSolrException) {
+			return new DataAccessResourceFailureException(ex.getMessage(), ex);
+		}
+
 		return null;
 	}
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,18 +27,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.mockito.Mockito;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 @RunWith(Parameterized.class)
 public class SimpleSolrPersitentPropertyFieldNameTests {
 
-	@SuppressWarnings("rawtypes")//
-	private TypeInformation typeInfoMock;
+	@SuppressWarnings("rawtypes") //
+	private TypeInformation typeInformation;
 
 	private SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation> persistentEntity;
 
@@ -53,10 +55,9 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() {
-		typeInfoMock = Mockito.mock(TypeInformation.class);
 
-		Mockito.when(typeInfoMock.getType()).thenReturn(BeanWithSolrFieldAnnotation.class);
-		persistentEntity = new SimpleSolrPersistentEntity<BeanWithSolrFieldAnnotation>(typeInfoMock);
+		typeInformation = ClassTypeInformation.from(BeanWithSolrFieldAnnotation.class);
+		persistentEntity = new SimpleSolrPersistentEntity<>(typeInformation);
 	}
 
 	@Parameters
@@ -79,25 +80,26 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(field, descriptor, persistentEntity, new SimpleTypeHolder());
+		return new SimpleSolrPersistentProperty(Property.of(ClassTypeInformation.from(clazz), field, descriptor),
+				persistentEntity, SimpleTypeHolder.DEFAULT);
 	}
 
 	static class BeanWithSolrFieldAnnotation {
 
-		@Field//
+		@Field //
 		private String fieldWithSolrjFieldAnnotation;
 
-		@Field("solrj")//
+		@Field("solrj") //
 		private String fieldWithSolrjFieldAnnotationAndValue;
 
-		@Indexed//
+		@Indexed //
 		private String fieldWithIndexedAnnotation;
 
-		@Indexed("indexed")//
+		@Indexed("indexed") //
 		private String fieldWithIndexedAnnotationAndValue;
 
-		@Field("solrj")//
-		@Indexed("indexed")//
+		@Field("solrj") //
+		@Indexed("indexed") //
 		private String fieldWithBothAnnotations;
 
 		public String getFieldWithSolrjFieldAnnotation() {

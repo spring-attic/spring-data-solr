@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 
 /**
  * Implementation of {@code termfreq(field,term)}
- * 
+ *
  * @author Christoph Strobl
  * @since 1.1
  */
@@ -29,8 +29,8 @@ public class TermFrequencyFunction extends AbstractFunction {
 
 	private static final String OPERATION = "termfreq";
 
-	private TermFrequencyFunction(String fieldname, String term) {
-		super(Arrays.asList(fieldname, term));
+	private TermFrequencyFunction(Field field, String term) {
+		super(Arrays.asList(field, term));
 	}
 
 	/**
@@ -55,13 +55,13 @@ public class TermFrequencyFunction extends AbstractFunction {
 		}
 
 		/**
-		 * @param fieldname must not be empty
+		 * @param fieldName must not be empty
 		 * @return
 		 */
-		public TermFrequencyFunction inField(String fieldname) {
-			Assert.hasText(fieldname, "Fieldname for termfrequency must not be 'empty'.");
+		public TermFrequencyFunction inField(String fieldName) {
 
-			return new TermFrequencyFunction(fieldname, this.term);
+			Assert.hasText(fieldName, "fieldName for termfrequency must not be 'empty'.");
+			return inField(new SimpleField(fieldName));
 		}
 
 		/**
@@ -69,9 +69,9 @@ public class TermFrequencyFunction extends AbstractFunction {
 		 * @return
 		 */
 		public TermFrequencyFunction inField(Field field) {
-			Assert.notNull(field, "Field for termfrequency must not be 'null'.");
 
-			return inField(field.getName());
+			Assert.notNull(field, "Field for termfrequency must not be 'null'.");
+			return new TermFrequencyFunction(field, this.term);
 		}
 	}
 }

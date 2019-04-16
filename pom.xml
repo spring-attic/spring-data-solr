@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-solr</artifactId>
-	<version>2.0.0.BUILD-SNAPSHOT</version>
+	<version>4.1.0.BUILD-SNAPSHOT</version>
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
-	<url>http://github.com/spring-projects/spring-data-solr</url>
+	<url>https://github.com/spring-projects/spring-data-solr</url>
 
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.8.0.BUILD-SNAPSHOT</version>
-		<relativePath>../spring-data-build/parent/pom.xml</relativePath>
+		<version>2.2.0.BUILD-SNAPSHOT</version>
 	</parent>
 
 	<properties>
-		<dist.key>DATASOLR</dist.key>
 		<commons.collections>3.2.1</commons.collections>
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
-		<solr>5.5.0</solr>
-		<springdata.commons>1.12.0.BUILD-SNAPSHOT</springdata.commons>
+		<solr>8.0.0</solr>
+		<springdata.commons>2.2.0.BUILD-SNAPSHOT</springdata.commons>
+		<java-module-name>spring.data.solr</java-module-name>
 	</properties>
 
 	<developers>
@@ -112,6 +111,14 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>jcl-over-slf4j</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>stax2-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.woodstox</groupId>
+					<artifactId>woodstox-core-asl</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -125,6 +132,10 @@
 					<artifactId>slf4j-api</artifactId>
 				</exclusion>
 				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
+				</exclusion>
+				<exclusion>
 					<artifactId>jdk.tools</artifactId>
 					<groupId>jdk.tools</groupId>
 				</exclusion>
@@ -134,9 +145,34 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-langid</artifactId>
+			<version>${solr}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>jcl-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 
 		<!-- CDI -->
+		<!-- Dependency order required to build against CDI 1.0 and test with CDI 2.0 -->
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jcdi_2.0_spec</artifactId>
+			<version>1.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>1.2.1</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>javax.enterprise</groupId>
 			<artifactId>cdi-api</artifactId>
@@ -145,8 +181,14 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.openwebbeans.test</groupId>
-			<artifactId>cditest-owb</artifactId>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>${javax-annotation-api}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.openwebbeans</groupId>
+			<artifactId>openwebbeans-se</artifactId>
 			<version>${webbeans}</version>
 			<scope>test</scope>
 		</dependency>
@@ -163,18 +205,9 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- solr 4.x requires servlet api to run in embedded mode -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>3.0-alpha-1</version>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${jackson}</version>
 		</dependency>
 	</dependencies>
 
@@ -249,6 +282,38 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>solr7-next</id>
+			<repositories>
+				<repository>
+					<id>apache.snapshots</id>
+					<name>Apache Snapshot Repository</name>
+					<url>https://repository.apache.org/snapshots</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<properties>
+				<solr>7.6.0-SNAPSHOT</solr>
+			</properties>
+		</profile>
+		<profile>
+			<id>solr8-next</id>
+			<repositories>
+				<repository>
+					<id>apache.snapshots</id>
+					<name>Apache Snapshot Repository</name>
+					<url>https://repository.apache.org/snapshots</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<properties>
+				<solr>8.0.0-SNAPSHOT</solr>
+			</properties>
+		</profile>
 	</profiles>
 
 	<issueManagement>
@@ -264,7 +329,7 @@
 
 	<ciManagement>
 		<system>Bamboo</system>
-		<url>http://build.spring.io/browse/DATASOLR</url>
+		<url>https://build.spring.io/browse/DATASOLR</url>
 	</ciManagement>
 
 	<repositories>

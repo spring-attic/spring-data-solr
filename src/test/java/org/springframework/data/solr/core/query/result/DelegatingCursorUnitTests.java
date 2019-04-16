@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,52 +40,37 @@ import org.springframework.util.CollectionUtils;
  */
 public class DelegatingCursorUnitTests {
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test(expected = InvalidDataAccessApiUsageException.class)
+	@Test(expected = InvalidDataAccessApiUsageException.class) // DATASOLR-162
 	public void shouldThrowExceptionWhenOpeningMultipleTimes() {
-		new DelegatingCursorFake<Object>(null).open().open();
+		new DelegatingCursorFake<>(null).open().open();
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldNotHaveNextWhenNoElementsAvailable() {
-		assertThat(new DelegatingCursorFake<Object>(null).open().hasNext(), is(false));
+		assertThat(new DelegatingCursorFake<>(null).open().hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test(expected = NoSuchElementException.class)
+	@Test(expected = NoSuchElementException.class) // DATASOLR-162
 	public void nextShouldThrowExceptionWhenNoMoreElementsAvailable() {
-		new DelegatingCursorFake<Object>(null).open().next();
+		new DelegatingCursorFake<>(null).open().next();
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldReturnElementsInValidOrder() {
 
-		PartialResult<String> result = new PartialResult<String>("*", Arrays.asList("spring", "data", "solr"));
-		DelegatingCursor<String> cursor = new DelegatingCursorFake<String>(Collections.singleton(result)).open();
+		PartialResult<String> result = new PartialResult<>("*", Arrays.asList("spring", "data", "solr"));
+		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Collections.singleton(result)).open();
 
 		assertThat(cursor.next(), equalTo("spring"));
 		assertThat(cursor.next(), equalTo("data"));
 		assertThat(cursor.next(), equalTo("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldStopWhenNoMoreElementsAvailableAndAlreadyFinished() {
 
-		PartialResult<String> result = new PartialResult<String>("*", Arrays.asList("spring", "data", "solr"));
-		DelegatingCursor<String> cursor = new DelegatingCursorFake<String>(Collections.singleton(result)).open();
+		PartialResult<String> result = new PartialResult<>("*", Arrays.asList("spring", "data", "solr"));
+		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Collections.singleton(result)).open();
 
 		cursor.next();
 		cursor.next();
@@ -93,34 +78,28 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldFetchNextSetOfElementsWhenNotFinishedAndCurrentResultsEndReached() {
 
-		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring", "data"));
-		PartialResult<String> result2 = new PartialResult<String>("foo", Arrays.asList("solr"));
+		PartialResult<String> result1 = new PartialResult<>("foo", Arrays.asList("spring", "data"));
+		PartialResult<String> result2 = new PartialResult<>("foo", Collections.singletonList("solr"));
 
 		@SuppressWarnings("unchecked")
-		DelegatingCursor<String> cursor = new DelegatingCursorFake<String>(Arrays.asList(result1, result2)).open();
+		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Arrays.asList(result1, result2)).open();
 
 		assertThat(cursor.next(), equalTo("spring"));
 		assertThat(cursor.next(), equalTo("data"));
 		assertThat(cursor.next(), equalTo("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldDetermineEndOfResultsCorrectly() {
 
-		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring", "data"));
-		PartialResult<String> result2 = new PartialResult<String>("foo", Arrays.asList("solr"));
+		PartialResult<String> result1 = new PartialResult<>("foo", Arrays.asList("spring", "data"));
+		PartialResult<String> result2 = new PartialResult<>("foo", Collections.singletonList("solr"));
 
 		@SuppressWarnings("unchecked")
-		DelegatingCursor<String> cursor = new DelegatingCursorFake<String>(Arrays.asList(result1, result2)).open();
+		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Arrays.asList(result1, result2)).open();
 
 		cursor.next();
 		cursor.next();
@@ -128,18 +107,15 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.hasNext(), is(false));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldFinishLoopingWhenCursorMarkEqualsPreviousOne() {
 
-		PartialResult<String> result1 = new PartialResult<String>("foo", Arrays.asList("spring"));
-		PartialResult<String> result2 = new PartialResult<String>("bar", Arrays.asList("data"));
-		PartialResult<String> result3 = new PartialResult<String>("bar", Arrays.asList("solr"));
+		PartialResult<String> result1 = new PartialResult<>("foo", Collections.singletonList("spring"));
+		PartialResult<String> result2 = new PartialResult<>("bar", Collections.singletonList("data"));
+		PartialResult<String> result3 = new PartialResult<>("bar", Collections.singletonList("solr"));
 
 		@SuppressWarnings("unchecked")
-		DelegatingCursor<String> cursor = new DelegatingCursorFake<String>(Arrays.asList(result1, result2, result3)).open();
+		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Arrays.asList(result1, result2, result3)).open();
 
 		assertThat(cursor.hasNext(), is(true));
 		assertThat(cursor.isFinished(), is(false));
@@ -154,14 +130,11 @@ public class DelegatingCursorUnitTests {
 		assertThat(cursor.next(), is("solr"));
 	}
 
-	/**
-	 * @see DATASOLR-162
-	 */
-	@Test
+	@Test // DATASOLR-162
 	public void shouldNotModifyInitialQueryWhenRequestingResults() {
 
 		SolrQuery initialQuery = new SolrQuery("*:*");
-		DelegatingCursorFake<String> cursor = new DelegatingCursorFake<String>(initialQuery, null);
+		DelegatingCursorFake<String> cursor = new DelegatingCursorFake<>(initialQuery, null);
 		cursor.open();
 
 		SolrQuery executedQuey = cursor.getLastUsedQuery();
@@ -175,7 +148,7 @@ public class DelegatingCursorUnitTests {
 
 	class DelegatingCursorFake<T> extends DelegatingCursor<T> {
 
-		List<PartialResult<T>> values = new ArrayList<PartialResult<T>>();
+		List<PartialResult<T>> values = new ArrayList<>();
 		private int requestCounter;
 		private SolrQuery lastUsedQuery;
 

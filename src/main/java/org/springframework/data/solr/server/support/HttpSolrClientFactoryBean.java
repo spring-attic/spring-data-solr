@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,34 +15,35 @@
  */
 package org.springframework.data.solr.server.support;
 
-import java.net.MalformedURLException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * {@link HttpSolrClientFactoryBean} replaces HttpSolrServerFactoryBean from version 1.x.
- * 
+ *
  * @author Christoph Strobl
  * @since 2.0
  */
-public class HttpSolrClientFactoryBean extends HttpSolrClientFactory implements FactoryBean<SolrClient>,
-		InitializingBean, DisposableBean {
+public class HttpSolrClientFactoryBean extends HttpSolrClientFactory
+		implements FactoryBean<SolrClient>, InitializingBean, DisposableBean {
 
 	private static final String SERVER_URL_SEPARATOR = ",";
-	private String url;
-	private Integer timeout;
-	private Integer maxConnections;
+	private @Nullable String url;
+	private @Nullable Integer timeout;
+	private @Nullable Integer maxConnections;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.hasText(url);
+		Assert.hasText(url, "Solr url must not be null nor empty!");
 		initSolrClient();
 	}
 
@@ -55,26 +56,32 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory implements 
 	}
 
 	private void createHttpSolrClient() {
-		HttpSolrClient httpSolrClient = new HttpSolrClient(this.url);
+
+		HttpSolrClient.Builder builder = new HttpSolrClient.Builder().withBaseSolrUrl(this.url);
+
 		if (timeout != null) {
-			httpSolrClient.setConnectionTimeout(timeout.intValue());
+			builder = builder.withConnectionTimeout(timeout);
 		}
+
 		if (maxConnections != null) {
-			httpSolrClient.setMaxTotalConnections(maxConnections);
+
+			ModifiableSolrParams params = new ModifiableSolrParams();
+			params.set(HttpClientUtil.PROP_MAX_CONNECTIONS, maxConnections);
+
+			builder.withHttpClient(HttpClientUtil.createClient(params));
 		}
-		this.setSolrClient(httpSolrClient);
+
+		this.setSolrClient(builder.build());
 	}
 
 	private void createLoadBalancedHttpSolrClient() {
-		try {
-			LBHttpSolrClient lbHttpSolrClient = new LBHttpSolrClient(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
-			if (timeout != null) {
-				lbHttpSolrClient.setConnectionTimeout(timeout.intValue());
-			}
-			this.setSolrClient(lbHttpSolrClient);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Unable to create Load Balanced Http Solr Server", e);
+
+		LBHttpSolrClient.Builder builder = new LBHttpSolrClient.Builder()
+				.withBaseSolrUrls(StringUtils.split(this.url, SERVER_URL_SEPARATOR));
+		if (timeout != null) {
+			builder.withConnectionTimeout(timeout);
 		}
+		this.setSolrClient(builder.build());
 	}
 
 	@Override

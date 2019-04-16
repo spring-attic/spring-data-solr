@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,20 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Base QueryImplementation <br />
  * Construct Query by adding {@link Criteria}.
- * 
+ *
  * @author Christoph Strobl
  */
 class AbstractQuery {
 
-	private Criteria criteria;
-	private Join join;
-	private String requestHandler;
+	private @Nullable Criteria criteria;
+	private @Nullable Join join;
+	private @Nullable String requestHandler;
 
 	AbstractQuery() {}
 
@@ -37,12 +38,13 @@ class AbstractQuery {
 
 	/**
 	 * Add an criteria to the query. The criteria will be connected using 'AND'.
-	 * 
-	 * @param criteria
+	 *
+	 * @param criteria must not be {@literal null}.
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public final <T extends SolrDataQuery> T addCriteria(Criteria criteria) {
+
 		Assert.notNull(criteria, "Cannot add null criteria.");
 
 		if (this.criteria == null) {
@@ -63,15 +65,13 @@ class AbstractQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Criteria getCriteria() {
 		return this.criteria;
 	}
 
 	/**
 	 * Set values for join {@code !join from=inner_id to=outer_id}
-	 * 
-	 * @param from
-	 * @param to
 	 */
 	public void setJoin(Join join) {
 		this.join = join;
@@ -80,10 +80,12 @@ class AbstractQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	public Join getJoin() {
 		return join;
 	}
 
+	@Nullable
 	public String getRequestHandler() {
 		return requestHandler;
 	}

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ public class FieldWithQueryParametersTests {
 
 	@Before
 	public void setUp() {
-		field = new FieldWithQueryParameters<QueryParameterImpl>(FIELDNAME);
+		field = new FieldWithQueryParameters<>(FIELDNAME);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -94,8 +94,8 @@ public class FieldWithQueryParametersTests {
 		field.addQueryParameter(OPTION_WITH_INT);
 		field.addQueryParameter(OPTION_WITH_DATE);
 
-		Assert
-				.assertThat(field.getQueryParameters(), Matchers.contains(OPTION_WITH_STRING, OPTION_WITH_INT, OPTION_WITH_DATE));
+		Assert.assertThat(field.getQueryParameters(),
+				Matchers.contains(OPTION_WITH_STRING, OPTION_WITH_INT, OPTION_WITH_DATE));
 	}
 
 	@Test

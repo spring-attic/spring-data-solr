@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,48 +19,49 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.lang.Nullable;
 
 /**
  * Solr specific implementation of {@code Pageable} allowing zero sized pages.
- * 
+ *
  * @author Christoph Strobl
  */
 public class SolrPageRequest implements Pageable {
 
-	private Sort sort;
+	private @Nullable Sort sort;
 	private int page;
 	private int size;
 
 	/**
 	 * Creates a new {@link SolrPageRequest}. Pages are zero indexed.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 */
 	public SolrPageRequest(int page, int size) {
-		this(page, size, null);
+		this(page, size, Sort.unsorted());
 	}
 
 	/**
 	 * Creates a new {@link SolrPageRequest} with sort parameters applied.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 * @param direction the direction of the {@link Sort} to be specified, can be {@literal null}.
 	 * @param properties the properties to sort by, must not be {@literal null} or empty.
 	 */
 	public SolrPageRequest(int page, int size, Direction direction, String... properties) {
-		this(page, size, new Sort(direction, properties));
+		this(page, size, Sort.by(direction, properties));
 	}
 
 	/**
 	 * Creates a new {@link SolrPageRequest} with sort parameters applied.
-	 * 
+	 *
 	 * @param page zero-based page index.
 	 * @param size the size of the page to be returned.
 	 * @param sort can be {@literal null}.
 	 */
-	public SolrPageRequest(int page, int size, Sort sort) {
+	public SolrPageRequest(int page, int size, @Nullable Sort sort) {
 		this.page = page;
 		this.size = size;
 		this.sort = sort;
@@ -89,7 +90,7 @@ public class SolrPageRequest implements Pageable {
 	 * @see org.springframework.data.domain.Pageable#getOffset()
 	 */
 	@Override
-	public int getOffset() {
+	public long getOffset() {
 		return page * size;
 	}
 
@@ -99,7 +100,7 @@ public class SolrPageRequest implements Pageable {
 	 */
 	@Override
 	public Sort getSort() {
-		return sort;
+		return sort != null ? sort : Sort.unsorted();
 	}
 
 	/*
@@ -140,7 +141,7 @@ public class SolrPageRequest implements Pageable {
 
 	/**
 	 * Returns the {@link Pageable} requesting the previous {@link Page}.
-	 * 
+	 *
 	 * @return
 	 */
 	public Pageable previous() {
@@ -149,12 +150,9 @@ public class SolrPageRequest implements Pageable {
 
 	@Override
 	public int hashCode() {
-
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + page;
-		result = prime * result + size;
-		result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+		int result = sort.hashCode();
+		result = 31 * result + page;
+		result = 31 * result + (size ^ size >>> 32);
 		return result;
 	}
 

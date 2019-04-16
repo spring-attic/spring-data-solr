@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2016 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,26 +16,28 @@
 package org.springframework.data.solr.server.support;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
-import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -46,15 +48,16 @@ import org.xml.sax.SAXException;
  * The EmbeddedSolrServerFactory allows hosting of an SolrServer instance in embedded mode. Configuration files are
  * loaded via {@link ResourceUtils}, therefore it is possible to place them in classpath. Use this class for Testing. It
  * is not recommended for production.
- * 
+ *
  * @author Christoph Strobl
  */
 public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableBean {
 
 	private static final String SOLR_HOME_SYSTEM_PROPERTY = "solr.solr.home";
 
-	private String solrHome;
-	private EmbeddedSolrServer solrServer;
+	private @Nullable String solrHome;
+	private AtomicReference<CoreContainer> coreContainer = new AtomicReference<>(null);
+	private ConcurrentHashMap<String, EmbeddedSolrServer> servers = new ConcurrentHashMap<>();
 
 	protected EmbeddedSolrServerFactory() {
 
@@ -68,27 +71,20 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	 * @throws SAXException
 	 */
 	public EmbeddedSolrServerFactory(String solrHome) throws ParserConfigurationException, IOException, SAXException {
-		Assert.hasText(solrHome);
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
 		this.solrHome = solrHome;
 	}
 
 	@Override
 	public EmbeddedSolrServer getSolrClient() {
-		if (this.solrServer == null) {
-			initSolrServer();
-		}
-		return this.solrServer;
+		return new EmbeddedSolrServer(getCoreContainer(), "collection1");
 	}
 
-	protected void initSolrServer() {
+	protected void initCoreContainer() {
 		try {
-			this.solrServer = createPathConfiguredSolrServer(this.solrHome);
-		} catch (ParserConfigurationException e) {
-			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
-		} catch (IOException e) {
-			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
-		} catch (SAXException e) {
-			throw new BeanInstantiationException(EmbeddedSolrServer.class, e.getMessage(), e);
+			this.coreContainer.compareAndSet(null, createCoreContainer(this.solrHome));
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -101,17 +97,19 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	 */
 	public final EmbeddedSolrServer createPathConfiguredSolrServer(String path)
 			throws ParserConfigurationException, IOException, SAXException {
+		return new EmbeddedSolrServer(createCoreContainer(path), "collection1");
+	}
+
+	private CoreContainer createCoreContainer(String path) throws FileNotFoundException, UnsupportedEncodingException {
+
 		String solrHomeDirectory = System.getProperty(SOLR_HOME_SYSTEM_PROPERTY);
 
 		if (StringUtils.isBlank(solrHomeDirectory)) {
-			solrHomeDirectory = ResourceUtils.getURL(path).getPath();
+			solrHomeDirectory = ResourceUtils.getFile(path).getPath();
 		}
 
 		solrHomeDirectory = URLDecoder.decode(solrHomeDirectory, "utf-8");
-		return new EmbeddedSolrServer(createCoreContainer(solrHomeDirectory), "collection1");
-	}
 
-	private CoreContainer createCoreContainer(String solrHomeDirectory) {
 		File solrXmlFile = new File(solrHomeDirectory + "/solr.xml");
 		if (ClassUtils.hasConstructor(CoreContainer.class, String.class, File.class)) {
 			return createCoreContainerViaConstructor(solrHomeDirectory, solrXmlFile);
@@ -121,7 +119,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 
 	/**
 	 * Create {@link CoreContainer} via its constructor (Solr 3.6.0 - 4.3.1)
-	 * 
+	 *
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
 	 * @return
@@ -133,8 +131,8 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	/**
-	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in {@link CoreContainer#createAndLoad()}.
-	 * 
+	 * Create {@link CoreContainer} for Solr version 4.4+ and handle changes in .
+	 *
 	 * @param solrHomeDirectory
 	 * @param solrXmlFile
 	 * @return
@@ -154,21 +152,17 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	public void shutdownSolrServer() {
-		if (this.solrServer != null && solrServer.getCoreContainer() != null) {
-			solrServer.getCoreContainer().shutdown();
+		if (coreContainer.get() != null) {
+			coreContainer.get().shutdown();
 		}
 	}
 
-	@Override
 	public List<String> getCores() {
-		if (this.solrServer != null && solrServer.getCoreContainer() != null) {
-			return new ArrayList<String>(this.solrServer.getCoreContainer().getCoreNames());
-		}
-		return Collections.emptyList();
+		return new ArrayList<>(getCoreContainer().getAllCoreNames());
 	}
 
 	public void setSolrHome(String solrHome) {
-		Assert.hasText(solrHome);
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
 		this.solrHome = solrHome;
 	}
 
@@ -177,9 +171,13 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 		shutdownSolrServer();
 	}
 
-	@Override
-	public SolrClient getSolrClient(String core) {
-		return getSolrClient();
+	private CoreContainer getCoreContainer() {
+
+		if (coreContainer.get() == null) {
+			initCoreContainer();
+		}
+
+		return coreContainer.get();
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,42 +32,45 @@ import org.springframework.data.solr.core.query.Query;
 import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimplePivotField;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
  * Base implementation of page holding solr response entities.
- * 
+ *
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author David Webb
+ * @author Petar Tahchiev
  */
-public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, ScoredPage<T>,
-		GroupPage<T>, StatsPage<T> {
+public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>,
+		ScoredPage<T>, GroupPage<T>, StatsPage<T>, SpellcheckedPage<T> {
 
 	private static final long serialVersionUID = -4199560685036530258L;
 
-	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(1);
-	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<PageKey, List<FacetPivotFieldEntry>>();
-	private Map<PageKey, Page<FacetFieldEntry>> facetRangeResultPages = new LinkedHashMap<PageKey, Page<FacetFieldEntry>>(
-			1);
-	private Page<FacetQueryEntry> facetQueryResult;
-	private List<HighlightEntry<T>> highlighted;
-	private Float maxScore;
+	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<>(1);
+	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<>();
+	private Map<PageKey, Page<FacetFieldEntry>> facetRangeResultPages = new LinkedHashMap<>(1);
+	private @Nullable Page<FacetQueryEntry> facetQueryResult;
+	private List<HighlightEntry<T>> highlighted = Collections.emptyList();
+	private @Nullable Float maxScore;
 	private Map<Object, GroupResult<T>> groupResults = Collections.emptyMap();
-	private Map<String, FieldStatsResult> fieldStatsResults;
+	private Map<String, FieldStatsResult> fieldStatsResults = Collections.emptyMap();
+	private Map<String, List<Alternative>> suggestions = new LinkedHashMap<>();
 
 	public SolrResultPage(List<T> content) {
 		super(content);
 	}
 
-	public SolrResultPage(List<T> content, Pageable pageable, long total, Float maxScore) {
+	public SolrResultPage(List<T> content, Pageable pageable, long total, @Nullable Float maxScore) {
 		super(content, pageable, total);
 		this.maxScore = maxScore;
 	}
 
 	private Page<FacetFieldEntry> getResultPage(String fieldname, Map<PageKey, Page<FacetFieldEntry>> resultPages) {
 		Page<FacetFieldEntry> page = resultPages.get(new StringPageKey(fieldname));
-		return page != null ? page : new PageImpl<FacetFieldEntry>(Collections.<FacetFieldEntry> emptyList());
+		return page != null ? page : new PageImpl<>(Collections.<FacetFieldEntry> emptyList());
 	}
 
 	@Override
@@ -153,13 +156,13 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	}
 
 	public final void setFacetQueryResultPage(List<FacetQueryEntry> facetQueryResult) {
-		this.facetQueryResult = new PageImpl<FacetQueryEntry>(facetQueryResult);
+		this.facetQueryResult = new PageImpl<>(facetQueryResult);
 	}
 
 	@Override
 	public Page<FacetQueryEntry> getFacetQueryResult() {
-		return this.facetQueryResult != null ? this.facetQueryResult : new PageImpl<FacetQueryEntry>(
-				Collections.<FacetQueryEntry> emptyList());
+		return this.facetQueryResult != null ? this.facetQueryResult
+				: new PageImpl<>(Collections.<FacetQueryEntry> emptyList());
 	}
 
 	@Override
@@ -167,7 +170,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		if (this.facetResultPages.isEmpty()) {
 			return Collections.emptyList();
 		}
-		List<Field> fields = new ArrayList<Field>(this.facetResultPages.size());
+		List<Field> fields = new ArrayList<>(this.facetResultPages.size());
 		for (PageKey pageKey : this.facetResultPages.keySet()) {
 			fields.add(new SimpleField(pageKey.getKey().toString()));
 		}
@@ -179,7 +182,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		if (this.facetPivotResultPages.isEmpty()) {
 			return Collections.emptyList();
 		}
-		List<PivotField> fields = new ArrayList<PivotField>(this.facetPivotResultPages.size());
+		List<PivotField> fields = new ArrayList<>(this.facetPivotResultPages.size());
 
 		for (PageKey pageKey : this.facetPivotResultPages.keySet()) {
 			fields.add(new SimplePivotField(pageKey.getKey().toString()));
@@ -190,8 +193,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public Collection<Page<? extends FacetEntry>> getAllFacets() {
-		List<Page<? extends FacetEntry>> entries = new ArrayList<Page<? extends FacetEntry>>(
-				this.facetResultPages.size() + 1);
+		List<Page<? extends FacetEntry>> entries = new ArrayList<>(this.facetResultPages.size() + 1);
 		entries.addAll(this.facetResultPages.values());
 		entries.add(this.facetQueryResult);
 		return entries;
@@ -199,7 +201,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public List<HighlightEntry<T>> getHighlighted() {
-		return this.highlighted != null ? this.highlighted : Collections.<HighlightEntry<T>> emptyList();
+		return this.highlighted;
 	}
 
 	public void setHighlighted(List<HighlightEntry<T>> highlighted) {
@@ -208,7 +210,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 
 	@Override
 	public List<Highlight> getHighlights(T entity) {
-		if (entity != null && this.highlighted != null) {
+		if (entity != null) {
 			for (HighlightEntry<T> highlightEntry : this.highlighted) {
 				if (highlightEntry != null && ObjectUtils.nullSafeEquals(highlightEntry.getEntity(), entity)) {
 					return highlightEntry.getHighlights();
@@ -230,6 +232,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.result.ScoredPage#getMaxScore()
 	 */
+	@Nullable
 	@Override
 	public Float getMaxScore() {
 		return maxScore;
@@ -260,7 +263,6 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	}
 
 	/**
-	 * @param fieldStatsResult
 	 * @since 1.4
 	 */
 	public void setFieldStatsResults(Map<String, FieldStatsResult> fieldStatsResults) {
@@ -280,6 +282,67 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	@Override
 	public Map<String, FieldStatsResult> getFieldStatsResults() {
 		return this.fieldStatsResults;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getSuggestions(java.lang.String)
+	 */
+	@Override
+	public Collection<String> getSuggestions(String term) {
+
+		List<String> suggestions = new ArrayList<>();
+		for (Alternative alternative : getAlternatives(term)) {
+			suggestions.add(alternative.getSuggestion());
+		}
+		return suggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getSuggestions()
+	 */
+	@Override
+	public Collection<String> getSuggestions() {
+
+		List<String> suggestions = new ArrayList<>();
+		for (Alternative alternative : getAlternatives()) {
+			suggestions.add(alternative.getSuggestion());
+		}
+		return suggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#addSuggestions(java.lang.String, java.util.List)
+	 */
+	@Override
+	public void addSuggestions(String term, List<Alternative> suggestions) {
+		this.suggestions.put(term, suggestions);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getAlternatives()
+	 */
+	@Override
+	public Collection<Alternative> getAlternatives() {
+
+		List<Alternative> allSuggestions = new ArrayList<>();
+		for (List<Alternative> suggestions : this.suggestions.values()) {
+			allSuggestions.addAll(suggestions);
+		}
+		return allSuggestions;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.result.SpellcheckQueryResult#getAlternatives(java.lang.String)
+	 */
+	@Override
+	public Collection<Alternative> getAlternatives(String term) {
+		return suggestions.containsKey(term) ? Collections.<Alternative> unmodifiableList(this.suggestions.get(term))
+				: Collections.<Alternative> emptyList();
 	}
 
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,37 +22,44 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryAccessor;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.mapping.model.MappingException;
-import org.springframework.data.solr.repository.Score;
 import org.springframework.data.util.TypeInformation;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
+import org.springframework.expression.common.LiteralExpression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
  * Solr specific {@link PersistentEntity} implementation holding eg. name of solr core.
- * 
+ *
  * @param <T>
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
-public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty> implements
-		SolrPersistentEntity<T>, ApplicationContextAware {
+public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, SolrPersistentProperty>
+		implements SolrPersistentEntity<T>, ApplicationContextAware {
 
 	private final TypeInformation<T> typeInformation;
 	private final StandardEvaluationContext context;
-	private String solrCoreName;
-	private Float boost;
+	private String collectionName;
+
+	private final @Nullable Expression expression;
 
 	public SimpleSolrPersistentEntity(TypeInformation<T> typeInformation) {
 
 		super(typeInformation);
 		this.context = new StandardEvaluationContext();
 		this.typeInformation = typeInformation;
-		this.solrCoreName = derivateSolrCoreName();
-		this.boost = derivateDocumentBoost();
+		this.collectionName = derivateSolrCollectionName();
+		this.expression = potentiallyExtractCollectionExpresssion(collectionName);
 	}
 
 	/*
@@ -67,52 +74,38 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 		context.setRootObject(applicationContext);
 	}
 
-	private String derivateSolrCoreName() {
-
-		String derivativeSolrCoreName = this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
-		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument != null) {
-			if (StringUtils.hasText(solrDocument.solrCoreName())) {
-				derivativeSolrCoreName = solrDocument.solrCoreName();
-			}
-		}
-		return derivativeSolrCoreName;
-	}
-
-	private Float derivateDocumentBoost() {
+	private String derivateSolrCollectionName() {
 
 		SolrDocument solrDocument = findAnnotation(SolrDocument.class);
-		if (solrDocument != null && !Float.isNaN(solrDocument.boost())) {
-			return solrDocument.boost();
+		if (solrDocument != null && StringUtils.hasText(solrDocument.solrCoreName())) {
+			return solrDocument.collection();
 		}
-		return null;
+		return this.typeInformation.getType().getSimpleName().toLowerCase(Locale.ENGLISH);
+	}
+
+	private static Expression potentiallyExtractCollectionExpresssion(String collectionName) {
+
+		Expression expression = new SpelExpressionParser().parseExpression(collectionName,
+				ParserContext.TEMPLATE_EXPRESSION);
+
+		return expression instanceof LiteralExpression ? null : expression;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getSolrCoreName()
+	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getCollectionName()
 	 */
 	@Override
-	public String getSolrCoreName() {
-		return this.solrCoreName;
-	}
+	public String getCollectionName() {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#isBoosted()
-	 */
-	@Override
-	public boolean isBoosted() {
-		return boost != null;
-	}
+		if (expression == null) {
+			return collectionName;
+		}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getBoost()
-	 */
-	@Override
-	public Float getBoost() {
-		return boost;
+		EvaluationContext ctx = getEvaluationContext(null);
+		ctx.setVariable("targetType", typeInformation.getType());
+
+		return expression.getValue(ctx, String.class);
 	}
 
 	/*
@@ -128,9 +121,16 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.mapping.SolrPersistentEntity#getScoreProperty()
 	 */
+	@Nullable
 	@Override
 	public SolrPersistentProperty getScoreProperty() {
-		return getPersistentProperty(Score.class);
+
+		SolrPersistentProperty scoreProperty = getPersistentProperty(Score.class);
+		if (scoreProperty != null) {
+			return scoreProperty;
+		}
+
+		return getPersistentProperty(org.springframework.data.solr.repository.Score.class);
 	}
 
 	/*
@@ -156,14 +156,14 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	/**
 	 * Handler to inspect {@link SolrPersistentProperty} instances and check that max one can be mapped as {@link Score}
 	 * property.
-	 * 
+	 *
 	 * @author Christpoh Strobl
 	 * @since 1.4
 	 */
 	private static class ScoreFieldUniquenessHandler implements PropertyHandler<SolrPersistentProperty> {
 
 		private static final String AMBIGUOUS_FIELD_MAPPING = "Ambiguous score field mapping detected! Both %s and %s marked as target for score value. Disambiguate using @Score annotation!";
-		private SolrPersistentProperty scoreProperty;
+		private @Nullable SolrPersistentProperty scoreProperty;
 
 		/*
 		 * (non-Javadoc)
@@ -178,8 +178,8 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isScoreProperty()) {
 
 				if (scoreProperty != null) {
-					throw new MappingException(String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(),
-							scoreProperty.getFieldName()));
+					throw new MappingException(
+							String.format(AMBIGUOUS_FIELD_MAPPING, property.getFieldName(), scoreProperty.getFieldName()));
 				}
 
 				scoreProperty = property;
@@ -189,11 +189,11 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 	/**
 	 * Handler to inspect {@link SolrPersistentProperty} instances and check usage of {@link Dynamic}.
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 * @since 1.5
 	 */
-	private static enum DynamicFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
+	private enum DynamicFieldMappingHandler implements PropertyHandler<SolrPersistentProperty> {
 
 		INSTANCE;
 
@@ -206,13 +206,13 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 			if (property.isDynamicProperty()) {
 
 				if (!property.isMap()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_A_MAP, property.getName(), property.getFieldName()));
 				}
 
 				if (!property.containsWildcard()) {
-					throw new MappingException(String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(),
-							property.getFieldName()));
+					throw new MappingException(
+							String.format(DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD, property.getName(), property.getFieldName()));
 				}
 			}
 		}

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -61,7 +61,7 @@ public class SolrParametersParameterAccessorTests {
 
 		Assert.assertEquals("value1", accessor.getBindableValue(0));
 		Assert.assertEquals(2.0f, accessor.getBoost(0), 0.0f);
-		Assert.assertEquals(Integer.valueOf(1000), accessor.getBindableValue(1));
+		Assert.assertEquals(1000, accessor.getBindableValue(1));
 		Assert.assertEquals(10.0f, accessor.getBoost(1), 0.0f);
 	}
 
@@ -74,7 +74,7 @@ public class SolrParametersParameterAccessorTests {
 
 		Assert.assertEquals("value1", accessor.getBindableValue(0));
 		Assert.assertEquals(Float.NaN, accessor.getBoost(0), 0.0f);
-		Assert.assertEquals(Integer.valueOf(1000), accessor.getBindableValue(1));
+		Assert.assertEquals(1000, accessor.getBindableValue(1));
 		Assert.assertEquals(10.0f, accessor.getBoost(1), 0.0f);
 	}
 

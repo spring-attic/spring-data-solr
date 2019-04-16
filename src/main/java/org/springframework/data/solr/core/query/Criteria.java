@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,12 +27,13 @@ import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Circle;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Criteria is the central class when constructing queries. It follows more or less a fluent API style, which allows to
  * easily chain together multiple criteria.
- * 
+ *
  * @author Christoph Strobl
  * @author Philipp Jardas
  * @author Francisco Spaeth
@@ -42,10 +43,10 @@ public class Criteria extends Node {
 	public static final String WILDCARD = "*";
 	public static final String CRITERIA_VALUE_SEPERATOR = " ";
 
-	private Field field;
+	private @Nullable Field field;
 	private float boost = Float.NaN;
 
-	private Set<Predicate> predicates = new LinkedHashSet<Predicate>();
+	private Set<Predicate> predicates = new LinkedHashSet<>();
 
 	public Criteria() {}
 
@@ -60,7 +61,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates a new Criteria for the Filed with provided name
-	 * 
+	 *
 	 * @param fieldname
 	 */
 	public Criteria(String fieldname) {
@@ -69,7 +70,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates a new Criteria for the given field
-	 * 
+	 *
 	 * @param field
 	 */
 	public Criteria(Field field) {
@@ -81,7 +82,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Static factory method to create a new Criteria for field with given name
-	 * 
+	 *
 	 * @param fieldname must not be null
 	 * @return
 	 */
@@ -91,7 +92,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Static factory method to create a new Criteria for function
-	 * 
+	 *
 	 * @param function must not be null
 	 * @return
 	 * @since 1.1
@@ -102,7 +103,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Static factory method to create a new Criteria for provided field
-	 * 
+	 *
 	 * @param field must not be null
 	 * @return
 	 */
@@ -113,11 +114,11 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} without any wildcards. Strings with blanks will be escaped
 	 * {@code "string\ with\ blank"}
-	 * 
+	 *
 	 * @param o
 	 * @return
 	 */
-	public Criteria is(Object o) {
+	public Criteria is(@Nullable Object o) {
 		if (o == null) {
 			return isNull();
 		}
@@ -127,7 +128,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} without any wildcards for each entry
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 */
@@ -137,7 +138,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates new {@link Predicate} without any wildcards for each entry
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 */
@@ -147,7 +148,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code null} values
-	 * 
+	 *
 	 * @return
 	 */
 	public Criteria isNull() {
@@ -156,7 +157,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code !null} values
-	 * 
+	 *
 	 * @return
 	 */
 	public Criteria isNotNull() {
@@ -167,7 +168,7 @@ public class Criteria extends Node {
 	 * Crates new {@link Predicate} with leading and trailing wildcards <br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -182,7 +183,7 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} with leading and trailing wildcards for each entry<br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -195,7 +196,7 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} with leading and trailing wildcards for each entry<br/>
 	 * <strong>NOTE: </strong>mind your schema as leading wildcards may not be supported and/or execution might be slow.
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -211,7 +212,7 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} with trailing wildcard <br/>
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -225,7 +226,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} with trailing wildcard for each entry
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -237,7 +238,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} with trailing wildcard for each entry
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -254,7 +255,7 @@ public class Criteria extends Node {
 	 * Crates new {@link Predicate} with leading wildcard <br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
 	 * <strong>NOTE: </strong>Strings will not be automatically split on whitespace.
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -268,7 +269,7 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} with leading wildcard for each entry<br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -281,7 +282,7 @@ public class Criteria extends Node {
 	/**
 	 * Crates new {@link Predicate} with leading wildcard for each entry<br />
 	 * <strong>NOTE: </strong>mind your schema and execution times as leading wildcards may not be supported.
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 * @throws InvalidDataAccessApiUsageException for strings with whitespace
@@ -297,7 +298,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Negates current criteria usinng {@code -} operator
-	 * 
+	 *
 	 * @return
 	 */
 	public Criteria not() {
@@ -307,7 +308,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Explicitly wrap {@link Criteria} inside not operation.
-	 * 
+	 *
 	 * @since 1.4
 	 * @return
 	 */
@@ -322,7 +323,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} with trailing {@code ~}
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 */
@@ -332,7 +333,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} with trailing {@code ~} followed by levensteinDistance
-	 * 
+	 *
 	 * @param s
 	 * @param levenshteinDistance
 	 * @return
@@ -347,7 +348,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} with trailing {@code ~} followed by distance
-	 * 
+	 *
 	 * @param phrase
 	 * @param distance
 	 * @return
@@ -367,7 +368,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} allowing native solr expressions
-	 * 
+	 *
 	 * @param s
 	 * @return
 	 */
@@ -378,7 +379,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Boost positive hit with given factor. eg. ^2.3
-	 * 
+	 *
 	 * @param boost
 	 * @return
 	 */
@@ -392,33 +393,33 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [lowerBound TO upperBound]}
-	 * 
+	 *
 	 * @param lowerBound
 	 * @param upperBound
 	 * @return
 	 */
-	public Criteria between(Object lowerBound, Object upperBound) {
+	public Criteria between(@Nullable Object lowerBound, @Nullable Object upperBound) {
 		return between(lowerBound, upperBound, true, true);
 	}
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [lowerBound TO upperBound]}
-	 * 
+	 *
 	 * @param lowerBound
 	 * @param upperBound
 	 * @param includeLowerBound
 	 * @param includeUppderBound
 	 * @return
 	 */
-	public Criteria between(Object lowerBound, Object upperBound, boolean includeLowerBound, boolean includeUppderBound) {
-		predicates.add(new Predicate(OperationKey.BETWEEN, new Object[] { lowerBound, upperBound, includeLowerBound,
-				includeUppderBound }));
+	public Criteria between(@Nullable Object lowerBound, @Nullable Object upperBound, boolean includeLowerBound, boolean includeUppderBound) {
+		predicates.add(new Predicate(OperationKey.BETWEEN,
+				new Object[] { lowerBound, upperBound, includeLowerBound, includeUppderBound }));
 		return this;
 	}
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [* TO upperBound&#125;}
-	 * 
+	 *
 	 * @param upperBound
 	 * @return
 	 */
@@ -429,7 +430,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [* TO upperBound]}
-	 * 
+	 *
 	 * @param upperBound
 	 * @return
 	 */
@@ -440,7 +441,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE &#123;lowerBound TO *]}
-	 * 
+	 *
 	 * @param lowerBound
 	 * @return
 	 */
@@ -451,7 +452,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for {@code RANGE [lowerBound TO *]}
-	 * 
+	 *
 	 * @param lowerBound
 	 * @return
 	 */
@@ -462,7 +463,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for multiple values {@code (arg0 arg1 arg2 ...)}
-	 * 
+	 *
 	 * @param values
 	 * @return
 	 */
@@ -473,7 +474,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Crates new {@link Predicate} for multiple values {@code (arg0 arg1 arg2 ...)}
-	 * 
+	 *
 	 * @param values the collection containing the values to match against
 	 * @return
 	 */
@@ -491,22 +492,22 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates new {@link Predicate} for {@code !geodist}
-	 * 
+	 *
 	 * @param location {@link Point} in degrees
 	 * @param distance
 	 * @return
 	 */
-	public Criteria within(Point location, Distance distance) {
-		Assert.notNull(location);
+	public Criteria within(Point location, @Nullable Distance distance) {
+		Assert.notNull(location, "Location must not be null!");
 		assertPositiveDistanceValue(distance);
-		predicates.add(new Predicate(OperationKey.WITHIN, new Object[] { location,
-				distance != null ? distance : new Distance(0) }));
+		predicates.add(
+				new Predicate(OperationKey.WITHIN, new Object[] { location, distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
 	/**
 	 * Creates new {@link Predicate} for {@code !geodist}.
-	 * 
+	 *
 	 * @param circle
 	 * @return
 	 * @since 1.2
@@ -519,7 +520,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates new {@link Predicate} for {@code !bbox} with exact coordinates
-	 * 
+	 *
 	 * @param box
 	 * @return
 	 */
@@ -531,26 +532,26 @@ public class Criteria extends Node {
 	/**
 	 * Creates new {@link Predicate} for {@code !bbox} for a specified distance. The difference between this and
 	 * {@code within} is this is approximate while {@code within} is exact.
-	 * 
+	 *
 	 * @param location
 	 * @param distance
 	 * @return
 	 * @throws IllegalArgumentException if location is null
 	 * @throws InvalidDataAccessApiUsageException if distance is negative
 	 */
-	public Criteria near(Point location, Distance distance) {
+	public Criteria near(Point location, @Nullable Distance distance) {
 		Assert.notNull(location, "Location must not be 'null' for near criteria.");
 		assertPositiveDistanceValue(distance);
 
-		predicates.add(new Predicate(OperationKey.NEAR, new Object[] { location,
-				distance != null ? distance : new Distance(0) }));
+		predicates.add(
+				new Predicate(OperationKey.NEAR, new Object[] { location, distance != null ? distance : new Distance(0) }));
 		return this;
 	}
 
 	/**
 	 * Creates new {@link Predicate} for {@code !circle} for a specified distance. The difference between this and
 	 * {@link #within(Circle)} is this is approximate while {@code within} is exact.
-	 * 
+	 *
 	 * @param circle
 	 * @return
 	 * @since 1.2
@@ -563,7 +564,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Creates {@link Predicate} for given {@link Function}.
-	 * 
+	 *
 	 * @param function must not be null
 	 * @return
 	 * @throws IllegalArgumentException if function is null
@@ -577,9 +578,10 @@ public class Criteria extends Node {
 
 	/**
 	 * Target field
-	 * 
+	 *
 	 * @return null if not set
 	 */
+	@Nullable
 	public Field getField() {
 		return this.field;
 	}
@@ -593,7 +595,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Boost criteria value
-	 * 
+	 *
 	 * @return {@code Float.NaN} if not set
 	 */
 	public float getBoost() {
@@ -607,7 +609,7 @@ public class Criteria extends Node {
 		return Collections.unmodifiableSet(this.predicates);
 	}
 
-	private void assertPositiveDistanceValue(Distance distance) {
+	private void assertPositiveDistanceValue(@Nullable Distance distance) {
 		if (distance != null && distance.getValue() < 0) {
 			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
 		}
@@ -622,9 +624,9 @@ public class Criteria extends Node {
 
 	private void assertValuesPresent(Object... values) {
 		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
-			throw new InvalidDataAccessApiUsageException("At least one element "
-					+ (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
-					+ " has to be present.");
+			throw new InvalidDataAccessApiUsageException(
+					"At least one element " + (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
+							+ " has to be present.");
 		}
 	}
 
@@ -652,12 +654,12 @@ public class Criteria extends Node {
 
 	public enum OperationKey {
 		EQUALS("$equals"), CONTAINS("$contains"), STARTS_WITH("$startsWith"), ENDS_WITH("$endsWith"), EXPRESSION(
-				"$expression"), BETWEEN("$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy"), FUNCTION(
-				"$function");
+				"$expression"), BETWEEN(
+						"$between"), NEAR("$near"), WITHIN("$within"), FUZZY("$fuzzy"), SLOPPY("$sloppy"), FUNCTION("$function");
 
 		private final String key;
 
-		private OperationKey(String key) {
+		OperationKey(String key) {
 			this.key = key;
 		}
 
@@ -669,7 +671,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Single entry to be used when defining search criteria
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 * @author Francisco Spaeth
 	 */
@@ -690,13 +692,14 @@ public class Criteria extends Node {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public String getKey() {
 			return key;
 		}
 
 		/**
 		 * set the operation key to be applied when parsing query
-		 * 
+		 *
 		 * @param key
 		 */
 		public void setKey(String key) {
@@ -706,6 +709,7 @@ public class Criteria extends Node {
 		/**
 		 * @return null if not set
 		 */
+		@Nullable
 		public Object getValue() {
 			return value;
 		}
@@ -725,7 +729,7 @@ public class Criteria extends Node {
 
 	/**
 	 * Explicitly connect {@link Criteria} with another one allows to create explicit bracketing.
-	 * 
+	 *
 	 * @since 1.4
 	 * @return
 	 */

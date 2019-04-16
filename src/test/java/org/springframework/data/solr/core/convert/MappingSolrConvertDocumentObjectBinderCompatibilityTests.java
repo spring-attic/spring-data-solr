@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.data.solr.core.convert;
+
+import static org.junit.Assert.*;
 
 import java.io.StringReader;
 import java.util.Arrays;
@@ -26,7 +28,6 @@ import java.util.Map;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.XMLResponseParser;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
@@ -46,7 +47,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
  * Borrowed and modified from: <a href=
  * "https://svn.apache.org/repos/asf/lucene/dev/trunk/solr/solrj/src/test/org/apache/solr/client/solrj/beans/TestDocumentObjectBinder.java"
  * >org/apache/solr/client/solrj/beans/TestDocumentObjectBinder.java</a> <br />
- * 
+ *
  * @author Christoph Strobl
  */
 @RunWith(Parameterized.class)
@@ -58,7 +59,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		this.converter = converter;
 	}
 
-	@Parameters
+	@Parameters(name = "{0}")
 	public static Collection<Object[]> data() {
 		Object[][] data = new Object[][] { { new SolrJConverter() },
 				{ new MappingSolrConverter(new SimpleSolrMappingContext()) } };
@@ -74,8 +75,8 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 
 		SolrDocumentList solDocList = res.getResults();
 		List<Item> l = getBeans(solDocList);
-		Assert.assertEquals(solDocList.size(), l.size());
-		Assert.assertEquals(solDocList.get(0).getFieldValue("features"), l.get(0).features);
+		assertEquals(solDocList.size(), l.size());
+		assertEquals(solDocList.get(0).getFieldValue("features"), l.get(0).features);
 
 		Item item = new Item();
 		item.id = "aaa";
@@ -83,14 +84,14 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		SolrInputDocument out = new SolrInputDocument();
 		converter.write(item, out);
 
-		Assert.assertEquals(item.id, out.getFieldValue("id"));
+		assertEquals(item.id, out.getFieldValue("id"));
 		SolrInputField catfield = out.getField("cat");
-		Assert.assertEquals(3, catfield.getValueCount());
+		assertEquals(3, catfield.getValueCount());
 
 		List<String> catValues = (List<String>) catfield.getValue();
-		Assert.assertEquals("aaa", catValues.get(0));
-		Assert.assertEquals("bbb", catValues.get(1));
-		Assert.assertEquals("ccc", catValues.get(2));
+		assertEquals("aaa", catValues.get(0));
+		assertEquals("bbb", catValues.get(1));
+		assertEquals("ccc", catValues.get(2));
 	}
 
 	@Test
@@ -98,7 +99,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		SolrDocument d = new SolrDocument();
 		d.setField("cat", "hello");
 		Item item = converter.read(Item.class, d);
-		Assert.assertEquals("hello", item.categories[0]);
+		assertEquals("hello", item.categories[0]);
 	}
 
 	@Test
@@ -114,18 +115,19 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		Assert.assertArrayEquals(new String[] { "Mobile Store", "iPod Store", "CCTV Store" }, item.getAllSuppliers());
 		Assert.assertTrue(item.supplier.containsKey("supplier_1"));
 		Assert.assertTrue(item.supplier.containsKey("supplier_2"));
-		Assert.assertEquals(2, item.supplier.size());
+		assertEquals(2, item.supplier.size());
 
 		List<String> supplierOne = item.supplier.get("supplier_1");
-		Assert.assertEquals("Mobile Store", supplierOne.get(0));
-		Assert.assertEquals("iPod Store", supplierOne.get(1));
+		assertEquals("Mobile Store", supplierOne.get(0));
+		assertEquals("iPod Store", supplierOne.get(1));
 
 		List<String> supplierTwo = item.supplier.get("supplier_2");
-		Assert.assertEquals("CCTV Store", supplierTwo.get(0));
+		assertEquals("CCTV Store", supplierTwo.get(0));
 	}
 
-	@Test
+	@Test // DATASOLR-87, DATASOLR-309
 	public void testToAndFromSolrDocument() {
+
 		Item item = new Item();
 		item.id = "one";
 		item.inStock = false;
@@ -133,11 +135,11 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		item.features = Arrays.asList(item.categories);
 		List<String> supA = Arrays.asList("supA1", "supA2", "supA3");
 		List<String> supB = Arrays.asList("supB1", "supB2", "supB3");
-		item.supplier = new HashMap<String, List<String>>();
+		item.supplier = new HashMap<>();
 		item.supplier.put("supplier_supA", supA);
 		item.supplier.put("supplier_supB", supB);
 
-		item.supplier_simple = new HashMap<String, String>();
+		item.supplier_simple = new HashMap<>();
 		item.supplier_simple.put("sup_simple_supA", "supA_val");
 		item.supplier_simple.put("sup_simple_supB", "supB_val");
 
@@ -146,17 +148,17 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		converter.write(item, doc);
 
 		SolrDocumentList docs = new SolrDocumentList();
-		docs.add(ClientUtils.toSolrDocument(doc));
+		docs.add(toSolrDocument(doc));
 		Item out = converter.read(Item.class, docs.get(0));
 
 		// make sure it came out the same
-		Assert.assertEquals(item.id, out.id);
-		Assert.assertEquals(item.inStock, out.inStock);
-		Assert.assertEquals(item.categories.length, out.categories.length);
-		Assert.assertEquals(item.features, out.features);
-		Assert.assertEquals(supA, out.supplier.get("supplier_supA"));
-		Assert.assertEquals(supB, out.supplier.get("supplier_supB"));
-		Assert.assertEquals(item.supplier_simple.get("sup_simple_supB"), out.supplier_simple.get("sup_simple_supB"));
+		assertEquals(item.id, out.id);
+		assertEquals(item.inStock, out.inStock);
+		assertEquals(item.categories.length, out.categories.length);
+		assertEquals(item.features, out.features);
+		assertEquals(supA, out.supplier.get("supplier_supA"));
+		assertEquals(supB, out.supplier.get("supplier_supB"));
+		assertEquals(item.supplier_simple.get("sup_simple_supB"), out.supplier_simple.get("sup_simple_supB"));
 
 		// put back "out" as Bean, to see if both ways work as you would expect
 		// but the Field that "allSuppliers" need to be cleared, as it is just for
@@ -166,48 +168,159 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		converter.write(out, doc1);
 
 		SolrDocumentList docs1 = new SolrDocumentList();
-		docs1.add(ClientUtils.toSolrDocument(doc1));
+		docs1.add(toSolrDocument(doc1));
 		Item out1 = converter.read(Item.class, docs1.get(0));
 
-		Assert.assertEquals(item.id, out1.id);
-		Assert.assertEquals(item.inStock, out1.inStock);
-		Assert.assertEquals(item.categories.length, out1.categories.length);
-		Assert.assertEquals(item.features, out1.features);
+		assertEquals(item.id, out1.id);
+		assertEquals(item.inStock, out1.inStock);
+		assertEquals(item.categories.length, out1.categories.length);
+		assertEquals(item.features, out1.features);
 
-		Assert.assertEquals(item.supplier_simple.get("sup_simple_supB"), out1.supplier_simple.get("sup_simple_supB"));
+		assertEquals(item.supplier_simple.get("sup_simple_supB"), out1.supplier_simple.get("sup_simple_supB"));
 
-		Assert.assertEquals(supA, out1.supplier.get("supplier_supA"));
-		Assert.assertEquals(supB, out1.supplier.get("supplier_supB"));
+		assertEquals(supA, out1.supplier.get("supplier_supA"));
+		assertEquals(supB, out1.supplier.get("supplier_supB"));
 	}
 
 	private List<Item> getBeans(SolrDocumentList solDocList) {
 		return converter.read(solDocList, Item.class);
 	}
 
+	@Test // DATASOLR-394
+	public void testChild() throws Exception {
+
+		SingleValueChild in = new SingleValueChild();
+		in.id = "1";
+		in.child = new Child();
+		in.child.id = "1.0";
+		in.child.name = "Name One";
+
+		SolrInputDocument solrInputDoc = new SolrInputDocument();
+		new SolrJConverter().write(in, solrInputDoc);
+		SolrDocument solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(1, solrInputDoc.getChildDocuments().size());
+		assertEquals(1, solrDoc.getChildDocuments().size());
+
+		SingleValueChild out = converter.read(SingleValueChild.class, toSolrDocument(solrInputDoc));
+
+		assertEquals(in.id, out.id);
+		assertEquals(in.child.id, out.child.id);
+		assertEquals(in.child.name, out.child.name);
+
+		ListChild listIn = new ListChild();
+		listIn.id = "2";
+		Child child = new Child();
+		child.id = "1.1";
+		child.name = "Name Two";
+		listIn.child = Arrays.asList(in.child, child);
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(listIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(2, solrInputDoc.getChildDocuments().size());
+		assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ListChild listOut = converter.read(ListChild.class, toSolrDocument(solrInputDoc));
+
+		assertEquals(listIn.id, listOut.id);
+		assertEquals(listIn.child.get(0).id, listOut.child.get(0).id);
+		assertEquals(listIn.child.get(0).name, listOut.child.get(0).name);
+		assertEquals(listIn.child.get(1).id, listOut.child.get(1).id);
+		assertEquals(listIn.child.get(1).name, listOut.child.get(1).name);
+
+		ArrayChild arrIn = new ArrayChild();
+		arrIn.id = "3";
+		arrIn.child = new Child[] { in.child, child };
+
+		solrInputDoc = new SolrInputDocument();
+		converter.write(arrIn, solrInputDoc);
+
+		solrDoc = toSolrDocument(solrInputDoc);
+
+		assertEquals(2, solrInputDoc.getChildDocuments().size());
+		assertEquals(2, solrDoc.getChildDocuments().size());
+
+		ArrayChild arrOut = converter.read(ArrayChild.class, solrDoc);
+
+		assertEquals(arrIn.id, arrOut.id);
+		assertEquals(arrIn.child[0].id, arrOut.child[0].id);
+		assertEquals(arrIn.child[0].name, arrOut.child[0].name);
+		assertEquals(arrIn.child[1].id, arrOut.child[1].id);
+		assertEquals(arrIn.child[1].name, arrOut.child[1].name);
+
+	}
+
+	public static class Child {
+
+		@Field String id;
+
+		@Field String name;
+
+	}
+
+	public static class SingleValueChild {
+
+		@Field String id;
+
+		@Field(child = true) Child child;
+	}
+
+	public static class ListChild {
+
+		@Field String id;
+
+		@Field(child = true) List<Child> child;
+
+	}
+
+	public static class ArrayChild {
+
+		@Field String id;
+
+		@Field(child = true) Child[] child;
+	}
+
+	private static SolrDocument toSolrDocument(SolrInputDocument d) {
+
+		SolrDocument doc = new SolrDocument();
+		for (SolrInputField field : d) {
+			doc.setField(field.getName(), field.getValue());
+		}
+		if (d.getChildDocuments() != null) {
+			for (SolrInputDocument in : d.getChildDocuments()) {
+				doc.addChildDocument(toSolrDocument(in));
+			}
+		}
+		return doc;
+	}
+
 	public static class Item {
 		@Field String id;
 
-		@Field("cat")//
+		@Field("cat") //
 		String[] categories;
 
-		@Field//
+		@Field //
 		List<String> features;
 
-		@Field//
+		@Field //
 		Date timestamp;
 
-		@Field("highway_mileage")//
+		@Field("highway_mileage") //
 		int mwyMileage;
 
 		boolean inStock;
 
-		@Field("supplier_*")//
+		@Field("supplier_*") //
 		Map<String, List<String>> supplier;
 
-		@Field("sup_simple_*")//
+		@Field("sup_simple_*") //
 		Map<String, String> supplier_simple;
 
-		@Indexed(readonly = true)//
+		@Indexed(readonly = true) //
 		private String[] allSuppliers;
 
 		@Field("supplier_*")
@@ -231,10 +344,10 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 	}
 
 	public static class NotGettableItem {
-		@Field//
+		@Field //
 		String id;
 
-		@SuppressWarnings("unused")//
+		@SuppressWarnings("unused") //
 		private boolean inStock;
 
 		private String aaa;
@@ -254,8 +367,7 @@ public class MappingSolrConvertDocumentObjectBinderCompatibilityTests {
 		}
 	}
 
-	public static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-			+ "<response>"
+	public static final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<response>"
 			+ "<lst name=\"responseHeader\"><int name=\"status\">0</int><int name=\"QTime\">0</int><lst name=\"params\"><str name=\"start\">0</str><str name=\"q\">*:*\n"
 			+ "</str><str name=\"version\">2.2</str><str name=\"rows\">4</str></lst></lst><result name=\"response\" numFound=\"26\" start=\"0\"><doc><arr name=\"cat\">"
 			+ "<str>electronics</str><str>hard drive</str></arr><arr name=\"features\"><str>7200RPM, 8MB cache, IDE Ultra ATA-133</str>"

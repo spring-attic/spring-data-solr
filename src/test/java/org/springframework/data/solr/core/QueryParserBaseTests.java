@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,9 +61,10 @@ public class QueryParserBaseTests {
 
 	@Before
 	public void setUp() {
-		parser = new QueryParserBase<SolrDataQuery>() {
+
+		parser = new QueryParserBase<SolrDataQuery>(null) {
 			@Override
-			public SolrQuery doConstructSolrQuery(SolrDataQuery query) {
+			public SolrQuery doConstructSolrQuery(SolrDataQuery query, Class<?> domainType) {
 				return null;
 			}
 		};
@@ -133,103 +134,100 @@ public class QueryParserBaseTests {
 			}
 
 			@Override
-			protected Object doProcess(Predicate predicate, Field field) {
+			protected Object doProcess(Predicate predicate, Field field, Class<?> domainType) {
 				return "X";
 			}
 		};
 
-		Assert.assertNull(processor.process(null, null));
-		Assert.assertNull(processor.process(new Predicate("some key", null), null));
-		Assert.assertEquals("X", processor.process(new Predicate("some key", SOME_VALUE), null));
+		Assert.assertNull(processor.process(null, null, null));
+		Assert.assertNull(processor.process(new Predicate("some key", null), null, null));
+		Assert.assertEquals("X", processor.process(new Predicate("some key", SOME_VALUE), null, null));
 	}
 
 	@Test
 	public void testFunctionFragmemtAppendsMultipleArgumentsCorrectly() {
 		Foo function = new Foo(Arrays.asList("one", "two"));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(one,two)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(one,two)"));
 	}
 
 	@Test
 	public void testFunctionFragmemtAppendsSingleArgumentCorrectly() {
-		Foo function = new Foo(Arrays.asList("one"));
+		Foo function = new Foo(Collections.singletonList("one"));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(one)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(one)"));
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresNullArguments() {
 		Foo function = new Foo(null);
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo()"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresEmptyArguments() {
 		Foo function = new Foo(Collections.emptyList());
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo()"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmemtThrowsExceptionOnNullInArguments() {
-		List<Object> args = new ArrayList<Object>(1);
+		List<Object> args = new ArrayList<>(1);
 		args.add(null);
 
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Unable to parse 'null' within function arguments.");
-		parser.createFunctionFragment(new Foo(args), 0);
+		parser.createFunctionFragment(new Foo(args), 0, null);
 	}
 
 	@Test
 	public void testCreateFunctionFragementsWihtNetsedFunction() {
-		Foo function = new Foo(Arrays.asList(new Bar(Arrays.asList("nested"))));
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(bar(nested))"));
+		Foo function = new Foo(Collections.singletonList(new Bar(Collections.singletonList("nested"))));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(bar(nested))"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsPointProperty() {
-		Foo function = new Foo(Arrays.asList(new Point(37.767624D, -122.48526D)));
+		Foo function = new Foo(Collections.singletonList(new Point(37.767624D, -122.48526D)));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(37.767624,-122.48526)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(37.767624,-122.48526)"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsDistanceProperty() {
-		Foo function = new Foo(Arrays.asList(new Distance(5, Metrics.KILOMETERS)));
+		Foo function = new Foo(Collections.singletonList(new Distance(5, Metrics.KILOMETERS)));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(5.0)"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(5.0)"));
 	}
 
 	@Test
 	public void testCreateFunctionFragmentUsesToStringForUnknowObject() {
-		Foo function = new Foo(Arrays.asList(new FooBar()));
+		Foo function = new Foo(Collections.singletonList(new FooBar()));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0), Is.is("{!func}foo(FooBar [])"));
+		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(FooBar [])"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresBlankAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(" ", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("{!func}foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresNullAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(null, new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("{!func}foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("{!func}foo()"));
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentPrependsAliasCorrectly() {
 		SimpleCalculatedField ff = new SimpleCalculatedField("alias", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff), Is.is("alias:{!func}foo()"));
+		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("alias:{!func}foo()"));
 	}
 
-	/**
-	 * @see DATASOLR-121
-	 */
-	@Test
+	@Test // DATASOLR-121
 	public void testNamedObjectsGroupQuery() {
 		List<Function> functionList = Arrays.asList(Mockito.mock(Function.class), Mockito.mock(Function.class));
 		List<Query> queriesList = Arrays.asList(Mockito.mock(Query.class), Mockito.mock(Query.class));

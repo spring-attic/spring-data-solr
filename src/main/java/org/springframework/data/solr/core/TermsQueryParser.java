@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,25 +17,39 @@ package org.springframework.data.solr.core;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.CommonParams;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
+import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.TermsOptions;
 import org.springframework.data.solr.core.query.TermsQuery;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
  * TermsQueryParser is capable of building {@link SolrQuery} for {@link TermsQuery}
- * 
+ *
  * @author Christoph Strobl
  */
 public class TermsQueryParser extends QueryParserBase<TermsQuery> {
 
+	/**
+	 *
+	 * @param mappingContext
+	 * @since 4.0
+	 */
+	public TermsQueryParser(
+			@Nullable MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
+		super(mappingContext);
+	}
+
 	@Override
-	public SolrQuery doConstructSolrQuery(TermsQuery query) {
+	public SolrQuery doConstructSolrQuery(TermsQuery query, @Nullable Class<?> domainType) {
 		Assert.notNull(query, "Cannot construct solrQuery from null value.");
 
 		SolrQuery solrQuery = new SolrQuery();
-		String queryString = getQueryString(query);
+		String queryString = getQueryString(query, domainType);
 		if (StringUtils.hasText(queryString)) {
 			solrQuery.setParam(CommonParams.Q, queryString);
 		}
@@ -90,7 +104,7 @@ public class TermsQueryParser extends QueryParserBase<TermsQuery> {
 	}
 
 	protected void appendTermsFieldToSolrQuery(Field field, SolrQuery solrQuery) {
-		if (field != null && StringUtils.hasText(field.getName())) {
+		if (StringUtils.hasText(field.getName())) {
 			solrQuery.addTermsField(field.getName());
 		}
 	}

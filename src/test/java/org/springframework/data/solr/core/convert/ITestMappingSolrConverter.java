@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,39 +15,47 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.collection.IsIterableWithSize.*;
+import static org.hamcrest.core.IsEqual.*;
+import static org.junit.Assert.*;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.beans.Field;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.geo.Point;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.core.mapping.ChildDocument;
 import org.springframework.data.solr.core.mapping.Dynamic;
 import org.springframework.data.solr.core.mapping.Indexed;
+import org.springframework.data.solr.core.mapping.Score;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.data.solr.core.query.Query;
+import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.ScoredPage;
-import org.springframework.data.solr.repository.Score;
 import org.xml.sax.SAXException;
 
 /**
@@ -63,20 +71,17 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 	@Before
 	public void setUp() throws IOException, ParserConfigurationException, SAXException {
-		solrTemplate = new SolrTemplate(solrClient, null);
+		solrTemplate = new SolrTemplate(server);
 		solrTemplate.afterPropertiesSet();
 	}
 
 	@After
 	public void tearDown() {
-		solrTemplate.delete(ALL_DOCUMENTS_QUERY);
-		solrTemplate.commit();
+		solrTemplate.delete(COLLECTION_NAME, ALL_DOCUMENTS_QUERY);
+		solrTemplate.commit(COLLECTION_NAME);
 	}
 
-	/**
-	 * @see DATASOLR-142
-	 */
-	@Test
+	@Test // DATASOLR-142
 	public void convertsPointCorrectly() {
 		BeanWithPoint bean = new BeanWithPoint();
 		bean.id = DEFAULT_BEAN_ID;
@@ -146,152 +151,250 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		Query query = new SimpleQuery(new Criteria("enumProperty_s").is(LiteralNumberEnum.TWO));
 
-		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(query, BeanWithEnum.class);
+		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(COLLECTION_NAME, query, BeanWithEnum.class).get();
 		assertEquals(bean.id, loadedViaProperty.id);
 		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
 	}
 
-	/**
-	 * @see DATASOLR-210
-	 */
-	@Test
+	@Test // DATASOLR-210, DATASOLR-309
 	public void testProcessesScoreCorrectly() {
 
-		Collection<BeanWithScore> beans = new ArrayList<BeanWithScore>();
+		Collection<BeanWithScore> beans = new ArrayList<>();
 		beans.add(new BeanWithScore("1", "spring"));
 		beans.add(new BeanWithScore("2", "spring data solr"));
 		beans.add(new BeanWithScore("3", "apache solr"));
 		beans.add(new BeanWithScore("4", "apache lucene"));
 
-		solrTemplate.saveBeans(beans);
-		solrTemplate.commit();
+		solrTemplate.saveBeans(COLLECTION_NAME, beans);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		ScoredPage<BeanWithScore> page = solrTemplate.queryForPage(new SimpleQuery("description:spring solr"),
-				BeanWithScore.class);
+		ScoredPage<BeanWithScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
+				new SimpleQuery("description:spring solr"), BeanWithScore.class);
 
 		List<BeanWithScore> content = page.getContent();
 		assertEquals(3, page.getTotalElements());
-		assertEquals(Float.valueOf(0.9105287f), content.get(0).score);
+
+		assertNotNull(content.get(0).score);
 		assertEquals("spring data solr", content.get(0).description);
-		assertEquals(Float.valueOf(0.45526436f), content.get(1).score);
+		assertNotNull(content.get(1).score);
 		assertEquals("spring", content.get(1).description);
-		assertEquals(Float.valueOf(0.28454024f), content.get(2).score);
+		assertNotNull(content.get(2).score);
 		assertEquals("apache solr", content.get(2).description);
 	}
 
-	/**
-	 * @see DATASOLR-202
-	 */
-	@Test
+	@Test // DATASOLR-471
+	public void testProcessesDeprecatedScoreCorrectly() {
+
+		Collection<BeanWithDeprecatedScore> beans = new ArrayList<>();
+		beans.add(new BeanWithDeprecatedScore("1", "spring"));
+		beans.add(new BeanWithDeprecatedScore("2", "spring data solr"));
+		beans.add(new BeanWithDeprecatedScore("3", "apache solr"));
+		beans.add(new BeanWithDeprecatedScore("4", "apache lucene"));
+
+		solrTemplate.saveBeans(COLLECTION_NAME, beans);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		ScoredPage<BeanWithDeprecatedScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
+				new SimpleQuery("description:spring solr"), BeanWithDeprecatedScore.class);
+
+		List<BeanWithDeprecatedScore> content = page.getContent();
+		assertEquals(3, page.getTotalElements());
+
+		assertNotNull(content.get(0).score);
+		assertEquals("spring data solr", content.get(0).description);
+		assertNotNull(content.get(1).score);
+		assertEquals("spring", content.get(1).description);
+		assertNotNull(content.get(2).score);
+		assertEquals("apache solr", content.get(2).description);
+	}
+
+	@Test // DATASOLR-202
 	public void testDynamicMap() {
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("key_1", "value 1");
 		map.put("key_2", "value 2");
 		BeanWithDynamicMap bean = new BeanWithDynamicMap("bean-id", map);
 
-		solrTemplate.saveBean(bean);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, bean);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		BeanWithDynamicMap loaded = solrTemplate.getById("bean-id", BeanWithDynamicMap.class);
-		Assert.assertEquals("value 1", loaded.values.get("key_1"));
-		Assert.assertEquals("value 2", loaded.values.get("key_2"));
+		BeanWithDynamicMap loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMap.class).get();
+		assertEquals("value 1", loaded.values.get("key_1"));
+		assertEquals("value 2", loaded.values.get("key_2"));
 
+	}
+
+	@Test // DATASOLR-308
+	public void testDynamicMapList() {
+
+		Map<String, List<String>> map = new HashMap<>();
+		map.put("key_1", Arrays.asList("value 11", "value 12"));
+		map.put("key_2", Arrays.asList("value 21", "value 22"));
+		BeanWithDynamicMapList bean = new BeanWithDynamicMapList("bean-id", map);
+
+		solrTemplate.saveBean(COLLECTION_NAME, bean);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		BeanWithDynamicMapList loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMapList.class)
+				.get();
+		assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
+		assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
+
+	}
+
+	@Test // DATASOLR-394
+	public void writeAndReadDocumentWithNestedChildObjectsCorrectly() throws IOException, SolrServerException {
+
+		Book theWayOfKings = new Book();
+		theWayOfKings.id = "book1";
+		theWayOfKings.type = "book";
+		theWayOfKings.title = "The Way of Kings";
+		theWayOfKings.author = "Brandon Sanderson";
+		theWayOfKings.category = "fantasy";
+		theWayOfKings.publicationYear = 2010;
+		theWayOfKings.publisher = "Tor";
+		theWayOfKings.reviews = new ArrayList<>();
+
+		BookReview review1 = new BookReview();
+		review1.id = "review1";
+		review1.type = "review";
+		review1.author = "yonik";
+		review1.date = new Date();
+		review1.stars = 5;
+		review1.comment = "A great start to what looks like an epic series!";
+		theWayOfKings.reviews.add(review1);
+
+		BookReview review2 = new BookReview();
+		review2.id = "review2";
+		review2.type = "review";
+		review2.author = "dan";
+		review2.date = new Date();
+		review2.stars = 3;
+		review2.comment = "This book was too long.";
+		theWayOfKings.reviews.add(review2);
+
+		solrTemplate.saveBean(COLLECTION_NAME, theWayOfKings);
+		solrTemplate.commit(COLLECTION_NAME);
+
+		assertThat(solrTemplate.getSolrClient().query(new SolrQuery("*:*")).getResults(), iterableWithSize(3));
+
+		Query query = new SimpleQuery();
+		query.addCriteria(Criteria.where("id").is(theWayOfKings.id));
+		query.addProjectionOnField(new SimpleField("*"));
+		query.addProjectionOnField(new SimpleField("[child parentFilter=type_s:book]"));
+
+		Optional<Book> result = solrTemplate.queryForObject(COLLECTION_NAME, query, Book.class);
+		assertThat(result.orElse(null), equalTo(theWayOfKings));
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T saveAndLoad(T o) {
-		solrTemplate.saveBean(o);
-		solrTemplate.commit();
+		solrTemplate.saveBean(COLLECTION_NAME, o);
+		solrTemplate.commit(COLLECTION_NAME);
 
-		return (T) solrTemplate.queryForObject(DEFAULT_BEAN_OBJECT_QUERY, o.getClass());
+		return (T) solrTemplate.queryForObject(COLLECTION_NAME, DEFAULT_BEAN_OBJECT_QUERY, o.getClass()).orElse(null);
 	}
 
 	private static class BeanWithPoint {
 
-		@Id//
+		@Id //
 		@Field private String id;
 
-		@Field("store")//
+		@Field("store") //
 		private Point location;
 
 	}
 
 	private static class BeanWithJodaDateTime {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("manufacturedate_dt")//
+		@Field("manufacturedate_dt") //
 		private DateTime manufactured;
 
 	}
 
 	private static class BeanWithJodaLocalDateTime {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("manufacturedate_dt")//
+		@Field("manufacturedate_dt") //
 		private LocalDateTime manufactured;
 
 	}
 
 	private static class BeanWithList {
 
-		@Id//
-		@Field//
+		@Id //
+		@Field //
 		private String id;
 
-		@Field("cat")//
+		@Field("cat") //
 		private List<String> categories;
 
 	}
 
 	private static class BeanBaseClass {
 
-		@Id @Field//
+		@Id @Field //
 		protected String id;
 
 	}
 
 	private static class BeanWithBaseClass extends BeanBaseClass {
 
-		@Field("name")//
+		@Field("name") //
 		private String name;
 
 	}
 
 	private enum LiteralNumberEnum {
-		ONE, TWO, THREE;
+		ONE, TWO, THREE
 	}
 
 	private static class BeanWithEnum {
 
-		@Id @Field//
+		@Id @Field //
 		private String id;
 
-		@Field("enumProperty_s")//
+		@Field("enumProperty_s") //
 		private LiteralNumberEnum enumProperty;
 
 	}
 
 	private static class BeanWithScore {
-		@Id @Field//
+
+		@Id @Field //
 		private String id;
 
-		@Indexed(type = "text")//
+		@Indexed(type = "text") //
 		private String description;
 
-		@Score//
+		@Score //
 		private Float score;
 
 		public BeanWithScore(String id, String description) {
 			this.id = id;
 			this.description = description;
 		}
+	}
+
+	@RequiredArgsConstructor
+	private static class BeanWithDeprecatedScore {
+
+		@Id @Field //
+		private final String id;
+
+		@Indexed(type = "text") //
+		private final String description;
+
+		@org.springframework.data.solr.repository.Score //
+		private Float score;
 
 	}
 
@@ -306,6 +409,44 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 			this.values = values;
 		}
 
+	}
+
+	private static class BeanWithDynamicMapList {
+
+		@Id @Field private String id;
+
+		@Dynamic @Field("*_ss") private Map<String, List<String>> values;
+
+		public BeanWithDynamicMapList(String id, Map<String, List<String>> values) {
+			this.id = id;
+			this.values = values;
+		}
+
+	}
+
+	@Data
+	static class Book {
+
+		@Id String id;
+		@Indexed("type_s") String type;
+		@Indexed("title_t") String title;
+		@Indexed("author_s") String author;
+		@Indexed("cat_s") String category;
+		@Indexed("pubyear_i") int publicationYear;
+		@Indexed("publisher_s") String publisher;
+
+		@ChildDocument List<BookReview> reviews;
+	}
+
+	@Data
+	static class BookReview {
+
+		String id;
+		@Indexed("type_s") String type;
+		@Indexed("review_dt") Date date;
+		@Indexed("stars_i") int stars;
+		@Indexed("author_s") String author;
+		@Indexed("comment_t") String comment;
 	}
 
 }

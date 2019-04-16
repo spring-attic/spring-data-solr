@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,29 +21,30 @@ import java.util.List;
 
 import org.springframework.data.solr.core.query.Field;
 import org.springframework.data.solr.core.query.SimpleField;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Highlight result entry holding reference to domain object ({@link #getEntity()) as well as the highlights
- * 
+ *
  * @author Christoph Strobl
  */
 public class HighlightEntry<T> {
 
 	private final T entity;
-	private final List<Highlight> highlights = new ArrayList<Highlight>(1);
+	private final List<Highlight> highlights = new ArrayList<>(1);
 
 	/**
 	 * @param entity must not be null
 	 */
 	public HighlightEntry(T entity) {
-		Assert.notNull(entity);
+		Assert.notNull(entity, "Entity must not be null!");
 		this.entity = entity;
 	}
 
 	/**
 	 * Get the entity the highlights are associated to
-	 * 
+	 *
 	 * @return
 	 */
 	public T getEntity() {
@@ -75,7 +76,7 @@ public class HighlightEntry<T> {
 
 	/**
 	 * Highlight holds reference to the field highlighting was applied to, as well as the snipplets
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 */
 	public static class Highlight {
@@ -87,11 +88,11 @@ public class HighlightEntry<T> {
 		 * @param field must not be null
 		 * @param snipplets
 		 */
-		Highlight(Field field, List<String> snipplets) {
-			Assert.notNull(field);
+		Highlight(Field field, @Nullable List<String> snipplets) {
+			Assert.notNull(field, "Field must not be null!");
 
 			this.field = field;
-			this.snipplets = snipplets;
+			this.snipplets = snipplets != null ? snipplets : Collections.emptyList();
 		}
 
 		Highlight(String fieldname, List<String> snipplets) {
@@ -109,7 +110,7 @@ public class HighlightEntry<T> {
 		 * @return empty list none available
 		 */
 		public List<String> getSnipplets() {
-			return this.snipplets != null ? this.snipplets : Collections.<String> emptyList();
+			return this.snipplets;
 		}
 
 	}

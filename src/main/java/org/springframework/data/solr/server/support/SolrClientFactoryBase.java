@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,21 @@
 package org.springframework.data.solr.server.support;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.data.solr.VersionUtil;
 import org.springframework.data.solr.server.SolrClientFactory;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 /**
  * {@link SolrClientFactoryBase} replaces SolrServerFactoryBase from version 1.x.
- * 
+ *
  * @author Christoph Strobl
  * @since 2.0
  */
 abstract class SolrClientFactoryBase implements SolrClientFactory, DisposableBean {
 
-	private SolrClient solrClient;
+	private @Nullable SolrClient solrClient;
 
 	public SolrClientFactoryBase() {
 
@@ -47,6 +46,9 @@ abstract class SolrClientFactoryBase implements SolrClientFactory, DisposableBea
 
 	@Override
 	public SolrClient getSolrClient() {
+
+		Assert.state(solrClient != null, "SolrClient has not been initialized.");
+
 		return this.solrClient;
 	}
 
@@ -63,17 +65,7 @@ abstract class SolrClientFactoryBase implements SolrClientFactory, DisposableBea
 	 * @param client
 	 */
 	protected void destroy(SolrClient client) {
-		if (client instanceof HttpSolrClient) {
-			((HttpSolrClient) client).shutdown();
-		} else if (client instanceof LBHttpSolrClient) {
-			((LBHttpSolrClient) client).shutdown();
-		} else {
-			if (VersionUtil.isSolr4XAvailable()) {
-				if (client instanceof CloudSolrClient) {
-					((CloudSolrClient) client).shutdown();
-				}
-			}
-		}
+		SolrClientUtils.close(client);
 	}
 
 }

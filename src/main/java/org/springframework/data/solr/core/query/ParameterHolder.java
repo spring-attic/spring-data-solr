@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,19 +21,21 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Generic holder of additional parameters that can be added to a query. eg. per field overrides. <br />
  * The order in which elements are added will be preserved.
- * 
+ *
  * @author Christoph Strobl
  */
 class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 
-	private final Map<String, T> parameters = new LinkedHashMap<String, T>(1);
+	private final Map<String, T> parameters = new LinkedHashMap<>(1);
 
 	@SuppressWarnings("unchecked")
+	@Nullable
 	public <S> S getParameterValue(String parameterName) {
 		T parameter = this.parameters.get(parameterName);
 		if (parameter == null) {
@@ -44,11 +46,11 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 
 	/**
 	 * add a query parameter
-	 * 
+	 *
 	 * @param queryParameter must not be null
 	 */
 	public void add(T queryParameter) {
-		Assert.notNull(queryParameter);
+		Assert.notNull(queryParameter, "QueryParameter must not be null!");
 		this.parameters.put(queryParameter.getName(), queryParameter);
 	}
 
@@ -56,13 +58,14 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 	 * @param parameterName
 	 * @return null if not found
 	 */
+	@Nullable
 	public T get(String parameterName) {
 		return this.parameters.get(parameterName);
 	}
 
 	/**
 	 * remove parameter with given name
-	 * 
+	 *
 	 * @param parameterName
 	 */
 	public T remove(String parameterName) {

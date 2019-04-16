@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -30,7 +31,7 @@ public class SimpleCalculatedField implements CalculatedField {
 		this(null, function);
 	}
 
-	public SimpleCalculatedField(String alias, Function function) {
+	public SimpleCalculatedField(@Nullable String alias, Function function) {
 		Assert.notNull(function, "Function cannot be empty.");
 
 		this.alias = alias;

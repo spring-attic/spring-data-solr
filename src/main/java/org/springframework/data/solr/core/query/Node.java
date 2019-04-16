@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import java.util.Collections;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -28,14 +29,14 @@ import org.springframework.data.geo.Point;
  */
 public abstract class Node {
 
-	private Node parent;
+	private @Nullable Node parent;
 	private boolean isOr = false;
 	private boolean negating = false;
 
 	protected Node() {}
 
 	// ------- TREE ---------
-	protected void setParent(Node parent) {
+	protected void setParent(@Nullable Node parent) {
 		this.parent = parent;
 	}
 
@@ -67,6 +68,7 @@ public abstract class Node {
 	 * 
 	 * @return null in case no parent set.
 	 */
+	@Nullable
 	public Node getParent() {
 		return this.parent;
 	}
@@ -113,7 +115,6 @@ public abstract class Node {
 	/**
 	 * Combine node with new {@link Node} for given {@literal fieldname} using {@literal and}.
 	 * 
-	 * @param part
 	 * @return
 	 */
 	public abstract <T extends Node> T and(String fieldname);
@@ -129,7 +130,6 @@ public abstract class Node {
 	/**
 	 * Combine node with new {@link Node} for given {@literal fieldname} using {@literal and}.
 	 * 
-	 * @param part
 	 * @return
 	 */
 	public abstract <T extends Node> T or(String fieldname);

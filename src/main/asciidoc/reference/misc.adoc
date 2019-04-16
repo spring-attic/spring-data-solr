@@ -3,6 +3,26 @@
 
 This chapter covers additional support for Solr operations (such as faceting) that cannot be directly accessed via the repository interface. It is recommended to add those operations as custom implementation as described in <<repositories.custom-implementations>> .
 
+[[solr.misc.collection-name]]
+== Collection / Core Name
+
+Using the `@SolrDocument` annotation it is possible to customize the used collection name by either giving it a
+static value or use https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions[SpEL]
+for dynamic evaluation.
+
+====
+[source,java]
+----
+@SolrDocument(collection = "techproducts")
+class StaticCollectionName { ... }
+
+@SolrDocument(collection = "#{@someBean.getCollectionName()}")
+class DynamicCollectionName { ... }
+----
+====
+
+NOTE: The the type annotated with `@SolrDocument` is available via the `targetType` variable within the expression.
+
 [[solr.misc.partialUpdates]]
 == Partial Updates
 
@@ -13,7 +33,7 @@ PartialUpdates can be done using `PartialUpdate` which implements `Update`.
 ----
 PartialUpdate update = new PartialUpdate("id", "123");
 update.add("name", "updated-name");
-solrTemplate.saveBean(update);
+solrTemplate.saveBean("collection-1", update);
 ----
 ====
 
@@ -33,18 +53,22 @@ List<ProductBean> findByNameStartingWith(String name);
 [[solr.misc.faceting]]
 == Faceting
 
-Faceting cannot be directly applied using the `SolrRepository` but the `SolrTemplate` holds support for this feature.
+Faceting cannot be directly applied by using the `SolrRepository`, but the `SolrTemplate` has support for this feature. The following example shows a facet query:
 
 ====
 [source,java]
 ----
 FacetQuery query = new SimpleFacetQuery(new Criteria(Criteria.WILDCARD).expression(Criteria.WILDCARD))
   .setFacetOptions(new FacetOptions().addFacetOnField("name").setFacetLimit(5));
-FacetPage<Product> page = solrTemplate.queryForFacetPage(query, Product.class);
+FacetPage<Product> page = solrTemplate.queryForFacetPage("collection-1", query, Product.class);
 ----
 ====
 
-Facets on fields and/or queries can also be defined using `@Facet` . Please mind that the result will be a `FacetPage` . NOTE: Using `@Facet` allows you to define place holders which will use your input parameter as value.
+Facets on fields or queries can also be defined by using `@Facet`. Keep in mind that the result is a `FacetPage`.
+
+NOTE: Using `@Facet` lets you define place holders that use your input parameter as a value.
+
+The following example uses the `@Facet` annotation to define a facet query:
 
 ====
 [source,java]
@@ -55,6 +79,8 @@ FacetPage<Product> findAllFacetOnName(Pageable page);
 ----
 ====
 
+The following example shows another facet query, with a prefix:
+
 ====
 [source,java]
 ----
@@ -64,21 +90,21 @@ FacetPage<Product> findByPopularityFacetOnName(int popularity, String prefix, Pa
 ----
 ====
 
-Solr allows definition of facet parameters on a per field basis. In order to add special facet options to defined fields use `FieldWithFacetParameters`.
+Solr allows definition of facet parameters on a per field basis. In order to add special facet options to defined fields, use `FieldWithFacetParameters`, as the following example shows:
 
 ====
 [source,java]
 ----
 // produces: f.name.facet.prefix=spring
 FacetOptions options = new FacetOptions();
-options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring"));			
+options.addFacetOnField(new FieldWithFacetParameters("name").setPrefix("spring"));
 ----
 ====
 
 [[solr.misc.faceting.range]]
 === Range Faceting
 
-Range faceting queries may be done by configure required ranges on `FacetOptions`. A simple way to request ranges would be by creating a `FacetOption`, setting this options to a `FacetQuery` and query for a facet page through `SolrTemplate` as follows.  
+You can create range faceting queries by configuring required ranges on `FacetOptions`. You can request ranges by creating a `FacetOptions` instance, setting the options to a `FacetQuery`, and querying for a facet page through `SolrTemplate`, as follows.
 
 ====
 [source,java]
@@ -98,25 +124,25 @@ facetOptions.setFacetMinCount(0);
 
 Criteria criteria = new SimpleStringCriteria("*:*");
 SimpleFacetQuery facetQuery = new SimpleFacetQuery(criteria).setFacetOptions(facetOptions);
-FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage(facetQuery, ExampleSolrBean.class);
+FacetPage<ExampleSolrBean> statResultPage = solrTemplate.queryForFacetPage("collection-1", facetQuery, ExampleSolrBean.class);
 ----
-==== 
+====
 
 There are two implementations of fields for facet range requests:
 
-* Numeric Facet Range - used to perform range faceting over numeric fields. To request such range faceting an instance of the class `org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters` can be used. Its instantiation requires a field name, a start value (number), end value (number) and gap (number);
-* Date Facet Range - used to perform range faceting over date fields. To request such range faceting an instance of the class `org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters` can be used. Its instantiation requires a field name, a start value (date), end value (date) and gap (string). The gap for this kind of field can be defined using `org.apache.solr.util.DateMathParser` (i.e. `+6MONTHS+3DAYS/DAY`, that would mean 6 months and 3 days in the future from now, rounded down to nearest day).
+* Numeric Facet Range: Used to perform range faceting over numeric fields. To request range faceting, you can use an instance of the `org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters` class. Its instantiation requires a field name, a start value (number), an end value (number), and a gap (number);
+* Date Facet Range: Used to perform range faceting over date fields. To request range faceting, you can use an instance of the `org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters` class. Its instantiation requires a field name, a start value (date), an end value (date), and a gap (string). You can define the gap for this kind of field by using `org.apache.solr.util.DateMathParser` (for example, `+6MONTHS+3DAYS/DAY` means six months and three days in the future, rounded down to the nearest day).
 
-Additionally the following properties can be configured for a field with range parameters (org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters):
+Additionally, the following properties can be configured for a field with range parameters (`org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters`):
 
-* Hard End - `setHardEnd(Boolean)`, defines if the last range should be abruptly ended even if the end doesn't satisfies: `(start - end) % gap = 0`;
-* Include - `setInclude(org.apache.solr.common.params.FacetParams.FacetRangeInclude)`, defines how boundaries (lower and upper) shall be handled (exclusive or inclusive) on range facet requests;
-* Other - `setOther(org.apache.solr.common.params.FacetParams.FacetRangeOther)`, defines the additional (other) counts for the range facet, i.e. count of documents that are before start of the range facet, end of range facet or even between start and end. 
+* Hard End: `setHardEnd(Boolean)` defines whether the last range should be abruptly ended even if the end does not satisfy `(start - end) % gap = 0`.
+* Include: `setInclude(org.apache.solr.common.params.FacetParams.FacetRangeInclude)` defines how boundaries (lower and upper) should be handled (exclusive or inclusive) on range facet requests.
+* Other: `setOther(org.apache.solr.common.params.FacetParams.FacetRangeOther)` defines the additional (other) counts for the range facet (such as count of documents that are before the start of the range facet, after the end of the range facet, or even between the start and the end).
 
 [[solr.misc.faceting.pivot]]
 === Pivot Faceting
 
-Pivot faceting (Decision Tree) are also supported, and can be queried using `@Facet` annotation as follows: 
+Pivot faceting (decision tree) is also supported and can be queried by using `@Facet` annotation, as follows:
 
 ====
 [source,java]
@@ -133,7 +159,7 @@ public interface {
 ----
 ====
 
-Alternatively it can be queried using `SolrTemplate` as follows:
+Alternatively, it can be queried by using `SolrTemplate`, as follows:
 
 ====
 [source,java]
@@ -143,11 +169,11 @@ FacetOptions facetOptions = new FacetOptions();
 facetOptions.setFacetMinCount(0);
 facetOptions.addFacetOnPivot("category","dimension");
 facetQuery.setFacetOptions(facetOptions);
-FacetPage<Product> facetResult = solrTemplate.queryForFacetPage(facetQuery, Product.class);
+FacetPage<Product> facetResult = solrTemplate.queryForFacetPage("collection-1", facetQuery, Product.class);
 ----
-==== 
+====
 
-In order to retrieve the pivot results the method `getPivot` can be used as follows:
+In order to retrieve the pivot results, use the `getPivot` method, as follows:
 
 ====
 [source,java]
@@ -159,20 +185,22 @@ List<FacetPivotFieldEntry> pivot = facetResult.getPivot(new SimplePivotField("ca
 [[solr.misc.terms]]
 == Terms
 
-Terms Vector cannot directly be used within `SolrRepository` but can be applied via `SolrTemplate`. Please mind, that the result will be a `TermsPage`.
+A terms vector cannot directly be used within `SolrRepository` but can be applied through `SolrTemplate`. Keep in mind that the result is a `TermsPage`. The following example shows how to create a terms query:
 
 ====
 [source,java]
 ----
 TermsQuery query = SimpleTermsQuery.queryBuilder().fields("name").build();
-TermsPage page = solrTemplate.queryForTermsPage(query);		
+TermsPage page = solrTemplate.queryForTermsPage("collection-1", query);
 ----
 ====
 
 [[solr.misc.group]]
-== Result Grouping / Field Collapsing
+== Result Grouping and Field Collapsing
 
-Result grouping cannot directly be used within `SolrRepository` but can be applied via `SolrTemplate`. Please mind, that the result will be a `GroupPage`.
+// TODO This topic doesn't mention field collapsing.
+
+Result grouping cannot directly be used within `SolrRepository` but can be applied through `SolrTemplate`. Keep in mind that the result is a `GroupPage`. The following example shows how to create a result group:
 
 ====
 [source,java]
@@ -188,7 +216,7 @@ GroupOptions groupOptions = new GroupOptions()
 	.addGroupByQuery(query);
 groupQuery.setGroupOptions(groupOptions);
 
-GroupPage<Product> page = solrTemplate.queryForGroupPage(query, Product.class);
+GroupPage<Product> page = solrTemplate.queryForGroupPage("collection-1", query, Product.class);
 
 GroupResult<Product> fieldGroup = page.getGroupResult(field);
 GroupResult<Product> funcGroup = page.getGroupResult(func);
@@ -199,7 +227,7 @@ GroupResult<Product> queryGroup = page.getGroupResult(query);
 [[solr.misc.fieldStats]]
 == Field Stats
 
-Field stats are used to retrieve statistics (max, min, sum, count, mean, missing, stddev and distinct calculations) of given fields from Solr. It is possible by providing `StatsOptions` to your query and reading the `FieldStatsResult` from the returned `StatsPage`. This could be achieved for instance, using `SolrTemplate` as follows:
+Field stats are used to retrieve statistics (`max`, `min`, `sum`, `count`, `mean`, `missing`, `stddev`, and `distinct` calculations) of given fields from Solr. You can provide `StatsOptions` to your query and read the `FieldStatsResult` from the returned `StatsPage`. You could do so, for instance, by using `SolrTemplate`, as follows:
 
 ====
 [source,java]
@@ -210,7 +238,7 @@ StatsOptions statsOptions = new StatsOptions().addField("price");
 // query
 SimpleQuery statsQuery = new SimpleQuery("*:*");
 statsQuery.setStatsOptions(statsOptions);
-StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage("collection-1", statsQuery, Product.class);
 
 // retrieving stats info
 FieldStatsResult priceStatResult = statResultPage.getFieldStatsResult("price");
@@ -219,14 +247,14 @@ Long missing = priceStatResult.getMissing();
 ----
 ====
 
-The same result could be achieved annotating the repository method with `@Stats` as follows:
+You could achieve the same result by annotating the repository method with `@Stats`, as follows:
 
 ====
 [source,java]
 ----
 @Query("name:?0")
 @Stats(value = { "price" })
-Stats<Product> findByName(String name, Pageable page);
+StatsPage<Product> findByName(String name, Pageable page);
 ----
 ====
 
@@ -245,7 +273,7 @@ StatsOptions statsOptions = new StatsOptions()
 // query
 SimpleQuery statsQuery = new SimpleQuery("*:*");
 statsQuery.setStatsOptions(statsOptions);
-StatsPage<Product> statsPage = solrTemplate.queryForStatsPage(statsQuery, Product.class);
+StatsPage<Product> statsPage = solrTemplate.queryForStatsPage("collection-1", statsQuery, Product.class);
 
 // field stats
 FieldStatsResult categoryStatResult = statResultPage.getFieldStatsResult("category");
@@ -260,7 +288,7 @@ Long availableCount = availabilityFacetResult.get("true").getCount();
 ----
 ====
 
-The annotated version of the sample above would be:
+The annotated (and consequently much shorter) version of the preceding example follows:
 ====
 [source,java]
 ----
@@ -270,7 +298,7 @@ StatsPage<Product> findByName(String name);
 ----
 ====
 
-In order to perform a selective faceting or selective distinct calculation, `@SelectiveStats` may be used as follows:
+In order to perform a selective faceting or selective distinct calculation, you can use `@SelectiveStats`, as follows:
 ====
 [source,java]
 ----
@@ -302,7 +330,11 @@ StatsOptions statsOptions = new StatsOptions()
 [[solr.misc.filter]]
 == Filter Query
 
-Filter Queries improve query speed and do not influence document score. It is recommended to implement geospatial search as filter query. NOTE: Please note that in solr, unless otherwise specified, all units of distance are kilometers and points are in degrees of latitude,longitude.
+Filter Queries improve query speed and do not influence the document score. We recommend implementing geospatial search as a filter query.
+
+NOTE: In Solr, unless otherwise specified, all units of distance are kilometers and points are in degrees of latitude and longitude.
+
+The following example shows a filter query for a geographical point (in Austria, in this case):
 
 ====
 [source,java]
@@ -314,7 +346,11 @@ query.addFilterQuery(fq);
 ----
 ====
 
-Simple filter queries can also be defined using `@Query` . NOTE: Using `@Query` allows you to define place holders which will use your input parameter as value.
+You can also define simple filter queries by using `@Query`.
+
+NOTE: Using `@Query` lets you define place holders that use your input parameter as a value.
+
+The following example shows a query with placeholders (`*:*`):
 
 ====
 [source,java]
@@ -325,9 +361,9 @@ List<Product> findAllFilterAvailableTrueAndPopularityLessThanEqual3();
 ====
 
 [[solr.misc.timeAllowed]]
-== Time allowed for a search
+== Time Allowed for a Search
 
-It it possible to set the time allowed for a search to finish. This value only applies to the search and not to requests in general. Time is in milliseconds. Values less than or equal to zero implies no time restriction. Partial results may be returned, if there are any.
+You can set the time allowed for a search to finish. This value only applies to the search and not to requests in general. Time is in milliseconds. Values less than or equal to zero imply no time restriction. Partial results may be returned, if there are any. The following example restricts the time for a search to 100 milliseconds:
 
 ====
 [source,java]
@@ -339,9 +375,9 @@ query.setTimeAllowed(100);
 ====
 
 [[solr.misc.boost]]
-== Boost document Score
+== Boosting the Document Score
 
-Boost document score in case of matching criteria to influence result order. This can be done by either setting boost on `Criteria` or using `@Boost` for derived queries.
+You can boost the document score for matching criteria to influence the result order. You can do so either by setting boost on `Criteria` or by using `@Boost` for derived queries. The following example boosts the `name` parameter of the `findByNameOrDescription` query:
 
 ====
 [source,java]
@@ -353,34 +389,12 @@ Page<Product> findByNameOrDescription(@Boost(2) String name, String description)
 [[solr.misc.boost.index-time]]
 === Index Time Boosts
 
-Boosting documents score can be done on index time by using `@SolrDocument` annotation on classes (for Solr documents) and/or `@Indexed` on fields (for Solr fields).
-
-====
-[source,java]
-----
-import org.apache.solr.client.solrj.beans.Field;
-import org.springframework.data.solr.repository.Boost;
-
-@SolrDocument(boost = 0.8f)
-public class MyEntity {
-
-    @Id
-    @Indexed
-    private String id;
-    
-    @Indexed(boost = 1.0f)
-    private String name;
-    
-    // setters and getters ...
-
-}	            
-----
-====
+Both document-based and field-based index time boosting have been removed from Apache Solr 7 and, therefore, from Spring Data for Apache Solr 4.x.
 
 [[solr.misc.requesthandler]]
-== Select Request Handler
+== Selecting the Request Handler
 
-Select the request handler via `qt` Parameter directly in `Query` or add `@Query` to your method signature.
+You can select the request handler through the `qt` Parameter directly in `Query` or by adding `@Query` to your method signature. The following example does so by adding `@Query`:
 
 ====
 [source,java]
@@ -391,9 +405,13 @@ Page<Product> findByNameOrDescription(String name, String description);
 ====
 
 [[solr.misc.join]]
-== Using Join
+== Using Joins
 
-Join attributes within one solr core by defining `Join` attribute of `Query`. NOTE: Join is not available prior to solr 4.x.
+You can use joins within one Solr core by defining a `Join` attribute of a `Query`.
+
+NOTE: Join is not available prior to Solr 4.x.
+
+The following example shows how to use a join:
 
 ====
 [source,java]
@@ -406,18 +424,24 @@ query.setJoin(Join.from("manu_id_s").to("id"));
 [[solr.misc.highlighting]]
 == Highlighting
 
-To highlight matches in search result add `HighlightOptions` to the `SimpleHighlightQuery`. Providing `HighlightOptions` without any further attributes will highlight apply highlighting on all fields within a `SolrDocument`.  NOTE: Field specific highlight parameters can be set by adding `FieldWithHighlightParameters` to `HighlightOptions`.
+To highlight matches in search result, you can add `HighlightOptions` to the `SimpleHighlightQuery`. Providing `HighlightOptions` without any further attributes applies highlighting on all fields within a `SolrDocument`.
+
+NOTE: You can set field-specific highlight parameters by adding `FieldWithHighlightParameters` to `HighlightOptions`.
+
+The following example sets highlighting for all fields in the query:
 
 ====
 [source,java]
 ----
 SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("name:with"));
 query.setHighlightOptions(new HighlightOptions());
-HighlightPage<Product> page = solrTemplate.queryForHighlightPage(query, Product.class);
+HighlightPage<Product> page = solrTemplate.queryForHighlightPage("collection-1", query, Product.class);
 ----
 ====
 
-Not all parameters are available via setters/getters but can be added directly.
+Not all parameters are available through setters and getters but can be added directly.
+
+The following example sets highlighting on two fields:
 
 ====
 [source,java]
@@ -427,7 +451,7 @@ query.setHighlightOptions(new HighlightOptions().addHighlightParameter("hl.bs.co
 ----
 ====
 
-In order to apply Highlighting to derived queries use `@Highlight`. If no `fields` are defined highlighting will be aplied on all fields.
+To apply Highlighting to derived queries, you can use `@Highlight`. If no `fields` are defined, highlighting is applied on all fields.
 
 ====
 [source,java]
@@ -437,16 +461,64 @@ HighlightPage<Product> findByName(String name, Pageable page);
 ----
 ====
 
+[[solr.misc.spellcheck]]
+== Spellchecking
+
+Spellchecking offers search term suggestions based on the actual query. See the https://cwiki.apache.org/confluence/display/solr/Spell+Checking[Solr Reference] for more details.
+
+=== Spellcheck Options
+
+Spellcheck query parameters are added to a request when `SpellcheckOptions` has been set, as the following example shows:
+
+====
+[source,java]
+----
+SimpleQuery q = new SimpleQuery("name:gren");
+q.setSpellcheckOptions(SpellcheckOptions.spellcheck()               <1>
+  .dictionaries("dict1", "dict2")                                   <2>
+  .count(5)                                                         <3>
+  .extendedResults());                                              <4>
+q.setRequestHandler("/spell");                                      <5>
+
+SpellcheckedPage<Product> found = template.query(q, Product.class); <6>
+----
+<1> Enable spellcheck by setting `SpellcheckOptions`. Sets the `spellcheck=on` request parameter.
+<2> Set up the dictionaries to use for lookup.
+<3> Set the maximum number of suggestions to return.
+<4> Enable extended results, including term frequency and others.
+<5> Set the request handler, which must be capable of processing suggestions.
+<6> Run the query.
+====
+
+=== `@Spellcheck`
+
+The `@Spellcheck` annotation allows usage of the spellcheck feature on `Repository` level. The following example shows how to use it:
+
+====
+[source,java]
+----
+public interface ProductRepository extends Repository<Product, String> {
+
+  @Query(requestHandler = "/spell")
+  @Spellcheck(dictionaries = { "dict1", "dic2" }, count=5, extendedResults = true)
+  SpellcheckedPage<Product> findByName(String name, Pageable page);
+
+}
+----
+====
+
 [[solr.misc.functions]]
 == Using Functions
 
-Solr supports several functional expressions within queries. Followig functions are supported out of the box. Custom functions can be added by implementing `Function` 
+Solr supports several functional expressions within queries and includes a number of functions. You can add custom functions by implementing `Function`. The following table lists which functions are supported:
 
 [cols="1,2", options="header"]
 .Functions
 |===
 | Class
-| Solr Function| `CurrencyFunction`
+| Solr Function
+
+| `CurrencyFunction`
 | `currency(field_name,[CODE])`
 
 | `DefaultValueFunction`
@@ -486,6 +558,8 @@ Solr supports several functional expressions within queries. Followig functions 
 | `termfreq(field,term)`
 |===
 
+
+The following example uses a `QueryFunction`:
 ====
 [source,java]
 ----
@@ -495,39 +569,45 @@ query.addFilterQuery(new FilterQuery(Criteria.where(QueryFunction.query("name:so
 ====
 
 [[solr.misc.realtimeGet]]
-== Realtime Get
+== Real-time Get
 
-The realtime get allows retrieval of the latest version of any document using the unique-key, without the need to reopen searchers.
+Real-time get allows retrieval of the latest version of any document by using a unique key, without the need to reopen searchers.
 
-NOTE: realtime get relies on the update log feature.
+NOTE: Real-time get relies on the update log feature.
 
-.Realtime get
+The following example shows a real-time get:
+
+.Real-time get
 ====
 [source,java]
 ----
-Product product = solrTemplate.getById("123", Product.class);
+Optional<Product> product = solrTemplate.getById("collection-1", "123", Product.class);
 ----
 ====
 
-Multiple documents can be retrieved by providing a collection of ids as follows:
+You can retrieve multiple documents by providing a collection of `ids`, as follows:
 
 .Realtime multi-get
 ====
 [source,java]
 ----
 Collection<String> ids = Arrays.asList("123", "134");
-Collection<Product> products = solrTemplate.getById(ids, Product.class);
+Collection<Product> products = solrTemplate.getByIds("collection-1", ids, Product.class);
 ----
 ====
 
 [[solr.misc.specialFields]]
 == Special Fields
 
-=== @Score
+Solr includes a number of special fields, including a score field.
 
-In order to load score information of a query result, a field annotated with `@Score` annotation could be added, indicating the property holding the documents score.
+=== `@Score`
+
+In order to load score information of a query result, you can add a field annotated with the `@Score` annotation, indicating the property holds the document's score.
 
 NOTE: The score property needs to be numerical and can only appear once per document.
+
+The following example shows a document with a score field:
 
 ====
 [source,java]
@@ -536,12 +616,69 @@ public class MyEntity {
 
     @Id
     private String id;
-    
+
     @Score
     private Float score;
-    
+
     // setters and getters ...
 
-}	            
+}
 ----
+====
+
+[[solr.misc.child-documents]]
+== Nested Documents
+
+Nested documents allow for documents inside of other documents in a parent-child relationship.
+
+The nested documents need to be indexed along with the parent one and cannot be updated individually. However, nested documents appear as individual documents in the index.
+Resolving the parent-child relation is done at query time.
+
+To indicate that a property should be treated as a nested object, it has to be annotated with either `@o.a.s.c.solrj.beans.Field(child=true)` or `@o.s.d.s.core.mapping.ChildDocument`.
+The following uses the `@ChildDocument` annotation:
+
+====
+[source,java]
+----
+public class Book {
+
+    @Id String id;
+    @Indexed("type_s") String type;
+    @Indexed("title_t") String title;
+    @Indexed("author_s") String author;
+    @Indexed("publisher_s") String publisher;
+
+    @ChildDocument List<Review> reviews;      <1>
+
+    // setters and getters ...
+
+}
+
+public class Review {
+
+    @Id String id;                            <2>
+    @Indexed("type_s") String type;
+    @Indexed("review_dt") Date date;
+    @Indexed("stars_i") int stars;
+    @Indexed("author_s") String author;
+    @Indexed("comment_t") String comment;
+
+}
+----
+<1> Multiple child documents can be associated with a parent one or use the domain type to store a single relationship.
+<2> Note that the nested document also needs to have a unique `id` assigned.
+====
+
+Assuming `Book#type` is `book`, and `Review#type` resolves to `review`, retrieving `Book` with its child relations `reviews` can be done by altering the `fl` query parameter, as the following example shows:
+
+====
+[source,java]
+----
+Query query = new SimpleQuery(where("id").is("theWayOfKings"));
+query.addProjectionOnField(new SimpleField("*"));
+query.addProjectionOnField(new SimpleField("[child parentFilter=type_s:book]")); <1>
+
+return solrTemplate.queryForObject("books", query, Book.class);
+----
+<1> The parent filter always defines the complete set of parent documents in the index, not the one for a single document.
 ====

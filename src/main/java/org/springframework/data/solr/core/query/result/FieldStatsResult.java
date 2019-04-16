@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.springframework.data.solr.core.query.Field;
+import org.springframework.lang.Nullable;
 
 /**
  * Specialization of {@link StatsResult} to represent statistic information for a field.
@@ -39,7 +40,6 @@ public interface FieldStatsResult extends StatsResult {
 	/**
 	 * Return a map of value associated to its statistics for a given field.
 	 * 
-	 * @param value
 	 * @return map of values statistics
 	 */
 	Map<String, StatsResult> getFacetStatsResult(Field field);
@@ -47,7 +47,6 @@ public interface FieldStatsResult extends StatsResult {
 	/**
 	 * Return a map of value associated to its statistics for a given field name.
 	 * 
-	 * @param value
 	 * @return map of values statistics
 	 */
 	Map<String, StatsResult> getFacetStatsResult(String fieldName);
@@ -57,6 +56,7 @@ public interface FieldStatsResult extends StatsResult {
 	 * 
 	 * @return distinct count, {@literal null} when not requested
 	 */
+	@Nullable
 	Long getDistinctCount();
 
 	/**

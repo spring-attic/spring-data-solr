@@ -1,38 +1,29 @@
-= Spring Data Solr
-Christoph Strobl, Oliver Gierke, Mark Pollack, Thomas Risberg
+= Spring Data for Apache Solr
+Christoph Strobl, Oliver Gierke, Mark Pollack, Thomas Risberg, Jay Bryant
 :revnumber: {version}
 :revdate: {localdate}
-:toc:
-:toc-placement!:
+ifdef::backend-epub3[:front-cover-image: image:epub-cover.png[Front Cover,1050,1600]]
 :spring-data-commons-docs: ../../../../spring-data-commons/src/main/asciidoc
 
-(C) 2012-2015 The original author(s).
+(C) 2012-2019 The original author(s).
 
 NOTE: Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
 
-toc::[]
-
 include::preface.adoc[]
-:leveloffset: +1
-include::new-features.adoc[]
-include::{spring-data-commons-docs}/repositories.adoc[]
-:leveloffset: -1
+include::new-features.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repositories.adoc[leveloffset=+1]
 
 [[reference]]
 = Reference Documentation
 
-:leveloffset: +1
-include::reference/data-solr.adoc[]
-include::reference/misc.adoc[]
-:leveloffset: -1
+include::reference/data-solr.adoc[leveloffset=+1]
+include::reference/misc.adoc[leveloffset=+1]
 
 [[appendix]]
 = Appendix
 
 :numbered!:
-:leveloffset: +1
-include::{spring-data-commons-docs}/repository-namespace-reference.adoc[]
-include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[]
-include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[]
-include::{spring-data-commons-docs}/repository-query-return-types-reference.adoc[]
-:leveloffset: -1
+include::{spring-data-commons-docs}/repository-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-populator-namespace-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-query-keywords-reference.adoc[leveloffset=+1]
+include::{spring-data-commons-docs}/repository-query-return-types-reference.adoc[v]

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,25 +15,26 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Trivial implementation of {@see QueryParameter}.
- * 
+ *
  * @author Christoph Strobl
  */
 public class QueryParameterImpl implements QueryParameter {
 
 	private final String name;
-	private Object value;
+	private @Nullable Object value;
 
 	/**
 	 * @param name must not be null
 	 * @param value
 	 */
-	public QueryParameterImpl(String name, Object value) {
+	public QueryParameterImpl(String name, @Nullable Object value) {
 		super();
-		Assert.notNull(name);
+		Assert.notNull(name, "Name must not be null!");
 
 		this.name = name;
 		this.value = value;
@@ -44,6 +45,7 @@ public class QueryParameterImpl implements QueryParameter {
 		return this.name;
 	}
 
+	@Nullable
 	@Override
 	public Object getValue() {
 		return this.value;

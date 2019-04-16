@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.util.Assert;
 
@@ -24,7 +25,8 @@ import org.springframework.util.Assert;
  */
 public class SolrTransactionSynchronizationAdapterBuilder {
 
-	SolrTransactionSynchronizationAdapter adapter;
+	@Nullable SolrTransactionSynchronizationAdapter adapter;
+	@Nullable private String collectionName;
 
 	/**
 	 * @param solrOperations must not be {@literal null}
@@ -39,6 +41,16 @@ public class SolrTransactionSynchronizationAdapterBuilder {
 	}
 
 	/**
+	 * @param collection
+	 * @return
+	 */
+	public SolrTransactionSynchronizationAdapterBuilder onCollection(String collection) {
+
+		this.collectionName = collection;
+		return this;
+	}
+
+	/**
 	 * Creates a {@link SolrTransactionSynchronizationAdapter} reacting on
 	 * {@link TransactionSynchronization#STATUS_COMMITTED} and {@link TransactionSynchronization#STATUS_ROLLED_BACK}.
 	 * 
@@ -47,9 +59,9 @@ public class SolrTransactionSynchronizationAdapterBuilder {
 	public SolrTransactionSynchronizationAdapter withDefaultBehaviour() {
 
 		this.adapter.registerCompletionDelegate(TransactionSynchronization.STATUS_COMMITTED,
-				new SolrTransactionSynchronizationAdapter.CommitTransaction());
+				new SolrTransactionSynchronizationAdapter.CommitTransaction(this.collectionName));
 		this.adapter.registerCompletionDelegate(TransactionSynchronization.STATUS_ROLLED_BACK,
-				new SolrTransactionSynchronizationAdapter.RollbackTransaction());
+				new SolrTransactionSynchronizationAdapter.RollbackTransaction(this.collectionName));
 
 		return this.adapter;
 	}

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,14 +26,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.data.solr.core.query.result.FacetAndHighlightPage;
 import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
+import org.springframework.data.solr.core.query.result.SpellcheckedPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
+import org.springframework.data.solr.repository.ProductBean.ContentType;
 
 /**
  * @author Christoph Strobl
  * @author John Dorman
  * @author Andrey Paramonov
+ * @author Petar Tahchiev
  */
 public interface ProductRepository extends SolrCrudRepository<ProductBean, String> {
 
@@ -53,7 +57,7 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByNameIsNotNull();
 
-	ProductBean findById(String id);
+	ProductBean findProductBeanById(String id);
 
 	List<ProductBean> findByAvailableTrue();
 
@@ -102,7 +106,13 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	List<ProductBean> findByLocationNear(Box bbox);
 
+	List<ProductBean> findByLocationWithinAndNameLike(Point location, Distance distance, String name);
+
+	List<ProductBean> findByNameLikeAndLocationWithin(String name, Point location, Distance distance);
+
 	List<ProductBean> findByAvailableTrueOrderByPopularityDesc();
+
+	List<ProductBean> findByOrderByAvailableDesc();
 
 	@Query("inStock:?0")
 	List<ProductBean> findByAvailableWithAnnotatedQueryUsingSort(boolean available, Sort sort);
@@ -186,6 +196,27 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 	@Highlight(query = "description:?1")
 	HighlightPage<ProductBean> findByNameHighlightWihtQueryOverride(String name, String highlightOn, Pageable page);
 
+	@Query("name:?0*")
+	@Highlight
+	@Facet(fields = "name")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnNameHighlightAll(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(prefix = "<b>", postfix = "</b>")
+	@Facet(fields = "inStock")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnInStockHighlightAllWithPreAndPostfix(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(fields = { "description" })
+	@Facet(fields = "name", prefix = "pro")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnNameHighlightAllLimitToFields(String name, Pageable page);
+
+	@Query("name:?0*")
+	@Highlight(query = "description:?1")
+	@Facet(fields = "store")
+	FacetAndHighlightPage<ProductBean> findByNameFacetOnStoreHighlightWihtQueryOverride(String name, String highlightOn,
+			Pageable page);
+
 	Long countProductBeanByName(String name);
 
 	Long countByName(String name);
@@ -207,10 +238,18 @@ public interface ProductRepository extends SolrCrudRepository<ProductBean, Strin
 
 	@Query("*:*")
 	@Stats(//
-			value = { "id", "price" },//
-			facets = { "last_modified", "id" },//
-			selective = @SelectiveStats(field = "weight", facets = "inStock")//
+			value = { "id", "price" }, //
+			facets = { "last_modified", "id" }, //
+			selective = @SelectiveStats(field = "weight", facets = "inStock") //
 	)
 	StatsPage<ProductBean> findAllWithStats(Pageable pageable);
+
+	@Query(requestHandler = "/spell")
+	@Spellcheck(dictionaries = { "default", "wordbreak" }, extendedResults = true, collateExtendedResults = true,
+			count = 10, alternativeTermCount = 5, maxResultsForSuggest = 5, collate = true, maxCollationsTries = 10,
+			maxCollations = 5)
+	SpellcheckedPage<ProductBean> findByName(String name, Pageable page);
+
+	List<ProductBean> findByContentType(ContentType contentType);
 
 }

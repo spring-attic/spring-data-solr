@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2015 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,38 +27,32 @@ import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.GroupParams;
 import org.apache.solr.common.params.HighlightParams;
+import org.apache.solr.common.params.ModifiableSolrParams;
+import org.apache.solr.common.params.SpellingParams;
 import org.apache.solr.common.params.StatsParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.data.solr.VersionUtil;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.FacetOptions;
+import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithNumericRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithRangeParameters;
-import org.springframework.data.solr.core.query.FacetQuery;
-import org.springframework.data.solr.core.query.Field;
-import org.springframework.data.solr.core.query.FilterQuery;
-import org.springframework.data.solr.core.query.Function;
-import org.springframework.data.solr.core.query.GroupOptions;
-import org.springframework.data.solr.core.query.HighlightOptions;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
 import org.springframework.data.solr.core.query.HighlightOptions.HighlightParameter;
-import org.springframework.data.solr.core.query.HighlightQuery;
-import org.springframework.data.solr.core.query.Query;
-import org.springframework.data.solr.core.query.QueryParameter;
-import org.springframework.data.solr.core.query.SolrDataQuery;
-import org.springframework.data.solr.core.query.StatsOptions;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Implementation of {@link QueryParser}. <br/>
  * Creates executable {@link SolrQuery} from {@link Query} by traversing {@link Criteria}. Reserved characters like
  * {@code +} or {@code -} will be escaped to form a valid query.
- * 
+ *
  * @author Christoph Strobl
  * @author John Dorman
  * @author Rosty Kerei
@@ -67,54 +61,80 @@ import org.springframework.util.CollectionUtils;
  * @author Philipp Jardas
  * @author Francisco Spaeth
  * @author Joachim Uhrlaß
+ * @author Petar Tahchiev
+ * @author Juan Manuel de Blas
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultQueryParser.class);
+
+	/**
+	 * Create a new {@link DefaultQueryParser} using the provided {@link MappingContext} to map {@link Field fields} to
+	 * domain domain type {@link org.springframework.data.mapping.PersistentProperty properties}.
+	 *
+	 * @param mappingContext can be {@literal null}.
+	 * @since 4.0
+	 */
+	public DefaultQueryParser(@Nullable MappingContext mappingContext) {
+		super(mappingContext);
+	}
+
 	/**
 	 * Convert given Query into a SolrQuery executable via {@link org.apache.solr.client.solrj.SolrClient}
-	 * 
-	 * @param query
+	 *
+	 * @param query the source query to turn into a {@link SolrQuery}.
+	 * @param domainType can be {@literal null}.
 	 * @return
 	 */
 	@Override
-	public final SolrQuery doConstructSolrQuery(SolrDataQuery query) {
+	public final SolrQuery doConstructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
+
 		Assert.notNull(query, "Cannot construct solrQuery from null value.");
 		Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setParam(CommonParams.Q, getQueryString(query));
+		solrQuery.setParam(CommonParams.Q, getQueryString(query, domainType));
+
 		if (query instanceof Query) {
-			processQueryOptions(solrQuery, (Query) query);
+			processQueryOptions(solrQuery, (Query) query, domainType);
 		}
+
 		if (query instanceof FacetQuery) {
-			processFacetOptions(solrQuery, (FacetQuery) query);
+			processFacetOptions(solrQuery, (FacetQuery) query, domainType);
 		}
+
 		if (query instanceof HighlightQuery) {
-			processHighlightOptions(solrQuery, (HighlightQuery) query);
+			processHighlightOptions(solrQuery, (HighlightQuery) query, domainType);
 		}
+
 		return solrQuery;
 	}
 
-	private void processQueryOptions(SolrQuery solrQuery, Query query) {
+	private void processQueryOptions(SolrQuery solrQuery, Query query, @Nullable Class<?> domainType) {
+
 		appendPagination(solrQuery, query.getOffset(), query.getRows());
-		appendProjectionOnFields(solrQuery, query.getProjectionOnFields());
-		appendFilterQuery(solrQuery, query.getFilterQueries());
-		appendSort(solrQuery, query.getSort());
+		appendProjectionOnFields(solrQuery, query.getProjectionOnFields(), domainType);
+		appendFilterQuery(solrQuery, query.getFilterQueries(), domainType);
+		appendSort(solrQuery, query.getSort(), domainType);
 		appendDefaultOperator(solrQuery, query.getDefaultOperator());
 		appendTimeAllowed(solrQuery, query.getTimeAllowed());
 		appendDefType(solrQuery, query.getDefType());
 		appendRequestHandler(solrQuery, query.getRequestHandler());
 
-		processGroupOptions(solrQuery, query);
-		processStatsOptions(solrQuery, query);
+		processGroupOptions(solrQuery, query, domainType);
+		processStatsOptions(solrQuery, query, domainType);
+		processSpellcheckOptions(solrQuery, query, domainType);
+
+		LOGGER.debug("Constructed SolrQuery:\r\n {}", solrQuery);
 	}
 
-	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query) {
+	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {
+
 		if (enableFaceting(solrQuery, query)) {
-			appendFacetingOnFields(solrQuery, (FacetQuery) query);
-			appendFacetingQueries(solrQuery, (FacetQuery) query);
-			appendFacetingOnPivot(solrQuery, (FacetQuery) query);
-			appendRangeFacetingOnFields(solrQuery, (FacetQuery) query);
+			appendFacetingOnFields(solrQuery, query, domainType);
+			appendFacetingQueries(solrQuery, query, domainType);
+			appendFacetingOnPivot(solrQuery, query, domainType);
+			appendRangeFacetingOnFields(solrQuery, query, domainType);
 		}
 	}
 
@@ -125,56 +145,55 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
-	private void processStatsOptions(SolrQuery solrQuery, Query query) {
+	private void processStatsOptions(SolrQuery solrQuery, Query query, @Nullable Class<?> domainType) {
+
 		StatsOptions statsOptions = query.getStatsOptions();
 
 		if (statsOptions == null
-				|| (CollectionUtils.isEmpty(statsOptions.getFields()) && CollectionUtils.isEmpty(statsOptions.getFacets()) && CollectionUtils
-						.isEmpty(statsOptions.getSelectiveFacets()))) {
+				|| (CollectionUtils.isEmpty(statsOptions.getFields()) && CollectionUtils.isEmpty(statsOptions.getFacets())
+						&& CollectionUtils.isEmpty(statsOptions.getSelectiveFacets()))) {
 			return;
 		}
 
 		solrQuery.set(StatsParams.STATS, true);
 
 		for (Field field : statsOptions.getFields()) {
-			solrQuery.add(StatsParams.STATS_FIELD, field.getName());
 
-			String selectiveCalcDistinctParam = CommonParams.FIELD + "." + field.getName() + "."
+			String mappedFieldName = getMappedFieldName(field, domainType);
+			solrQuery.add(StatsParams.STATS_FIELD, mappedFieldName);
+
+			String selectiveCalcDistinctParam = CommonParams.FIELD + "." + mappedFieldName + "."
 					+ StatsParams.STATS_CALC_DISTINCT;
 			Boolean selectiveCountDistincts = statsOptions.isSelectiveCalcDistincts(field);
 
 			if (selectiveCountDistincts != null) {
 				solrQuery.add(selectiveCalcDistinctParam, String.valueOf(selectiveCountDistincts.booleanValue()));
 			}
-
 		}
 
 		for (Field field : statsOptions.getFacets()) {
-			solrQuery.add(StatsParams.STATS_FACET, field.getName());
+			solrQuery.add(StatsParams.STATS_FACET, getMappedFieldName(field, domainType));
 		}
 
 		for (Entry<Field, Collection<Field>> entry : statsOptions.getSelectiveFacets().entrySet()) {
 
 			Field field = entry.getKey();
-			String prefix = CommonParams.FIELD + "." + field.getName() + ".";
+			String prefix = CommonParams.FIELD + "." + getMappedFieldName(field, domainType) + ".";
 
 			String paramName = prefix + StatsParams.STATS_FACET;
 			for (Field facetField : entry.getValue()) {
-				solrQuery.add(paramName, facetField.getName());
+				solrQuery.add(paramName, getMappedFieldName(facetField, domainType));
 			}
-
 		}
-
 	}
 
-	private void processGroupOptions(SolrQuery solrQuery, Query query) {
+	private void processGroupOptions(SolrQuery solrQuery, Query query, Class<?> domainType) {
 
 		GroupOptions groupOptions = query.getGroupOptions();
 
-		if (groupOptions == null
-				|| (CollectionUtils.isEmpty(groupOptions.getGroupByFields())
-						&& CollectionUtils.isEmpty(groupOptions.getGroupByFunctions()) && CollectionUtils.isEmpty(groupOptions
-						.getGroupByQueries()))) {
+		if (groupOptions == null || (CollectionUtils.isEmpty(groupOptions.getGroupByFields())
+				&& CollectionUtils.isEmpty(groupOptions.getGroupByFunctions())
+				&& CollectionUtils.isEmpty(groupOptions.getGroupByQueries()))) {
 			return;
 		}
 
@@ -184,13 +203,13 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		if (!CollectionUtils.isEmpty(groupOptions.getGroupByFields())) {
 			for (Field field : groupOptions.getGroupByFields()) {
-				solrQuery.add(GroupParams.GROUP_FIELD, field.getName());
+				solrQuery.add(GroupParams.GROUP_FIELD, getMappedFieldName(field, domainType));
 			}
 		}
 
 		if (!CollectionUtils.isEmpty(groupOptions.getGroupByFunctions())) {
 			for (Function function : groupOptions.getGroupByFunctions()) {
-				String functionFragment = createFunctionFragment(function, 0);
+				String functionFragment = createFunctionFragment(function, 0, domainType);
 				setObjectNameOnGroupQuery(query, function, functionFragment);
 				solrQuery.add(GroupParams.GROUP_FUNC, functionFragment);
 			}
@@ -198,7 +217,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 		if (!CollectionUtils.isEmpty(groupOptions.getGroupByQueries())) {
 			for (Query groupQuery : groupOptions.getGroupByQueries()) {
-				String queryFragment = getQueryString(groupQuery);
+				String queryFragment = getQueryString(groupQuery, domainType);
 				setObjectNameOnGroupQuery(query, groupQuery, queryFragment);
 				solrQuery.add(GroupParams.GROUP_QUERY, queryFragment);
 			}
@@ -207,7 +226,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		if (groupOptions.getSort() != null) {
 
 			for (Order order : groupOptions.getSort()) {
-				solrQuery.add(GroupParams.GROUP_SORT, order.getProperty().trim() + " "
+				solrQuery.add(GroupParams.GROUP_SORT, getMappedFieldName(order.getProperty().trim(), domainType) + " "
 						+ (order.isAscending() ? ORDER.asc : ORDER.desc));
 			}
 		}
@@ -216,7 +235,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			solrQuery.add(GroupParams.GROUP_CACHE_PERCENTAGE, String.valueOf(groupOptions.getCachePercent()));
 		}
 
-		if (groupOptions.getLimit() != null && groupOptions.getLimit() >= 0) {
+		if (groupOptions.getLimit() != null) {
 			solrQuery.set(GroupParams.GROUP_LIMIT, groupOptions.getLimit());
 		}
 
@@ -229,67 +248,118 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		solrQuery.set(GroupParams.GROUP_TRUNCATE, groupOptions.isTruncateFacets());
 	}
 
+	private void processSpellcheckOptions(SolrQuery solrQuery, Query query, @Nullable Class<?> domainType) {
+
+		if (query.getSpellcheckOptions() == null) {
+			return;
+		}
+
+		SpellcheckOptions options = query.getSpellcheckOptions();
+
+		if (options.getQuery() != null && options.getQuery().getCriteria() != null) {
+			solrQuery.set(SpellingParams.SPELLCHECK_Q,
+					createQueryStringFromCriteria(options.getQuery().getCriteria(), domainType));
+		}
+
+		ModifiableSolrParams params = new ModifiableSolrParams();
+		params.add("spellcheck", "on");
+		for (Entry<String, Object> entry : options.getParams().entrySet()) {
+
+			if (entry.getValue() instanceof Iterable<?>) {
+				for (Object o : ((Iterable<?>) entry.getValue())) {
+					params.add(entry.getKey(), o.toString());
+				}
+			} else if (ObjectUtils.isArray(entry.getValue())) {
+				for (Object o : ObjectUtils.toObjectArray(entry.getValue())) {
+					params.add(entry.getKey(), o.toString());
+				}
+			} else {
+				params.add(entry.getKey(), entry.getValue().toString());
+			}
+		}
+		solrQuery.add(params);
+	}
+
 	/**
 	 * Append highlighting parameters to {@link SolrQuery}
-	 * 
-	 * @param solrQuery
-	 * @param query
+	 *
+	 * @param solrQuery the target {@link SolrQuery}
+	 * @param query the source query.
+	 * @param domainType used for mapping fields to properties. Can be {@literal null}.
 	 */
-	protected void processHighlightOptions(SolrQuery solrQuery, HighlightQuery query) {
+	protected void processHighlightOptions(SolrQuery solrQuery, HighlightQuery query, @Nullable Class<?> domainType) {
+
 		if (query.hasHighlightOptions()) {
+
 			HighlightOptions highlightOptions = query.getHighlightOptions();
 			solrQuery.setHighlight(true);
+
 			if (!highlightOptions.hasFields()) {
 				solrQuery.addHighlightField(HighlightOptions.ALL_FIELDS.getName());
 			} else {
 				for (Field field : highlightOptions.getFields()) {
-					solrQuery.addHighlightField(field.getName());
+					solrQuery.addHighlightField(getMappedFieldName(field, domainType));
 				}
 				for (FieldWithHighlightParameters fieldWithHighlightParameters : highlightOptions
 						.getFieldsWithHighlightParameters()) {
-					addPerFieldHighlightParameters(solrQuery, fieldWithHighlightParameters);
+					addPerFieldHighlightParameters(solrQuery, fieldWithHighlightParameters, domainType);
 				}
 			}
+
 			for (HighlightParameter option : highlightOptions.getHighlightParameters()) {
 				addOptionToSolrQuery(solrQuery, option);
 			}
+
 			if (highlightOptions.hasQuery()) {
-				solrQuery.add(HighlightParams.Q, getQueryString(highlightOptions.getQuery()));
+				solrQuery.add(HighlightParams.Q, getQueryString(highlightOptions.getQuery(), domainType));
 			}
 		}
 	}
 
 	private void addOptionToSolrQuery(SolrQuery solrQuery, QueryParameter option) {
+
 		if (option != null && StringUtils.isNotBlank(option.getName())) {
 			solrQuery.add(option.getName(), conversionService.convert(option.getValue(), String.class));
 		}
 	}
 
-	private void addFieldSpecificParameterToSolrQuery(SolrQuery solrQuery, Field field, QueryParameter option) {
+	private void addFieldSpecificParameterToSolrQuery(SolrQuery solrQuery, Field field, QueryParameter option,
+			@Nullable Class<?> domainType) {
+
 		if (option != null && field != null && StringUtils.isNotBlank(option.getName())) {
 			if (option.getValue() == null) {
-				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName()), (String) null);
+				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName(), domainType), (String) null);
 			} else {
 				String value = option.getValue().toString();
 				if (conversionService.canConvert(option.getValue().getClass(), String.class)) {
 					value = conversionService.convert(option.getValue(), String.class);
 				}
-				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName()), value);
+				solrQuery.add(createPerFieldOverrideParameterName(field, option.getName(), domainType), value);
 			}
 		}
 	}
 
-	private void addPerFieldHighlightParameters(SolrQuery solrQuery, FieldWithHighlightParameters field) {
+	private void addPerFieldHighlightParameters(SolrQuery solrQuery, FieldWithHighlightParameters field,
+			@Nullable Class<?> domainType) {
+
 		for (HighlightParameter option : field) {
-			addFieldSpecificParameterToSolrQuery(solrQuery, field, option);
+			addFieldSpecificParameterToSolrQuery(solrQuery, field, option, domainType);
 		}
 	}
 
-	protected String createPerFieldOverrideParameterName(Field field, String parameterName) {
-		return "f." + field.getName() + "." + parameterName;
+	/**
+	 * @param field the source field.
+	 * @param parameterName the parameter name to append
+	 * @param domainType used for mapping fields to properties. Can be {@literal null}.
+	 * @return
+	 */
+	protected String createPerFieldOverrideParameterName(Field field, String parameterName,
+			@Nullable Class<?> domainType) {
+		return "f." + getMappedFieldName(field, domainType) + "." + parameterName;
 	}
 
 	private boolean enableFaceting(SolrQuery solrQuery, FacetQuery query) {
+
 		FacetOptions facetOptions = query.getFacetOptions();
 		if (facetOptions == null || !facetOptions.hasFacets()) {
 			return false;
@@ -298,8 +368,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		solrQuery.setFacetMinCount(facetOptions.getFacetMinCount());
 		solrQuery.setFacetLimit(facetOptions.getPageable().getPageSize());
 		if (facetOptions.getPageable().getPageNumber() > 0) {
-			int offset = Math.max(0, facetOptions.getPageable().getOffset());
-			solrQuery.set(FacetParams.FACET_OFFSET, offset);
+			long offset = Math.max(0, facetOptions.getPageable().getOffset());
+			solrQuery.set(FacetParams.FACET_OFFSET, "" + offset);
 		}
 		if (FacetOptions.FacetSort.INDEX.equals(facetOptions.getFacetSort())) {
 			solrQuery.setFacetSort(FacetParams.FACET_SORT_INDEX);
@@ -307,29 +377,34 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		return true;
 	}
 
-	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+	private void appendFacetingOnFields(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {
+
 		FacetOptions facetOptions = query.getFacetOptions();
-		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields()));
+		solrQuery.addFacetField(convertFieldListToStringArray(facetOptions.getFacetOnFields(), domainType));
+
 		if (facetOptions.hasFacetPrefix()) {
 			solrQuery.setFacetPrefix(facetOptions.getFacetPrefix());
 		}
 		for (FieldWithFacetParameters parametrizedField : facetOptions.getFieldsWithParameters()) {
-			addPerFieldFacetParameters(solrQuery, parametrizedField);
+			addPerFieldFacetParameters(solrQuery, parametrizedField, domainType);
 			if (parametrizedField.getSort() != null && FacetOptions.FacetSort.INDEX.equals(parametrizedField.getSort())) {
-				addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField, new FacetParameter(FacetParams.FACET_SORT,
-						FacetParams.FACET_SORT_INDEX));
+				addFieldSpecificParameterToSolrQuery(solrQuery, parametrizedField,
+						new FacetParameter(FacetParams.FACET_SORT, FacetParams.FACET_SORT_INDEX), domainType);
 			}
 
 		}
 	}
 
-	private void addPerFieldFacetParameters(SolrQuery solrQuery, FieldWithFacetParameters field) {
+	private void addPerFieldFacetParameters(SolrQuery solrQuery, FieldWithFacetParameters field,
+			@Nullable Class<?> domainType) {
+
 		for (FacetParameter parameter : field) {
-			addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter);
+			addFieldSpecificParameterToSolrQuery(solrQuery, field, parameter, domainType);
 		}
 	}
 
-	private void appendRangeFacetingOnFields(SolrQuery solrQuery, FacetQuery query) {
+	private void appendRangeFacetingOnFields(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {
+
 		FacetOptions facetRangeOptions = query.getFacetOptions();
 
 		if (facetRangeOptions == null) {
@@ -339,76 +414,82 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		for (FieldWithRangeParameters<?, ?, ?> rangeField : facetRangeOptions.getFieldsWithRangeParameters()) {
 
 			if (rangeField instanceof FieldWithDateRangeParameters) {
-				appendFieldFacetingByDateRange(solrQuery, (FieldWithDateRangeParameters) rangeField);
+				appendFieldFacetingByDateRange(solrQuery, (FieldWithDateRangeParameters) rangeField, domainType);
 			} else if (rangeField instanceof FieldWithNumericRangeParameters) {
-				appendFieldFacetingByNumberRange(solrQuery, (FieldWithNumericRangeParameters) rangeField);
+				appendFieldFacetingByNumberRange(solrQuery, (FieldWithNumericRangeParameters) rangeField, domainType);
 			}
 
 			if (rangeField.getHardEnd() != null && rangeField.getHardEnd()) {
 				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_HARD_END, true);
-				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param, domainType);
 			}
+
 			if (rangeField.getOther() != null) {
 				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_OTHER, rangeField.getOther());
-				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param, domainType);
 			}
 
 			if (rangeField.getInclude() != null) {
 				FacetParameter param = new FacetParameter(FacetParams.FACET_RANGE_INCLUDE, rangeField.getInclude());
-				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param);
+				addFieldSpecificParameterToSolrQuery(solrQuery, rangeField, param, domainType);
 			}
 
 		}
 	}
 
-	private void appendFieldFacetingByNumberRange(SolrQuery solrQuery, FieldWithNumericRangeParameters field) {
+	private void appendFieldFacetingByNumberRange(SolrQuery solrQuery, FieldWithNumericRangeParameters field,
+			@Nullable Class<?> domainType) {
+
 		solrQuery.addNumericRangeFacet( //
-				field.getName(), //
+				getMappedFieldName(field, domainType), //
 				field.getStart(), //
 				field.getEnd(), //
 				field.getGap());
 	}
 
-	private void appendFieldFacetingByDateRange(SolrQuery solrQuery, FieldWithDateRangeParameters field) {
+	private void appendFieldFacetingByDateRange(SolrQuery solrQuery, FieldWithDateRangeParameters field,
+			@Nullable Class<?> domainType) {
+
 		solrQuery.addDateRangeFacet( //
-				field.getName(), //
+				getMappedFieldName(field, domainType), //
 				field.getStart(), //
 				field.getEnd(), //
 				field.getGap());
 	}
 
-	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query) {
+	private void appendFacetingQueries(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {
+
 		FacetOptions facetOptions = query.getFacetOptions();
 		for (SolrDataQuery fq : facetOptions.getFacetQueries()) {
-			String facetQueryString = getQueryString(fq);
+			String facetQueryString = getQueryString(fq, domainType);
 			if (StringUtils.isNotBlank(facetQueryString)) {
 				solrQuery.addFacetQuery(facetQueryString);
 			}
 		}
 	}
 
-	private void appendFacetingOnPivot(SolrQuery solrQuery, FacetQuery query) {
-		if (VersionUtil.isSolr3XAvailable()) {
-			throw new UnsupportedOperationException(
-					"Pivot Facets are not available for solr version lower than 4.x - Please check your depdendencies.");
-		}
+	private void appendFacetingOnPivot(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {
 
 		FacetOptions facetOptions = query.getFacetOptions();
-		String[] pivotFields = convertFieldListToStringArray(facetOptions.getFacetOnPivots());
+		String[] pivotFields = convertFieldListToStringArray(facetOptions.getFacetOnPivots(), domainType);
 		solrQuery.addFacetPivotField(pivotFields);
 	}
 
 	/**
 	 * Set filter filter queries for {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param filterQueries
+	 * @param domainType used for mapping fields to properties. Can be {@literal null}.
 	 */
-	protected void appendFilterQuery(SolrQuery solrQuery, List<FilterQuery> filterQueries) {
+	protected void appendFilterQuery(SolrQuery solrQuery, List<FilterQuery> filterQueries,
+			@Nullable Class<?> domainType) {
+
 		if (CollectionUtils.isEmpty(filterQueries)) {
 			return;
 		}
-		List<String> filterQueryStrings = getFilterQueryStrings(filterQueries);
+
+		List<String> filterQueryStrings = getFilterQueryStrings(filterQueries, domainType);
 
 		if (!filterQueryStrings.isEmpty()) {
 			solrQuery.setFilterQueries(convertStringListToArray(filterQueryStrings));
@@ -417,44 +498,68 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	/**
 	 * Append sorting parameters to {@link SolrQuery}
-	 * 
+	 *
 	 * @param solrQuery
 	 * @param sort
 	 */
-	protected void appendSort(SolrQuery solrQuery, Sort sort) {
+	protected void appendSort(SolrQuery solrQuery, @Nullable Sort sort, @Nullable Class<?> domainType) {
+
 		if (sort == null) {
 			return;
 		}
 
 		for (Order order : sort) {
-			solrQuery.addSort(order.getProperty(), order.isAscending() ? ORDER.asc : ORDER.desc);
+			solrQuery.addSort(getMappedFieldName(order.getProperty(), domainType),
+					order.isAscending() ? ORDER.asc : ORDER.desc);
 		}
 	}
 
-	private String[] convertFieldListToStringArray(List<? extends Field> fields) {
+	private String[] convertFieldListToStringArray(List<? extends Field> fields, @Nullable Class<?> domainType) {
+
 		String[] strResult = new String[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
-			strResult[i] = fields.get(i).getName();
+
+			Field field = fields.get(i);
+
+			if (field instanceof PivotField) {
+
+				if (field.getName().contains(",")) {
+
+					String[] args = field.getName().split(",");
+					String[] mapped = new String[args.length];
+
+					for (int j = 0; j < args.length; j++) {
+						mapped[j] = getMappedFieldName(args[j], domainType);
+					}
+
+					strResult[i] = org.springframework.util.StringUtils.arrayToCommaDelimitedString(mapped);
+				} else {
+					strResult[i] = field.getName();
+				}
+
+			} else {
+				strResult[i] = getMappedFieldName(field, domainType);
+			}
 		}
 		return strResult;
 	}
 
 	private String[] convertStringListToArray(List<String> listOfString) {
+
 		String[] strResult = new String[listOfString.size()];
 		listOfString.toArray(strResult);
 		return strResult;
 	}
 
-	private List<String> getFilterQueryStrings(List<FilterQuery> filterQueries) {
-		List<String> filterQueryStrings = new ArrayList<String>(filterQueries.size());
+	private List<String> getFilterQueryStrings(List<FilterQuery> filterQueries, @Nullable Class<?> domainType) {
+		List<String> filterQueryStrings = new ArrayList<>(filterQueries.size());
 
 		for (FilterQuery filterQuery : filterQueries) {
-			String filterQueryString = getQueryString(filterQuery);
+			String filterQueryString = getQueryString(filterQuery, domainType);
 			if (StringUtils.isNotBlank(filterQueryString)) {
 				filterQueryStrings.add(filterQueryString);
 			}
 		}
 		return filterQueryStrings;
 	}
-
 }

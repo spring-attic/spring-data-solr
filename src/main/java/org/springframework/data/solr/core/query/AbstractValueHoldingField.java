@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,16 @@
  */
 package org.springframework.data.solr.core.query;
 
+import org.springframework.lang.Nullable;
+
 /**
  * Base implementation of {@link ValueHoldingField} <br />
- * 
+ *
  * @author Christoph Strobl
  */
 class AbstractValueHoldingField extends SimpleField implements ValueHoldingField {
 
-	private Object value;
+	private @Nullable Object value;
 
 	protected AbstractValueHoldingField(String fieldName) {
 		super(fieldName);
@@ -33,12 +35,13 @@ class AbstractValueHoldingField extends SimpleField implements ValueHoldingField
 		this.value = fieldValue;
 	}
 
+	@Nullable
 	@Override
 	public Object getValue() {
 		return this.value;
 	}
 
-	public void setValue(Object value) {
+	public void setValue(@Nullable Object value) {
 		this.value = value;
 	}
 

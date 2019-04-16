@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.solr.core.SolrOperations;
@@ -37,6 +38,7 @@ import org.springframework.data.solr.repository.query.SolrEntityInformation;
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Mark Paluch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SolrRepositoryFactoryTests {
@@ -54,7 +56,7 @@ public class SolrRepositoryFactoryTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() {
-		Mockito.when(solrEntityMock.getIdProperty()).thenReturn(solrPersistentPropertyMock);
+		Mockito.when(solrEntityMock.getRequiredIdProperty()).thenReturn(solrPersistentPropertyMock);
 		Mockito.when(solrPersistentPropertyMock.getFieldName()).thenReturn("id");
 		Mockito.when(solrOperationsMock.getConverter()).thenReturn(solrConverterMock);
 		Mockito.when(solrConverterMock.getMappingContext()).thenReturn(mappingContextMock);
@@ -78,17 +80,17 @@ public class SolrRepositoryFactoryTests {
 		Assert.assertNotNull(repository);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = MappingException.class)
 	public void testGetRepositoryOfUnmanageableType() {
 
-		SolrTemplate template = new SolrTemplate(new HttpSolrClient("http://solrserver:8983/solr"), null);
+		SolrTemplate template = new SolrTemplate(Mockito.mock(HttpSolrClient.class), null);
 		template.afterPropertiesSet();
 		new SolrRepositoryFactory(template).getRepository(UnmanagedEntityRepository.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void initMappingContext() {
-		Mockito.when(mappingContextMock.getPersistentEntity(ProductBean.class)).thenReturn(solrEntityMock);
+		Mockito.when(mappingContextMock.getRequiredPersistentEntity(ProductBean.class)).thenReturn(solrEntityMock);
 		Mockito.when(solrEntityMock.getType()).thenReturn(ProductBean.class);
 	}
 

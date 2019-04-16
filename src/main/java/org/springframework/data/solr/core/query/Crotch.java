@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import java.util.List;
 import org.springframework.data.geo.Box;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
@@ -30,8 +31,8 @@ import org.springframework.data.geo.Point;
  */
 public class Crotch extends Criteria {
 
-	private List<Criteria> siblings = new ArrayList<Criteria>();
-	private Node mostRecentSibling = null;
+	private List<Criteria> siblings = new ArrayList<>();
+	private @Nullable Node mostRecentSibling = null;
 
 	Crotch() {}
 
@@ -44,7 +45,7 @@ public class Crotch extends Criteria {
 	}
 
 	@Override
-	public Crotch is(Object o) {
+	public Crotch is(@Nullable Object o) {
 		mostRecentSibling.is(o);
 		return this;
 	}
@@ -176,13 +177,13 @@ public class Crotch extends Criteria {
 	}
 
 	@Override
-	public Crotch between(Object lowerBound, Object upperBound) {
+	public Crotch between(@Nullable Object lowerBound, @Nullable Object upperBound) {
 		mostRecentSibling.between(lowerBound, upperBound);
 		return this;
 	}
 
 	@Override
-	public Crotch between(Object lowerBound, Object upperBound, boolean includeLowerBound, boolean includeUpperBound) {
+	public Crotch between(@Nullable Object lowerBound, @Nullable Object upperBound, boolean includeLowerBound, boolean includeUpperBound) {
 		mostRecentSibling.between(lowerBound, upperBound, includeLowerBound, includeUpperBound);
 		return this;
 	}
@@ -224,7 +225,7 @@ public class Crotch extends Criteria {
 	}
 
 	@Override
-	public Crotch within(Point location, Distance distance) {
+	public Crotch within(Point location, @Nullable Distance distance) {
 		mostRecentSibling.within(location, distance);
 		return this;
 	}
@@ -236,7 +237,7 @@ public class Crotch extends Criteria {
 	}
 
 	@Override
-	public Crotch near(Point location, Distance distance) {
+	public Crotch near(Point location, @Nullable Distance distance) {
 		mostRecentSibling.near(location, distance);
 		return this;
 	}
@@ -272,7 +273,17 @@ public class Crotch extends Criteria {
 		}
 
 		node.setParent(this);
-		this.siblings.add((Criteria) node);
+
+		boolean containsNearFunction = this.siblings.stream().anyMatch(criteria -> criteria.getPredicates().stream()
+				.anyMatch(predicate -> predicate.getKey().equalsIgnoreCase("$within")));
+
+		Criteria criteria = (Criteria) node;
+		if (containsNearFunction) {
+			this.siblings.add(0, criteria);
+		} else {
+			this.siblings.add(criteria);
+		}
+
 		this.mostRecentSibling = node;
 	}
 

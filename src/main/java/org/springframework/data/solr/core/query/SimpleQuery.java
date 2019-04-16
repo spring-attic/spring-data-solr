@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,12 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * Full implementation of {@link Query} that allows multiple options like pagination, grouping,...
- * 
+ *
  * @author Christoph Strobl
  * @author Rosty Kerei
  * @author Luke Corpe
@@ -34,20 +35,21 @@ import org.springframework.util.Assert;
  */
 public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
-	private List<Field> projectionOnFields = new ArrayList<Field>(0);
-	private List<FilterQuery> filterQueries = new ArrayList<FilterQuery>(0);;
+	private List<Field> projectionOnFields = new ArrayList<>(0);
+	private List<FilterQuery> filterQueries = new ArrayList<>(0);
 
-	private Integer offset = null;
-	private Integer rows = null;
+	private @Nullable Long offset = null;
+	private @Nullable Integer rows = null;
 
-	private Sort sort;
+	private Sort sort = Sort.unsorted();
 
-	private Operator defaultOperator;
-	private Integer timeAllowed;
-	private String defType;
+	private @Nullable Operator defaultOperator;
+	private @Nullable Integer timeAllowed;
+	private @Nullable String defType;
 
-	private GroupOptions groupOptions;
-	private StatsOptions statsOptions;
+	private @Nullable GroupOptions groupOptions;
+	private @Nullable StatsOptions statsOptions;
+	private @Nullable SpellcheckOptions spellcheckOptions;
 
 	public SimpleQuery() {}
 
@@ -55,7 +57,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * @param criteria
 	 */
 	public SimpleQuery(Criteria criteria) {
-		this(criteria, null);
+		this(criteria, Pageable.unpaged());
 	}
 
 	/**
@@ -70,10 +72,10 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * @param criteria
 	 * @param pageable
 	 */
-	public SimpleQuery(Criteria criteria, Pageable pageable) {
+	public SimpleQuery(Criteria criteria, @Nullable Pageable pageable) {
 		super(criteria);
 
-		if (pageable != null) {
+		if (pageable != null && !pageable.isUnpaged()) {
 			this.offset = pageable.getOffset();
 			this.rows = pageable.getPageSize();
 			this.addSort(pageable.getSort());
@@ -89,11 +91,13 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this(new SimpleStringCriteria(queryString), pageable);
 	}
 
+	@Nullable
 	public static final Query fromQuery(Query source) {
 		return fromQuery(source, new SimpleQuery());
 	}
 
-	public static <T extends SimpleQuery> T fromQuery(Query source, T destination) {
+	@Nullable
+	public static <T extends SimpleQuery> T fromQuery(@Nullable Query source, @Nullable T destination) {
 		if (source == null || destination == null) {
 			return null;
 		}
@@ -173,7 +177,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@Override
 	public final <T extends Query> T setPageRequest(Pageable pageable) {
-		Assert.notNull(pageable);
+		Assert.notNull(pageable, "Pageable must not be null!");
 
 		this.offset = pageable.getOffset();
 		this.rows = pageable.getPageSize();
@@ -182,7 +186,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends Query> T setOffset(Integer offset) {
+	public <T extends Query> T setOffset(Long offset) {
 		this.offset = offset;
 		return (T) this;
 	}
@@ -211,7 +215,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	/**
 	 * add grouping on field name
-	 * 
+	 *
 	 * @param fieldname must not be null
 	 * @return
 	 * @deprecated in favor of {@link GroupOptions}
@@ -224,7 +228,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final <T extends Query> T addSort(Sort sort) {
+	public final <T extends Query> T addSort(@Nullable Sort sort) {
 		if (sort == null) {
 			return (T) this;
 		}
@@ -247,20 +251,22 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	public Pageable getPageRequest() {
 
 		if (this.rows == null && this.offset == null) {
-			return null;
+			return Pageable.unpaged();
 		}
 
 		int rows = this.rows != null ? this.rows : DEFAULT_PAGE_SIZE;
-		int offset = this.offset != null ? this.offset : 0;
+		long offset = this.offset != null ? this.offset : 0;
 
-		return new SolrPageRequest(rows != 0 ? offset / rows : 0, rows, this.sort);
+		return new SolrPageRequest(rows != 0 ? (int) (offset / rows) : 0, rows, this.sort);
 	}
 
+	@Nullable
 	@Override
-	public Integer getOffset() {
+	public Long getOffset() {
 		return this.offset;
 	}
 
+	@Nullable
 	@Override
 	public Integer getRows() {
 		return this.rows;
@@ -294,6 +300,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@Nullable
 	@Override
 	public Integer getTimeAllowed() {
 		return this.timeAllowed;
@@ -306,6 +313,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		return (T) this;
 	}
 
+	@Nullable
 	@Override
 	public GroupOptions getGroupOptions() {
 		return groupOptions;
@@ -315,6 +323,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	 * (non-Javadoc)
 	 * @see org.springframework.data.solr.core.query.Query#getStatsOptions()
 	 */
+	@Nullable
 	@Override
 	public StatsOptions getStatsOptions() {
 		return statsOptions;
@@ -364,4 +373,25 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 		this.defType = defType;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#setSpellcheckOptions(org.springframework.data.solr.core.query.SpellcheckOptions)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends Query> T setSpellcheckOptions(SpellcheckOptions spellcheckOptions) {
+
+		this.spellcheckOptions = spellcheckOptions;
+		return (T) this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.springframework.data.solr.core.query.Query#getSpellcheckOptions()
+	 */
+	@Nullable
+	@Override
+	public SpellcheckOptions getSpellcheckOptions() {
+		return this.spellcheckOptions;
+	}
 }

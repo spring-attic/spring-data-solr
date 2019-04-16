@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,11 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 
 /**
  * A Query that can be translated into a solr understandable Query.
- * 
+ *
  * @author Christoph Strobl
  * @author Rosty Kerei
  * @author Luke Corpe
@@ -39,7 +40,7 @@ public interface Query extends SolrDataQuery {
 
 		private String operator;
 
-		private Operator(String operator) {
+		Operator(String operator) {
 			this.operator = operator;
 		}
 
@@ -57,7 +58,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * add given Field to those included in result. Corresponds to the {@code fl} parameter in solr.
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -65,7 +66,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * restrict result to entries on given page. Corresponds to the {@code start} and {@code row} parameter in solr
-	 * 
+	 *
 	 * @param pageable
 	 * @return
 	 */
@@ -73,16 +74,16 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * Set the number of rows to skip.
-	 * 
+	 *
 	 * @param offset
 	 * @return
 	 * @since 1.3
 	 */
-	<T extends Query> T setOffset(Integer offset);
+	<T extends Query> T setOffset(Long offset);
 
 	/**
 	 * Set the number of rows to fetch.
-	 * 
+	 *
 	 * @param rows
 	 * @return
 	 * @since 1.3
@@ -91,7 +92,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * add the given field to those used for grouping result Corresponds to '' in solr
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
@@ -99,7 +100,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * add query to filter results Corresponds to {@code fq} in solr
-	 * 
+	 *
 	 * @param query
 	 * @return
 	 */
@@ -107,7 +108,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * The time in milliseconds allowed for a search to finish. Values <= 0 mean no time restriction.
-	 * 
+	 *
 	 * @param timeAllowed
 	 * @return
 	 */
@@ -115,14 +116,14 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * Get filter queries if defined
-	 * 
+	 *
 	 * @return
 	 */
 	List<FilterQuery> getFilterQueries();
 
 	/**
 	 * Get page settings if defined.
-	 * 
+	 *
 	 * @return
 	 * @deprecated since 1.3. Will be removed in 1.4. Please use {@link #getOffset()} and {@link #getRows()} instead.
 	 */
@@ -131,36 +132,38 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * Get number of rows to skip.
-	 * 
+	 *
 	 * @since 1.3
 	 */
-	Integer getOffset();
+	@Nullable
+	Long getOffset();
 
 	/**
 	 * Get number of rows to fetch.
-	 * 
+	 *
 	 * @return
 	 * @since 1.3
 	 */
+	@Nullable
 	Integer getRows();
 
 	/**
 	 * Get group by fields if defined
-	 * 
+	 *
 	 * @return
 	 */
 	List<Field> getGroupByFields();
 
 	/**
 	 * Get projection fields if defined
-	 * 
+	 *
 	 * @return
 	 */
 	List<Field> getProjectionOnFields();
 
 	/**
 	 * Add {@link Sort} to query
-	 * 
+	 *
 	 * @param sort
 	 * @return
 	 */
@@ -169,18 +172,20 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * @return null if not set
 	 */
+	@Nullable
 	Sort getSort();
 
 	/**
 	 * Return the time (in milliseconds) allowed for a search to finish
-	 * 
+	 *
 	 * @return
 	 */
+	@Nullable
 	Integer getTimeAllowed();
 
 	/**
 	 * Set the default operator {@code q.op} for query expressions
-	 * 
+	 *
 	 * @return
 	 */
 	void setDefaultOperator(Operator operator);
@@ -188,17 +193,19 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * Get the specified default operator for query expressions, overriding the default operator specified in the
 	 * {@code schema.xml} file.
-	 * 
+	 *
 	 * @return
 	 */
+	@Nullable
 	Operator getDefaultOperator();
 
 	/**
 	 * Get the default type of query, if one has been specified. Overrides the default type specified in the
 	 * solrconfig.xml file.
-	 * 
+	 *
 	 * @return
 	 */
+	@Nullable
 	String getDefType();
 
 	/**
@@ -209,6 +216,7 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * Returns the request handler.
 	 */
+	@Nullable
 	String getRequestHandler();
 
 	/**
@@ -218,7 +226,7 @@ public interface Query extends SolrDataQuery {
 
 	/**
 	 * Sets {@link GroupOptions} for this {@link Query}.
-	 * 
+	 *
 	 * @param groupOptions
 	 * @return
 	 */
@@ -227,11 +235,12 @@ public interface Query extends SolrDataQuery {
 	/**
 	 * @return group options
 	 */
+	@Nullable
 	GroupOptions getGroupOptions();
 
 	/**
 	 * Set {@link StatsOptions} for this {@link Query}.
-	 * 
+	 *
 	 * @param statsOptions
 	 * @return
 	 * @since 1.4
@@ -242,6 +251,23 @@ public interface Query extends SolrDataQuery {
 	 * @return {@link StatsOptions} or null if not set.
 	 * @since 1.4
 	 */
+	@Nullable
 	StatsOptions getStatsOptions();
+
+	/**
+	 * Set the {@link SpellcheckOptions} to enable spellchecking.
+	 *
+	 * @param spellcheckOptions can be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 2.1
+	 */
+	<T extends Query> T setSpellcheckOptions(SpellcheckOptions spellcheckOptions);
+
+	/**
+	 * @return {@literal null} if not set.
+	 * @since 2.1
+	 */
+	@Nullable
+	SpellcheckOptions getSpellcheckOptions();
 
 }

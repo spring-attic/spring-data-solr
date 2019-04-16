@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 - 2015 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,30 +15,30 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition;
 import org.springframework.data.solr.server.SolrClientFactory;
-import org.springframework.data.solr.server.support.MulticoreSolrClientFactory;
-import org.springframework.data.solr.test.util.ExternalServerWithManagedSchemaRule;
-import org.springframework.util.Assert;
+import org.springframework.data.solr.server.support.HttpSolrClientFactory;
+import org.springframework.data.solr.test.util.EmbeddedSolrServer;
 
 /**
  * @author Christoph Strobl
  */
 public class ITestSolrSchemaWriter {
 
-	public @Rule ExternalServerWithManagedSchemaRule requiresExternalServer = ExternalServerWithManagedSchemaRule
-			.onLocalhost();
+	public static @ClassRule EmbeddedSolrServer resource = EmbeddedSolrServer
+			.configure(new ClassPathResource("managed-schema"));
 
 	private SolrClient solrClient;
 	private SolrClientFactory factory;
@@ -46,44 +46,32 @@ public class ITestSolrSchemaWriter {
 
 	@Before
 	public void setUp() {
-		solrClient = new HttpSolrClient("http://localhost:8983/solr");
-		factory = new MulticoreSolrClientFactory(solrClient);
+		solrClient = resource.getSolrClient("collecion1");
+		factory = new HttpSolrClientFactory(solrClient);
 		schemaWriter = new SolrSchemaWriter(factory);
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void getSchemaVersionShouldReturnVersionNumberCorrectly() {
 
 		Double version = schemaWriter.retrieveSchemaVersion("collection1");
-		assertThat(version, equalTo(1.5D));
+		assertThat(version, is(closeTo(1.6D, 0.1D)));
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	@Ignore("creating new schema on the fly does not work")
 	public void createSchema() {
 		SchemaDefinition def = new SchemaDefinition("foobar");
 		schemaWriter.writeSchema(def);
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
-		Assert.notNull(def);
+		assertThat(def, notNullValue());
 	}
 
-	/**
-	 * @see DATASOLR-72
-	 */
-	@Test
+	@Test // DATASOLR-72
 	public void writeSchemaDefintion() {
 
 		SchemaDefinition def = new SchemaDefinition("collection1");

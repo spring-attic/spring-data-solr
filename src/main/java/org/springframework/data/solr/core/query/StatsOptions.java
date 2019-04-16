@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -80,7 +81,6 @@ public class StatsOptions {
 	/**
 	 * Adds a facet on field to the statistics to be requested.
 	 * 
-	 * @param fieldName
 	 * @return
 	 */
 	public StatsOptions addFacet(Field field) {
@@ -147,6 +147,7 @@ public class StatsOptions {
 	 * @param field
 	 * @return true if a distinct calculation shall be done selectively to the given field.
 	 */
+	@Nullable
 	public Boolean isSelectiveCalcDistincts(Field field) {
 		return state.selectiveCalcDistinct.get(field);
 	}
@@ -174,7 +175,7 @@ public class StatsOptions {
 		 */
 		public FieldStatsOptions addSelectiveFacet(Field field) {
 			if (!state.selectiveFacets.containsKey(fieldContext)) {
-				state.selectiveFacets.put(fieldContext, new ArrayList<Field>());
+				state.selectiveFacets.put(fieldContext, new ArrayList<>());
 			}
 			state.selectiveFacets.get(fieldContext).add(field);
 			return this;
@@ -197,10 +198,10 @@ public class StatsOptions {
 	 */
 	private static class StatsOptionsState {
 
-		private Set<Field> fields = new LinkedHashSet<Field>(1);
-		private Set<Field> facets = new LinkedHashSet<Field>(0);
+		private Set<Field> fields = new LinkedHashSet<>(1);
+		private Set<Field> facets = new LinkedHashSet<>(0);
 		private boolean calcDistinct = false;
-		private Map<Field, Collection<Field>> selectiveFacets = new LinkedHashMap<Field, Collection<Field>>();
-		private Map<Field, Boolean> selectiveCalcDistinct = new LinkedHashMap<Field, Boolean>();
+		private Map<Field, Collection<Field>> selectiveFacets = new LinkedHashMap<>();
+		private Map<Field, Boolean> selectiveCalcDistinct = new LinkedHashMap<>();
 	}
 }

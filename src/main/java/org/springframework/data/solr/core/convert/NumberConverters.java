@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2013 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,11 +17,12 @@ package org.springframework.data.solr.core.convert;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
+import org.springframework.util.Assert;
 
 /**
  * Converts a Number values into a solr readable String that can be directly used within the {@code q} parameter.
  * Negative values will be escaped accordingly.
- * 
+ *
  * @author Christoph Strobl
  */
 public final class NumberConverters {
@@ -32,9 +33,8 @@ public final class NumberConverters {
 
 		@Override
 		public String convert(Number source) {
-			if (source == null) {
-				return null;
-			}
+
+			Assert.notNull(source, "Source must not be null!");
 
 			if (source.doubleValue() < 0d) {
 				return "\\" + source.toString();

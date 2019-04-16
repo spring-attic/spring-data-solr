@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2014 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,6 @@ import org.springframework.data.solr.core.query.result.ScoredPage;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SolrCrudRepository;
-import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 
 /**
  * @author Christoph Strobl
@@ -45,7 +44,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 	@Before
 	public void setUp() {
-		SolrTemplate template = new SolrTemplate(new HttpSolrClientFactory(solrClient));
+		SolrTemplate template = new SolrTemplate(server);
 		template.afterPropertiesSet();
 		factory = new SolrRepositoryFactory(template);
 	}
@@ -71,19 +70,19 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.save(initial);
 		Assert.assertEquals(1, repository.count());
 
-		ProductBean loaded = repository.findOne(initial.getId());
+		ProductBean loaded = repository.findById(initial.getId()).get();
 		Assert.assertEquals(initial.getName(), loaded.getName());
 
 		loaded.setName("name changed");
 		repository.save(loaded);
 		Assert.assertEquals(1, repository.count());
 
-		loaded = repository.findOne(initial.getId());
+		loaded = repository.findById(initial.getId()).get();
 		Assert.assertEquals("name changed", loaded.getName());
 
 		repository.delete(loaded);
 
-		Thread.sleep(100);
+		Thread.sleep(200);
 		Assert.assertEquals(0, repository.count());
 	}
 
@@ -94,7 +93,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 		repository.save(initial);
 
-		Page<ProductBean> result = repository.findByAnnotatedQuery("na", new PageRequest(0, 5));
+		Page<ProductBean> result = repository.findByAnnotatedQuery("na", PageRequest.of(0, 5));
 		Assert.assertEquals(1, result.getContent().size());
 	}
 
@@ -105,7 +104,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 		repository.save(initial);
 
-		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", new PageRequest(0, 5));
+		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", PageRequest.of(0, 5));
 		Assert.assertEquals(1, result.getContent().size());
 		Assert.assertEquals(Float.valueOf(1), result.getMaxScore());
 	}
@@ -118,10 +117,10 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
-		repository.save(Arrays.asList(availableProduct, unavailableProduct));
+		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
 		Assert.assertEquals(2, repository.count());
 
-		Page<ProductBean> result = repository.findByAvailableTrue(new PageRequest(0, 10));
+		Page<ProductBean> result = repository.findByAvailableTrue(PageRequest.of(0, 10));
 		Assert.assertEquals(1, result.getTotalElements());
 		Assert.assertEquals(availableProduct.getId(), result.getContent().get(0).getId());
 	}
@@ -134,7 +133,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
-		repository.save(Arrays.asList(availableProduct, unavailableProduct));
+		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
 		Assert.assertEquals(2, repository.count());
 
 		List<ProductBean> result = repository.findByAvailableTrue();

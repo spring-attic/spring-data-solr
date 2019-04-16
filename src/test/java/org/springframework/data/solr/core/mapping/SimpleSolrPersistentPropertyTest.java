@@ -1,11 +1,11 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,15 +25,17 @@ import java.lang.reflect.Field;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.solr.repository.Score;
+import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Francisco Spaeth
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleSolrPersistentPropertyTest {
@@ -42,13 +44,10 @@ public class SimpleSolrPersistentPropertyTest {
 	private @Mock SimpleTypeHolder simpleTypeHolder;
 	private @Mock TypeInformation<BeanWithScore> typeInformation;
 
-	/**
-	 * @see DATASOLR-210
-	 */
-	@Test
+	@Test // DATASOLR-210
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void scoredPropertyShouldBeReadOnlyAndNotWritable() throws NoSuchFieldException, SecurityException,
-			IntrospectionException {
+	public void scoredPropertyShouldBeReadOnlyAndNotWritable()
+			throws NoSuchFieldException, SecurityException, IntrospectionException {
 
 		Field field = BeanWithScore.class.getDeclaredField("myScoreProperty");
 		PropertyDescriptor propertyDescriptor = new PropertyDescriptor("myScoreProperty", BeanWithScore.class, null, null);
@@ -57,7 +56,8 @@ public class SimpleSolrPersistentPropertyTest {
 		when(owner.getTypeInformation()).thenReturn(typeInformation);
 		when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
 
-		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(field, propertyDescriptor, owner,
+		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
+				Property.of(ClassTypeInformation.from(BeanWithScore.class), field, propertyDescriptor), owner,
 				simpleTypeHolder);
 
 		assertTrue(property.isScoreProperty());

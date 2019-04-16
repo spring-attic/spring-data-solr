@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class SolrTransactionSynchronizationAdapter extends TransactionSynchronizationAdapter {
 
-	private Map<Integer, CompletionDelegate> delegates = new HashMap<Integer, CompletionDelegate>(2);
+	private Map<Integer, CompletionDelegate> delegates = new HashMap<>(2);
 	private final SolrOperations solrOperations;
 
 	SolrTransactionSynchronizationAdapter(SolrOperations solrOperations) {
@@ -42,7 +42,7 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 	@Override
 	public void afterCompletion(int status) {
 
-		CompletionDelegate delegate = this.delegates.get(Integer.valueOf(status));
+		CompletionDelegate delegate = this.delegates.get(status);
 		if (delegate != null) {
 			delegate.execute(this.solrOperations);
 		}
@@ -53,10 +53,10 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 	}
 
 	public void registerCompletionDelegate(int transactionStatus, CompletionDelegate completionDelegate) {
-		this.delegates.put(Integer.valueOf(transactionStatus), completionDelegate);
+		this.delegates.put(transactionStatus, completionDelegate);
 	}
 
-	public static interface CompletionDelegate {
+	public interface CompletionDelegate {
 
 		void execute(SolrOperations solrOperations);
 
@@ -64,18 +64,30 @@ public class SolrTransactionSynchronizationAdapter extends TransactionSynchroniz
 
 	public static class CommitTransaction implements CompletionDelegate {
 
+		private final String collectionName;
+
+		CommitTransaction(String collectionName) {
+			this.collectionName = collectionName;
+		}
+
 		@Override
 		public void execute(SolrOperations solrOperations) {
-			solrOperations.commit();
+			solrOperations.commit(collectionName);
 		}
 
 	}
 
 	public static class RollbackTransaction implements CompletionDelegate {
 
+		private final String collectionName;
+
+		RollbackTransaction(String collectionName) {
+			this.collectionName = collectionName;
+		}
+
 		@Override
 		public void execute(SolrOperations solrOperations) {
-			solrOperations.rollback();
+			solrOperations.rollback(collectionName);
 		}
 
 	}

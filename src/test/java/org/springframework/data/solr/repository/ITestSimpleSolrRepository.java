@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.data.solr.repository;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.springframework.data.solr.core.SolrTemplate;
 
 /**
  * @author Christoph Strobl
+ * @author Mayank Kumar
  */
 public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServer {
 
@@ -35,10 +37,11 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 	@Before
 	public void setUp() {
-		repository = new ExampleSolrBeanRepository();
-		SolrTemplate template = new SolrTemplate(solrClient, null);
+
+		SolrTemplate template = new SolrTemplate(server);
 		template.afterPropertiesSet();
-		repository.setSolrOperations(template);
+
+		repository = new ExampleSolrBeanRepository(template, ExampleSolrBean.class);
 	}
 
 	@Test
@@ -48,32 +51,31 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		Assert.assertSame(toInsert, savedBean);
 
-		Assert.assertTrue(repository.exists(savedBean.getId()));
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
 
-		ExampleSolrBean retrieved = repository.findOne(savedBean.getId());
+		ExampleSolrBean retrieved = repository.findById(savedBean.getId()).get();
 		Assert.assertNotNull(retrieved);
 		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
 
 		Assert.assertEquals(1, repository.count());
 
-		Assert.assertTrue(repository.exists(savedBean.getId()));
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
 
 		repository.delete(savedBean);
 
 		Assert.assertEquals(0, repository.count());
-		retrieved = repository.findOne(savedBean.getId());
-		Assert.assertNull(retrieved);
+		Assert.assertFalse(repository.findById(savedBean.getId()).isPresent());
 	}
 
 	@Test
 	public void testListFunctions() {
 		int objectCount = 100;
-		List<ExampleSolrBean> toInsert = new ArrayList<ExampleSolrBean>(objectCount);
+		List<ExampleSolrBean> toInsert = new ArrayList<>(objectCount);
 		for (int i = 0; i < 100; i++) {
 			toInsert.add(createExampleBeanWithId(Integer.toString(i)));
 		}
 
-		repository.save(toInsert);
+		repository.saveAll(toInsert);
 
 		Assert.assertEquals(objectCount, repository.count());
 
@@ -94,5 +96,28 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 		repository.deleteAll();
 
 		Assert.assertEquals(0, repository.count());
+	}
+
+	@Test //DATASOLR-332
+	public void testBeanLifecyleWithCommitWithin() {
+		ExampleSolrBean toInsert = createDefaultExampleBean();
+		ExampleSolrBean savedBean = repository.save(toInsert, Duration.ofSeconds(10));
+
+		Assert.assertSame(toInsert, savedBean);
+
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
+
+		ExampleSolrBean retrieved = repository.findById(savedBean.getId()).get();
+		Assert.assertNotNull(retrieved);
+		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
+
+		Assert.assertEquals(1, repository.count());
+
+		Assert.assertTrue(repository.existsById(savedBean.getId()));
+
+		repository.delete(savedBean);
+
+		Assert.assertEquals(0, repository.count());
+		Assert.assertFalse(repository.findById(savedBean.getId()).isPresent());
 	}
 }
