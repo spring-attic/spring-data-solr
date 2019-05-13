@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.22.RELEASE (2019-05-13)
+----------------------------------------------
+* DATASOLR-526 - Release 2.1.22 (Ingalls SR22).
+
+
 Changes in version 4.0.8.RELEASE (2019-05-13)
 ---------------------------------------------
 * DATASOLR-525 - Release 4.0.8 (Lovelace SR8).
