@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.M4 (2019-05-13)
+----------------------------------------
+* DATASOLR-524 - Release 4.1 M4 (Moore).
+* DATASOLR-511 - A ValueSource isn't directly available from this field response for geodist() query.
+* DATASOLR-510 - Solr geofilt() query returns score as 1 all the time.
+
+
 Changes in version 2.1.21.RELEASE (2019-05-10)
 ----------------------------------------------
 * DATASOLR-519 - Release 2.1.21 (Ingalls SR21).
