@@ -65,6 +65,7 @@ import org.springframework.data.solr.core.query.Query.Operator;
  * @author Francisco Spaeth
  * @author Petar Tahchiev
  * @author Michael Rocke
+ * @author Radek Mensik
  */
 public class DefaultQueryParserTests {
 
@@ -260,9 +261,22 @@ public class DefaultQueryParserTests {
 	}
 
 	@Test
+	public void testScoreMultipleValues() {
+
+		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").constantScore(3f);
+		assertEquals("field_1:(value_1 value_2)^=3.0", queryParser.createQueryStringFromCriteria(criteria));
+	}
+
+	@Test
 	public void testBoostMultipleCriteriasValues() {
 		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
 		assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3", queryParser.createQueryStringFromNode(criteria));
+	}
+
+	@Test
+	public void testScoreMultipleCriteriasValues() {
+		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").constantScore(3f).and("field_3").is("value_3");
+		assertEquals("field_1:(value_1 value_2)^=3.0 AND field_3:value_3", queryParser.createQueryStringFromNode(criteria));
 	}
 
 	@Test

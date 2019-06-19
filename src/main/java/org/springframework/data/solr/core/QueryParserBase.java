@@ -76,6 +76,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	protected static final String DELIMINATOR = ":";
 	protected static final String NOT = "-";
 	protected static final String BOOST = "^";
+	protected static final String CONSTANT_SCORE = "^=";
 
 	protected final GenericConversionService conversionService = new GenericConversionService();
 	private final List<PredicateProcessor> critieraEntryProcessors = new ArrayList<>();
@@ -226,6 +227,10 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		}
 		if (!Float.isNaN(criteria.getBoost())) {
 			queryFragment.append(BOOST).append(criteria.getBoost());
+		}
+
+		if (!Float.isNaN(criteria.getScore())) {
+			queryFragment.append(CONSTANT_SCORE).append(criteria.getScore());
 		}
 
 		return queryFragment.toString();

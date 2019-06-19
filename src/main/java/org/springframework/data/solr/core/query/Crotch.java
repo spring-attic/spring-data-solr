@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * @author Christoph Strobl
+ * @author Radek Mensik
  * @since 1.2
  */
 public class Crotch extends Criteria {
@@ -53,6 +54,12 @@ public class Crotch extends Criteria {
 	@Override
 	public Crotch boost(float boost) {
 		mostRecentSibling.boost(boost);
+		return this;
+	}
+
+	@Override
+	public Crotch constantScore(float score) {
+		mostRecentSibling.constantScore(score);
 		return this;
 	}
 
