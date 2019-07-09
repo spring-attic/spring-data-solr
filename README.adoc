@@ -1,206 +1,62 @@
 image:https://spring.io/badges/spring-data-solr/ga.svg[Spring Data for Apache Solr,link=https://projects.spring.io/spring-data-solr/#quick-start]
 image:https://spring.io/badges/spring-data-solr/snapshot.svg[Spring Data for Apache Solr,link=https://projects.spring.io/spring-data-solr/#quick-start]
 
-image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2Fmaster&subject=Moore%20(master)[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/]
-image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2F4.0.x&subject=Lovelace%20(4.0.x)[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/]
-image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2F2.1.x&subject=Ingalls%20(2.1.x)[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/]
-
-= Spring Data for Apache Solr
+= Spring Data for Apache Solr image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
 
 The primary goal of the https://projects.spring.io/spring-data[Spring Data] project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
 
 The Spring Data for Apache Solr project provides integration with the https://lucene.apache.org/solr/[Apache Solr] search engine
 
-Providing its own extensible `MappingSolrConverter` as alternative to `DocumentObjectBinder` Spring Data for Apache Solr handles inheritance as well as usage of custom Types such as `Point` or `DateTime`.
+Providing its own extensible `MappingSolrConverter` as alternative to `DocumentObjectBinder` Spring Data for Apache Solr handles inheritance as well as usage of custom Types such as `Point` or `DateTime`
 
-== Getting Help
+== Features
 
-* https://docs.spring.io/spring-data/data-solr/docs/current/reference/html/[Reference Documentation]
-* https://docs.spring.io/spring-data/data-solr/docs/current/api/[API Documentation]
-* https://projects.spring.io/spring-data[Spring Data Project]
-* https://jira.springsource.org/browse/DATASOLR[Issues]
-* https://sonar.springsource.org/dashboard/index/org.springframework.data:spring-data-solr[Code Analysis]
-* https://stackoverflow.com/questions/tagged/spring-data-solr[Questions]
+* High level repository abstractions with multicore support
+* Annotations for Boost-, Facet- and Highlighting
+* Customizable type mappings and type conversions
+* Solr template supporting fluent query api
+* Exception translation to Spring’s portable Data Access exception hierarchy
 
-If you are new to Spring as well as to Spring Data, look for information about https://spring.io/projects[Spring projects].
+== Code of Conduct
 
-== Quick Start
+This project is governed by the link:CODE_OF_CONDUCT.adoc[Spring Code of Conduct]. By participating, you are expected to uphold this code of conduct. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
 
-=== SolrTemplate
+== Getting Started
 
-[source,SolrTemplate``` is the central support class for Solr operations.]
-----
-
-### SolrRepository
-A default implementation of ```SolrRepository```, aligning to the generic Repository Interfaces, is provided. Spring can do the Repository implementation for you depending on method names in the interface definition.
-
-The ```SolrCrudRepository``` extends ```PagingAndSortingRepository```
-
-----
-
-public interface SolrCrudRepository&lt;T, ID extends Serializable&gt; extends SolrRepository&lt;T, ID&gt;, PagingAndSortingRepository&lt;T, ID&gt; {
- }
-```
-
-The `SimpleSolrRepository` implementation uses `MappingSolrConverter`. In order support native solrj mapping via `DocumentObjectBinder` fields have to be annotated with `org.apache.solr.client.solrj.beans.Field`. `org.springframework.data.solr.core.mapping.Indexed` can be used as substitute for `Field` offering additional attributes to be used eg. for index time boosting.
-
-To enable native solrj mapping use `SolrJConverter` along with `SolrTemplate`.
+Here is a quick teaser of an application using Spring Data Repositories in Java:
 
 [source,java]
 ----
-public interface SolrProductRepository extends SolrCrudRepository<Product, String> {
+public interface PersonRepository extends CrudRepository<Person, Long> {
 
-  //Derived Query will be "q=popularity:<popularity>&start=<page.number>&rows=<page.size>"
-  Page<Product> findByPopularity(Integer popularity, Pageable page);
+  List<Person> findByLastname(String lastname);
 
-  //Will execute count prior to determine total number of elements
-  //Derived Query will be "q=name:<name>*&start=0&rows=<result of count query for q=name:<name>>"
-  List<Product> findByNameStartingWith(String name);
-
-  //Derived Query will be "q=inStock:true&start=<page.number>&rows=<page.size>"
-  Page<Product> findByAvailableTrue(Pageable page);
-
-  //Derived Query will be "q=inStock:<inStock>&start=<page.number>&rows=<page.size>"
-  @Query("inStock:?0")
-  Page<Product> findByAvailableUsingAnnotatedQuery(boolean inStock, Pageable page);
-
-  //Will execute count prior to determine total number of elements
-  //Derived Query will be "q=inStock:false&start=0&rows=<result of count query for q=inStock:false>&sort=name desc"
-  List<Product> findByAvailableFalseOrderByNameDesc();
-
-  //Execute faceted search
-  //Query will be "q=name:<name>&facet=true&facet.field=cat&facet.limit=20&start=<page.number>&rows=<page.size>"
-  @Query(value = "name:?0")
-  @Facet(fields = { "cat" }, limit=20)
-  FacetPage<Product> findByNameAndFacetOnCategory(String name, Pageable page);
-
-  //Boosting criteria
-  //Query will be "q=name:<name>^2 OR description:<description>&start=<page.number>&rows=<page.size>"
-  Page<Product> findByNameOrDescription(@Boost(2) String name, String description, Pageable page);
-
-  //Highlighting results
-  //Query will be "q=name:(<name...>)&hl=true&hl.fl=*"
-  @Highlight
-  HighlightPage<Product> findByNameIn(Collection<String> name, Pageable page);
-
-  //Spatial Search
-  //Query will be "q=location:[<bbox.start.latitude>,<bbox.start.longitude> TO <bbox.end.latitude>,<bbox.end.longitude>]"
-  Page<Product> findByLocationNear(Box bbox);
-
-  //Spatial Search
-  //Query will be "q={!geofilt pt=<location.latitude>,<location.longitude> sfield=location d=<distance.value>}"
-  Page<Product> findByLocationWithin(Point location, Distance distance);
-
-}
-----
-
-Furthermore you may provide a custom implementation for some operations.
-
-[source,java]
-----
-public interface SolrProductRepository extends SolrCrudRepository<Product, String>, SolrProductRepositoryCustom {
-
-  @Query(fields = { "id", "name", "popularity" })
-  Page<Product> findByPopularity(Integer popularity, Pageable page);
-
-  List<Product> findByAuthorLike(String author);
-
-}
-
-public interface SolrProductRepositoryCustom {
-
-  Page<Product> findProductsByCustomImplementation(String value, Pageable page)
-
-}
-
-public class SolrProductRepositoryImpl implements SolrProductRepositoryCustom {
-
-  private SolrOperations solrTemplate;
-
-  @Override
-  public Page<Product> findProductsByCustomImplementation(String value, Pageable page) {
-    Query query = new SimpleQuery(new SimpleStringCriteria("name:"+value)).setPageRequest(page);
-    return solrTemplate.queryForPage(query, Product.class);
-  }
-
-  @Autowired
-  public void setOperations(SolrOperations operations) {
-    this.operations = operations;
-  }
-
-}
-----
-
-Go on and use it as shown below:
-
-[source,java]
-----
-@Configuration
-@EnableSolrRepositories(basePackages = { "com.acme.solr" })
-public class SolrContext {
-
-  private @Resource Environment env;
-
-  @Bean
-  public SolrClient solrClient() throws MalformedURLException, IllegalStateException {
-    return new HttpSolrClient(env.getRequiredProperty("solr.host"));
-  }
-
+  List<Person> findByFirstnameLike(String firstname);
 }
 
 @Service
-public class ProductService {
+public class MyService {
 
-  final SolrProductRepository repository;
+  private final PersonRepository repository;
 
-  @Autowired
-  public ProductService(SolrProductRepository repository) {
+  public MyService(PersonRepository repository) {
     this.repository = repository;
   }
 
-  public void doSomething() {
+  public void doWork() {
+
     repository.deleteAll();
 
-    Product product = new Product("spring-data-for-apache-solr");
-    product.setAuthor("Christoph Strobl");
-    product.setCategory("search");
-    repository.save(product);
+    Person person = new Person();
+    person.setFirstname("Christoph");
+    person.setLastname("Strobl");
+    repository.save(person);
 
-    Product singleProduct = repository.findById("spring-data-for-apache-solr");
-    List<Product> productList = repository.findByAuthorLike("Chr");
-  }
-
+    List<Person> lastNameResults = repository.findByLastname("Strobl");
+    List<Person> firstNameResults = repository.findByFirstnameLike("C*");
+ }
 }
-----
 
-=== XML Namespace
-
-You can set up repository scanning via xml configuration, which will happily create your repositories.
-
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:solr="http://www.springframework.org/schema/data/solr"
-  xsi:schemaLocation="http://www.springframework.org/schema/data/solr https://www.springframework.org/schema/data/solr/spring-solr.xsd
-    http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
-
-  <solr:repositories base-package="com.acme.repository" />
-  <solr:solr-client id="solrClient" url="http://localhost:8983/solr" />
-
-</beans>
-----
-
-=== Schema Support
-
-Schema Support inspects your domain types whenever the applications context is refreshed and create missing fields in your index based on the properties configuration.
-This requires solr to run in https://cwiki.apache.org/confluence/display/solr/Schemaless+Mode[Schemaless Mode].
-
-Use `@Indexed` to provide additional details like specific solr types to use.
-
-[source,java]
-----
 @Configuration
 @EnableSolrRepositories(schemaCreationSupport = true)
 class Config {
@@ -210,48 +66,11 @@ class Config {
     return new HttpSolrClient("http://localhost:8983/solr");
   }
 }
-
-@SolrDocument(collection="collection1")
-class Product {
-
-  @Id String id;
-  @Indexed(solrType="text_general") String author;
-  @Indexed("cat") List<String> category;
-
-}
 ----
 
-[source,javascript]
-----
-// curl ../solr/collection1/schema/fields -X POST -H 'Content-type:application/json'
-[
-  {
-    "name":"id",
-    "type":"string",
-    "stored":true,
-    "indexed":true,
-    "multiValued":false
-  }
-  {
-    "name":"author",
-    "type":"text_general",
-    "stored":true,
-    "indexed":true,
-    "multiValued":false
-  }
-  {
-    "name":"cat",
-    "type":"string",
-    "stored":true,
-    "indexed":true,
-    "multiValued":true
-  }
-]
-----
+=== Maven configuration
 
-== Maven
-
-=== RELEASE
+Add the Maven dependency:
 
 [source,xml]
 ----
@@ -262,7 +81,7 @@ class Product {
 </dependency>
 ----
 
-=== Build Snapshot
+If you'd rather like the latest snapshots of the upcoming major version, use our Maven snapshot repository and declare the appropriate dependency version.
 
 [source,xml]
 ----
@@ -273,61 +92,65 @@ class Product {
 </dependency>
 
 <repository>
-  <id>spring-maven-snapshot</id>
+  <id>spring-libs-snapshot</id>
+  <name>Spring Snapshot Repository</name>
   <url>https://repo.spring.io/libs-snapshot</url>
 </repository>
 ----
 
-== Contributing to Spring Data
+== Getting Help
 
-Here are some ways for you to get involved in the community:
+Having trouble with Spring Data? We’d love to help!
 
-* Get involved with the Spring community on Stackoverflow and help out on the https://stackoverflow.com/questions/tagged/spring-data-solr[spring-data-solr] tag by responding to questions and joining the debate.
-* Create https://jira.spring.io/browse/DATASOLR[JIRA] tickets for bugs and new features and comment and vote on the ones that you are interested in.
-* Github is for social coding: if you want to write code, we encourage contributions through pull requests from https://help.github.com/forking/[forks of this repository]. If you want to contribute code this way, please reference a JIRA ticket as well covering the specific issue you are addressing.
-* Watch for upcoming articles on Spring by https://spring.io/blog[subscribing] to spring.io.
+* Check the
+https://docs.spring.io/spring-data/solr/docs/current/reference/html/[reference documentation], and https://docs.spring.io/spring-data/solr/docs/current/api/[Javadocs].
+* Learn the Spring basics – Spring Data builds on Spring Framework, check the https://spring.io[spring.io] web-site for a wealth of reference documentation.
+If you are just starting out with Spring, try one of the https://spring.io/guides[guides].
+* If you are upgrading, check out the https://docs.spring.io/spring-data/solr/docs/current/changelog.txt[changelog] for "`new and noteworthy`" features.
+* Ask a question - we monitor https://stackoverflow.com[stackoverflow.com] for questions tagged with https://stackoverflow.com/tags/spring-data[`spring-data-solr`].
+You can also chat with the community on https://gitter.im/spring-projects/spring-data[Gitter].
+* Report bugs with Spring Data for Apache Solr at https://jira.spring.io/browse/DATASOLR[jira.spring.io/browse/DATASOLR].
 
-Before we accept a non-trivial patch or pull request we will need you to https://cla.pivotal.io/sign/spring[sign the Contributor License Agreement]. Signing the contributor’s agreement does not grant anyone commit rights to the main repository, but it does mean that we can accept your contributions, and you will get an author credit if we do. If you forget to do so, you'll be reminded when you submit a pull request. Active contributors might be asked to join the core team, and given the ability to merge pull requests.
+== Reporting Issues
 
-== Stay in touch
+Spring Data uses JIRA as issue tracking system to record bugs and feature requests. If you want to raise an issue, please follow the recommendations below:
 
-Follow the project team (https://twitter.com/stroblchristoph[@stroblchristoph], https://twitter.com/springdata[@SpringData]) on Twitter. Releases are announced via our news feed.
+* Before you log a bug, please search the
+https://jira.spring.io/browse/DATASOLR[issue tracker] to see if someone has already reported the problem.
+* If the issue doesn’t already exist, https://jira.spring.io/browse/DATASOLR[create a new issue].
+* Please provide as much information as possible with the issue report, we like to know the version of Spring Data that you are using and JVM version.
+* If you need to paste code, or include a stack trace use JIRA `{code}…{code}` escapes before and after your text.
+* If possible try to create a test-case or project that replicates the issue. Attach a link to your code or a compressed file containing your code.
 
-= Running CI tasks locally
+== Building from Source
 
-Since this pipeline is purely Docker-based, it's easy to:
+You don’t need to build from source to use Spring Data (binaries in https://repo.spring.io[repo.spring.io]), but if you want to try out the latest and greatest, Spring Data can be easily built with the https://github.com/takari/maven-wrapper[maven wrapper].
+You also need JDK 1.8.
 
-* Debug what went wrong on your local machine.
-* Test out a a tweak to your `test.sh` script before sending it out.
-* Experiment against a new image before submitting your pull request.
+[source,bash]
+----
+ $ ./mvnw clean install
+----
 
-All of these use cases are great reasons to essentially run what the CI server does on your local machine.
+If you want to build with the regular `mvn` command, you will need https://maven.apache.org/run-maven/index.html[Maven v3.5.0 or above].
 
-IMPORTANT: To do this you must have Docker installed on your machine.
+_Also see link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] if you wish to submit pull requests, and in particular please sign the https://cla.pivotal.io/sign/spring[Contributor’s Agreement] before your first change, is trivial._
 
-1. `docker run -it --mount type=bind,source="$(pwd)",target=/spring-data-solr-github adoptopenjdk/openjdk8:latest /bin/bash`
-+
-This will launch the Docker image and mount your source code at `spring-data-solr-github`.
-+
-2. `cd spring-data-solr-github`
-+
-Next, run your tests from inside the container:
-+
-3. `./mvnw clean dependency:list test -Dsort` (or whatever profile you need to test out)
+=== Building reference documentation
 
-Since the container is binding to your source, you can make edits from your IDE and continue to run build jobs.
+Building the documentation builds also the project without running tests.
 
-If you test building the artifact, do this:
+[source,bash]
+----
+ $ ./mvnw clean install -Pdistribute
+----
 
-1. `docker run -it --mount type=bind,source="$(pwd)",target=/spring-data-solr-github adoptopenjdk/openjdk8:latest /bin/bash`
-+
-This will launch the Docker image and mount your source code at `spring-data-solr-github`.
-+
-2. `cd spring-data-solr-github`
-+
-Next, try to package everything up from inside the container:
-+
-3. `./mvnw -Pci,snapshot -Dmaven.test.skip=true clean package`
+The generated documentation is available from `target/site/reference/html/index.html`.
 
-NOTE: Docker containers can eat up disk space fast! From time to time, run `docker system prune` to clean out old images.
+== Examples
 
+* https://github.com/spring-projects/spring-data-examples/[Spring Data Examples] contains example projects that explain specific features in more detail.
+
+== License
+
+Spring Data for Apache Solr is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
