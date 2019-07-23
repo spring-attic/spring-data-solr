@@ -18,13 +18,13 @@ package org.springframework.data.solr.core;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Optional;
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.convert.SolrConverter;
+import org.springframework.data.solr.core.query.DisMaxQuery;
 import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
@@ -37,6 +37,7 @@ import org.springframework.data.solr.core.query.result.FacetPage;
 import org.springframework.data.solr.core.query.result.GroupPage;
 import org.springframework.data.solr.core.query.result.HighlightPage;
 import org.springframework.data.solr.core.query.result.ScoredPage;
+import org.springframework.data.solr.core.query.result.SolrResultPage;
 import org.springframework.data.solr.core.query.result.StatsPage;
 import org.springframework.data.solr.core.query.result.TermsPage;
 import org.springframework.data.solr.core.schema.SchemaOperations;
@@ -50,6 +51,7 @@ import org.springframework.lang.Nullable;
  * @author Francisco Spaeth
  * @author Shiradwade Sateesh Krishna
  * @author David Webb
+ * @author Matthew Hall
  */
 public interface SolrOperations {
 
@@ -455,6 +457,29 @@ public interface SolrOperations {
 	 */
 	<T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz, RequestMethod method);
 
+	/**
+	 * Execute the query against Solr and return result as {@link StatsPage}.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 4.1
+	 */
+	<T> SolrResultPage<T> queryForDisMaxPage(String collection, DisMaxQuery query, Class<T> clazz);
+
+	/**
+	 * Execute the query against Solr and return result as {@link StatsPage}.
+	 *
+	 * @param collection must not be {@literal null}.
+	 * @param query must not be {@literal null}.
+	 * @param clazz must not be {@literal null}.
+	 * @param requestMethod must not be {@literal null}.
+	 * @return never {@literal null}.
+	 * @since 4.1
+	 */
+	public <T> SolrResultPage<T> queryForDisMaxPage(String collection, DisMaxQuery query, Class<T> clazz,
+			@Nullable RequestMethod requestMethod);
 	/**
 	 * Execute the query against Solr and return result as page.
 	 *

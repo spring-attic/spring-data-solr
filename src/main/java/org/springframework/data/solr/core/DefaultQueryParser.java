@@ -15,11 +15,14 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.apache.solr.common.params.CommonParams.*;
+import static org.apache.solr.common.params.DisMaxParams.*;
+import static org.apache.solr.common.params.SimpleParams.QF;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -36,7 +39,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.query.*;
-import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
@@ -65,6 +67,7 @@ import org.springframework.util.ObjectUtils;
  * @author Joachim Uhrlaß
  * @author Petar Tahchiev
  * @author Juan Manuel de Blas
+ * @author Matthew Hall
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
@@ -109,6 +112,10 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			processHighlightOptions(solrQuery, (HighlightQuery) query, domainType);
 		}
 
+		if (query instanceof DisMaxQuery) {
+			processDisMaxOptions(solrQuery, (DisMaxQuery) query);
+		}
+
 		return solrQuery;
 	}
 
@@ -130,6 +137,38 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		appendGeoParametersIfRequired(solrQuery, query, domainType);
 
 		LOGGER.debug("Constructed SolrQuery:\r\n {}", solrQuery);
+	}
+
+	protected void processDisMaxOptions(SolrQuery solrQuery, DisMaxQuery disMaxQuery) {
+
+		if (disMaxQuery == null || disMaxQuery.getDisMaxOptions() == null) {
+			return;
+		}
+
+		DisMaxOptions disMaxOptions = disMaxQuery.getDisMaxOptions();
+
+		solrQuery.set("defType", "dismax");
+
+		setSolrParamIfPresent(solrQuery, DF, disMaxOptions.getDefaultField());
+
+		setSolrParamIfPresent(solrQuery, ALTQ, disMaxOptions.getAltQuery());
+		setSolrParamIfPresent(solrQuery, QF, disMaxOptions.getQueryFunction());
+		setSolrParamIfPresent(solrQuery, MM, disMaxOptions.getMinimumMatch());
+
+		setSolrParamIfPresent(solrQuery, BQ, disMaxOptions.getBoostQuery());
+		setSolrParamIfPresent(solrQuery, BF, disMaxOptions.getBoostFunction());
+		setSolrParamIfPresent(solrQuery, PF, disMaxOptions.getPhraseFunction());
+
+		setSolrParamIfPresent(solrQuery, PS, disMaxOptions.getPhraseSlop() == null ? null :
+				String.valueOf(disMaxOptions.getPhraseSlop()));
+		setSolrParamIfPresent(solrQuery, QS, disMaxOptions.getQuerySlop() == null ? null : String.valueOf(disMaxOptions.getQuerySlop()));
+		setSolrParamIfPresent(solrQuery, TIE, disMaxOptions.getTie() == null ? null : String.valueOf(disMaxOptions.getTie()));
+	}
+
+	private static void setSolrParamIfPresent(SolrQuery solrQuery, String param, String value) {
+		if (!org.springframework.util.StringUtils.isEmpty(value)) {
+			solrQuery.setParam(param, value);
+		}
 	}
 
 	private void processFacetOptions(SolrQuery solrQuery, FacetQuery query, @Nullable Class<?> domainType) {

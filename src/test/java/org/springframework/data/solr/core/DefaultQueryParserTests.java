@@ -24,11 +24,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.params.CommonParams;
+import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
 import org.apache.solr.common.params.FacetParams.FacetRangeOther;
@@ -70,6 +70,7 @@ import org.springframework.data.solr.core.query.Query.Operator;
  * @author Francisco Spaeth
  * @author Petar Tahchiev
  * @author Michael Rocke
+ * @author Matthew Hall
  */
 public class DefaultQueryParserTests {
 
@@ -493,6 +494,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -508,6 +510,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -522,6 +525,39 @@ public class DefaultQueryParserTests {
 		assertProjectionPresent(solrQuery, "projection_1,projection_2");
 		assertGroupingNotPresent(solrQuery);
 		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
+	}
+
+	@Test
+	public void testConstructSimpleDisMaxSolrQuery() {
+
+		DisMaxQuery query = new SimpleDisMaxQuery(new Criteria("field_1").is("value_1"));
+
+		DisMaxOptions options =
+				new DisMaxOptions.Builder()
+						.altQuery("altq")
+						.boostFunction("boost_function")
+						.boostQuery("boost_query")
+						.defaultField("field_1")
+						.minimumMatch("100%")
+						.phraseFunction("phrase_function")
+						.phraseSlop(1)
+						.queryFunction("query_function")
+						.querySlop(2)
+						.tie(3.0)
+						.build();
+
+		query.setDisMaxOptions(options);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
+
+		assertNotNull(solrQuery);
+		assertQueryStringPresent(solrQuery);
+		assertPaginationNotPresent(solrQuery);
+		assertProjectionNotPresent(solrQuery);
+		assertGroupingNotPresent(solrQuery);
+		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsPresent(solrQuery, options);
 	}
 
 	@Test
@@ -536,6 +572,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingPresent(solrQuery, "group_1");
 		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -550,6 +587,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1");
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -564,6 +602,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertPivotFactingPresent(solrQuery, "field_1,field_2");
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -578,6 +617,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -592,6 +632,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertPivotFactingPresent(solrQuery, "field_1,field_2", "field_2,field_3");
+		assertDisMaxParamsNotPresent(solrQuery);
 	}
 
 	@Test
@@ -609,6 +650,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+		assertDisMaxParamsNotPresent(solrQuery);
 		assertEquals(facetOptions.getFacetPrefix(), solrQuery.getParams("facet.prefix")[0]);
 	}
 
@@ -628,6 +670,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
+		assertDisMaxParamsNotPresent(solrQuery);
 		assertEquals(fieldWithFacetParameters.getPrefix(),
 				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.prefix")[0]);
 		assertEquals(FacetParams.FACET_SORT_INDEX,
@@ -680,6 +723,7 @@ public class DefaultQueryParserTests {
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 		assertArrayEquals(new String[] { "field_2:[* TO 5]" }, solrQuery.getFacetQuery());
 	}
 
@@ -696,6 +740,7 @@ public class DefaultQueryParserTests {
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 		assertArrayEquals(new String[] { "field_2:[* TO 5]", "field_3:prefix*" }, solrQuery.getFacetQuery());
 	}
 
@@ -732,6 +777,7 @@ public class DefaultQueryParserTests {
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingNotPresent(solrQuery);
+		assertDisMaxParamsNotPresent(solrQuery);
 
 		assertEquals(criteria.getQueryString(), solrQuery.getQuery());
 	}
@@ -1877,6 +1923,36 @@ public class DefaultQueryParserTests {
 		assertEquals("false", solrQuery.get(GroupParams.GROUP_MAIN));
 		assertEquals("grouped", solrQuery.get(GroupParams.GROUP_FORMAT));
 		assertEquals(String.valueOf(groupTotalCount), solrQuery.get(GroupParams.GROUP_TOTAL_COUNT));
+	}
+
+	private void assertDisMaxParamsNotPresent(SolrQuery solrQuery) {
+
+		assertNull(solrQuery.get(DisMaxParams.ALTQ));
+		assertNull(solrQuery.get(DisMaxParams.BF));
+		assertNull(solrQuery.get(DisMaxParams.BQ));
+		assertNull(solrQuery.get(DisMaxParams.MM));
+		assertNull(solrQuery.get(DisMaxParams.PF));
+		assertNull(solrQuery.get(DisMaxParams.PS));
+		assertNull(solrQuery.get(DisMaxParams.QF));
+		assertNull(solrQuery.get(DisMaxParams.QS));
+		assertNull(solrQuery.get(DisMaxParams.TIE));
+		assertNull(solrQuery.get(CommonParams.DF));
+
+	}
+
+	private void assertDisMaxParamsPresent(SolrQuery solrQuery, DisMaxOptions options) {
+
+		assertEquals(solrQuery.get(DisMaxParams.ALTQ), options.getAltQuery());
+		assertEquals(solrQuery.get(DisMaxParams.BF), options.getBoostFunction());
+		assertEquals(solrQuery.get(DisMaxParams.BQ), options.getBoostQuery());
+		assertEquals(solrQuery.get(DisMaxParams.MM), options.getMinimumMatch());
+		assertEquals(solrQuery.get(DisMaxParams.PF), options.getPhraseFunction());
+		assertEquals(solrQuery.get(DisMaxParams.PS), String.valueOf(options.getPhraseSlop()));
+		assertEquals(solrQuery.get(DisMaxParams.QF), options.getQueryFunction());
+		assertEquals(solrQuery.get(DisMaxParams.QS), String.valueOf(options.getQuerySlop()));
+		assertEquals(solrQuery.get(DisMaxParams.TIE), String.valueOf(options.getTie()));
+		assertEquals(solrQuery.get(CommonParams.DF), options.getDefaultField());
+
 	}
 
 	@SolrDocument
