@@ -24,8 +24,9 @@ import org.springframework.data.repository.query.ParametersParameterAccessor;
 
 /**
  * Implementation of {@link SolrParameterAccessor}
- * 
+ *
  * @author Christoph Strobl
+ * @author Mark Paluch
  */
 public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 
@@ -70,6 +71,11 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 	@Override
 	public Optional<Class<?>> getDynamicProjection() {
 		return parametersParameterAccessorDelegate.getDynamicProjection();
+	}
+
+	@Override
+	public Class<?> findDynamicProjection() {
+		return parametersParameterAccessorDelegate.findDynamicProjection();
 	}
 
 	public class BindableSolrParameterIterator implements Iterator<Object> {
