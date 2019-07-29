@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.query;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -71,8 +71,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME,
 				new SimpleQuery(new Criteria("popularity").is(-200)), ExampleSolrBean.class);
-		assertEquals(1, result.getContent().size());
-		assertEquals(negativePopularity.getId(), result.getContent().get(0).getId());
+		assertThat(result.getContent().size()).isEqualTo(1);
+		assertThat(result.getContent().get(0).getId()).isEqualTo(negativePopularity.getId());
 	}
 
 	@Test
@@ -88,8 +88,8 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME,
 				new SimpleQuery(new Criteria("popularity").between(-150, -50)), ExampleSolrBean.class);
-		assertEquals(1, result.getContent().size());
-		assertEquals(negative100.getId(), result.getContent().get(0).getId());
+		assertThat(result.getContent().size()).isEqualTo(1);
+		assertThat(result.getContent().get(0).getId()).isEqualTo(negative100.getId());
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME,
 				new SimpleQuery(new Criteria("last_modified").is(calendar.getTime())), ExampleSolrBean.class);
-		assertEquals(1, result.getContent().size());
+		assertThat(result.getContent().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 				new SimpleQuery(new Criteria("last_modified").between(new DateTime(2012, 1, 1, 0, 0, 0, DateTimeZone.UTC),
 						new DateTime(2012, 12, 31, 23, 59, 59, DateTimeZone.UTC))),
 				ExampleSolrBean.class);
-		assertEquals(1, result.getContent().size());
+		assertThat(result.getContent().size()).isEqualTo(1);
 
 	}
 
@@ -144,7 +144,7 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 		Page<ExampleSolrBean> result = solrTemplate.queryForPage(COLLECTION_NAME,
 				new SimpleQuery(new Criteria("store").near(new Point(45.15, -93.85), new Distance(5))), ExampleSolrBean.class);
 
-		assertEquals(1, result.getContent().size());
+		assertThat(result.getContent().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -162,6 +162,6 @@ public class ITestCriteriaExecution extends AbstractITestWithEmbeddedSolrServer 
 				new SimpleQuery(new Criteria("store").near(new Point(45.15, -93.85), new Distance(3.106856, Metrics.MILES))),
 				ExampleSolrBean.class);
 
-		assertEquals(1, result.getContent().size());
+		assertThat(result.getContent().size()).isEqualTo(1);
 	}
 }

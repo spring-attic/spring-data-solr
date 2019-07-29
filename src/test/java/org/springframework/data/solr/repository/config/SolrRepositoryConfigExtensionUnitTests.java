@@ -15,11 +15,8 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.collection.IsCollectionWithSize.*;
-import static org.hamcrest.core.IsCollectionContaining.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
-import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 import org.springframework.data.solr.repository.SolrCrudRepository;
@@ -35,15 +32,14 @@ public class SolrRepositoryConfigExtensionUnitTests {
 	@Test // DATASOLR-184
 	public void shouldReturnSolrDocumentAsIdentifyingAnnotation() {
 
-		assertThat(extension.getIdentifyingAnnotations(), hasSize(1));
-		assertThat(extension.getIdentifyingAnnotations(), hasItem(SolrDocument.class));
+		assertThat(extension.getIdentifyingAnnotations()).hasSize(1);
+		assertThat(extension.getIdentifyingAnnotations()).contains(SolrDocument.class);
 	}
 
 	@Test // DATASOLR-184
 	public void shoudReturnStoreSpecificRepositoryInterfacesAsIdentifyingTypes() {
 
-		assertThat(extension.getIdentifyingTypes(), hasSize(2));
-		assertThat(extension.getIdentifyingTypes(),
-				IsCollectionContaining.<Class<?>> hasItems(SolrRepository.class, SolrCrudRepository.class));
+		assertThat(extension.getIdentifyingTypes()).hasSize(2);
+		assertThat(extension.getIdentifyingTypes()).contains(SolrRepository.class, SolrCrudRepository.class);
 	}
 }

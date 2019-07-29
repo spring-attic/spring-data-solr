@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,11 +37,6 @@ import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.hamcrest.collection.IsEmptyIterable;
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,8 +46,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.core.query.*;
-import org.springframework.data.solr.core.query.result.*;
+import org.springframework.data.solr.core.query.result.FacetFieldEntry;
+import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
+import org.springframework.data.solr.core.query.result.FacetQueryEntry;
+import org.springframework.data.solr.core.query.result.FieldStatsResult;
+import org.springframework.data.solr.core.query.result.GroupEntry;
+import org.springframework.data.solr.core.query.result.GroupResult;
+import org.springframework.data.solr.core.query.result.HighlightEntry;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
+import org.springframework.data.solr.core.query.result.SolrResultPage;
+import org.springframework.data.solr.core.query.result.StatsResult;
+import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
 /**
  * @author Christoph Strobl
@@ -66,8 +72,8 @@ public class ResultHelperTests {
 	public void testConvertFacetQueryResponseForNullQueryResponse() {
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), null);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -79,8 +85,8 @@ public class ResultHelperTests {
 	public void testConvertFacetQueryResponseForQueryWithoutFacetOptions() {
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(new SimpleFacetQuery(new Criteria("field_1")), null);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -88,8 +94,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetFields()).thenReturn(null);
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -97,8 +103,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -111,12 +117,12 @@ public class ResultHelperTests {
 
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(1, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(1);
 		Entry<Field, Page<FacetFieldEntry>> resultEntry = result.entrySet().iterator().next();
 
-		Assert.assertEquals(ffield.getName(), resultEntry.getKey().getName());
-		Assert.assertTrue(resultEntry.getValue().getContent().isEmpty());
+		assertThat(resultEntry.getKey().getName()).isEqualTo(ffield.getName());
+		assertThat(resultEntry.getValue().getContent().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -129,12 +135,12 @@ public class ResultHelperTests {
 
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(1, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(1);
 		Entry<Field, Page<FacetFieldEntry>> resultEntry = result.entrySet().iterator().next();
 
-		Assert.assertEquals(ffield.getName(), resultEntry.getKey().getName());
-		Assert.assertEquals(2, resultEntry.getValue().getContent().size());
+		assertThat(resultEntry.getKey().getName()).isEqualTo(ffield.getName());
+		assertThat(resultEntry.getValue().getContent().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -142,8 +148,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetQuery()).thenReturn(null);
 		List<FacetQueryEntry> result = ResultHelper.convertFacetQueryResponseToFacetQueryResult(
 				createFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]"))), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -151,8 +157,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetQuery()).thenReturn(Collections.<String, Integer> emptyMap());
 		List<FacetQueryEntry> result = ResultHelper.convertFacetQueryResponseToFacetQueryResult(
 				createFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]"))), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -166,38 +172,38 @@ public class ResultHelperTests {
 				createFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_1:[* TO 5]")),
 						new SimpleQuery(new SimpleStringCriteria("field_1:[6 TO *]"))),
 				response);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(2, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
 
-		Assert.assertEquals(5, result.get(0).getValueCount());
-		Assert.assertEquals("field_1:[* TO 5]", result.get(0).getValue());
-		Assert.assertEquals("field_1:[* TO 5]", result.get(0).getKey());
-		Assert.assertEquals("field_1:[* TO 5]", result.get(0).getQuery().getCriteria().toString());
+		assertThat(result.get(0).getValueCount()).isEqualTo(5);
+		assertThat(result.get(0).getValue()).isEqualTo("field_1:[* TO 5]");
+		assertThat(result.get(0).getKey()).isEqualTo("field_1:[* TO 5]");
+		assertThat(result.get(0).getQuery().getCriteria().toString()).isEqualTo("field_1:[* TO 5]");
 
-		Assert.assertEquals(10, result.get(1).getValueCount());
-		Assert.assertEquals("field_1:[6 TO *]", result.get(1).getValue());
-		Assert.assertEquals("field_1:[6 TO *]", result.get(1).getKey());
-		Assert.assertEquals("field_1:[6 TO *]", result.get(1).getQuery().getCriteria().toString());
+		assertThat(result.get(1).getValueCount()).isEqualTo(10);
+		assertThat(result.get(1).getValue()).isEqualTo("field_1:[6 TO *]");
+		assertThat(result.get(1).getKey()).isEqualTo("field_1:[6 TO *]");
+		assertThat(result.get(1).getQuery().getCriteria().toString()).isEqualTo("field_1:[6 TO *]");
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithEmptyHighlighting() {
 		Mockito.when(response.getHighlighting()).thenReturn(Collections.<String, Map<String, List<String>>> emptyMap());
-		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
-				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
+		assertThat(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithNullHighlighting() {
 		Mockito.when(response.getHighlighting()).thenReturn(null);
-		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
-				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
+		assertThat(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(response,
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testParseAndAddHighlightQueryResponseToResultPageWithNullResponse() {
-		Assert.assertTrue(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(null,
-				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty());
+		assertThat(ResultHelper.convertAndAddHighlightQueryResponseToResultPage(null,
+				new SolrResultPage<>(Collections.singletonList(new Object()))).isEmpty()).isTrue();
 	}
 
 	@Test
@@ -216,14 +222,14 @@ public class ResultHelperTests {
 				.convertAndAddHighlightQueryResponseToResultPage(response,
 						new SolrResultPage<>(Collections.singletonList(resultBean)));
 
-		Assert.assertEquals(1, result.size());
-		Assert.assertEquals(resultBean, result.get(0).getEntity());
-		Assert.assertEquals(2, result.get(0).getHighlights().size());
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).getEntity()).isEqualTo(resultBean);
+		assertThat(result.get(0).getHighlights().size()).isEqualTo(2);
 		for (HighlightEntry<SolrBeanWithIdNamedField> entry : result) {
-			Assert.assertEquals(resultBean, entry.getEntity());
+			assertThat(entry.getEntity()).isEqualTo(resultBean);
 			for (Highlight highlight : entry.getHighlights()) {
-				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
-				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getSnipplets());
+				assertThat(fieldHighlights.containsKey(highlight.getField().getName())).isTrue();
+				assertThat(highlight.getSnipplets()).isEqualTo(fieldHighlights.get(highlight.getField().getName()));
 			}
 		}
 	}
@@ -250,11 +256,11 @@ public class ResultHelperTests {
 				.convertAndAddHighlightQueryResponseToResultPage(response,
 						new SolrResultPage<>(Arrays.asList(resultBean1, resultBean2)));
 
-		Assert.assertEquals(2, result.size());
-		Assert.assertEquals(resultBean1, result.get(0).getEntity());
-		Assert.assertEquals(resultBean2, result.get(1).getEntity());
-		Assert.assertEquals(2, result.get(0).getHighlights().size());
-		Assert.assertEquals(1, result.get(1).getHighlights().size());
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get(0).getEntity()).isEqualTo(resultBean1);
+		assertThat(result.get(1).getEntity()).isEqualTo(resultBean2);
+		assertThat(result.get(0).getHighlights().size()).isEqualTo(2);
+		assertThat(result.get(1).getHighlights().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -273,14 +279,14 @@ public class ResultHelperTests {
 				.convertAndAddHighlightQueryResponseToResultPage(response,
 						new SolrResultPage<>(Collections.singletonList(resultBean)));
 
-		Assert.assertEquals(1, result.size());
-		Assert.assertEquals(resultBean, result.get(0).getEntity());
-		Assert.assertEquals(2, result.get(0).getHighlights().size());
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).getEntity()).isEqualTo(resultBean);
+		assertThat(result.get(0).getHighlights().size()).isEqualTo(2);
 		for (HighlightEntry<SolrBeanWithAnnoteatedIdNamedField> entry : result) {
-			Assert.assertEquals(resultBean, entry.getEntity());
+			assertThat(entry.getEntity()).isEqualTo(resultBean);
 			for (Highlight highlight : entry.getHighlights()) {
-				Assert.assertTrue(fieldHighlights.containsKey(highlight.getField().getName()));
-				Assert.assertEquals(fieldHighlights.get(highlight.getField().getName()), highlight.getSnipplets());
+				assertThat(fieldHighlights.containsKey(highlight.getField().getName())).isTrue();
+				assertThat(highlight.getSnipplets()).isEqualTo(fieldHighlights.get(highlight.getField().getName()));
 			}
 		}
 	}
@@ -289,8 +295,8 @@ public class ResultHelperTests {
 	public void testConvertFacetRangeQueryResponseToFacetPageMapForNullQueryResponse() {
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToRangeFacetPageMap(this.createFacetQuery("field_1"), null);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -302,8 +308,8 @@ public class ResultHelperTests {
 	public void testConvertFacetRangeQueryResponseForQueryWithoutFacetOptions() {
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToRangeFacetPageMap(new SimpleFacetQuery(new SimpleStringCriteria("*:*")), null);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -311,8 +317,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetFields()).thenReturn(null);
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToRangeFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -320,8 +326,8 @@ public class ResultHelperTests {
 		Mockito.when(response.getFacetFields()).thenReturn(Collections.<FacetField> emptyList());
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper
 				.convertFacetQueryResponseToRangeFacetPageMap(createFacetQuery("field_1"), response);
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result.isEmpty());
+		assertThat(result).isNotNull();
+		assertThat(result.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -352,41 +358,41 @@ public class ResultHelperTests {
 				.convertFacetQueryResponseToFacetPivotMap(createFacetPivotQuery("field_1", "field_2"), response);
 
 		List<FacetPivotFieldEntry> resultPivot = result.get(new SimplePivotField("field_1", "field_2"));
-		Assert.assertNotNull(result);
-		Assert.assertEquals(2, resultPivot.size());
+		assertThat(result).isNotNull();
+		assertThat(resultPivot.size()).isEqualTo(2);
 
-		Assert.assertNotNull(resultPivot.get(0));
-		Assert.assertEquals("value_1", resultPivot.get(0).getValue());
-		Assert.assertNotNull(resultPivot.get(0).getField());
-		Assert.assertEquals("field_1", resultPivot.get(0).getField().getName());
-		Assert.assertEquals(10, resultPivot.get(0).getValueCount());
-		Assert.assertNotNull(resultPivot.get(0).getPivot());
-		Assert.assertEquals(2, resultPivot.get(0).getPivot().size());
+		assertThat(resultPivot.get(0)).isNotNull();
+		assertThat(resultPivot.get(0).getValue()).isEqualTo("value_1");
+		assertThat(resultPivot.get(0).getField()).isNotNull();
+		assertThat(resultPivot.get(0).getField().getName()).isEqualTo("field_1");
+		assertThat(resultPivot.get(0).getValueCount()).isEqualTo(10);
+		assertThat(resultPivot.get(0).getPivot()).isNotNull();
+		assertThat(resultPivot.get(0).getPivot().size()).isEqualTo(2);
 
 		{
 			List<FacetPivotFieldEntry> pivot = resultPivot.get(0).getPivot();
-			Assert.assertEquals("value_1_1", pivot.get(0).getValue());
-			Assert.assertNotNull(pivot.get(0).getField());
-			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
-			Assert.assertEquals(7, pivot.get(0).getValueCount());
-			Assert.assertEquals(pivot.get(0).getPivot(), Collections.emptyList());
-			Assert.assertEquals("value_1_2", pivot.get(1).getValue());
-			Assert.assertNotNull(pivot.get(1).getField());
-			Assert.assertEquals("field_2", pivot.get(1).getField().getName());
-			Assert.assertEquals(3, pivot.get(1).getValueCount());
-			Assert.assertEquals(pivot.get(1).getPivot(), Collections.emptyList());
+			assertThat(pivot.get(0).getValue()).isEqualTo("value_1_1");
+			assertThat(pivot.get(0).getField()).isNotNull();
+			assertThat(pivot.get(0).getField().getName()).isEqualTo("field_2");
+			assertThat(pivot.get(0).getValueCount()).isEqualTo(7);
+			assertThat(Collections.emptyList()).isEqualTo(pivot.get(0).getPivot());
+			assertThat(pivot.get(1).getValue()).isEqualTo("value_1_2");
+			assertThat(pivot.get(1).getField()).isNotNull();
+			assertThat(pivot.get(1).getField().getName()).isEqualTo("field_2");
+			assertThat(pivot.get(1).getValueCount()).isEqualTo(3);
+			assertThat(Collections.emptyList()).isEqualTo(pivot.get(1).getPivot());
 		}
 
 		{
 			List<FacetPivotFieldEntry> pivot = resultPivot.get(1).getPivot();
-			Assert.assertEquals("value_2_1", pivot.get(0).getValue());
-			Assert.assertNotNull(pivot.get(0).getField());
-			Assert.assertEquals("field_2", pivot.get(0).getField().getName());
-			Assert.assertEquals(2, pivot.get(0).getValueCount());
-			Assert.assertEquals(pivot.get(0).getPivot(), Collections.emptyList());
+			assertThat(pivot.get(0).getValue()).isEqualTo("value_2_1");
+			assertThat(pivot.get(0).getField()).isNotNull();
+			assertThat(pivot.get(0).getField().getName()).isEqualTo("field_2");
+			assertThat(pivot.get(0).getValueCount()).isEqualTo(2);
+			assertThat(Collections.emptyList()).isEqualTo(pivot.get(0).getPivot());
 		}
 
-		Assert.assertNotNull(resultPivot.get(0).getPivot().get(0));
+		assertThat(resultPivot.get(0).getPivot().get(0)).isNotNull();
 
 	}
 
@@ -399,14 +405,14 @@ public class ResultHelperTests {
 
 		Map<String, List<TermsFieldEntry>> result = ResultHelper.convertTermsQueryResponseToTermsMap(response);
 
-		Assert.assertEquals(1, result.size());
-		Assert.assertEquals("term_1", result.get("field_1").get(0).getValue());
-		Assert.assertEquals(10L, result.get("field_1").get(0).getValueCount());
-		Assert.assertEquals("field_1", result.get("field_1").get(0).getField().getName());
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get("field_1").get(0).getValue()).isEqualTo("term_1");
+		assertThat(result.get("field_1").get(0).getValueCount()).isEqualTo(10L);
+		assertThat(result.get("field_1").get(0).getField().getName()).isEqualTo("field_1");
 
-		Assert.assertEquals("term_2", result.get("field_1").get(1).getValue());
-		Assert.assertEquals(5L, result.get("field_1").get(1).getValueCount());
-		Assert.assertEquals("field_1", result.get("field_1").get(1).getField().getName());
+		assertThat(result.get("field_1").get(1).getValue()).isEqualTo("term_2");
+		assertThat(result.get("field_1").get(1).getValueCount()).isEqualTo(5L);
+		assertThat(result.get("field_1").get(1).getField().getName()).isEqualTo("field_1");
 	}
 
 	@Test
@@ -419,23 +425,23 @@ public class ResultHelperTests {
 
 		Map<String, List<TermsFieldEntry>> result = ResultHelper.convertTermsQueryResponseToTermsMap(response);
 
-		Assert.assertEquals(2, result.size());
-		Assert.assertEquals("field_1", result.get("field_1").get(0).getField().getName());
-		Assert.assertEquals("field_2", result.get("field_2").get(0).getField().getName());
+		assertThat(result.size()).isEqualTo(2);
+		assertThat(result.get("field_1").get(0).getField().getName()).isEqualTo("field_1");
+		assertThat(result.get("field_2").get(0).getField().getName()).isEqualTo("field_2");
 	}
 
 	@Test
 	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenResponseIsNull() {
-		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(null),
-				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+		assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(null))
+				.isEqualTo(Collections.<String, List<TermsFieldEntry>> emptyMap());
 	}
 
 	@Test
 	public void testConvertTermsQueryResponseReturnsEmtpyMapWhenTermsResponseIsNull() {
 		Mockito.when(response.getTermsResponse()).thenReturn(null);
 
-		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
-				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+		assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response))
+				.isEqualTo(Collections.<String, List<TermsFieldEntry>> emptyMap());
 	}
 
 	@Test
@@ -443,8 +449,8 @@ public class ResultHelperTests {
 		TermsResponse termsResponse = new TermsResponse(new NamedList<>());
 		Mockito.when(response.getTermsResponse()).thenReturn(termsResponse);
 
-		Assert.assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response),
-				IsEqual.equalTo(Collections.<String, List<TermsFieldEntry>> emptyMap()));
+		assertThat(ResultHelper.convertTermsQueryResponseToTermsMap(response))
+				.isEqualTo(Collections.<String, List<TermsFieldEntry>> emptyMap());
 	}
 
 	@Test // DATASOLR-121
@@ -481,31 +487,31 @@ public class ResultHelperTests {
 
 		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
 				response, solrTemplate, Object.class);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(2, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
 
 		GroupResult<Object> groupResult = result.get("group1_name");
-		Assert.assertEquals(groupResult, result.get(group1Key));
-		Assert.assertEquals("group1_name", groupResult.getName());
-		Assert.assertEquals(1, groupResult.getMatches());
-		Assert.assertEquals(Integer.valueOf(2), groupResult.getGroupsCount());
+		assertThat(result.get(group1Key)).isEqualTo(groupResult);
+		assertThat(groupResult.getName()).isEqualTo("group1_name");
+		assertThat(groupResult.getMatches()).isEqualTo(1);
+		assertThat(groupResult.getGroupsCount()).isEqualTo(Integer.valueOf(2));
 
 		Page<GroupEntry<Object>> groupEntries = groupResult.getGroupEntries();
-		Assert.assertEquals(2, groupEntries.getTotalElements());
-		Assert.assertEquals(2, groupEntries.getTotalPages());
-		Assert.assertEquals(true, groupEntries.hasNext());
+		assertThat(groupEntries.getTotalElements()).isEqualTo(2);
+		assertThat(groupEntries.getTotalPages()).isEqualTo(2);
+		assertThat(groupEntries.hasNext()).isEqualTo(true);
 
 		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
-		Assert.assertNotNull(groupEntriesContent);
-		Assert.assertEquals(1, groupEntriesContent.size());
+		assertThat(groupEntriesContent).isNotNull();
+		assertThat(groupEntriesContent.size()).isEqualTo(1);
 
 		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
-		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
+		assertThat(groupEntriesContentElement.getGroupValue()).isEqualTo("group1_1_value");
 
 		Page<Object> group1result = groupEntriesContentElement.getResult();
-		Assert.assertEquals(3, group1result.getTotalElements());
-		Assert.assertEquals(3, group1result.getTotalPages());
-		Assert.assertEquals(true, group1result.hasNext());
+		assertThat(group1result.getTotalElements()).isEqualTo(3);
+		assertThat(group1result.getTotalPages()).isEqualTo(3);
+		assertThat(group1result.hasNext()).isEqualTo(true);
 	}
 
 	@Test // DATASOLR-121
@@ -543,31 +549,31 @@ public class ResultHelperTests {
 		Map<Object, GroupResult<Object>> result = ResultHelper.convertGroupQueryResponseToGroupResultMap(query, objectNames,
 				response, solrTemplate, Object.class);
 
-		Assert.assertNotNull(result);
-		Assert.assertEquals(2, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(2);
 
 		GroupResult<Object> groupResult = result.get("group1_name");
-		Assert.assertEquals(result.get(group1Key), groupResult);
-		Assert.assertEquals("group1_name", groupResult.getName());
-		Assert.assertEquals(1, groupResult.getMatches());
-		Assert.assertEquals(null, groupResult.getGroupsCount());
+		assertThat(groupResult).isEqualTo(result.get(group1Key));
+		assertThat(groupResult.getName()).isEqualTo("group1_name");
+		assertThat(groupResult.getMatches()).isEqualTo(1);
+		assertThat(groupResult.getGroupsCount()).isEqualTo(null);
 
 		Page<GroupEntry<Object>> groupEntries = groupResult.getGroupEntries();
-		Assert.assertEquals(1, groupEntries.getTotalElements());
-		Assert.assertEquals(1, groupEntries.getTotalPages());
-		Assert.assertEquals(false, groupEntries.hasNext());
+		assertThat(groupEntries.getTotalElements()).isEqualTo(1);
+		assertThat(groupEntries.getTotalPages()).isEqualTo(1);
+		assertThat(groupEntries.hasNext()).isEqualTo(false);
 
 		List<GroupEntry<Object>> groupEntriesContent = groupEntries.getContent();
-		Assert.assertNotNull(groupEntriesContent);
-		Assert.assertEquals(1, groupEntriesContent.size());
+		assertThat(groupEntriesContent).isNotNull();
+		assertThat(groupEntriesContent.size()).isEqualTo(1);
 
 		GroupEntry<Object> groupEntriesContentElement = groupEntriesContent.get(0);
-		Assert.assertEquals("group1_1_value", groupEntriesContentElement.getGroupValue());
+		assertThat(groupEntriesContentElement.getGroupValue()).isEqualTo("group1_1_value");
 
 		Page<Object> group1result = groupEntriesContentElement.getResult();
-		Assert.assertEquals(3, group1result.getTotalElements());
-		Assert.assertEquals(3, group1result.getTotalPages());
-		Assert.assertEquals(true, group1result.hasNext());
+		assertThat(group1result.getTotalElements()).isEqualTo(3);
+		assertThat(group1result.getTotalPages()).isEqualTo(3);
+		assertThat(group1result.hasNext()).isEqualTo(true);
 	}
 
 	@Test // DATASOLR-160
@@ -583,14 +589,14 @@ public class ResultHelperTests {
 
 		FieldStatsResult fieldStatsResult = converted.get("field");
 
-		Assert.assertEquals("min", fieldStatsResult.getMin());
-		Assert.assertEquals("max", fieldStatsResult.getMax());
-		Assert.assertEquals(20d, fieldStatsResult.getSum());
-		Assert.assertEquals(22.5, fieldStatsResult.getMean());
-		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
-		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
-		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
-		Assert.assertEquals(Double.valueOf(1D), fieldStatsResult.getSumOfSquares());
+		assertThat(fieldStatsResult.getMin()).isEqualTo("min");
+		assertThat(fieldStatsResult.getMax()).isEqualTo("max");
+		assertThat(fieldStatsResult.getSum()).isEqualTo(20d);
+		assertThat(fieldStatsResult.getMean()).isEqualTo(22.5);
+		assertThat(fieldStatsResult.getCount()).isEqualTo(Long.valueOf(10));
+		assertThat(fieldStatsResult.getMissing()).isEqualTo(Long.valueOf(5));
+		assertThat(fieldStatsResult.getStddev()).isEqualTo(Double.valueOf(15.5));
+		assertThat(fieldStatsResult.getSumOfSquares()).isEqualTo(Double.valueOf(1D));
 	}
 
 	@Test // DATASOLR-160
@@ -598,8 +604,8 @@ public class ResultHelperTests {
 
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(null);
 
-		Assert.assertThat(converted, IsNull.notNullValue());
-		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
+		assertThat(converted).isNotNull();
+		assertThat(converted.entrySet()).isEmpty();
 	}
 
 	@Test // DATASOLR-160
@@ -607,8 +613,8 @@ public class ResultHelperTests {
 
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(new HashMap<>());
 
-		Assert.assertThat(converted, IsNull.notNullValue());
-		Assert.assertThat(converted.entrySet(), IsEmptyIterable.emptyIterable());
+		assertThat(converted).isNotNull();
+		assertThat(converted.entrySet()).isEmpty();
 	}
 
 	@Test // DATASOLR-160
@@ -617,8 +623,8 @@ public class ResultHelperTests {
 		Map<String, FieldStatsResult> converted = ResultHelper
 				.convertFieldStatsInfoToFieldStatsResultMap(Collections.<String, FieldStatsInfo> singletonMap("field", null));
 
-		Assert.assertThat(converted, IsNull.notNullValue());
-		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
+		assertThat(converted).isNotNull();
+		assertThat(converted.keySet()).containsExactly("field");
 	}
 
 	@Test // DATASOLR-160
@@ -627,8 +633,8 @@ public class ResultHelperTests {
 		Map<String, FieldStatsResult> converted = ResultHelper.convertFieldStatsInfoToFieldStatsResultMap(
 				Collections.<String, FieldStatsInfo> singletonMap("field", new FieldStatsInfo(new NamedList<>(), "field")));
 
-		Assert.assertThat(converted, IsNull.notNullValue());
-		Assert.assertThat(converted.keySet(), IsIterableContainingInOrder.contains("field"));
+		assertThat(converted).isNotNull();
+		assertThat(converted.keySet()).containsExactly("field");
 	}
 
 	@Test // DATASOLR-160
@@ -651,40 +657,40 @@ public class ResultHelperTests {
 
 		// field
 		FieldStatsResult fieldStatsResult = converted.get("field");
-		Assert.assertEquals("min", fieldStatsResult.getMin());
-		Assert.assertEquals("max", fieldStatsResult.getMax());
-		Assert.assertEquals(20d, fieldStatsResult.getSum());
-		Assert.assertEquals(22.5, fieldStatsResult.getMean());
-		Assert.assertEquals(Long.valueOf(10), fieldStatsResult.getCount());
-		Assert.assertEquals(Long.valueOf(5), fieldStatsResult.getMissing());
-		Assert.assertEquals(Double.valueOf(15.5), fieldStatsResult.getStddev());
+		assertThat(fieldStatsResult.getMin()).isEqualTo("min");
+		assertThat(fieldStatsResult.getMax()).isEqualTo("max");
+		assertThat(fieldStatsResult.getSum()).isEqualTo(20d);
+		assertThat(fieldStatsResult.getMean()).isEqualTo(22.5);
+		assertThat(fieldStatsResult.getCount()).isEqualTo(Long.valueOf(10));
+		assertThat(fieldStatsResult.getMissing()).isEqualTo(Long.valueOf(5));
+		assertThat(fieldStatsResult.getStddev()).isEqualTo(Double.valueOf(15.5));
 
 		// facets
 		Map<String, Map<String, StatsResult>> facetStatsResults = fieldStatsResult.getFacetStatsResults();
-		Assert.assertEquals(1, facetStatsResults.size());
+		assertThat(facetStatsResults.size()).isEqualTo(1);
 
 		// facet field
 		Map<String, StatsResult> facetStatsResult = facetStatsResults.get("facetField");
-		Assert.assertNotNull(facetStatsResult);
+		assertThat(facetStatsResult).isNotNull();
 
 		// facet values
 		StatsResult facetValue1StatsResult = facetStatsResult.get("value1");
-		Assert.assertEquals("f1v1min", facetValue1StatsResult.getMin());
-		Assert.assertEquals("f1v1max", facetValue1StatsResult.getMax());
-		Assert.assertEquals(110d, facetValue1StatsResult.getSum());
-		Assert.assertEquals(113d, facetValue1StatsResult.getMean());
-		Assert.assertEquals(Long.valueOf(111), facetValue1StatsResult.getCount());
-		Assert.assertEquals(Long.valueOf(112), facetValue1StatsResult.getMissing());
-		Assert.assertEquals(Double.valueOf(11.3), facetValue1StatsResult.getStddev());
+		assertThat(facetValue1StatsResult.getMin()).isEqualTo("f1v1min");
+		assertThat(facetValue1StatsResult.getMax()).isEqualTo("f1v1max");
+		assertThat(facetValue1StatsResult.getSum()).isEqualTo(110d);
+		assertThat(facetValue1StatsResult.getMean()).isEqualTo(113d);
+		assertThat(facetValue1StatsResult.getCount()).isEqualTo(Long.valueOf(111));
+		assertThat(facetValue1StatsResult.getMissing()).isEqualTo(Long.valueOf(112));
+		assertThat(facetValue1StatsResult.getStddev()).isEqualTo(Double.valueOf(11.3));
 
 		StatsResult facetValue2StatsResult = facetStatsResult.get("value2");
-		Assert.assertEquals("f1v2min", facetValue2StatsResult.getMin());
-		Assert.assertEquals("f1v2max", facetValue2StatsResult.getMax());
-		Assert.assertEquals(120d, facetValue2StatsResult.getSum());
-		Assert.assertEquals(123d, facetValue2StatsResult.getMean());
-		Assert.assertEquals(Long.valueOf(121), facetValue2StatsResult.getCount());
-		Assert.assertEquals(Long.valueOf(122), facetValue2StatsResult.getMissing());
-		Assert.assertEquals(Double.valueOf(12.3), facetValue2StatsResult.getStddev());
+		assertThat(facetValue2StatsResult.getMin()).isEqualTo("f1v2min");
+		assertThat(facetValue2StatsResult.getMax()).isEqualTo("f1v2max");
+		assertThat(facetValue2StatsResult.getSum()).isEqualTo(120d);
+		assertThat(facetValue2StatsResult.getMean()).isEqualTo(123d);
+		assertThat(facetValue2StatsResult.getCount()).isEqualTo(Long.valueOf(121));
+		assertThat(facetValue2StatsResult.getMissing()).isEqualTo(Long.valueOf(122));
+		assertThat(facetValue2StatsResult.getStddev()).isEqualTo(Double.valueOf(12.3));
 	}
 
 	@Test // DATSOLR-86
@@ -693,8 +699,8 @@ public class ResultHelperTests {
 				.setFacetOptions(new FacetOptions("field1"));
 		SimpleFacetQuery emptyQuery = new SimpleFacetQuery();
 
-		Assert.assertTrue(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(facetQuery, null).isEmpty());
-		Assert.assertTrue(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(emptyQuery, response).isEmpty());
+		assertThat(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(facetQuery, null).isEmpty()).isTrue();
+		assertThat(ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(emptyQuery, response).isEmpty()).isTrue();
 	}
 
 	@Test // DATSOLR-86
@@ -719,15 +725,15 @@ public class ResultHelperTests {
 
 		Page<FacetFieldEntry> page = converted.get(new SimpleField("name"));
 
-		Assert.assertEquals(1, converted.size());
-		Assert.assertEquals(2, page.getTotalElements());
+		assertThat(converted.size()).isEqualTo(1);
+		assertThat(page.getTotalElements()).isEqualTo(2);
 
 		List<FacetFieldEntry> content = page.getContent();
-		Assert.assertEquals(2, content.size());
-		Assert.assertEquals(1, content.get(0).getValueCount());
-		Assert.assertEquals("count1", content.get(0).getValue());
-		Assert.assertEquals(2, content.get(1).getValueCount());
-		Assert.assertEquals("count2", content.get(1).getValue());
+		assertThat(content.size()).isEqualTo(2);
+		assertThat(content.get(0).getValueCount()).isEqualTo(1);
+		assertThat(content.get(0).getValue()).isEqualTo("count1");
+		assertThat(content.get(1).getValueCount()).isEqualTo(2);
+		assertThat(content.get(1).getValue()).isEqualTo("count2");
 	}
 
 	@Test // DATASOLR-305
@@ -743,8 +749,8 @@ public class ResultHelperTests {
 		query.getFacetOptions().setFacetLimit(-1);
 
 		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToFacetPageMap(query, response);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(1, result.size());
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	@Test // /DATASOLR-506
@@ -752,7 +758,6 @@ public class ResultHelperTests {
 		RangeFacet.Numeric rangeFacet = new RangeFacet.Numeric("name", 10, 20, 2, 4, 6, 8);
 		rangeFacet.addCount("count1", 1);
 		rangeFacet.addCount("count2", 2);
-
 
 		List<RangeFacet> rangeFacetList = new ArrayList<>(1);
 		rangeFacetList.add(rangeFacet);
@@ -762,9 +767,10 @@ public class ResultHelperTests {
 		FacetQuery query = createFacetQuery("field_1");
 		query.getFacetOptions().setFacetLimit(-1);
 
-		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query, response);
-		Assert.assertNotNull(result);
-		Assert.assertEquals(1, result.size());
+		Map<Field, Page<FacetFieldEntry>> result = ResultHelper.convertFacetQueryResponseToRangeFacetPageMap(query,
+				response);
+		assertThat(result).isNotNull();
+		assertThat(result.size()).isEqualTo(1);
 	}
 
 	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,

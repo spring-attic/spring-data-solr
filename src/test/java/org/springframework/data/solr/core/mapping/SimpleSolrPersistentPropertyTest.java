@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core.mapping;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.beans.IntrospectionException;
@@ -60,8 +60,8 @@ public class SimpleSolrPersistentPropertyTest {
 				Property.of(ClassTypeInformation.from(BeanWithScore.class), field, propertyDescriptor), owner,
 				simpleTypeHolder);
 
-		assertTrue(property.isScoreProperty());
-		assertFalse(property.isWritable());
+		assertThat(property.isScoreProperty()).isTrue();
+		assertThat(property.isWritable()).isFalse();
 	}
 
 	static class BeanWithScore {

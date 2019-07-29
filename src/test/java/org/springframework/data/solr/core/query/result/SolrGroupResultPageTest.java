@@ -15,11 +15,12 @@
  */
 package org.springframework.data.solr.core.query.result;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
@@ -46,7 +47,7 @@ public class SolrGroupResultPageTest {
 		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
-		Assert.assertEquals(gr, result.getGroupResult(field));
+		assertThat(result.getGroupResult(field)).isEqualTo(gr);
 	}
 
 	@Test // DATASOLR-121
@@ -62,7 +63,7 @@ public class SolrGroupResultPageTest {
 		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
-		Assert.assertEquals(gr, result.getGroupResult(func));
+		assertThat(result.getGroupResult(func)).isEqualTo(gr);
 	}
 
 	@Test // DATASOLR-121
@@ -78,7 +79,7 @@ public class SolrGroupResultPageTest {
 		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
-		Assert.assertEquals(gr, result.getGroupResult(query));
+		assertThat(result.getGroupResult(query)).isEqualTo(gr);
 	}
 
 	@Test // DATASOLR-121
@@ -92,17 +93,17 @@ public class SolrGroupResultPageTest {
 		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 		result.setGroupResults(groupResultMap);
 
-		Assert.assertEquals(gr, result.getGroupResult("name"));
+		assertThat(result.getGroupResult("name")).isEqualTo(gr);
 	}
 
 	@Test // DATASOLR-121
 	public void testInexistentGroupResult() {
 		SolrResultPage<Object> result = new SolrResultPage<>(Collections.emptyList());
 
-		Assert.assertNull(result.getGroupResult("name"));
-		Assert.assertNull(result.getGroupResult(Mockito.mock(Query.class)));
-		Assert.assertNull(result.getGroupResult(Mockito.mock(Field.class)));
-		Assert.assertNull(result.getGroupResult(Mockito.mock(Function.class)));
+		assertThat(result.getGroupResult("name")).isNull();
+		assertThat(result.getGroupResult(Mockito.mock(Query.class))).isNull();
+		assertThat(result.getGroupResult(Mockito.mock(Field.class))).isNull();
+		assertThat(result.getGroupResult(Mockito.mock(Function.class))).isNull();
 	}
 
 }

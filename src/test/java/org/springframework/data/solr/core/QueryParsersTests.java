@@ -15,15 +15,12 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.apache.solr.client.solrj.SolrQuery;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
-import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
-import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.SolrDataQuery;
 import org.springframework.data.solr.core.query.TermsQuery;
 import org.springframework.lang.Nullable;
@@ -42,18 +39,18 @@ public class QueryParsersTests {
 
 	@Test
 	public void testGetForClassReturnsDefaultParserForUnknowQueryType() {
-		Assert.assertThat(parsers.getForClass(SomeSolrQuery.class), IsInstanceOf.instanceOf(DefaultQueryParser.class));
+		assertThat(parsers.getForClass(SomeSolrQuery.class)).isInstanceOf(DefaultQueryParser.class);
 	}
 
 	@Test
 	public void testGetForClassReturnsTermsQueryParserForTermsQueryType() {
-		Assert.assertThat(parsers.getForClass(TermsQuery.class), IsInstanceOf.instanceOf(TermsQueryParser.class));
+		assertThat(parsers.getForClass(TermsQuery.class)).isInstanceOf(TermsQueryParser.class);
 	}
 
 	@Test
 	public void testGetForClassReturnsCustomQueryParserIfAdded() {
 		parsers.registerParser(SomeSolrQuery.class, new CustomQueryParser());
-		Assert.assertThat(parsers.getForClass(SomeSolrQuery.class), IsInstanceOf.instanceOf(CustomQueryParser.class));
+		assertThat(parsers.getForClass(SomeSolrQuery.class)).isInstanceOf(CustomQueryParser.class);
 	}
 
 	private interface SomeSolrQuery extends SolrDataQuery {

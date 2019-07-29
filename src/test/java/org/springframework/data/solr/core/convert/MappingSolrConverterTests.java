@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,17 +31,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.hamcrest.Matchers;
-import org.hamcrest.collection.IsArrayContainingInAnyOrder;
-import org.hamcrest.collection.IsCollectionWithSize;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.hamcrest.collection.IsMapContaining;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsInstanceOf;
-import org.hamcrest.core.IsNull;
 import org.joda.time.DateTime;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.geo.Point;
@@ -77,12 +70,11 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(bean.stringProperty, solrDocument.getFieldValue("stringProperty"));
-		Assert.assertEquals(bean.intProperty, solrDocument.getFieldValue("intProperty"));
-		Assert.assertThat(solrDocument.getFieldValues("listOfString"), IsEqual.equalTo((Collection) bean.listOfString));
-		Assert.assertThat(solrDocument.getFieldValues("arrayOfString"),
-				IsEqual.equalTo((Collection) Arrays.asList(bean.arrayOfString)));
-		Assert.assertEquals(bean.dateProperty, solrDocument.getFieldValue("dateProperty"));
+		assertThat(solrDocument.getFieldValue("stringProperty")).isEqualTo(bean.stringProperty);
+		assertThat(solrDocument.getFieldValue("intProperty")).isEqualTo(bean.intProperty);
+		assertThat(solrDocument.getFieldValues("listOfString")).isEqualTo((Collection) bean.listOfString);
+		assertThat(solrDocument.getFieldValues("arrayOfString")).isEqualTo((Collection) Arrays.asList(bean.arrayOfString));
+		assertThat(solrDocument.getFieldValue("dateProperty")).isEqualTo(bean.dateProperty);
 	}
 
 	@Test
@@ -93,7 +85,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
 
-		Assert.assertEquals("48.362893,14.534437", document.getFieldValue("location"));
+		assertThat(document.getFieldValue("location")).isEqualTo("48.362893,14.534437");
 	}
 
 	@Test
@@ -104,8 +96,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
 
-		Assert.assertEquals(Arrays.asList("48.362893,14.534437", "48.208602,16.372996"),
-				document.getFieldValues("locations"));
+		assertThat(document.getFieldValues("locations"))
+				.isEqualTo(Arrays.asList("48.362893,14.534437", "48.208602,16.372996"));
 	}
 
 	@Test
@@ -116,7 +108,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
 
-		Assert.assertEquals(bean.name, document.getFieldValue("namedProperty"));
+		assertThat(document.getFieldValue("namedProperty")).isEqualTo(bean.name);
 	}
 
 	@Test
@@ -129,9 +121,9 @@ public class MappingSolrConverterTests {
 		SolrInputDocument document = new SolrInputDocument();
 		converter.write(bean, document);
 
-		Assert.assertEquals(bean.simpleBoolProperty, document.getFieldValue("simpleBoolProperty"));
-		Assert.assertEquals(bean.simpleFloatProperty, document.getFieldValue("simpleFloatProperty"));
-		Assert.assertEquals(bean.simpleIntProperty, document.getFieldValue("simpleIntProperty"));
+		assertThat(document.getFieldValue("simpleBoolProperty")).isEqualTo(bean.simpleBoolProperty);
+		assertThat(document.getFieldValue("simpleFloatProperty")).isEqualTo(bean.simpleFloatProperty);
+		assertThat(document.getFieldValue("simpleIntProperty")).isEqualTo(bean.simpleIntProperty);
 	}
 
 	@Test
@@ -144,9 +136,9 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNull(solrDocument.getFieldValue("stringProperty"));
-		Assert.assertNull(solrDocument.getFieldValue("intProperty"));
-		Assert.assertNull(solrDocument.getFieldValues("listOfString"));
+		assertThat(solrDocument.getFieldValue("stringProperty")).isNull();
+		assertThat(solrDocument.getFieldValue("intProperty")).isNull();
+		assertThat(solrDocument.getFieldValues("listOfString")).isNull();
 	}
 
 	@Test
@@ -157,7 +149,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNull(solrDocument.getFieldValue("notIndexedProperty"));
+		assertThat(solrDocument.getFieldValue("notIndexedProperty")).isNull();
 	}
 
 	@Test
@@ -167,7 +159,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNull(solrDocument.getFieldValue("transientField"));
+		assertThat(solrDocument.getFieldValue("transientField")).isNull();
 	}
 
 	@Test
@@ -182,8 +174,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValue("key_1"));
-		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("key_2"));
+		assertThat(solrDocument.getFieldValue("key_1")).isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValue("key_2")).isEqualTo(values.get("key_2"));
 	}
 
 	@Test
@@ -198,8 +190,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValues("key_1"));
-		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValues("key_2"));
+		assertThat(solrDocument.getFieldValues("key_1")).isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValues("key_2")).isEqualTo(values.get("key_2"));
 	}
 
 	@Test
@@ -214,8 +206,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(Arrays.asList(values.get("key_1")), solrDocument.getFieldValues("key_1"));
-		Assert.assertEquals(Arrays.asList(values.get("key_2")), solrDocument.getFieldValues("key_2"));
+		assertThat(solrDocument.getFieldValues("key_1")).isEqualTo(Arrays.asList(values.get("key_1")));
+		assertThat(solrDocument.getFieldValues("key_2")).isEqualTo(Arrays.asList(values.get("key_2")));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -289,7 +281,7 @@ public class MappingSolrConverterTests {
 
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
-		Assert.assertTrue(solrDocument.isEmpty());
+		assertThat(solrDocument.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -301,8 +293,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(bean.name, solrDocument.getFieldValue("name"));
-		Assert.assertEquals(bean.namedField, solrDocument.getFieldValue("namedFieldFieldName"));
+		assertThat(solrDocument.getFieldValue("name")).isEqualTo(bean.name);
+		assertThat(solrDocument.getFieldValue("namedFieldFieldName")).isEqualTo(bean.namedField);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -315,9 +307,9 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(update, solrDocument);
 
-		Assert.assertEquals(update.getIdField().getValue(), solrDocument.getFieldValue(update.getIdField().getName()));
-		Assert.assertTrue(solrDocument.getFieldValue("since") instanceof Map);
-		Assert.assertEquals(1995, ((Map<String, Object>) solrDocument.getFieldValue("since")).get("set"));
+		assertThat(solrDocument.getFieldValue(update.getIdField().getName())).isEqualTo(update.getIdField().getValue());
+		assertThat(solrDocument.getFieldValue("since") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) solrDocument.getFieldValue("since")).get("set")).isEqualTo(1995);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -328,8 +320,8 @@ public class MappingSolrConverterTests {
 	@Test
 	public void testWriteEmptyCollectionToSolrInputDocumentColletion() {
 		Collection<?> result = converter.write(new ArrayList<>());
-		Assert.assertNotNull(result);
-		Assert.assertThat(result, IsEmptyCollection.empty());
+		assertThat(result).isNotNull();
+		assertThat(result).isEmpty();
 	}
 
 	@Test
@@ -341,8 +333,8 @@ public class MappingSolrConverterTests {
 		bean2.intProperty = 10;
 
 		Collection<SolrInputDocument> result = converter.write(Arrays.asList(bean1, bean2));
-		Assert.assertNotNull(result);
-		Assert.assertThat(result, IsCollectionWithSize.hasSize(2));
+		assertThat(result).isNotNull();
+		assertThat(result).hasSize(2);
 	}
 
 	@Test
@@ -354,8 +346,8 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertEquals(bean.stringProperty, solrDocument.getFieldValue("stringProperty"));
-		Assert.assertEquals(bean.intProperty, solrDocument.getFieldValue("intProperty"));
+		assertThat(solrDocument.getFieldValue("stringProperty")).isEqualTo(bean.stringProperty);
+		assertThat(solrDocument.getFieldValue("intProperty")).isEqualTo(bean.intProperty);
 	}
 
 	@Test
@@ -369,11 +361,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, document);
 
-		Assert.assertEquals(document.getFieldValue("stringProperty"), target.stringProperty);
-		Assert.assertEquals(document.getFieldValue("intProperty"), target.intProperty);
-		Assert.assertThat(target.listOfString, IsEqual.equalTo(document.getFieldValue("listOfString")));
-		Assert.assertArrayEquals(document.getFieldValues("arrayOfString").toArray(), target.arrayOfString);
-		Assert.assertEquals(document.getFieldValue("dateProperty"), target.dateProperty);
+		assertThat(target.stringProperty).isEqualTo(document.getFieldValue("stringProperty"));
+		assertThat(target.intProperty).isEqualTo(document.getFieldValue("intProperty"));
+		assertThat(target.listOfString).isEqualTo(document.getFieldValue("listOfString"));
+		assertThat(target.arrayOfString).isEqualTo(document.getFieldValues("arrayOfString").toArray());
+		assertThat(target.dateProperty).isEqualTo(document.getFieldValue("dateProperty"));
 	}
 
 	@Test
@@ -382,7 +374,7 @@ public class MappingSolrConverterTests {
 		document.setField("arrayOfString", "christoph");
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, document);
-		Assert.assertArrayEquals(document.getFieldValues("arrayOfString").toArray(), target.arrayOfString);
+		assertThat(target.arrayOfString).isEqualTo(document.getFieldValues("arrayOfString").toArray());
 	}
 
 	@Test
@@ -393,13 +385,13 @@ public class MappingSolrConverterTests {
 
 		BeanWithCustomTypes target = converter.read(BeanWithCustomTypes.class, document);
 
-		Assert.assertEquals(48.362893D, target.location.getX(), 0.0f);
-		Assert.assertEquals(14.534437D, target.location.getY(), 0.0f);
+		assertThat(target.location.getX()).isCloseTo(48.362893D, offset(0.0));
+		assertThat(target.location.getY()).isCloseTo(14.534437D, offset(0.0));
 
-		Assert.assertEquals(48.362893D, target.locations.get(0).getX(), 0.0f);
-		Assert.assertEquals(14.534437D, target.locations.get(0).getY(), 0.0f);
-		Assert.assertEquals(13.923404D, target.locations.get(1).getX(), 0.0f);
-		Assert.assertEquals(142.177731D, target.locations.get(1).getY(), 0.0f);
+		assertThat(target.locations.get(0).getX()).isCloseTo(48.362893D, offset(0.0));
+		assertThat(target.locations.get(0).getY()).isCloseTo(14.534437D, offset(0.0));
+		assertThat(target.locations.get(1).getX()).isCloseTo(13.923404D, offset(0.0));
+		assertThat(target.locations.get(1).getY()).isCloseTo(142.177731D, offset(0.0));
 	}
 
 	@Test
@@ -409,7 +401,7 @@ public class MappingSolrConverterTests {
 
 		BeanWithNamedFields target = converter.read(BeanWithNamedFields.class, document);
 
-		Assert.assertEquals(document.getFieldValue("namedProperty"), target.name);
+		assertThat(target.name).isEqualTo(document.getFieldValue("namedProperty"));
 	}
 
 	@Test
@@ -421,9 +413,9 @@ public class MappingSolrConverterTests {
 
 		BeanWithSimpleTypes target = converter.read(BeanWithSimpleTypes.class, document);
 
-		Assert.assertEquals(document.getFieldValue("simpleIntProperty"), target.simpleIntProperty);
-		Assert.assertEquals(document.getFieldValue("simpleBoolProperty"), target.simpleBoolProperty);
-		Assert.assertEquals(document.getFieldValue("simpleFloatProperty"), target.simpleFloatProperty);
+		assertThat(target.simpleIntProperty).isEqualTo(document.getFieldValue("simpleIntProperty"));
+		assertThat(target.simpleBoolProperty).isEqualTo(document.getFieldValue("simpleBoolProperty"));
+		assertThat(target.simpleFloatProperty).isEqualTo(document.getFieldValue("simpleFloatProperty"));
 	}
 
 	@Test
@@ -437,11 +429,11 @@ public class MappingSolrConverterTests {
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, document);
 
-		Assert.assertNull(target.stringProperty);
-		Assert.assertNull(target.intProperty);
-		Assert.assertNull(target.listOfString);
-		Assert.assertNull(target.arrayOfString);
-		Assert.assertNull(target.dateProperty);
+		assertThat(target.stringProperty).isNull();
+		assertThat(target.intProperty).isNull();
+		assertThat(target.listOfString).isNull();
+		assertThat(target.arrayOfString).isNull();
+		assertThat(target.dateProperty).isNull();
 	}
 
 	@Test
@@ -451,9 +443,9 @@ public class MappingSolrConverterTests {
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, document);
 
-		Assert.assertEquals(document.getFieldValue("stringProperty"), target.stringProperty);
-		Assert.assertNull(target.intProperty);
-		Assert.assertNull(target.listOfString);
+		assertThat(target.stringProperty).isEqualTo(document.getFieldValue("stringProperty"));
+		assertThat(target.intProperty).isNull();
+		assertThat(target.listOfString).isNull();
 	}
 
 	@Test
@@ -462,7 +454,7 @@ public class MappingSolrConverterTests {
 		document.addField("transientField", "value computed on solr server");
 
 		BeanWithFieldsExcludedFromIndexing target = converter.read(BeanWithFieldsExcludedFromIndexing.class, document);
-		Assert.assertEquals(document.getFieldValue("transientField"), target.transientField);
+		assertThat(target.transientField).isEqualTo(document.getFieldValue("transientField"));
 	}
 
 	@Test
@@ -473,8 +465,8 @@ public class MappingSolrConverterTests {
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, document);
 
-		Assert.assertEquals(document.getFieldValue("stringProperty"), target.stringProperty);
-		Assert.assertEquals(document.getFieldValue("intProperty"), target.intProperty);
+		assertThat(target.stringProperty).isEqualTo(document.getFieldValue("stringProperty"));
+		assertThat(target.intProperty).isEqualTo(document.getFieldValue("intProperty"));
 	}
 
 	@Test
@@ -484,9 +476,8 @@ public class MappingSolrConverterTests {
 		document.addField("stringProperty_multi", new String[] { "first", "second", "third" });
 
 		BeanWithCatchAllField target = converter.read(BeanWithCatchAllField.class, document);
-		Assert.assertEquals(4, target.allStringProperties.length);
-		Assert.assertThat(target.allStringProperties,
-				IsArrayContainingInAnyOrder.arrayContainingInAnyOrder("case-insensitive-string", "first", "second", "third"));
+		assertThat(target.allStringProperties.length).isEqualTo(4);
+		assertThat(target.allStringProperties).contains("case-insensitive-string", "first", "second", "third");
 	}
 
 	@Test
@@ -495,7 +486,7 @@ public class MappingSolrConverterTests {
 		document.addField("field_with_trailing_wildcard_ci", "trailing");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals("trailing", target.filedWithTrailingWildcard);
+		assertThat(target.filedWithTrailingWildcard).isEqualTo("trailing");
 	}
 
 	@Test
@@ -505,7 +496,7 @@ public class MappingSolrConverterTests {
 		document.addField("listFieldWithTrailingWildcard_2", "trailing_2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(Arrays.asList("trailing_1", "trailing_2"), target.listFieldWithTrailingWildcard);
+		assertThat(target.listFieldWithTrailingWildcard).isEqualTo(Arrays.asList("trailing_1", "trailing_2"));
 	}
 
 	@Test
@@ -515,7 +506,7 @@ public class MappingSolrConverterTests {
 		document.addField("arrayFieldWithTrailingWildcard_2", "trailing_2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertArrayEquals(new String[] { "trailing_1", "trailing_2" }, target.arrayFieldWithTrailingWildcard);
+		assertThat(target.arrayFieldWithTrailingWildcard).isEqualTo(new String[] { "trailing_1", "trailing_2" });
 	}
 
 	@Test
@@ -524,7 +515,7 @@ public class MappingSolrConverterTests {
 		document.addField("ci_field_with_leading_wildcard", "leading");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals("leading", target.fieldWithLeadingWildcard);
+		assertThat(target.fieldWithLeadingWildcard).isEqualTo("leading");
 	}
 
 	@Test
@@ -534,7 +525,7 @@ public class MappingSolrConverterTests {
 		document.addField("2_listFieldWithLeadingWildcard", "leading_2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(Arrays.asList("leading_1", "leading_2"), target.listFieldWithLeadingWildcard);
+		assertThat(target.listFieldWithLeadingWildcard).isEqualTo(Arrays.asList("leading_1", "leading_2"));
 	}
 
 	@Test
@@ -544,7 +535,7 @@ public class MappingSolrConverterTests {
 		document.addField("2_arrayFieldWithTrailingWildcard", "leading_2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertArrayEquals(new String[] { "leading_1", "leading_2" }, target.arrayFieldWithLeadingWildcard);
+		assertThat(target.arrayFieldWithLeadingWildcard).isEqualTo(new String[] { "leading_1", "leading_2" });
 	}
 
 	@Test
@@ -554,10 +545,9 @@ public class MappingSolrConverterTests {
 		document.addField("2_flatMapWithLeadingWildcard", "leading-map-value-2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.flatMapWithLeadingWildcard.size());
-		Assert.assertThat(target.flatMapWithLeadingWildcard,
-				Matchers.allOf(Matchers.hasEntry("1_flatMapWithLeadingWildcard", "leading-map-value-1"),
-						Matchers.hasEntry("2_flatMapWithLeadingWildcard", "leading-map-value-2")));
+		assertThat(target.flatMapWithLeadingWildcard.size()).isEqualTo(2);
+		assertThat(target.flatMapWithLeadingWildcard).containsEntry("1_flatMapWithLeadingWildcard", "leading-map-value-1")
+				.containsEntry("2_flatMapWithLeadingWildcard", "leading-map-value-2");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -574,10 +564,10 @@ public class MappingSolrConverterTests {
 		document.addField("flatMapWithTrailingWildcard_2", "trailing-map-value-2");
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.flatMapWithTrailingWildcard.size());
-		Assert.assertThat(target.flatMapWithTrailingWildcard,
-				Matchers.allOf(Matchers.hasEntry("flatMapWithTrailingWildcard_1", "trailing-map-value-1"),
-						Matchers.hasEntry("flatMapWithTrailingWildcard_2", "trailing-map-value-2")));
+		assertThat(target.flatMapWithTrailingWildcard.size()).isEqualTo(2);
+		assertThat(target.flatMapWithTrailingWildcard)
+				.containsEntry("flatMapWithTrailingWildcard_1", "trailing-map-value-1")
+				.containsEntry("flatMapWithTrailingWildcard_2", "trailing-map-value-2");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -595,12 +585,11 @@ public class MappingSolrConverterTests {
 				Arrays.asList("leading-map-value-2", "leading-map-value-3"));
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardArray,
-				Matchers.allOf(
-						Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard", new String[] { "leading-map-value-1" }),
-						Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard",
-								new String[] { "leading-map-value-2", "leading-map-value-3" })));
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardArray)
+				.containsEntry("1_multivaluedFieldMapWithLeadingWildcard", new String[] { "leading-map-value-1" })
+				.containsEntry("2_multivaluedFieldMapWithLeadingWildcard",
+						new String[] { "leading-map-value-2", "leading-map-value-3" });
 	}
 
 	@Test
@@ -611,13 +600,11 @@ public class MappingSolrConverterTests {
 				Arrays.asList("leading-map-value-2", "leading-map-value-3"));
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardList.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardList,
-				Matchers.allOf(
-						Matchers.hasEntry("1_multivaluedFieldMapWithLeadingWildcard",
-								Collections.singletonList("leading-map-value-1")),
-						Matchers.hasEntry("2_multivaluedFieldMapWithLeadingWildcard",
-								Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardList.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardList)
+				.containsEntry("1_multivaluedFieldMapWithLeadingWildcard", Collections.singletonList("leading-map-value-1"))
+				.containsEntry("2_multivaluedFieldMapWithLeadingWildcard",
+						Arrays.asList("leading-map-value-2", "leading-map-value-3"));
 	}
 
 	@Test
@@ -628,12 +615,11 @@ public class MappingSolrConverterTests {
 				Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardArray,
-				Matchers.allOf(
-						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1", new String[] { "trailing-map-value-1" }),
-						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2",
-								new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray)
+				.containsEntry("multivaluedFieldMapWithTrailingWildcard_1", new String[] { "trailing-map-value-1" })
+				.containsEntry("multivaluedFieldMapWithTrailingWildcard_2",
+						new String[] { "trailing-map-value-2", "trailing-map-value-3" });
 	}
 
 	@Test
@@ -644,13 +630,11 @@ public class MappingSolrConverterTests {
 				Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
 
 		BeanWithWildcards target = converter.read(BeanWithWildcards.class, document);
-		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardList,
-				Matchers.allOf(
-						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_1",
-								Collections.singletonList("trailing-map-value-1")),
-						Matchers.hasEntry("multivaluedFieldMapWithTrailingWildcard_2",
-								Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardList)
+				.containsEntry("multivaluedFieldMapWithTrailingWildcard_1", Collections.singletonList("trailing-map-value-1"))
+				.containsEntry("multivaluedFieldMapWithTrailingWildcard_2",
+						Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
 	}
 
 	@Test // DATASOLR-202
@@ -666,10 +650,10 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard"));
-		Assert.assertNotNull(solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard"));
-		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard"));
-		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard"));
+		assertThat(solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValue("key_1_flatMapWithLeadingWildcard")).isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValue("key_2_flatMapWithLeadingWildcard")).isEqualTo(values.get("key_2"));
 	}
 
 	@Test // DATASOLR-202
@@ -685,12 +669,12 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertNotNull(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertEquals(values.get("key_1"),
-				solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertEquals(values.get("key_2"),
-				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
+		assertThat(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"))
+				.isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"))
+				.isEqualTo(values.get("key_2"));
 	}
 
 	@Test // DATASOLR-202
@@ -706,12 +690,12 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertNotNull(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertEquals(Arrays.asList(values.get("key_1")),
-				solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"));
-		Assert.assertEquals(Arrays.asList(values.get("key_2")),
-				solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"));
+		assertThat(solrDocument.getFieldValue("key_1_multivaluedFieldMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValue("key_2_multivaluedFieldMapWithLeadingWildcard")).isNotNull();
+		assertThat(solrDocument.getFieldValues("key_1_multivaluedFieldMapWithLeadingWildcard"))
+				.isEqualTo(Arrays.asList(values.get("key_1")));
+		assertThat(solrDocument.getFieldValues("key_2_multivaluedFieldMapWithLeadingWildcard"))
+				.isEqualTo(Arrays.asList(values.get("key_2")));
 	}
 
 	@Test // DATASOLR-308
@@ -727,10 +711,10 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1"));
-		Assert.assertNotNull(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2"));
-		Assert.assertEquals(values.get("key_1"), solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1"));
-		Assert.assertEquals(values.get("key_2"), solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2"));
+		assertThat(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1")).isNotNull();
+		assertThat(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2")).isNotNull();
+		assertThat(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_1")).isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValue("flatMapWithTrailingWildcard_key_2")).isEqualTo(values.get("key_2"));
 	}
 
 	@Test // DATASOLR-308
@@ -746,12 +730,12 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1"));
-		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2"));
-		Assert.assertEquals(values.get("key_1"),
-				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"));
-		Assert.assertEquals(values.get("key_2"),
-				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
+		assertThat(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1")).isNotNull();
+		assertThat(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2")).isNotNull();
+		assertThat(solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"))
+				.isEqualTo(values.get("key_1"));
+		assertThat(solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"))
+				.isEqualTo(values.get("key_2"));
 	}
 
 	@Test // DATASOLR-308
@@ -767,12 +751,12 @@ public class MappingSolrConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(bean, solrDocument);
 
-		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1"));
-		Assert.assertNotNull(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2"));
-		Assert.assertEquals(Arrays.asList(values.get("key_1")),
-				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"));
-		Assert.assertEquals(Arrays.asList(values.get("key_2")),
-				solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"));
+		assertThat(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_1")).isNotNull();
+		assertThat(solrDocument.getFieldValue("multivaluedFieldMapWithTrailingWildcard_key_2")).isNotNull();
+		assertThat(solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_1"))
+				.isEqualTo(Arrays.asList(values.get("key_1")));
+		assertThat(solrDocument.getFieldValues("multivaluedFieldMapWithTrailingWildcard_key_2"))
+				.isEqualTo(Arrays.asList(values.get("key_2")));
 	}
 
 	@Test // DATASOLR-202
@@ -783,9 +767,9 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.flatMapWithLeadingWildcard.size());
-		Assert.assertThat(target.flatMapWithLeadingWildcard,
-				Matchers.allOf(Matchers.hasEntry("1", "leading-map-value-1"), Matchers.hasEntry("2", "leading-map-value-2")));
+		assertThat(target.flatMapWithLeadingWildcard.size()).isEqualTo(2);
+		assertThat(target.flatMapWithLeadingWildcard).containsEntry("1", "leading-map-value-1").containsEntry("2",
+				"leading-map-value-2");
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATASOLR-202
@@ -805,9 +789,9 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.flatMapWithTrailingWildcard.size());
-		Assert.assertThat(target.flatMapWithTrailingWildcard,
-				Matchers.allOf(Matchers.hasEntry("1", "trailing-map-value-1"), Matchers.hasEntry("2", "trailing-map-value-2")));
+		assertThat(target.flatMapWithTrailingWildcard.size()).isEqualTo(2);
+		assertThat(target.flatMapWithTrailingWildcard).containsEntry("1", "trailing-map-value-1").containsEntry("2",
+				"trailing-map-value-2");
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATASOLR-202
@@ -828,10 +812,10 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardArray,
-				Matchers.allOf(Matchers.hasEntry("1", new String[] { "leading-map-value-1" }),
-						Matchers.hasEntry("2", new String[] { "leading-map-value-2", "leading-map-value-3" })));
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardArray)
+				.containsEntry("1", new String[] { "leading-map-value-1" })
+				.containsEntry("2", new String[] { "leading-map-value-2", "leading-map-value-3" });
 	}
 
 	@Test // DATASOLR-202
@@ -844,10 +828,10 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.multivaluedFieldMapWithLeadingWildcardList.size());
-		Assert.assertThat(target.multivaluedFieldMapWithLeadingWildcardList,
-				Matchers.allOf(Matchers.hasEntry("1", Collections.singletonList("leading-map-value-1")),
-						Matchers.hasEntry("2", Arrays.asList("leading-map-value-2", "leading-map-value-3"))));
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardList.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithLeadingWildcardList)
+				.containsEntry("1", Collections.singletonList("leading-map-value-1"))
+				.containsEntry("2", Arrays.asList("leading-map-value-2", "leading-map-value-3"));
 	}
 
 	@Test // DATASOLR-202
@@ -860,10 +844,10 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardArray,
-				Matchers.allOf(Matchers.hasEntry("1", new String[] { "trailing-map-value-1" }),
-						Matchers.hasEntry("2", new String[] { "trailing-map-value-2", "trailing-map-value-3" })));
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray)
+				.containsEntry("1", new String[] { "trailing-map-value-1" })
+				.containsEntry("2", new String[] { "trailing-map-value-2", "trailing-map-value-3" });
 	}
 
 	@Test // DATASOLR-202
@@ -876,10 +860,10 @@ public class MappingSolrConverterTests {
 
 		BeanWithDynamicMapsWildcards target = converter.read(BeanWithDynamicMapsWildcards.class, document);
 
-		Assert.assertEquals(2, target.multivaluedFieldMapWithTrailingWildcardArray.size());
-		Assert.assertThat(target.multivaluedFieldMapWithTrailingWildcardList,
-				Matchers.allOf(Matchers.hasEntry("1", Collections.singletonList("trailing-map-value-1")),
-						Matchers.hasEntry("2", Arrays.asList("trailing-map-value-2", "trailing-map-value-3"))));
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardArray.size()).isEqualTo(2);
+		assertThat(target.multivaluedFieldMapWithTrailingWildcardList)
+				.containsEntry("1", Collections.singletonList("trailing-map-value-1"))
+				.containsEntry("2", Arrays.asList("trailing-map-value-2", "trailing-map-value-3"));
 	}
 
 	@Test
@@ -889,8 +873,8 @@ public class MappingSolrConverterTests {
 		document.addField("namedFieldFieldName", "value_2");
 
 		BeanWithFieldAnnotationOnSetter target = converter.read(BeanWithFieldAnnotationOnSetter.class, document);
-		Assert.assertEquals("value_1", target.name);
-		Assert.assertEquals("value_2", target.namedField);
+		assertThat(target.name).isEqualTo("value_1");
+		assertThat(target.namedField).isEqualTo("value_2");
 	}
 
 	@Test
@@ -901,8 +885,8 @@ public class MappingSolrConverterTests {
 
 		BeanWithInteritance target = converter.read(BeanWithInteritance.class, document);
 
-		Assert.assertEquals(document.getFieldValue("stringProperty"), target.stringProperty);
-		Assert.assertEquals(document.getFieldValue("intProperty"), target.intProperty);
+		assertThat(target.stringProperty).isEqualTo(document.getFieldValue("stringProperty"));
+		assertThat(target.intProperty).isEqualTo(document.getFieldValue("intProperty"));
 	}
 
 	@Test
@@ -912,7 +896,7 @@ public class MappingSolrConverterTests {
 		document.addField("map_2", "value-2");
 
 		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
-		Assert.assertThat(target.mapProperty, IsInstanceOf.instanceOf(HashMap.class));
+		assertThat(target.mapProperty).isInstanceOf(HashMap.class);
 	}
 
 	@Test
@@ -922,7 +906,7 @@ public class MappingSolrConverterTests {
 		document.addField("hashMap_2", "value-2");
 
 		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
-		Assert.assertThat(target.hashMapProperty, IsInstanceOf.instanceOf(HashMap.class));
+		assertThat(target.hashMapProperty).isInstanceOf(HashMap.class);
 	}
 
 	@Test
@@ -932,7 +916,7 @@ public class MappingSolrConverterTests {
 		document.addField("linkedHashMap_2", "value-2");
 
 		BeanWithDifferentMaps target = converter.read(BeanWithDifferentMaps.class, document);
-		Assert.assertThat(target.linkedHashMapProperty, IsInstanceOf.instanceOf(LinkedHashMap.class));
+		assertThat(target.linkedHashMapProperty).isInstanceOf(LinkedHashMap.class);
 	}
 
 	@Test
@@ -941,9 +925,9 @@ public class MappingSolrConverterTests {
 		document.addField("acme_s_com", "value_1");
 
 		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
-		Assert.assertThat(target.justAString, IsEqual.equalTo("value_1"));
-		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
-		Assert.assertThat(target.strings, IsNull.nullValue(Map.class));
+		assertThat(target.justAString).isEqualTo("value_1");
+		assertThat(target.keys).isNull();
+		assertThat(target.strings).isNull();
 	}
 
 	@Test
@@ -952,9 +936,9 @@ public class MappingSolrConverterTests {
 		document.addField("some_key_s", "value_1");
 
 		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
-		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
-		Assert.assertThat(target.keys, IsMapContaining.hasEntry("some_key_s", "value_1"));
-		Assert.assertThat(target.strings, IsMapContaining.hasEntry("some_key_s", "value_1"));
+		assertThat(target.justAString).isNull();
+		assertThat(target.keys).containsEntry("some_key_s", "value_1");
+		assertThat(target.strings).containsEntry("some_key_s", "value_1");
 	}
 
 	@Test
@@ -963,9 +947,9 @@ public class MappingSolrConverterTests {
 		document.addField("some_different_s", "value_1");
 
 		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
-		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
-		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
-		Assert.assertThat(target.strings, IsMapContaining.hasEntry("some_different_s", "value_1"));
+		assertThat(target.justAString).isNull();
+		assertThat(target.keys).isNull();
+		assertThat(target.strings).containsEntry("some_different_s", "value_1");
 	}
 
 	@Test
@@ -974,10 +958,10 @@ public class MappingSolrConverterTests {
 		document.addField("_s_prefixed", "value_1");
 
 		BeanWithOverlappingWildcards target = converter.read(BeanWithOverlappingWildcards.class, document);
-		Assert.assertThat(target.justAString, IsNull.nullValue(String.class));
-		Assert.assertThat(target.keys, IsNull.nullValue(Map.class));
-		Assert.assertThat(target.strings, IsNull.nullValue(Map.class));
-		Assert.assertThat(target.stringWithPrefix, IsEqual.equalTo("value_1"));
+		assertThat(target.justAString).isNull();
+		assertThat(target.keys).isNull();
+		assertThat(target.strings).isNull();
+		assertThat(target.stringWithPrefix).isEqualTo("value_1");
 	}
 
 	@Test
@@ -988,10 +972,9 @@ public class MappingSolrConverterTests {
 
 		BeanWithWildcardsOnTypesThatRequireConversion target = converter
 				.read(BeanWithWildcardsOnTypesThatRequireConversion.class, document);
-		Assert.assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d"),
-				IsInstanceOf.instanceOf(List.class));
-		Assert.assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d").get(0),
-				IsInstanceOf.instanceOf(DateTime.class));
+		assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d")).isInstanceOf(List.class);
+		assertThat(target.fieldWithDateTimeInListOfMap.get("fieldWithDateTimeInListOfMap_d").get(0))
+				.isInstanceOf(DateTime.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1002,7 +985,7 @@ public class MappingSolrConverterTests {
 		document.addField("array", Arrays.asList("v-1", "v-2"));
 
 		BeanWithArrayConstructor target = converter.read(BeanWithArrayConstructor.class, document);
-		Assert.assertThat(target.fields, IsEqual.equalTo(((List<String>) document.getFieldValue("array")).toArray()));
+		assertThat(target.fields).isEqualTo(((List<String>) document.getFieldValue("array")).toArray());
 	}
 
 	@Test // DATASOLR-375
@@ -1014,7 +997,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument sink = new SolrInputDocument();
 		converter.write(source, sink);
 
-		Assert.assertThat(sink.getFieldValue("enumProperty"), IsEqual.equalTo(SomeEnum.E2.name()));
+		assertThat(sink.getFieldValue("enumProperty")).isEqualTo(SomeEnum.E2.name());
 	}
 
 	@Test // DATASOLR-407
@@ -1026,7 +1009,7 @@ public class MappingSolrConverterTests {
 		SolrInputDocument sink = new SolrInputDocument();
 		converter.write(source, sink);
 
-		Assert.assertThat(sink.getFieldValues("enumList"), IsIterableContainingInOrder.contains("E2", "E1"));
+		assertThat(sink.getFieldValues("enumList")).containsExactly("E2", "E1");
 	}
 
 	@Test // DATASOLR-407
@@ -1037,7 +1020,7 @@ public class MappingSolrConverterTests {
 
 		BeanWithDefaultTypes target = converter.read(BeanWithDefaultTypes.class, source);
 
-		Assert.assertThat(target.enumList, IsIterableContainingInOrder.contains(SomeEnum.E2, SomeEnum.E1));
+		assertThat(target.enumList).containsExactly(SomeEnum.E2, SomeEnum.E1);
 	}
 
 	public static class BeanWithoutAnnotatedFields {

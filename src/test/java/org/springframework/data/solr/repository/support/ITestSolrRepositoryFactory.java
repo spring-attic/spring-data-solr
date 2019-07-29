@@ -15,13 +15,14 @@
  */
 package org.springframework.data.solr.repository.support;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.domain.Page;
@@ -57,7 +58,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 	@Test
 	public void testGetRepository() {
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
-		Assert.assertNotNull(repository);
+		assertThat(repository).isNotNull();
 	}
 
 	@Test
@@ -65,25 +66,25 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBean initial = createProductBean("1");
 
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
-		Assert.assertEquals(0, repository.count());
+		assertThat(repository.count()).isEqualTo(0);
 
 		repository.save(initial);
-		Assert.assertEquals(1, repository.count());
+		assertThat(repository.count()).isEqualTo(1);
 
 		ProductBean loaded = repository.findById(initial.getId()).get();
-		Assert.assertEquals(initial.getName(), loaded.getName());
+		assertThat(loaded.getName()).isEqualTo(initial.getName());
 
 		loaded.setName("name changed");
 		repository.save(loaded);
-		Assert.assertEquals(1, repository.count());
+		assertThat(repository.count()).isEqualTo(1);
 
 		loaded = repository.findById(initial.getId()).get();
-		Assert.assertEquals("name changed", loaded.getName());
+		assertThat(loaded.getName()).isEqualTo("name changed");
 
 		repository.delete(loaded);
 
 		Thread.sleep(200);
-		Assert.assertEquals(0, repository.count());
+		assertThat(repository.count()).isEqualTo(0);
 	}
 
 	@Test
@@ -94,7 +95,7 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.save(initial);
 
 		Page<ProductBean> result = repository.findByAnnotatedQuery("na", PageRequest.of(0, 5));
-		Assert.assertEquals(1, result.getContent().size());
+		assertThat(result.getContent().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -105,8 +106,8 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		repository.save(initial);
 
 		ScoredPage<ProductBean> result = repository.findByAnnotatedQuery1("na", PageRequest.of(0, 5));
-		Assert.assertEquals(1, result.getContent().size());
-		Assert.assertEquals(Float.valueOf(1), result.getMaxScore());
+		assertThat(result.getContent().size()).isEqualTo(1);
+		assertThat(result.getMaxScore()).isEqualTo(Float.valueOf(1));
 	}
 
 	@Test
@@ -118,11 +119,11 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
 		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
-		Assert.assertEquals(2, repository.count());
+		assertThat(repository.count()).isEqualTo(2);
 
 		Page<ProductBean> result = repository.findByAvailableTrue(PageRequest.of(0, 10));
-		Assert.assertEquals(1, result.getTotalElements());
-		Assert.assertEquals(availableProduct.getId(), result.getContent().get(0).getId());
+		assertThat(result.getTotalElements()).isEqualTo(1);
+		assertThat(result.getContent().get(0).getId()).isEqualTo(availableProduct.getId());
 	}
 
 	@Test
@@ -134,11 +135,11 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 		ProductBeanRepository repository = factory.getRepository(ProductBeanRepository.class);
 
 		repository.saveAll(Arrays.asList(availableProduct, unavailableProduct));
-		Assert.assertEquals(2, repository.count());
+		assertThat(repository.count()).isEqualTo(2);
 
 		List<ProductBean> result = repository.findByAvailableTrue();
-		Assert.assertEquals(1, result.size());
-		Assert.assertEquals(availableProduct.getId(), result.get(0).getId());
+		assertThat(result.size()).isEqualTo(1);
+		assertThat(result.get(0).getId()).isEqualTo(availableProduct.getId());
 	}
 
 	@Test
@@ -150,8 +151,8 @@ public class ITestSolrRepositoryFactory extends AbstractITestWithEmbeddedSolrSer
 
 		ProductBean result = repository.findSingleElement(initial.getId());
 
-		Assert.assertEquals(initial.getId(), result.getId());
-		Assert.assertEquals(initial.getName(), result.getName());
+		assertThat(result.getId()).isEqualTo(initial.getId());
+		assertThat(result.getName()).isEqualTo(initial.getName());
 	}
 
 	private ProductBean createProductBean(String id) {

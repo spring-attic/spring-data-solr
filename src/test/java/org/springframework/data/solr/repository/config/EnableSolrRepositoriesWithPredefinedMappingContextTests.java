@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
@@ -65,6 +64,6 @@ public class EnableSolrRepositoriesWithPredefinedMappingContextTests extends Abs
 
 	@Test // DATASOLR-163
 	public void shouldUseExistingMappingContextWhenPresent() {
-		assertThat((SimpleSolrMappingContext) context.getBean("solrMappingContext"), is(SOLR_MAPPING_CONTEXT));
+		assertThat((SimpleSolrMappingContext) context.getBean("solrMappingContext")).isEqualTo(SOLR_MAPPING_CONTEXT);
 	}
 }

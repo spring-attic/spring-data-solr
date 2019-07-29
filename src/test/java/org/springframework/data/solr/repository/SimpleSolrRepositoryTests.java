@@ -15,14 +15,13 @@
  */
 package org.springframework.data.solr.repository;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.Duration;
 import java.util.Arrays;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,15 +59,15 @@ public class SimpleSolrRepositoryTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testInitRepositoryWithNullEntityClass() {
-		new SimpleSolrRepository<ExampleSolrBean, String>(
-				new SolrTemplate(Mockito.mock(HttpSolrClient.class), null), (Class) null);
+		new SimpleSolrRepository<ExampleSolrBean, String>(new SolrTemplate(Mockito.mock(HttpSolrClient.class), null),
+				(Class) null);
 	}
 
 	@Test
 	public void testInitRepository() {
 		repository = new SimpleSolrRepository<>(new SolrTemplate(Mockito.mock(HttpSolrClient.class), null),
 				ExampleSolrBean.class);
-		Assert.assertEquals(ExampleSolrBean.class, repository.getEntityClass());
+		assertThat(repository.getEntityClass()).isEqualTo(ExampleSolrBean.class);
 	}
 
 	@Test
@@ -82,8 +81,8 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(Mockito.any(), captor.capture(),
 				Mockito.eq(ExampleSolrBean.class));
 
-		Assert.assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged(), is(true));
-		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
+		assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged()).isTrue();
+		assertThat(captor.getAllValues().get(1).getPageRequest().getPageSize()).isEqualTo(12345);
 	}
 
 	@Test
@@ -99,17 +98,18 @@ public class SimpleSolrRepositoryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(Mockito.any(), captor.capture(),
 				Mockito.eq(BeanWithLongIdType.class));
 
-		Assert.assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged(), is(true));
-		Assert.assertEquals(12345, captor.getAllValues().get(1).getPageRequest().getPageSize());
+		assertThat(captor.getAllValues().get(0).getPageRequest().isUnpaged()).isTrue();
+		assertThat(captor.getAllValues().get(1).getPageRequest().getPageSize()).isEqualTo(12345);
 	}
 
-	@Test //DATASOLR-332
+	@Test // DATASOLR-332
 	public void saveAllShouldPassOnCommitWithinCorrectly() {
 
 		Duration commitWithin = Duration.ofSeconds(1);
 		repository.saveAll(Arrays.asList(new ExampleSolrBean("id-1", "foo", "bar")), commitWithin);
 
-		Mockito.verify(solrOperationsMock).saveBeans(Mockito.anyString(), Mockito.anyCollection(), Mockito.eq(commitWithin));
+		Mockito.verify(solrOperationsMock).saveBeans(Mockito.anyString(), Mockito.anyCollection(),
+				Mockito.eq(commitWithin));
 	}
 
 	static class BeanWithLongIdType {
