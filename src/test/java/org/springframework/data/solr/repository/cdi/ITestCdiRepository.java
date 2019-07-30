@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Optional;
 
@@ -24,11 +23,9 @@ import javax.enterprise.inject.se.SeContainer;
 import javax.enterprise.inject.se.SeContainerInitializer;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.springframework.data.solr.repository.ProductBean;
 
 /**
@@ -66,7 +63,7 @@ public class ITestCdiRepository {
 	@Test // DATASOLR-106
 	public void testCdiRepository() {
 
-		Assert.assertNotNull(repository);
+		assertThat(repository).isNotNull();
 
 		ProductBean bean = new ProductBean();
 		bean.setId("id-1");
@@ -74,26 +71,26 @@ public class ITestCdiRepository {
 
 		repository.save(bean);
 
-		Assert.assertTrue(repository.existsById(bean.getId()));
+		assertThat(repository.existsById(bean.getId())).isTrue();
 
 		Optional<ProductBean> retrieved = repository.findById(bean.getId());
-		Assert.assertTrue(retrieved.isPresent());
-		Assert.assertEquals(bean.getId(), retrieved.get().getId());
-		Assert.assertEquals(bean.getName(), retrieved.get().getName());
+		assertThat(retrieved.isPresent()).isTrue();
+		assertThat(retrieved.get().getId()).isEqualTo(bean.getId());
+		assertThat(retrieved.get().getName()).isEqualTo(bean.getName());
 
-		Assert.assertEquals(1, repository.count());
+		assertThat(repository.count()).isEqualTo(1);
 
-		Assert.assertTrue(repository.existsById(bean.getId()));
+		assertThat(repository.existsById(bean.getId())).isTrue();
 
 		repository.delete(bean);
 
-		Assert.assertEquals(0, repository.count());
+		assertThat(repository.count()).isEqualTo(0);
 		retrieved = repository.findById(bean.getId());
-		Assert.assertFalse(retrieved.isPresent());
+		assertThat(retrieved.isPresent()).isFalse();
 	}
 
 	@Test // DATASOLR-187
 	public void returnOneFromCustomImpl() {
-		assertThat(samplePersonRepository.returnOne(), is(1));
+		assertThat(samplePersonRepository.returnOne()).isEqualTo(1);
 	}
 }

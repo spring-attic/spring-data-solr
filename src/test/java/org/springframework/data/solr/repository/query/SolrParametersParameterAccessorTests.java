@@ -15,11 +15,12 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -48,8 +49,8 @@ public class SolrParametersParameterAccessorTests {
 		SolrParametersParameterAccessor accessor = new SolrParametersParameterAccessor(queryMethod,
 				new Object[] { "value1" });
 
-		Assert.assertEquals("value1", accessor.getBindableValue(0));
-		Assert.assertEquals(2.0f, accessor.getBoost(0), 0.0f);
+		assertThat(accessor.getBindableValue(0)).isEqualTo("value1");
+		assertThat(accessor.getBoost(0)).isCloseTo(2.0f, offset(0.0f));
 	}
 
 	@Test
@@ -59,10 +60,10 @@ public class SolrParametersParameterAccessorTests {
 		SolrParametersParameterAccessor accessor = new SolrParametersParameterAccessor(queryMethod,
 				new Object[] { "value1", Integer.valueOf(1000) });
 
-		Assert.assertEquals("value1", accessor.getBindableValue(0));
-		Assert.assertEquals(2.0f, accessor.getBoost(0), 0.0f);
-		Assert.assertEquals(1000, accessor.getBindableValue(1));
-		Assert.assertEquals(10.0f, accessor.getBoost(1), 0.0f);
+		assertThat(accessor.getBindableValue(0)).isEqualTo("value1");
+		assertThat(accessor.getBoost(0)).isCloseTo(2.0f, offset(0.0f));
+		assertThat(accessor.getBindableValue(1)).isEqualTo(1000);
+		assertThat(accessor.getBoost(1)).isCloseTo(10.0f, offset(0.0f));
 	}
 
 	@Test
@@ -72,10 +73,10 @@ public class SolrParametersParameterAccessorTests {
 		SolrParametersParameterAccessor accessor = new SolrParametersParameterAccessor(queryMethod,
 				new Object[] { "value1", Integer.valueOf(1000) });
 
-		Assert.assertEquals("value1", accessor.getBindableValue(0));
-		Assert.assertEquals(Float.NaN, accessor.getBoost(0), 0.0f);
-		Assert.assertEquals(1000, accessor.getBindableValue(1));
-		Assert.assertEquals(10.0f, accessor.getBoost(1), 0.0f);
+		assertThat(accessor.getBindableValue(0)).isEqualTo("value1");
+		assertThat(accessor.getBoost(0)).isCloseTo(Float.NaN, offset(0.0f));
+		assertThat(accessor.getBindableValue(1)).isEqualTo(1000);
+		assertThat(accessor.getBoost(1)).isCloseTo(10.0f, offset(0.0f));
 	}
 
 	@Test
@@ -86,7 +87,7 @@ public class SolrParametersParameterAccessorTests {
 				new Object[] { "value1", Integer.valueOf(1000) });
 
 		for (Object bindableParameter : accessor) {
-			Assert.assertThat(bindableParameter, IsInstanceOf.instanceOf(BindableSolrParameter.class));
+			assertThat(bindableParameter).isInstanceOf(BindableSolrParameter.class);
 		}
 	}
 
@@ -95,7 +96,7 @@ public class SolrParametersParameterAccessorTests {
 		SolrQueryMethod queryMethod = findByNameAndParams(Repo1.class, "findByNoArguments");
 		SolrParametersParameterAccessor accessor = new SolrParametersParameterAccessor(queryMethod, new Object[] {});
 
-		Assert.assertFalse(accessor.iterator().hasNext());
+		assertThat(accessor.iterator().hasNext()).isFalse();
 	}
 
 	private SolrQueryMethod findByNameAndParams(Class<?> clazz, String methodName, Class<?>... params)

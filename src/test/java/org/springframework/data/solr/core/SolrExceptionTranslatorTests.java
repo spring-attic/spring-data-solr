@@ -15,13 +15,13 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.IOException;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrException.ErrorCode;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -37,68 +37,75 @@ public class SolrExceptionTranslatorTests {
 
 	@Test
 	public void testNotFoundError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.NOT_FOUND, "message")), IsInstanceOf.instanceOf(DataAccessResourceFailureException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.NOT_FOUND, "message")))
+						.isInstanceOf(DataAccessResourceFailureException.class);
 	}
 
 	@Test
 	public void testServiceUnavailableError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.SERVICE_UNAVAILABLE, "message")), IsInstanceOf.instanceOf(DataAccessResourceFailureException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.SERVICE_UNAVAILABLE, "message")))
+						.isInstanceOf(DataAccessResourceFailureException.class);
 	}
 
 	@Test
 	public void testServerErrorError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.SERVER_ERROR, "message")), IsInstanceOf.instanceOf(DataAccessResourceFailureException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.SERVER_ERROR, "message")))
+						.isInstanceOf(DataAccessResourceFailureException.class);
 	}
 
 	@Test
 	public void testForbiddenError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.FORBIDDEN, "message")), IsInstanceOf.instanceOf(PermissionDeniedDataAccessException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.FORBIDDEN, "message")))
+						.isInstanceOf(PermissionDeniedDataAccessException.class);
 	}
 
 	@Test
 	public void testUnauthorizedError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.UNAUTHORIZED, "message")), IsInstanceOf.instanceOf(PermissionDeniedDataAccessException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.UNAUTHORIZED, "message")))
+						.isInstanceOf(PermissionDeniedDataAccessException.class);
 	}
 
 	@Test
 	public void testBadRequestError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.BAD_REQUEST, "message")), IsInstanceOf.instanceOf(InvalidDataAccessApiUsageException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.BAD_REQUEST, "message")))
+						.isInstanceOf(InvalidDataAccessApiUsageException.class);
 	}
 
 	@Test
 	public void testUnknownError() {
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(
-				ErrorCode.UNKNOWN, "message")), IsInstanceOf.instanceOf(UncategorizedSolrException.class));
+		assertThat(exceptionTranslator
+				.translateExceptionIfPossible(createWrappedSolrServerExceptionFor(ErrorCode.UNKNOWN, "message")))
+						.isInstanceOf(UncategorizedSolrException.class);
 	}
 
 	@Test
 	public void testWithNonSolrServerException() {
-		Assert.assertNull(exceptionTranslator.translateExceptionIfPossible(new RuntimeException("message",
-				new IOException())));
+		assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException("message", new IOException())))
+				.isNull();
 	}
 
 	@Test
 	public void testWithParseException() {
-		SolrServerException solrServerException = new SolrServerException("meessage", new SolrException(
-				ErrorCode.BAD_REQUEST, new org.apache.solr.parser.ParseException("parse execption message")));
+		SolrServerException solrServerException = new SolrServerException("meessage",
+				new SolrException(ErrorCode.BAD_REQUEST, new org.apache.solr.parser.ParseException("parse execption message")));
 
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(solrServerException)),
-				IsInstanceOf.instanceOf(InvalidDataAccessApiUsageException.class));
+		assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(solrServerException)))
+				.isInstanceOf(InvalidDataAccessApiUsageException.class);
 	}
 
 	@Test // DATASOLR-158
 	public void shouldConvertConnectExceptionCorrectly() {
 
-		SolrServerException ex = new SolrServerException("message", new java.net.ConnectException(
-				"Cannot connect to server"));
-		Assert.assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(ex)),
-				IsInstanceOf.instanceOf(DataAccessResourceFailureException.class));
+		SolrServerException ex = new SolrServerException("message",
+				new java.net.ConnectException("Cannot connect to server"));
+		assertThat(exceptionTranslator.translateExceptionIfPossible(new RuntimeException(ex)))
+				.isInstanceOf(DataAccessResourceFailureException.class);
 	}
 
 	private RuntimeException createWrappedSolrServerExceptionFor(ErrorCode errorCode, String message) {

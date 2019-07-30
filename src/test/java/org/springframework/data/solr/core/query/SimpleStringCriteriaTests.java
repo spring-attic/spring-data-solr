@@ -15,9 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Test;
 
 /**
@@ -28,13 +27,13 @@ public class SimpleStringCriteriaTests {
 	@Test
 	public void testStringCriteria() {
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
-		Assert.assertThat(criteria.getQueryString(), Is.is("field_1:value_1 AND field_2:value_2"));
+		assertThat(criteria.getQueryString()).isEqualTo("field_1:value_1 AND field_2:value_2");
 	}
 
 	@Test
 	public void testStringCriteriaWithMoreFragmentsCreatesCrotch() {
 		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
 		criteria = criteria.and("field_3").is("value_3");
-		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
+		assertThat(criteria).isInstanceOf(Crotch.class);
 	}
 }

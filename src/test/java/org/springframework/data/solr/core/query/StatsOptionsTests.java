@@ -15,10 +15,11 @@
  */
 package org.springframework.data.solr.core.query;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Collection;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -58,10 +59,10 @@ public class StatsOptionsTests {
 				.setCalcDistinct(true)//
 				.addFacet("fieldFacet");
 
-		Assert.assertArrayEquals(statsOptions.getFacets().toArray(), configured.getFacets().toArray());
-		Assert.assertArrayEquals(statsOptions.getFields().toArray(), configured.getFields().toArray());
-		Assert.assertEquals(statsOptions.getSelectiveFacets(), configured.getSelectiveFacets());
-		Assert.assertTrue(statsOptions.isCalcDistinct());
+		assertThat(configured.getFacets().toArray()).isEqualTo(statsOptions.getFacets().toArray());
+		assertThat(configured.getFields().toArray()).isEqualTo(statsOptions.getFields().toArray());
+		assertThat(configured.getSelectiveFacets()).isEqualTo(statsOptions.getSelectiveFacets());
+		assertThat(statsOptions.isCalcDistinct()).isTrue();
 	}
 
 	@Test // DATSOLR-160
@@ -75,9 +76,9 @@ public class StatsOptionsTests {
 				.addSelectiveFacet("fieldFacetSelective3");
 
 		Map<Field, Collection<Field>> selectiveFacets = configured.getSelectiveFacets();
-		Assert.assertEquals(2, selectiveFacets.size());
-		Assert.assertEquals(1, selectiveFacets.get(new SimpleField("fieldName1")).size());
-		Assert.assertEquals(3, selectiveFacets.get(new SimpleField("fieldName2")).size());
+		assertThat(selectiveFacets.size()).isEqualTo(2);
+		assertThat(selectiveFacets.get(new SimpleField("fieldName1")).size()).isEqualTo(1);
+		assertThat(selectiveFacets.get(new SimpleField("fieldName2")).size()).isEqualTo(3);
 	}
 
 	@Test // DATSOLR-160
@@ -93,12 +94,12 @@ public class StatsOptionsTests {
 				.addSelectiveFacet("fieldFacetSelective3");
 
 		Map<Field, Collection<Field>> selectiveFacets = configured.getSelectiveFacets();
-		Assert.assertEquals(2, selectiveFacets.size());
-		Assert.assertEquals(1, selectiveFacets.get(new SimpleField("fieldName1")).size());
-		Assert.assertEquals(3, selectiveFacets.get(new SimpleField("fieldName2")).size());
-		Assert.assertTrue(configured.isCalcDistinct());
-		Assert.assertTrue(configured.isSelectiveCalcDistincts(new SimpleField("fieldName1")));
-		Assert.assertNull(configured.isSelectiveCalcDistincts(new SimpleField("fieldName2")));
+		assertThat(selectiveFacets.size()).isEqualTo(2);
+		assertThat(selectiveFacets.get(new SimpleField("fieldName1")).size()).isEqualTo(1);
+		assertThat(selectiveFacets.get(new SimpleField("fieldName2")).size()).isEqualTo(3);
+		assertThat(configured.isCalcDistinct()).isTrue();
+		assertThat(configured.isSelectiveCalcDistincts(new SimpleField("fieldName1"))).isTrue();
+		assertThat(configured.isSelectiveCalcDistincts(new SimpleField("fieldName2"))).isNull();
 	}
 
 }

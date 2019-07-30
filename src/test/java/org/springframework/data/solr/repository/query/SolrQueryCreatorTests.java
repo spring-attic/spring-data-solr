@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,7 +24,6 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularity", Integer.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100 });
-		Assert.assertEquals("popularity:100", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:100");
 	}
 
 	@Test
@@ -80,7 +81,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityIsNot", Integer.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100 });
-		Assert.assertEquals("-popularity:100", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("-popularity:100");
 	}
 
 	@Test
@@ -88,7 +89,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityIsNotNull");
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] {});
-		Assert.assertEquals("popularity:[* TO *]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:[* TO *]");
 	}
 
 	@Test
@@ -96,7 +97,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityIsNull");
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] {});
-		Assert.assertEquals("-popularity:[* TO *]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("-popularity:[* TO *]");
 	}
 
 	@Test
@@ -104,7 +105,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityAndPrice", Integer.class, Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100, 200f });
-		Assert.assertEquals("popularity:100 AND price:200.0", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:100 AND price:200.0");
 	}
 
 	@Test
@@ -112,7 +113,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityOrPrice", Integer.class, Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100, 200f });
-		Assert.assertEquals("popularity:100 OR price:200.0", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:100 OR price:200.0");
 	}
 
 	@Test
@@ -120,7 +121,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByAvailableTrue");
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] {});
-		Assert.assertEquals("inStock:true", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("inStock:true");
 	}
 
 	@Test
@@ -128,7 +129,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByAvailableFalse");
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] {});
-		Assert.assertEquals("inStock:false", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("inStock:false");
 	}
 
 	@Test
@@ -136,7 +137,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleLike", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "j73x73r" });
-		Assert.assertEquals("title:j73x73r*", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:j73x73r*");
 	}
 
 	@Test
@@ -144,7 +145,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleLike", Collection.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { Arrays.asList("one", "two", "three") });
-		Assert.assertEquals("title:(one* two* three*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:(one* two* three*)");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -159,7 +160,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityLike", String[].class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { new String[] { "one", "two", "three" } });
-		Assert.assertEquals("popularity:(one* two* three*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:(one* two* three*)");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -174,7 +175,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleNotLike", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "j73x73r" });
-		Assert.assertEquals("-title:j73x73r*", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("-title:j73x73r*");
 	}
 
 	@Test
@@ -182,7 +183,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleNotLike", Collection.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { Arrays.asList("one", "two", "three") });
-		Assert.assertEquals("-title:(one* two* three*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("-title:(one* two* three*)");
 	}
 
 	@Test
@@ -190,7 +191,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleStartingWith", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "j73x73r" });
-		Assert.assertEquals("title:j73x73r*", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:j73x73r*");
 	}
 
 	@Test
@@ -198,7 +199,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleStartingWith", Collection.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { Arrays.asList("one", "two", "three") });
-		Assert.assertEquals("title:(one* two* three*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:(one* two* three*)");
 	}
 
 	@Test
@@ -206,7 +207,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleEndingWith", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "christoph" });
-		Assert.assertEquals("title:*christoph", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:*christoph");
 	}
 
 	@Test
@@ -214,7 +215,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleEndingWith", Collection.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { Arrays.asList("one", "two", "three") });
-		Assert.assertEquals("title:(*one *two *three)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:(*one *two *three)");
 	}
 
 	@Test
@@ -222,7 +223,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleContaining", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "solr" });
-		Assert.assertEquals("title:*solr*", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:*solr*");
 	}
 
 	@Test
@@ -230,7 +231,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleContaining", Collection.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { Arrays.asList("one", "two", "three") });
-		Assert.assertEquals("title:(*one* *two* *three*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:(*one* *two* *three*)");
 	}
 
 	@Test
@@ -238,7 +239,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByTitleRegex", String.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { "(\\+ \\*)" });
-		Assert.assertEquals("title:(\\+ \\*)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("title:(\\+ \\*)");
 	}
 
 	@Test
@@ -246,7 +247,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityBetween", Integer.class, Integer.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100, 200 });
-		Assert.assertEquals("popularity:[100 TO 200]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:[100 TO 200]");
 	}
 
 	@Test
@@ -255,8 +256,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
-		Assert.assertEquals("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z}",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("last_modified:[* TO 2012\\-10\\-15T05\\:31\\:00.000Z}");
 	}
 
 	@Test
@@ -264,7 +265,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPriceLessThan", Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100f });
-		Assert.assertEquals("price:[* TO 100.0}", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("price:[* TO 100.0}");
 	}
 
 	@Test
@@ -272,7 +273,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPriceLessThanEqual", Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 100f });
-		Assert.assertEquals("price:[* TO 100.0]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("price:[* TO 100.0]");
 	}
 
 	@Test
@@ -281,8 +282,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
-		Assert.assertEquals("last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]");
 	}
 
 	@Test
@@ -290,7 +291,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPriceGreaterThan", Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 10f });
-		Assert.assertEquals("price:{10.0 TO *]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("price:{10.0 TO *]");
 	}
 
 	@Test
@@ -298,7 +299,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPriceGreaterThanEqual", Float.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 10f });
-		Assert.assertEquals("price:[10.0 TO *]", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("price:[10.0 TO *]");
 	}
 
 	@Test
@@ -306,7 +307,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityIn", Integer[].class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { new Object[] { 1, 2, 3 } });
-		Assert.assertEquals("popularity:(1 2 3)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("popularity:(1 2 3)");
 	}
 
 	@Test
@@ -314,7 +315,7 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityNotIn", Integer[].class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { new Object[] { 1, 2, 3 } });
-		Assert.assertEquals("-popularity:(1 2 3)", queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class)).isEqualTo("-popularity:(1 2 3)");
 	}
 
 	@Test
@@ -323,8 +324,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(5) });
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=5.0}",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("{!bbox pt=48.303056,14.290556 sfield=store d=5.0}");
 	}
 
 	@Test
@@ -333,8 +334,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
-		Assert.assertEquals("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("{!bbox pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}");
 	}
 
 	@Test
@@ -343,8 +344,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(5) });
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=store d=5.0}");
 	}
 
 	@Test
@@ -353,8 +354,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES) });
-		Assert.assertEquals("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=store d=1.609344 score=miles}");
 	}
 
 	@Test
@@ -363,8 +364,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { new Box(new Point(48.303056, 14.290556), new Point(48.306377, 14.283128)) });
-		Assert.assertEquals("store:[48.303056,14.290556 TO 48.306377,14.283128]",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("store:[48.303056,14.290556 TO 48.306377,14.283128]");
 	}
 
 	@Test
@@ -372,8 +373,8 @@ public class SolrQueryCreatorTests {
 		Method method = SampleRepository.class.getMethod("findByPopularityOrderByTitleDesc", Integer.class);
 
 		Query query = createQueryForMethodWithArgs(method, new Object[] { 1 });
-		Assert.assertNotNull(query.getSort());
-		Assert.assertEquals(Sort.Direction.DESC, query.getSort().getOrderFor("title").getDirection());
+		assertThat(query.getSort()).isNotNull();
+		assertThat(query.getSort().getOrderFor("title").getDirection()).isEqualTo(Sort.Direction.DESC);
 	}
 
 	@Test // DATASOLR-139
@@ -384,8 +385,8 @@ public class SolrQueryCreatorTests {
 
 		Query query = createQueryForMethodWithArgs(method,
 				new Object[] { "mail", "domain", new DateTime(2012, 10, 15, 5, 31, 0, DateTimeZone.UTC) });
-		Assert.assertEquals("name:mail OR description:domain AND last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]",
-				queryParser.getQueryString(query, ProductBean.class));
+		assertThat(queryParser.getQueryString(query, ProductBean.class))
+				.isEqualTo("name:mail OR description:domain AND last_modified:{2012\\-10\\-15T05\\:31\\:00.000Z TO *]");
 	}
 
 	private Query createQueryForMethodWithArgs(Method method, Object[] args) {

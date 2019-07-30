@@ -15,14 +15,14 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.hamcrest.core.IsEqual;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -38,15 +38,15 @@ public class DateTimeConvertersTests {
 	@Test
 	public void testJodaDateTimeConverter() {
 		DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
-		Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z",
-				DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime));
+		assertThat(DateTimeConverters.JodaDateTimeConverter.INSTANCE.convert(dateTime))
+				.isEqualTo("2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 	@Test
 	public void testStringToJodaDateTime() {
 		String dateString = "2013-06-18T06:00:00Z";
 		DateTime dateTime = DateTimeConverters.StringToJodaDateTimeConverter.INSTANCE.convert(dateString);
-		Assert.assertThat(dateTime, IsEqual.equalTo(new DateTime(2013, 6, 18, 6, 0, 0, DateTimeZone.UTC)));
+		assertThat(dateTime).isEqualTo(new DateTime(2013, 6, 18, 6, 0, 0, DateTimeZone.UTC));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -73,8 +73,8 @@ public class DateTimeConvertersTests {
 	public void testJodaLocalDateTimeConverter() {
 		LocalDateTime dateTime = new LocalDateTime(new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC).getMillis(),
 				DateTimeZone.UTC);
-		Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z",
-				DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime));
+		assertThat(DateTimeConverters.JodaLocalDateTimeConverter.INSTANCE.convert(dateTime))
+				.isEqualTo("2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -89,8 +89,8 @@ public class DateTimeConvertersTests {
 		calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 		calendar.setTimeInMillis(dateTime.getMillis());
 
-		Assert.assertEquals("2012\\-08\\-21T06\\:35\\:00.000Z",
-				DateTimeConverters.JavaDateConverter.INSTANCE.convert(calendar.getTime()));
+		assertThat(DateTimeConverters.JavaDateConverter.INSTANCE.convert(calendar.getTime()))
+				.isEqualTo("2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 }

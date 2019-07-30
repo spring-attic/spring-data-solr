@@ -15,13 +15,10 @@
  */
 package org.springframework.data.solr.core.query;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Date;
 
-import org.hamcrest.Matchers;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.hamcrest.collection.IsEmptyIterable;
-import org.hamcrest.core.IsNot;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -56,31 +53,31 @@ public class FieldWithQueryParametersTests {
 
 	@Test
 	public void testGetQueryParametersWhenNoneAvailable() {
-		Assert.assertThat(field.getQueryParameters(), IsEmptyCollection.empty());
+		assertThat(field.getQueryParameters()).isEmpty();
 	}
 
 	@Test
 	public void testHasQueryParametersWhenNoneAvailable() {
-		Assert.assertFalse(field.hasQueryParameters());
+		assertThat(field.hasQueryParameters()).isFalse();
 	}
 
 	@Test
 	public void testGetQueryParameterValueWhenNoneAvailable() {
-		Assert.assertNull(field.getQueryParameter(PARAMNAME));
+		assertThat(field.getQueryParameter(PARAMNAME)).isNull();
 	}
 
 	@Test
 	public void testGetIteratorWhenNoneAvailable() {
-		Assert.assertThat(field, IsEmptyIterable.emptyIterable());
+		assertThat(field).isEmpty();
 	}
 
 	@Test
 	public void testAddQueryParameter() {
 		field.addQueryParameter(OPTION_WITH_STRING);
-		Assert.assertTrue(field.hasQueryParameters());
-		Assert.assertThat(field.getQueryParameters(), IsNot.not(IsEmptyCollection.empty()));
-		Assert.assertThat(field, IsNot.not(IsEmptyIterable.emptyIterable()));
-		Assert.assertEquals(OPTION_WITH_STRING, field.getQueryParameter(OPTION_WITH_STRING.getName()));
+		assertThat(field.hasQueryParameters()).isTrue();
+		assertThat(field.getQueryParameters()).isNotEmpty();
+		assertThat(field).isNotEmpty();
+		assertThat(field.getQueryParameter(OPTION_WITH_STRING.getName())).isEqualTo(OPTION_WITH_STRING);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -94,8 +91,7 @@ public class FieldWithQueryParametersTests {
 		field.addQueryParameter(OPTION_WITH_INT);
 		field.addQueryParameter(OPTION_WITH_DATE);
 
-		Assert.assertThat(field.getQueryParameters(),
-				Matchers.contains(OPTION_WITH_STRING, OPTION_WITH_INT, OPTION_WITH_DATE));
+		assertThat(field.getQueryParameters()).containsExactly(OPTION_WITH_STRING, OPTION_WITH_INT, OPTION_WITH_DATE);
 	}
 
 	@Test
@@ -103,9 +99,9 @@ public class FieldWithQueryParametersTests {
 		field.addQueryParameter(OPTION_WITH_STRING);
 		field.addQueryParameter(OPTION_WITH_INT);
 
-		Assert.assertEquals(OPTION_WITH_STRING, field.getQueryParameter(OPTION_WITH_STRING.getName()));
-		Assert.assertEquals(OPTION_WITH_INT, field.getQueryParameter(OPTION_WITH_INT.getName()));
-		Assert.assertNull(field.getQueryParameter(OPTION_WITH_DATE.getName()));
+		assertThat(field.getQueryParameter(OPTION_WITH_STRING.getName())).isEqualTo(OPTION_WITH_STRING);
+		assertThat(field.getQueryParameter(OPTION_WITH_INT.getName())).isEqualTo(OPTION_WITH_INT);
+		assertThat(field.getQueryParameter(OPTION_WITH_DATE.getName())).isNull();
 	}
 
 	@Test
@@ -118,9 +114,9 @@ public class FieldWithQueryParametersTests {
 		Integer intOptionValue = field.getQueryParameterValue(OPTION_WITH_INT.getName());
 		Date dateOptionValue = field.getQueryParameterValue(OPTION_WITH_DATE.getName());
 
-		Assert.assertEquals(OPTION_WITH_STRING.getValue(), stringOptionValue);
-		Assert.assertEquals(OPTION_WITH_INT.getValue(), intOptionValue);
-		Assert.assertEquals(OPTION_WITH_DATE.getValue(), dateOptionValue);
+		assertThat(stringOptionValue).isEqualTo(OPTION_WITH_STRING.getValue());
+		assertThat(intOptionValue).isEqualTo(OPTION_WITH_INT.getValue());
+		assertThat(dateOptionValue).isEqualTo(OPTION_WITH_DATE.getValue());
 	}
 
 }

@@ -15,9 +15,11 @@
  */
 package org.springframework.data.solr.core.query.result;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
+
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -32,9 +34,9 @@ public class SimpleStatsResultTests {
 		SimpleStatsResult stats = new SimpleStatsResult();
 		stats.setMin(13);
 
-		Assert.assertEquals("13", stats.getMinAsString());
-		Assert.assertEquals(Double.valueOf(13), stats.getMinAsDouble());
-		Assert.assertNull(null, stats.getMinAsDate());
+		assertThat(stats.getMinAsString()).isEqualTo("13");
+		assertThat(stats.getMinAsDouble()).isEqualTo(Double.valueOf(13));
+		assertThat(stats.getMinAsDate()).as(null).isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -44,9 +46,9 @@ public class SimpleStatsResultTests {
 		Date date = new Date();
 		stats.setMin(date);
 
-		Assert.assertEquals(date.toString(), stats.getMinAsString());
-		Assert.assertNull(stats.getMinAsDouble());
-		Assert.assertEquals(date, stats.getMinAsDate());
+		assertThat(stats.getMinAsString()).isEqualTo(date.toString());
+		assertThat(stats.getMinAsDouble()).isNull();
+		assertThat(stats.getMinAsDate()).isEqualTo(date);
 	}
 
 	@Test // DATASOLR-160
@@ -55,9 +57,9 @@ public class SimpleStatsResultTests {
 		SimpleStatsResult stats = new SimpleStatsResult();
 		stats.setMax(13);
 
-		Assert.assertEquals("13", stats.getMaxAsString());
-		Assert.assertEquals(Double.valueOf(13), stats.getMaxAsDouble());
-		Assert.assertNull(null, stats.getMaxAsDate());
+		assertThat(stats.getMaxAsString()).isEqualTo("13");
+		assertThat(stats.getMaxAsDouble()).isEqualTo(Double.valueOf(13));
+		assertThat(stats.getMaxAsDate()).as(null).isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -67,9 +69,9 @@ public class SimpleStatsResultTests {
 		Date date = new Date();
 		stats.setMax(date);
 
-		Assert.assertEquals(date.toString(), stats.getMaxAsString());
-		Assert.assertNull(stats.getMaxAsDouble());
-		Assert.assertEquals(date, stats.getMaxAsDate());
+		assertThat(stats.getMaxAsString()).isEqualTo(date.toString());
+		assertThat(stats.getMaxAsDouble()).isNull();
+		assertThat(stats.getMaxAsDate()).isEqualTo(date);
 	}
 
 	@Test // DATASOLR-404
@@ -79,7 +81,7 @@ public class SimpleStatsResultTests {
 		Date date = new Date();
 		stats.setMean(date);
 
-		Assert.assertEquals(date, stats.getMeanAsDate());
+		assertThat(stats.getMeanAsDate()).isEqualTo(date);
 	}
 
 	@Test // DATASOLR-404
@@ -89,7 +91,7 @@ public class SimpleStatsResultTests {
 		Date date = new Date();
 		stats.setMean(1L);
 
-		Assert.assertEquals(1D, stats.getMeanAsDouble(), 0D);
+		assertThat(stats.getMeanAsDouble()).isCloseTo(1D, offset(0D));
 	}
 
 	@Test // DATASOLR-404
@@ -98,6 +100,6 @@ public class SimpleStatsResultTests {
 		SimpleStatsResult stats = new SimpleStatsResult();
 		stats.setMean("o_O");
 
-		Assert.assertNull(stats.getMeanAsDate());
+		assertThat(stats.getMeanAsDate()).isNull();
 	}
 }

@@ -15,17 +15,14 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.assertj.core.api.Assertions.*;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.core.SolrTemplate;
@@ -67,7 +64,7 @@ public class ITestEnableSolrRepositoriesWithSchemaCreationSupport extends Abstra
 		SolrTemplate solrTemplate = (SolrTemplate) simpleSolrRepository.getSolrOperations();
 		solrTemplate.getSchemaCreationFeatures().contains(Feature.CREATE_MISSING_FIELDS);
 
-		Assert.assertThat(repository, is(notNullValue()));
+		assertThat(repository).isNotNull();
 	}
 
 }

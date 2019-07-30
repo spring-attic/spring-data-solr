@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -50,9 +50,6 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -110,7 +107,7 @@ public class SolrTemplateTests {
 	public void testPing() throws SolrServerException, IOException {
 		when(solrClientMock.ping()).thenReturn(new SolrPingResponse());
 		SolrPingResponse pingResult = solrTemplate.ping();
-		assertNotNull(pingResult);
+		assertThat(pingResult).isNotNull();
 		verify(solrClientMock, times(1)).ping();
 	}
 
@@ -149,13 +146,13 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), any(SolrInputDocument.class), eq(-1)))
 				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveBean(COLLECTION_NAME, SIMPLE_OBJECT);
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
 
-		assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
-		assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+		assertThat(captor.getValue().getFieldValue("id")).isEqualTo(SIMPLE_OBJECT.getId());
+		assertThat(captor.getValue().getFieldValue("value")).isEqualTo(SIMPLE_OBJECT.getValue());
 	}
 
 	@Test
@@ -163,13 +160,13 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), any(SolrInputDocument.class), eq(10000)))
 				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveBean(COLLECTION_NAME, SIMPLE_OBJECT, Duration.ofSeconds(10));
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(10000));
 
-		assertEquals(SIMPLE_OBJECT.getId(), captor.getValue().getFieldValue("id"));
-		assertEquals(SIMPLE_OBJECT.getValue(), captor.getValue().getFieldValue("value"));
+		assertThat(captor.getValue().getFieldValue("id")).isEqualTo(SIMPLE_OBJECT.getId());
+		assertThat(captor.getValue().getFieldValue("value")).isEqualTo(SIMPLE_OBJECT.getValue());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -185,8 +182,8 @@ public class SolrTemplateTests {
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
 
-		Assert.assertTrue(captor.getValue().getFieldValue("field_1") instanceof Map);
-		assertEquals("update", ((Map<String, Object>) captor.getValue().getFieldValue("field_1")).get("set"));
+		assertThat(captor.getValue().getFieldValue("field_1") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) captor.getValue().getFieldValue("field_1")).get("set")).isEqualTo("update");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -196,13 +193,13 @@ public class SolrTemplateTests {
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
 		UpdateResponse updateResponse = solrTemplate.saveBeans(COLLECTION_NAME, collection);
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 
 		@SuppressWarnings("rawtypes")
 		ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
 
-		assertEquals(3, captor.getValue().size());
+		assertThat(captor.getValue().size()).isEqualTo(3);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -212,13 +209,13 @@ public class SolrTemplateTests {
 		List<SimpleJavaObject> collection = Arrays.asList(new SimpleJavaObject("1", 1l), new SimpleJavaObject("2", 2l),
 				new SimpleJavaObject("3", 3l));
 		UpdateResponse updateResponse = solrTemplate.saveBeans(COLLECTION_NAME, collection, Duration.ofSeconds(10));
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 
 		@SuppressWarnings("rawtypes")
 		ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(10000));
 
-		assertEquals(3, captor.getValue().size());
+		assertThat(captor.getValue().size()).isEqualTo(3);
 	}
 
 	@Test
@@ -226,7 +223,7 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), any(SolrInputDocument.class), eq(-1)))
 				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveDocument(COLLECTION_NAME, SIMPLE_DOCUMENT);
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), eq(SIMPLE_DOCUMENT), eq(-1));
 	}
 
@@ -235,7 +232,7 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), any(SolrInputDocument.class), eq(10000)))
 				.thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.saveDocument(COLLECTION_NAME, SIMPLE_DOCUMENT, Duration.ofSeconds(10));
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), eq(SIMPLE_DOCUMENT), eq(10000));
 	}
 
@@ -244,7 +241,7 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), anyCollection(), eq(-1))).thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Collections.singletonList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(COLLECTION_NAME, collection);
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), eq(collection), eq(-1));
 	}
 
@@ -253,7 +250,7 @@ public class SolrTemplateTests {
 		when(solrClientMock.add(eq(COLLECTION_NAME), anyCollection(), eq(10000))).thenReturn(new UpdateResponse());
 		List<SolrInputDocument> collection = Collections.singletonList(SIMPLE_DOCUMENT);
 		UpdateResponse updateResponse = solrTemplate.saveDocuments(COLLECTION_NAME, collection, Duration.ofSeconds(10));
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), eq(collection), eq(10000));
 	}
 
@@ -261,7 +258,7 @@ public class SolrTemplateTests {
 	public void testDeleteById() throws IOException, SolrServerException {
 		when(solrClientMock.deleteById(eq(COLLECTION_NAME), Mockito.anyString())).thenReturn(new UpdateResponse());
 		UpdateResponse updateResponse = solrTemplate.deleteByIds(COLLECTION_NAME, "1");
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 		verify(solrClientMock, times(1)).deleteById(eq(COLLECTION_NAME), eq("1"));
 	}
 
@@ -270,16 +267,16 @@ public class SolrTemplateTests {
 		when(solrClientMock.deleteById(eq(COLLECTION_NAME), anyList())).thenReturn(new UpdateResponse());
 		List<String> idsToDelete = Arrays.asList("1", "2");
 		UpdateResponse updateResponse = solrTemplate.deleteByIds(COLLECTION_NAME, idsToDelete);
-		assertNotNull(updateResponse);
+		assertThat(updateResponse).isNotNull();
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<String>> captor = (ArgumentCaptor<List<String>>) (Object) ArgumentCaptor.forClass(List.class);
 
 		verify(solrClientMock, times(1)).deleteById(eq(COLLECTION_NAME), captor.capture());
 
-		assertEquals(idsToDelete.size(), captor.getValue().size());
+		assertThat(captor.getValue().size()).isEqualTo(idsToDelete.size());
 		for (String s : idsToDelete) {
-			Assert.assertTrue(captor.getValue().contains(s));
+			assertThat(captor.getValue().contains(s)).isTrue();
 		}
 	}
 
@@ -294,12 +291,12 @@ public class SolrTemplateTests {
 				.thenReturn(responseMock);
 
 		long result = solrTemplate.count(COLLECTION_NAME, new SimpleQuery(new Criteria("field_1").is("value1")));
-		assertEquals(resultList.getNumFound(), result);
+		assertThat(result).isEqualTo(resultList.getNumFound());
 
 		verify(solrClientMock, times(1)).query(eq(COLLECTION_NAME), captor.capture(), eq(SolrRequest.METHOD.GET));
 
-		assertEquals(Integer.valueOf(0), captor.getValue().getStart());
-		assertEquals(Integer.valueOf(0), captor.getValue().getRows());
+		assertThat(captor.getValue().getStart()).isEqualTo(Integer.valueOf(0));
+		assertThat(captor.getValue().getRows()).isEqualTo(Integer.valueOf(0));
 	}
 
 	@Test
@@ -315,12 +312,12 @@ public class SolrTemplateTests {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value1"));
 		query.setPageRequest(PageRequest.of(0, 5));
 		long result = solrTemplate.count(COLLECTION_NAME, query);
-		assertEquals(resultList.getNumFound(), result);
+		assertThat(result).isEqualTo(resultList.getNumFound());
 
 		verify(solrClientMock, times(1)).query(eq(COLLECTION_NAME), captor.capture(), eq(SolrRequest.METHOD.GET));
 
-		assertEquals(Integer.valueOf(0), captor.getValue().getStart());
-		assertEquals(Integer.valueOf(0), captor.getValue().getRows());
+		assertThat(captor.getValue().getStart()).isEqualTo(Integer.valueOf(0));
+		assertThat(captor.getValue().getRows()).isEqualTo(Integer.valueOf(0));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -372,7 +369,7 @@ public class SolrTemplateTests {
 		ArgumentCaptor<SolrParams> captor = ArgumentCaptor.forClass(SolrParams.class);
 
 		verify(solrClientMock, times(1)).query(nullable(String.class), captor.capture(), eq(SolrRequest.METHOD.GET));
-		assertEquals("*:*", captor.getValue().getParams(CommonParams.Q)[0]);
+		assertThat(captor.getValue().getParams(CommonParams.Q)[0]).isEqualTo("*:*");
 	}
 
 	@Test // DATASOLR-72, DATASOLR-313, DATASOLR-309
@@ -404,9 +401,9 @@ public class SolrTemplateTests {
 
 		SolrRequest capturedRequest = requestCaptor.getValue();
 
-		assertThat(capturedRequest.getMethod(), IsEqual.equalTo(SolrRequest.METHOD.POST));
-		assertThat(capturedRequest.getPath(), IsEqual.equalTo("/schema"));
-		assertThat(capturedRequest.getContentWriter("json"), IsNull.notNullValue());
+		assertThat(capturedRequest.getMethod()).isEqualTo(SolrRequest.METHOD.POST);
+		assertThat(capturedRequest.getPath()).isEqualTo("/schema");
+		assertThat(capturedRequest.getContentWriter("json")).isNotNull();
 	}
 
 	@Test // DATASOLR-83
@@ -439,7 +436,7 @@ public class SolrTemplateTests {
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
 
-		assertNull(captor.getValue().getFieldValue("score"));
+		assertThat(captor.getValue().getFieldValue("score")).isNull();
 	}
 
 	@Test // DATASOLR-471
@@ -451,7 +448,7 @@ public class SolrTemplateTests {
 		ArgumentCaptor<SolrInputDocument> captor = ArgumentCaptor.forClass(SolrInputDocument.class);
 		verify(solrClientMock, times(1)).add(eq(COLLECTION_NAME), captor.capture(), eq(-1));
 
-		assertNull(captor.getValue().getFieldValue("score"));
+		assertThat(captor.getValue().getFieldValue("score")).isNull();
 	}
 
 	@Test // DATASOLR-215
