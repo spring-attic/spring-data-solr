@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>1.9.23.BUILD-SNAPSHOT</version>
+		<version>1.9.23.RELEASE</version>
 	</parent>
 
 	<properties>
@@ -23,7 +23,7 @@
 		<commons.lang>3.1</commons.lang>
 		<httpcomponents>4.3.1</httpcomponents>
 		<solr>5.5.0</solr>
-		<springdata.commons>1.13.23.BUILD-SNAPSHOT</springdata.commons>
+		<springdata.commons>1.13.23.RELEASE</springdata.commons>
 	</properties>
 
 	<developers>
@@ -256,8 +256,8 @@
 
 	<repositories>
 		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>https://repo.spring.io/libs-snapshot</url>
+			<id>spring-libs-release</id>
+			<url>https://repo.spring.io/libs-release</url>
 		</repository>
 	</repositories>
 
