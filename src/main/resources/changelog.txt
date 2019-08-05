@@ -1,6 +1,17 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.RC2 (2019-08-05)
+-----------------------------------------
+* DATASOLR-538 - Upgrade to Solr 8.2.
+* DATASOLR-537 - Migrate to AssertJ.
+* DATASOLR-536 - Adapt to changed API in Commons.
+* DATASOLR-535 - Revise readme for a consistent structure.
+* DATASOLR-534 - Integrate nohttp tooling into CI build profile.
+* DATASOLR-533 - Release 4.1 RC2 (Moore).
+* DATASOLR-529 - Introduce Jenkins CI.
+
+
 Changes in version 4.0.10.RELEASE (2019-08-05)
 ----------------------------------------------
 * DATASOLR-534 - Integrate nohttp tooling into CI build profile.
