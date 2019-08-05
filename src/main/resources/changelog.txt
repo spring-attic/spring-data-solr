@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 2.1.23.RELEASE (2019-08-05)
+----------------------------------------------
+* DATASOLR-529 - Introduce Jenkins CI.
+* DATASOLR-528 - Release 2.1.23 (Ingalls SR23).
+
+
 Changes in version 4.1.0.RC1 (2019-06-14)
 -----------------------------------------
 * DATASOLR-530 - Create security policy readme.
