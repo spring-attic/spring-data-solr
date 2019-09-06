@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.0.RC3 (2019-09-06)
+-----------------------------------------
+* DATASOLR-542 - Add HTTPS entries into spring.schemas.
+* DATASOLR-541 - Release 4.1 RC3 (Moore).
+
+
 Changes in version 4.1.0.RC2 (2019-08-05)
 -----------------------------------------
 * DATASOLR-538 - Upgrade to Solr 8.2.
