@@ -18,13 +18,19 @@ package org.springframework.data.solr.server.support;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
+import org.apache.http.auth.params.AuthPNames;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.LBHttpSolrClient;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * The {@link HttpSolrClientFactory} replaces HttpSolrServerFactory from version 1.x and configures an
@@ -67,11 +73,22 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 
 			HttpSolrClient httpSolrClient = (HttpSolrClient) solrClient;
 
-			if (credentials != null && StringUtils.isNotBlank(authPolicy)
-					&& assertHttpClientInstance(httpSolrClient.getHttpClient())) {
+			if (credentials != null && StringUtils.isNotBlank(authPolicy) && assertHttpClientInstance(
+					httpSolrClient.getHttpClient())) {
 
 				HttpClient httpClient = httpSolrClient.getHttpClient();
+				DirectFieldAccessor df = new DirectFieldAccessor(httpClient);
+				CredentialsProvider provider = (CredentialsProvider) df.getPropertyValue("credentialsProvider");
 
+				provider.setCredentials(new AuthScope(AuthScope.ANY), credentials);
+			}
+		} else if (isCloudSolrClient(solrClient)) {
+
+			CloudSolrClient cloudSolrClient = (CloudSolrClient) solrClient;
+			if (credentials != null && StringUtils.isNotBlank(authPolicy) && assertHttpClientInstance(
+					cloudSolrClient.getHttpClient())) {
+
+				HttpClient httpClient = cloudSolrClient.getHttpClient();
 				DirectFieldAccessor df = new DirectFieldAccessor(httpClient);
 				CredentialsProvider provider = (CredentialsProvider) df.getPropertyValue("credentialsProvider");
 
