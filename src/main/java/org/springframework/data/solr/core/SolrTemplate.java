@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 the original author or authors.
+ * Copyright 2012 - 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,7 @@ import org.springframework.util.CollectionUtils;
  * @author Petar Tahchiev
  * @author Mark Paluch
  * @author Juan Manuel de Blas
+ * @author Radek Mensik
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -724,6 +725,11 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			this.solrConverter = getDefaultSolrConverter();
 		}
 		registerPersistenceExceptionTranslator();
+	}
+
+	@Override
+	public UpdateResponse optimize(String collection) {
+		return execute(solrClient -> solrClient.optimize(collection));
 	}
 
 	private void registerPersistenceExceptionTranslator() {
