@@ -27,7 +27,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -52,6 +51,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.UncategorizedSolrException;
+import org.springframework.data.solr.core.QueryParserBase.NamedObjectsDisMaxQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetAndHighlightQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsFacetQuery;
 import org.springframework.data.solr.core.QueryParserBase.NamedObjectsHighlightQuery;
@@ -62,6 +62,7 @@ import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.AbstractQueryDecorator;
+import org.springframework.data.solr.core.query.DisMaxQuery;
 import org.springframework.data.solr.core.query.FacetAndHighlightQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
@@ -91,6 +92,7 @@ import org.springframework.util.CollectionUtils;
  * @author Petar Tahchiev
  * @author Mark Paluch
  * @author Juan Manuel de Blas
+ * @author Matthew Hall
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -427,6 +429,24 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 		QueryResponse response = querySolr(collection, namedObjectsFacetAndHighlightQuery, clazz, method);
 		Map<String, Object> objectsName = namedObjectsFacetAndHighlightQuery.getNamesAssociation();
+
+		return createSolrResultPage(query, clazz, response, objectsName);
+	}
+
+	@Override
+	public <T> SolrResultPage<T> queryForDisMaxPage(String collection, DisMaxQuery query, Class<T> clazz) {
+		return queryForDisMaxPage(collection, query, clazz, null);
+	}
+
+	@Override
+	public <T> SolrResultPage<T> queryForDisMaxPage(String collection, DisMaxQuery query, Class<T> clazz,
+			@Nullable RequestMethod requestMethod) {
+
+		QueryResponse response;
+		NamedObjectsDisMaxQuery namedObjectsQuery = new NamedObjectsDisMaxQuery(query);
+		response = querySolr(collection, namedObjectsQuery, clazz,
+				requestMethod != null ? requestMethod : getDefaultRequestMethod());
+		Map<String, Object> objectsName = namedObjectsQuery.getNamesAssociation();
 
 		return createSolrResultPage(query, clazz, response, objectsName);
 	}

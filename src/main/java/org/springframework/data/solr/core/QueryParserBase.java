@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -62,6 +61,7 @@ import org.springframework.util.CollectionUtils;
  * @author Radek Mensik
  * @author David Webb
  * @author Michael Rocke
+ * @author Matthew Hall
  */
 public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implements QueryParser {
 
@@ -1063,6 +1063,31 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			return Collections.unmodifiableMap(namesAssociation);
 		}
 	}
+
+	/**
+	 * @author Matthew Hall
+	 * @since 4.1
+	 */
+	static class NamedObjectsDisMaxQuery extends AbstractDisMaxQueryDecorator implements NamedObjects {
+
+		private Map<String, Object> namesAssociation = new HashMap<>();
+
+		public NamedObjectsDisMaxQuery(DisMaxQuery query) {
+			super(query);
+		}
+
+		@Override
+		public void setName(Object object, String name) {
+			setObjectName(namesAssociation, object, name);
+		}
+
+		@Override
+		public Map<String, Object> getNamesAssociation() {
+			return Collections.unmodifiableMap(namesAssociation);
+		}
+
+	}
+
 
 	/**
 	 * Create new new {@link Context} for rendering {@link Function functions}.

@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
+import org.springframework.data.solr.core.query.DisMaxQuery;
 import org.springframework.data.solr.core.query.FacetQuery;
 import org.springframework.data.solr.core.query.HighlightQuery;
 import org.springframework.data.solr.core.query.Query;
@@ -35,6 +35,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * @author Christoph Strobl
+ *  @author Matthew Hall
  */
 public class QueryParsers {
 
@@ -60,6 +61,7 @@ public class QueryParsers {
 		parserPairs.add(new QueryParserPair(FacetQuery.class, defaultQueryParser));
 		parserPairs.add(new QueryParserPair(HighlightQuery.class, defaultQueryParser));
 		parserPairs.add(new QueryParserPair(Query.class, defaultQueryParser));
+		parserPairs.add(new QueryParserPair(DisMaxQuery.class, defaultQueryParser));
 	}
 
 	/**
