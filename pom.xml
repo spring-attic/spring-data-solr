@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.3.0.BUILD-SNAPSHOT</version>
+		<version>2.3.0.JDK11-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -241,25 +241,6 @@
 			<plugin>
 				<groupId>org.asciidoctor</groupId>
 				<artifactId>asciidoctor-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>enforce-rules</id>
-						<goals>
-							<goal>enforce</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<rules>
-						<requireJavaVersion>
-							<version>[1.7,1.9)</version>
-						</requireJavaVersion>
-					</rules>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

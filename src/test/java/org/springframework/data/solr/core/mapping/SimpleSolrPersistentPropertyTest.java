@@ -54,7 +54,7 @@ public class SimpleSolrPersistentPropertyTest {
 
 		when(owner.getType()).thenReturn((Class) BeanWithScore.class);
 		when(owner.getTypeInformation()).thenReturn(typeInformation);
-		when(typeInformation.getProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
+		when(typeInformation.getRequiredProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
 				Property.of(ClassTypeInformation.from(BeanWithScore.class), field, propertyDescriptor), owner,
