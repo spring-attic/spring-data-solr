@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.0.13.RELEASE (2019-11-18)
+----------------------------------------------
+* DATASOLR-549 - Release 4.0.13 (Lovelace SR13).
+
+
 Changes in version 4.1.1.RELEASE (2019-11-04)
 ---------------------------------------------
 * DATASOLR-544 - Release 4.1.1 (Moore SR1).
