@@ -91,7 +91,7 @@ public class SolrServerUtils {
 		}
 
 		SolrServer clone = null;
-		if (shortName.equals("HttpSolrServer") || shortName.equals("CommonsHttpSolrServer")) {
+		if (shortName.equals("HttpSolrServer") || shortName.equals("CommonsHttpSolrServer") || shortName.equals("ConcurrentUpdateSolrServer")) {
 			clone = cloneHttpSolrServer(solrServer, core);
 		} else if (shortName.equals("LBHttpSolrServer")) {
 			clone = cloneLBHttpSolrServer(solrServer, core);
