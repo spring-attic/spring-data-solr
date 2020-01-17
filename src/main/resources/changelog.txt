@@ -1,6 +1,11 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.2.0.M2 (2020-01-17)
+----------------------------------------
+* DATASOLR-561 - Release 4.2 M2 (Neumann).
+
+
 Changes in version 4.2.0.M1 (2020-01-16)
 ----------------------------------------
 * DATASOLR-558 - Upgrade to Apache Solr 8.4.
@@ -1004,6 +1009,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
     * [DATASOLR-24] - Swith to data-commons 1.4.0.RELEASE
     * [DATASOLR-25] - Release 1.0.0.M1
     * [DATASOLR-26] - Align SolrOperations with other implementations
+
 
 
 
