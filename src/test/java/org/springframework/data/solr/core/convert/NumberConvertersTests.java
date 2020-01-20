@@ -15,7 +15,8 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Test;
 
 /**
@@ -25,72 +26,72 @@ public class NumberConvertersTests {
 
 	@Test
 	public void testConvertPositiveLong() {
-		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(100l));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(100l)).isEqualTo("100");
 	}
 
 	@Test
 	public void testConvertNegativeLong() {
-		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(-100l));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(-100l)).isEqualTo("\\-100");
 	}
 
 	@Test
 	public void testConvertPositiveInteger() {
-		Assert.assertEquals("100", NumberConverters.NumberConverter.INSTANCE.convert(100));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(100)).isEqualTo("100");
 	}
 
 	@Test
 	public void testConvertNegativeInteger() {
-		Assert.assertEquals("\\-100", NumberConverters.NumberConverter.INSTANCE.convert(-100));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(-100)).isEqualTo("\\-100");
 	}
 
 	@Test
 	public void testConvertPositiveFloat() {
-		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(100f));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(100f)).isEqualTo("100.0");
 	}
 
 	@Test
 	public void testConvertNegativeFloat() {
-		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert((float) -100));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert((float) -100)).isEqualTo("\\-100.0");
 	}
 
 	@Test
 	public void testConvertNaNFloat() {
-		Assert.assertEquals("NaN", NumberConverters.NumberConverter.INSTANCE.convert(Float.NaN));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Float.NaN)).isEqualTo("NaN");
 	}
 
 	@Test
 	public void testConvertPositiveInfiniteFloat() {
-		Assert.assertEquals("Infinity", NumberConverters.NumberConverter.INSTANCE.convert(Float.POSITIVE_INFINITY));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Float.POSITIVE_INFINITY)).isEqualTo("Infinity");
 	}
 
 	@Test
 	public void testConvertNegativeInfiniteFloat() {
-		Assert.assertEquals("\\-Infinity", NumberConverters.NumberConverter.INSTANCE.convert(Float.NEGATIVE_INFINITY));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Float.NEGATIVE_INFINITY)).isEqualTo("\\-Infinity");
 	}
 
 	@Test
 	public void testConvertPositiveDouble() {
-		Assert.assertEquals("100.0", NumberConverters.NumberConverter.INSTANCE.convert(100d));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(100d)).isEqualTo("100.0");
 	}
 
 	@Test
 	public void testConvertNegativeDouble() {
-		Assert.assertEquals("\\-100.0", NumberConverters.NumberConverter.INSTANCE.convert((double) -100));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert((double) -100)).isEqualTo("\\-100.0");
 	}
 
 	@Test
 	public void testConvertNaNDouble() {
-		Assert.assertEquals("NaN", NumberConverters.NumberConverter.INSTANCE.convert(Double.NaN));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Double.NaN)).isEqualTo("NaN");
 	}
 
 	@Test
 	public void testConvertPositiveInfiniteDouble() {
-		Assert.assertEquals("Infinity", NumberConverters.NumberConverter.INSTANCE.convert(Double.POSITIVE_INFINITY));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Double.POSITIVE_INFINITY)).isEqualTo("Infinity");
 	}
 
 	@Test
 	public void testConvertNegativeInfiniteDouble() {
-		Assert.assertEquals("\\-Infinity", NumberConverters.NumberConverter.INSTANCE.convert(Double.NEGATIVE_INFINITY));
+		assertThat(NumberConverters.NumberConverter.INSTANCE.convert(Double.NEGATIVE_INFINITY)).isEqualTo("\\-Infinity");
 	}
 
 }

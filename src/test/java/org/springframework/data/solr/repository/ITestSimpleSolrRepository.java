@@ -15,12 +15,13 @@
  */
 package org.springframework.data.solr.repository;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
@@ -49,22 +50,22 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		ExampleSolrBean savedBean = repository.save(toInsert);
 
-		Assert.assertSame(toInsert, savedBean);
+		assertThat(savedBean).isSameAs(toInsert);
 
-		Assert.assertTrue(repository.existsById(savedBean.getId()));
+		assertThat(repository.existsById(savedBean.getId())).isTrue();
 
 		ExampleSolrBean retrieved = repository.findById(savedBean.getId()).get();
-		Assert.assertNotNull(retrieved);
-		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
+		assertThat(retrieved).isNotNull();
+		assertThat(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" })).isTrue();
 
-		Assert.assertEquals(1, repository.count());
+		assertThat(repository.count()).isEqualTo(1);
 
-		Assert.assertTrue(repository.existsById(savedBean.getId()));
+		assertThat(repository.existsById(savedBean.getId())).isTrue();
 
 		repository.delete(savedBean);
 
-		Assert.assertEquals(0, repository.count());
-		Assert.assertFalse(repository.findById(savedBean.getId()).isPresent());
+		assertThat(repository.count()).isEqualTo(0);
+		assertThat(repository.findById(savedBean.getId()).isPresent()).isFalse();
 	}
 
 	@Test
@@ -77,47 +78,47 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 		repository.saveAll(toInsert);
 
-		Assert.assertEquals(objectCount, repository.count());
+		assertThat(repository.count()).isEqualTo(objectCount);
 
 		int counter = 0;
 		for (ExampleSolrBean retrievedBean : repository.findAll()) {
-			Assert
-					.assertTrue(EqualsBuilder.reflectionEquals(toInsert.get(counter), retrievedBean, new String[] { "version" }));
+			assertThat(EqualsBuilder.reflectionEquals(toInsert.get(counter), retrievedBean, new String[] { "version" }))
+					.isTrue();
 
 			counter++;
 			if (counter > objectCount) {
-				Assert.fail("More beans return than added!");
+				fail("More beans return than added!");
 			}
 		}
 
 		repository.delete(toInsert.get(0));
-		Assert.assertEquals(99, repository.count());
+		assertThat(repository.count()).isEqualTo(99);
 
 		repository.deleteAll();
 
-		Assert.assertEquals(0, repository.count());
+		assertThat(repository.count()).isEqualTo(0);
 	}
 
-	@Test //DATASOLR-332
+	@Test // DATASOLR-332
 	public void testBeanLifecyleWithCommitWithin() {
 		ExampleSolrBean toInsert = createDefaultExampleBean();
 		ExampleSolrBean savedBean = repository.save(toInsert, Duration.ofSeconds(10));
 
-		Assert.assertSame(toInsert, savedBean);
+		assertThat(savedBean).isSameAs(toInsert);
 
-		Assert.assertTrue(repository.existsById(savedBean.getId()));
+		assertThat(repository.existsById(savedBean.getId())).isTrue();
 
 		ExampleSolrBean retrieved = repository.findById(savedBean.getId()).get();
-		Assert.assertNotNull(retrieved);
-		Assert.assertTrue(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" }));
+		assertThat(retrieved).isNotNull();
+		assertThat(EqualsBuilder.reflectionEquals(savedBean, retrieved, new String[] { "version" })).isTrue();
 
-		Assert.assertEquals(1, repository.count());
+		assertThat(repository.count()).isEqualTo(1);
 
-		Assert.assertTrue(repository.existsById(savedBean.getId()));
+		assertThat(repository.existsById(savedBean.getId())).isTrue();
 
 		repository.delete(savedBean);
 
-		Assert.assertEquals(0, repository.count());
-		Assert.assertFalse(repository.findById(savedBean.getId()).isPresent());
+		assertThat(repository.count()).isEqualTo(0);
+		assertThat(repository.findById(savedBean.getId()).isPresent()).isFalse();
 	}
 }

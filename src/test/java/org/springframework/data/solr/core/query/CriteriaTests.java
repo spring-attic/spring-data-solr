@@ -15,6 +15,9 @@
  */
 package org.springframework.data.solr.core.query;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,10 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsInstanceOf;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.geo.Distance;
@@ -59,14 +58,14 @@ public class CriteriaTests {
 	@Test
 	public void testIs() {
 		Criteria criteria = new Criteria("field_1").is("is");
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
 	}
 
 	@Test
 	public void testMultipleIs() {
 		Criteria criteria = new Criteria("field_1").is("is").is("another is");
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, "another is");
@@ -75,7 +74,7 @@ public class CriteriaTests {
 	@Test
 	public void testIsWithCollection() {
 		Criteria criteria = new Criteria("field_1").is(Arrays.asList("is", "another is"));
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "is");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, "another is");
@@ -84,45 +83,45 @@ public class CriteriaTests {
 	@Test
 	public void testIsWithNull() {
 		Criteria criteria = new Criteria("field_1").is((Object) null);
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
 
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testIsNull() {
 		Criteria criteria = new Criteria("field_1").isNull();
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
 
-		Assert.assertTrue(criteria.isNegating());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(criteria.isNegating()).isTrue();
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testIsNotNull() {
 		Criteria criteria = new Criteria("field_1").isNotNull();
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
 
-		Assert.assertFalse(criteria.isNegating());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(criteria.isNegating()).isFalse();
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -144,7 +143,7 @@ public class CriteriaTests {
 	public void testEndsWith() {
 		Criteria criteria = new Criteria("field_1").endsWith("end");
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.ENDS_WITH, "end");
 	}
 
@@ -152,7 +151,7 @@ public class CriteriaTests {
 	public void testEndsWithCollection() {
 		Criteria criteria = new Criteria("field_1").endsWith(Arrays.asList("use", "multiple", "values"));
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.ENDS_WITH, "use");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.ENDS_WITH, "multiple");
 		assertPredicate(criteria.getPredicates(), 2, OperationKey.ENDS_WITH, "values");
@@ -162,7 +161,7 @@ public class CriteriaTests {
 	public void testStartsWith() {
 		Criteria criteria = new Criteria("field_1").startsWith("start");
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "start");
 	}
 
@@ -170,7 +169,7 @@ public class CriteriaTests {
 	public void testStartsWithCollection() {
 		Criteria criteria = new Criteria("field_1").startsWith(Arrays.asList("use", "multiple", "values"));
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "use");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.STARTS_WITH, "multiple");
 		assertPredicate(criteria.getPredicates(), 2, OperationKey.STARTS_WITH, "values");
@@ -180,7 +179,7 @@ public class CriteriaTests {
 	public void testContains() {
 		Criteria criteria = new Criteria("field_1").contains("contains");
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.CONTAINS, "contains");
 	}
 
@@ -188,7 +187,7 @@ public class CriteriaTests {
 	public void testContainWithCollection() {
 		Criteria criteria = new Criteria("field_1").contains(Arrays.asList("use", "multiple", "values"));
 
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.CONTAINS, "use");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.CONTAINS, "multiple");
 		assertPredicate(criteria.getPredicates(), 2, OperationKey.CONTAINS, "values");
@@ -203,7 +202,7 @@ public class CriteriaTests {
 	@Test
 	public void testCriteriaChain() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").contains("contains").is("is");
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.STARTS_WITH, "start");
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.ENDS_WITH, "end");
 		assertPredicate(criteria.getPredicates(), 2, OperationKey.CONTAINS, "contains");
@@ -215,7 +214,7 @@ public class CriteriaTests {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
 				.endsWith("2end");
-		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
+		assertThat(criteria).isInstanceOf(Crotch.class);
 	}
 
 	@Test // DATASOLR-105
@@ -225,13 +224,13 @@ public class CriteriaTests {
 		Criteria c2 = new Criteria("field_2").startsWith("2start");
 		Crotch crotch = c1.and(c2);
 
-		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
+		assertThat(crotch.getSiblings()).containsExactly(c1, c2);
 	}
 
 	@Test // DATASOLR-105
 	public void testOrShouldProduceCrotch() {
 		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
-		Assert.assertThat(criteria, IsInstanceOf.instanceOf(Crotch.class));
+		assertThat(criteria).isInstanceOf(Crotch.class);
 	}
 
 	@Test // DATASOLR-105
@@ -241,7 +240,7 @@ public class CriteriaTests {
 		Criteria c2 = new Criteria("field_2").startsWith("2start");
 		Crotch crotch = c1.or(c2);
 
-		Assert.assertThat(crotch.getSiblings(), IsIterableContainingInOrder.<Node> contains(c1, c2));
+		assertThat(crotch.getSiblings()).containsExactly(c1, c2);
 	}
 
 	@Test // DATASOLR-105
@@ -250,13 +249,13 @@ public class CriteriaTests {
 		Criteria c1 = new Criteria("field_1").startsWith("start").endsWith("end");
 		Criteria c2 = new Criteria("field_2").startsWith("2start");
 		Crotch crotch = c1.or(c2);
-		Assert.assertThat(crotch.getField().getName(), Is.is("field_2"));
+		assertThat(crotch.getField().getName()).isEqualTo("field_2");
 	}
 
 	@Test
 	public void testIsNot() {
 		Criteria criteria = new Criteria("field_1").is("value_1").not();
-		Assert.assertTrue(criteria.isNegating());
+		assertThat(criteria.isNegating()).isTrue();
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
 	}
 
@@ -264,16 +263,16 @@ public class CriteriaTests {
 	public void testFuzzy() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1");
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(Float.NaN, ((Object[]) entry.getValue())[1]);
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo("value_1");
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(Float.NaN);
 	}
 
 	@Test
 	public void testFuzzyWithDistance() {
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals("value_1", ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(0.5F, ((Object[]) entry.getValue())[1]);
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo("value_1");
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(0.5F);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -290,8 +289,8 @@ public class CriteriaTests {
 	public void testSloppy() {
 		Criteria criteria = new Criteria("field_1").sloppy("value0 value1", 2);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals("value0 value1", ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(2, ((Object[]) entry.getValue())[1]);
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo("value0 value1");
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(2);
 	}
 
 	@Test(expected = InvalidDataAccessApiUsageException.class)
@@ -308,146 +307,146 @@ public class CriteriaTests {
 	public void testBoost() {
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, "value_1");
-		Assert.assertEquals(2f, criteria.getBoost(), 0);
+		assertThat(criteria.getBoost()).isCloseTo(2f, offset(0f));
 	}
 
 	@Test
 	public void testBetween() {
 		Criteria criteria = new Criteria("field_1").between(100, 200);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testBetweenWithoutUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(100, null);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testBetweenWithoutLowerBound() {
 		Criteria criteria = new Criteria("field_1").between(null, 200);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testBetweenExcludingLowerBound() {
 		Criteria criteria = new Criteria("field_1").between(100, 200, false, true);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isFalse();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testBetweenExcludingUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(100, 200, true, false);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isFalse();
 	}
 
 	@Test
 	public void testBetweenWithoutLowerAndUpperBound() {
 		Criteria criteria = new Criteria("field_1").between(null, null);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testLessThan() {
 		Criteria criteria = new Criteria("field_1").lessThan(200);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isFalse();
 	}
 
 	@Test
 	public void testLessThanEqual() {
 		Criteria criteria = new Criteria("field_1").lessThanEqual(200);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(200, ((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isEqualTo(200);
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testLessThanEqualNull() {
 		Criteria criteria = new Criteria("field_1").lessThanEqual(null);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testGreaterThan() {
 		Criteria criteria = new Criteria("field_1").greaterThan(100);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertFalse((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isFalse();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testGreaterThanEqual() {
 		Criteria criteria = new Criteria("field_1").greaterThanEqual(100);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertEquals(100, ((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(100);
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 	}
 
 	@Test
 	public void testGreaterThanEqualNull() {
 		Criteria criteria = new Criteria("field_1").greaterThanEqual(null);
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.BETWEEN.getKey(), entry.getKey());
-		Assert.assertNull(((Object[]) entry.getValue())[0]);
-		Assert.assertNull(((Object[]) entry.getValue())[1]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[2]);
-		Assert.assertTrue((Boolean) ((Object[]) entry.getValue())[3]);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.BETWEEN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isNull();
+		assertThat(((Object[]) entry.getValue())[1]).isNull();
+		assertThat((Boolean) ((Object[]) entry.getValue())[2]).isTrue();
+		assertThat((Boolean) ((Object[]) entry.getValue())[3]).isTrue();
 
 	}
 
 	@Test
 	public void testIn() {
 		Criteria criteria = new Criteria("field_1").in(1, 2, 3, 5, 8, 13, 21);
-		Assert.assertEquals("field_1", criteria.getField().getName());
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
 		assertPredicate(criteria.getPredicates(), 0, OperationKey.EQUALS, 1);
 		assertPredicate(criteria.getPredicates(), 1, OperationKey.EQUALS, 2);
 		assertPredicate(criteria.getPredicates(), 2, OperationKey.EQUALS, 3);
@@ -484,9 +483,9 @@ public class CriteriaTests {
 		Point location = new Point(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").near(location, new Distance(5));
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.NEAR.getKey(), entry.getKey());
-		Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.NEAR.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(location);
+		assertThat(((Distance) ((Object[]) entry.getValue())[1]).getValue()).isCloseTo(5d, offset(0d));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -504,9 +503,9 @@ public class CriteriaTests {
 		Point location = new Point(48.303056, 14.290556);
 		Criteria criteria = new Criteria("field_1").within(location, new Distance(5));
 		Predicate entry = getPredicateByPosition(criteria.getPredicates(), 0);
-		Assert.assertEquals(OperationKey.WITHIN.getKey(), entry.getKey());
-		Assert.assertEquals(location, ((Object[]) entry.getValue())[0]);
-		Assert.assertEquals(5, ((Distance) ((Object[]) entry.getValue())[1]).getValue(), 0);
+		assertThat(entry.getKey()).isEqualTo(OperationKey.WITHIN.getKey());
+		assertThat(((Object[]) entry.getValue())[0]).isEqualTo(location);
+		assertThat(((Distance) ((Object[]) entry.getValue())[1]).getValue()).isCloseTo(5d, offset(0d));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -520,8 +519,8 @@ public class CriteriaTests {
 
 	private void assertPredicate(Set<Predicate> entries, int position, String expectedKey, Object expectedValue) {
 		Predicate predicate = getPredicateByPosition(entries, position);
-		Assert.assertEquals(expectedValue, predicate.getValue());
-		Assert.assertEquals(expectedKey, predicate.getKey());
+		assertThat(predicate.getValue()).isEqualTo(expectedValue);
+		assertThat(predicate.getKey()).isEqualTo(expectedKey);
 	}
 
 	private Predicate getPredicateByPosition(Set<Predicate> entries, int position) {

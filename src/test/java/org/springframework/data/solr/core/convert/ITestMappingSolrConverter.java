@@ -15,9 +15,8 @@
  */
 package org.springframework.data.solr.core.convert;
 
-import static org.hamcrest.collection.IsIterableWithSize.*;
-import static org.hamcrest.core.IsEqual.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -56,7 +53,6 @@ import org.springframework.data.solr.core.query.SimpleField;
 import org.springframework.data.solr.core.query.SimpleQuery;
 import org.springframework.data.solr.core.query.SimpleStringCriteria;
 import org.springframework.data.solr.core.query.result.ScoredPage;
-import org.xml.sax.SAXException;
 
 /**
  * @author Christoph Strobl
@@ -70,7 +66,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 	private SolrTemplate solrTemplate;
 
 	@Before
-	public void setUp() throws IOException, ParserConfigurationException, SAXException {
+	public void setUp() {
 		solrTemplate = new SolrTemplate(server);
 		solrTemplate.afterPropertiesSet();
 	}
@@ -89,8 +85,8 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithPoint loaded = saveAndLoad(bean);
 
-		assertEquals(bean.location.getX(), loaded.location.getX(), 0.0F);
-		assertEquals(bean.location.getY(), loaded.location.getY(), 0.0F);
+		assertThat(loaded.location.getX()).isCloseTo(bean.location.getX(), offset(0.0D));
+		assertThat(loaded.location.getY()).isCloseTo(bean.location.getY(), offset(0.0D));
 	}
 
 	@Test
@@ -101,7 +97,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithJodaDateTime loaded = saveAndLoad(bean);
 
-		assertThat(loaded.manufactured, equalTo(bean.manufactured));
+		assertThat(loaded.manufactured).isEqualTo(bean.manufactured);
 	}
 
 	@Test
@@ -112,7 +108,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithJodaLocalDateTime loaded = saveAndLoad(bean);
 
-		assertThat(loaded.manufactured, equalTo(bean.manufactured));
+		assertThat(loaded.manufactured).isEqualTo(bean.manufactured);
 	}
 
 	@Test
@@ -123,7 +119,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithList loaded = saveAndLoad(bean);
 
-		assertThat(loaded.categories, equalTo(bean.categories));
+		assertThat(loaded.categories).isEqualTo(bean.categories);
 	}
 
 	@Test
@@ -134,8 +130,8 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithBaseClass loaded = saveAndLoad(bean);
 
-		assertEquals(bean.id, loaded.id);
-		assertEquals(bean.name, loaded.name);
+		assertThat(loaded.id).isEqualTo(bean.id);
+		assertThat(loaded.name).isEqualTo(bean.name);
 	}
 
 	@Test
@@ -146,14 +142,14 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithEnum loaded = saveAndLoad(bean);
 
-		assertEquals(bean.id, loaded.id);
-		assertEquals(bean.enumProperty, loaded.enumProperty);
+		assertThat(loaded.id).isEqualTo(bean.id);
+		assertThat(loaded.enumProperty).isEqualTo(bean.enumProperty);
 
 		Query query = new SimpleQuery(new Criteria("enumProperty_s").is(LiteralNumberEnum.TWO));
 
 		BeanWithEnum loadedViaProperty = solrTemplate.queryForObject(COLLECTION_NAME, query, BeanWithEnum.class).get();
-		assertEquals(bean.id, loadedViaProperty.id);
-		assertEquals(bean.enumProperty, loadedViaProperty.enumProperty);
+		assertThat(loadedViaProperty.id).isEqualTo(bean.id);
+		assertThat(loadedViaProperty.enumProperty).isEqualTo(bean.enumProperty);
 	}
 
 	@Test // DATASOLR-210, DATASOLR-309
@@ -172,14 +168,14 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 				new SimpleQuery("description:spring solr"), BeanWithScore.class);
 
 		List<BeanWithScore> content = page.getContent();
-		assertEquals(3, page.getTotalElements());
+		assertThat(page.getTotalElements()).isEqualTo(3);
 
-		assertNotNull(content.get(0).score);
-		assertEquals("spring data solr", content.get(0).description);
-		assertNotNull(content.get(1).score);
-		assertEquals("spring", content.get(1).description);
-		assertNotNull(content.get(2).score);
-		assertEquals("apache solr", content.get(2).description);
+		assertThat(content.get(0).score).isNotNull();
+		assertThat(content.get(0).description).isEqualTo("spring data solr");
+		assertThat(content.get(1).score).isNotNull();
+		assertThat(content.get(1).description).isEqualTo("spring");
+		assertThat(content.get(2).score).isNotNull();
+		assertThat(content.get(2).description).isEqualTo("apache solr");
 	}
 
 	@Test // DATASOLR-471
@@ -198,14 +194,14 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 				new SimpleQuery("description:spring solr"), BeanWithDeprecatedScore.class);
 
 		List<BeanWithDeprecatedScore> content = page.getContent();
-		assertEquals(3, page.getTotalElements());
+		assertThat(page.getTotalElements()).isEqualTo(3);
 
-		assertNotNull(content.get(0).score);
-		assertEquals("spring data solr", content.get(0).description);
-		assertNotNull(content.get(1).score);
-		assertEquals("spring", content.get(1).description);
-		assertNotNull(content.get(2).score);
-		assertEquals("apache solr", content.get(2).description);
+		assertThat(content.get(0).score).isNotNull();
+		assertThat(content.get(0).description).isEqualTo("spring data solr");
+		assertThat(content.get(1).score).isNotNull();
+		assertThat(content.get(1).description).isEqualTo("spring");
+		assertThat(content.get(2).score).isNotNull();
+		assertThat(content.get(2).description).isEqualTo("apache solr");
 	}
 
 	@Test // DATASOLR-202
@@ -220,8 +216,8 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.commit(COLLECTION_NAME);
 
 		BeanWithDynamicMap loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMap.class).get();
-		assertEquals("value 1", loaded.values.get("key_1"));
-		assertEquals("value 2", loaded.values.get("key_2"));
+		assertThat(loaded.values.get("key_1")).isEqualTo("value 1");
+		assertThat(loaded.values.get("key_2")).isEqualTo("value 2");
 
 	}
 
@@ -238,8 +234,8 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 
 		BeanWithDynamicMapList loaded = solrTemplate.getById(COLLECTION_NAME, "bean-id", BeanWithDynamicMapList.class)
 				.get();
-		assertEquals(Arrays.asList("value 11", "value 12"), loaded.values.get("key_1"));
-		assertEquals(Arrays.asList("value 21", "value 22"), loaded.values.get("key_2"));
+		assertThat(loaded.values.get("key_1")).isEqualTo(Arrays.asList("value 11", "value 12"));
+		assertThat(loaded.values.get("key_2")).isEqualTo(Arrays.asList("value 21", "value 22"));
 
 	}
 
@@ -277,7 +273,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		solrTemplate.saveBean(COLLECTION_NAME, theWayOfKings);
 		solrTemplate.commit(COLLECTION_NAME);
 
-		assertThat(solrTemplate.getSolrClient().query(new SolrQuery("*:*")).getResults(), iterableWithSize(3));
+		assertThat(solrTemplate.getSolrClient().query(new SolrQuery("*:*")).getResults()).hasSize(3);
 
 		Query query = new SimpleQuery();
 		query.addCriteria(Criteria.where("id").is(theWayOfKings.id));
@@ -285,7 +281,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		query.addProjectionOnField(new SimpleField("[child parentFilter=type_s:book]"));
 
 		Optional<Book> result = solrTemplate.queryForObject(COLLECTION_NAME, query, Book.class);
-		assertThat(result.orElse(null), equalTo(theWayOfKings));
+		assertThat(result.orElse(null)).isEqualTo(theWayOfKings);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -15,14 +15,11 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
-import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.AbstractITestWithEmbeddedSolrServer;
 import org.springframework.data.solr.server.SolrClientFactory;
@@ -52,6 +49,6 @@ public class ITestEnableSolrRepositoriesWithMulticoreSupport extends AbstractITe
 
 	@Test
 	public void bootstrapsRepository() {
-		assertThat(repository, is(notNullValue()));
+		assertThat(repository).isNotNull();
 	}
 }

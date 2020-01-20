@@ -15,10 +15,8 @@
  */
 package org.springframework.data.solr.repository.query;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.collection.IsEmptyCollection.*;
-import static org.hamcrest.number.IsCloseTo.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -61,403 +59,403 @@ public class SolrQueryMethodTests {
 	@Test
 	public void testAnnotatedQueryUsage() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
-		assertTrue(method.hasAnnotatedQuery());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFilterQuery());
-		assertEquals("name:?0", method.getAnnotatedQuery());
+		assertThat(method.hasAnnotatedQuery()).isTrue();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.getAnnotatedQuery()).isEqualTo("name:?0");
 	}
 
 	@Test
 	public void testAnnotatedQueryUsageWithoutExplicitAttribute() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithoutExplicitAttribute", String.class);
-		assertTrue(method.hasAnnotatedQuery());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
-		assertEquals("name:?0", method.getAnnotatedQuery());
+		assertThat(method.hasAnnotatedQuery()).isTrue();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.getAnnotatedQuery()).isEqualTo("name:?0");
 	}
 
 	@Test
 	public void testAnnotatedNamedQueryNameUsage() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedNamedQueryName", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertTrue(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
-		assertEquals("ProductRepository.namedQuery-1", method.getAnnotatedNamedQueryName());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isTrue();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.getAnnotatedNamedQueryName()).isEqualTo("ProductRepository.namedQuery-1");
 	}
 
 	@Test
 	public void testWithoutAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByName", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasFilterQuery());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.isHighlightQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.isHighlightQuery()).isFalse();
 	}
 
 	@Test
 	public void testWithSingleFieldProjection() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithProjectionOnSingleField", String.class);
-		assertTrue(method.hasAnnotatedQuery());
-		assertTrue(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
-		assertEquals("name:?0", method.getAnnotatedQuery());
+		assertThat(method.hasAnnotatedQuery()).isTrue();
+		assertThat(method.hasProjectionFields()).isTrue();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.getAnnotatedQuery()).isEqualTo("name:?0");
 	}
 
 	@Test
 	public void testWithMultipleFieldsProjection() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQueryWithProjectionOnMultipleFields", String.class);
-		assertTrue(method.hasAnnotatedQuery());
-		assertTrue(method.hasProjectionFields());
-		assertFalse(method.hasFilterQuery());
-		assertEquals(2, method.getProjectionFields().size());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertEquals("name:?0", method.getAnnotatedQuery());
+		assertThat(method.hasAnnotatedQuery()).isTrue();
+		assertThat(method.hasProjectionFields()).isTrue();
+		assertThat(method.hasFilterQuery()).isFalse();
+		assertThat(method.getProjectionFields().size()).isEqualTo(2);
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.getAnnotatedQuery()).isEqualTo("name:?0");
 	}
 
 	@Test
 	public void testWithSingleFieldFacet() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularity", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertTrue(method.hasFacetFields());
-		assertFalse(method.hasFacetQueries());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFacetFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(1, method.getFacetFields().size());
-		assertEquals(Integer.valueOf(10), method.getFacetLimit());
-		assertEquals(Integer.valueOf(1), method.getFacetMinCount());
+		assertThat(method.getFacetFields().size()).isEqualTo(1);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(10));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(1));
 	}
 
 	@Test
 	public void testWithMultipleFieldFacets() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityAndPrice", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertTrue(method.hasFacetFields());
-		assertFalse(method.hasFacetQueries());
-		assertEquals(2, method.getFacetFields().size());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.getFacetFields().size()).isEqualTo(2);
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 	}
 
 	@Test
 	public void testWithMultipleFieldFacetsLimitAndMinCount() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityAndPriceMinCount3Limit25", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertTrue(method.hasFacetFields());
-		assertFalse(method.hasFacetQueries());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(2, method.getFacetFields().size());
-		assertEquals(Integer.valueOf(25), method.getFacetLimit());
-		assertEquals(Integer.valueOf(3), method.getFacetMinCount());
+		assertThat(method.getFacetFields().size()).isEqualTo(2);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(25));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(3));
 	}
 
 	@Test
 	public void testWithSingleFieldPivot() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2");
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasPivotFields());
-		assertFalse(method.hasFacetQueries());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasPivotFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(1, method.getPivotFields().size());
-		assertEquals(Integer.valueOf(10), method.getFacetLimit());
-		assertEquals(Integer.valueOf(1), method.getFacetMinCount());
+		assertThat(method.getPivotFields().size()).isEqualTo(1);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(10));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(1));
 	}
 
 	@Test
 	public void testWithMultipleFieldPivot() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNamePivotOnField1VsField2AndField2VsField3");
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasPivotFields());
-		assertFalse(method.hasFacetQueries());
-		assertEquals(2, method.getPivotFields().size());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasPivotFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.getPivotFields().size()).isEqualTo(2);
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 	}
 
 	@Test // DATSOLR-155
 	public void testWithMultipleFieldPivotUsingPivotAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName(
 				"findByNamePivotOnField1VsField2AndField2VsField3UsingPivotAnnotation");
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasPivotFields());
-		assertFalse(method.hasFacetQueries());
-		assertEquals(2, method.getPivotFields().size());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasPivotFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.getPivotFields().size()).isEqualTo(2);
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 	}
 
 	@Test // DATASOLR-155
 	public void testWithMultipleFieldPivotUsingOnlyPivotAnnotation() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName(
 				"findByNamePivotOnField1VsField2AndField2VsField3UsingOnlyPivotAnnotation");
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasPivotFields());
-		assertFalse(method.hasFacetQueries());
-		assertEquals(2, method.getPivotFields().size());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasPivotFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.getPivotFields().size()).isEqualTo(2);
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 	}
 
 	@Test
 	public void testWithMultipleFieldPivotsLimitAndMinCount() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName(
 				"findByNamePivotOnField1VsField2AndField2VsField3AndLimitAndMinCount");
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasPivotFields());
-		assertFalse(method.hasFacetQueries());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasPivotFields()).isTrue();
+		assertThat(method.hasFacetQueries()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(2, method.getPivotFields().size());
-		assertEquals(Integer.valueOf(25), method.getFacetLimit());
-		assertEquals(Integer.valueOf(3), method.getFacetMinCount());
+		assertThat(method.getPivotFields().size()).isEqualTo(2);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(25));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(3));
 	}
 
 	@Test
 	public void testWithSingleQueryFacet() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularityQuery", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasFacetQueries());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasFacetQueries()).isTrue();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(0, method.getFacetFields().size());
-		assertEquals(1, method.getFacetQueries().size());
-		assertEquals(Integer.valueOf(10), method.getFacetLimit());
-		assertEquals(Integer.valueOf(1), method.getFacetMinCount());
-		assertEquals("popularity:[* TO 5]", method.getFacetQueries().get(0));
+		assertThat(method.getFacetFields().size()).isEqualTo(0);
+		assertThat(method.getFacetQueries().size()).isEqualTo(1);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(10));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(1));
+		assertThat(method.getFacetQueries().get(0)).isEqualTo("popularity:[* TO 5]");
 	}
 
 	@Test
 	public void testWithMultipleQueryFacets() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnAvailableQuery", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasFacetQueries());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasFacetQueries()).isTrue();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(0, method.getFacetFields().size());
-		assertEquals(2, method.getFacetQueries().size());
-		assertEquals(Integer.valueOf(10), method.getFacetLimit());
-		assertEquals(Integer.valueOf(1), method.getFacetMinCount());
-		assertEquals("inStock:true", method.getFacetQueries().get(0));
-		assertEquals("inStock:false", method.getFacetQueries().get(1));
+		assertThat(method.getFacetFields().size()).isEqualTo(0);
+		assertThat(method.getFacetQueries().size()).isEqualTo(2);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(10));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(1));
+		assertThat(method.getFacetQueries().get(0)).isEqualTo("inStock:true");
+		assertThat(method.getFacetQueries().get(1)).isEqualTo("inStock:false");
 	}
 
 	@Test
 	public void testWithMultipleQueryFacetsLimitAndMinCount() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnAvailableQueryMinCount3Limit25", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertFalse(method.hasFacetFields());
-		assertTrue(method.hasFacetQueries());
-		assertFalse(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasFacetQueries()).isTrue();
+		assertThat(method.hasFilterQuery()).isFalse();
 
-		assertEquals(0, method.getFacetFields().size());
-		assertEquals(2, method.getFacetQueries().size());
-		assertEquals(Integer.valueOf(25), method.getFacetLimit());
-		assertEquals(Integer.valueOf(3), method.getFacetMinCount());
-		assertEquals("inStock:true", method.getFacetQueries().get(0));
-		assertEquals("inStock:false", method.getFacetQueries().get(1));
+		assertThat(method.getFacetFields().size()).isEqualTo(0);
+		assertThat(method.getFacetQueries().size()).isEqualTo(2);
+		assertThat(method.getFacetLimit()).isEqualTo(Integer.valueOf(25));
+		assertThat(method.getFacetMinCount()).isEqualTo(Integer.valueOf(3));
+		assertThat(method.getFacetQueries().get(0)).isEqualTo("inStock:true");
+		assertThat(method.getFacetQueries().get(1)).isEqualTo("inStock:false");
 	}
 
 	@Test
 	public void testWithFacetPrefix() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findAllFacetOnNameWithPrefix");
-		assertEquals(1, method.getFacetFields().size());
-		assertEquals("ip", method.getFacetPrefix());
+		assertThat(method.getFacetFields().size()).isEqualTo(1);
+		assertThat(method.getFacetPrefix()).isEqualTo("ip");
 	}
 
 	@Test
 	public void testWithoutFacetPrefix() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameFacetOnPopularity", String.class);
-		assertNull(method.getFacetPrefix());
+		assertThat(method.getFacetPrefix()).isNull();
 	}
 
 	@Test
 	public void testWithSigleFilter() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameStringWith", String.class);
-		assertFalse(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertTrue(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isFalse();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isTrue();
 
-		assertEquals(1, method.getFilterQueries().size());
+		assertThat(method.getFilterQueries().size()).isEqualTo(1);
 	}
 
 	@Test
 	public void testWithMultipleFilters() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findAllFilterAvailableTrueAndPopularityLessThan5", String.class);
-		assertTrue(method.hasAnnotatedQuery());
-		assertFalse(method.hasProjectionFields());
-		assertFalse(method.hasFacetFields());
-		assertFalse(method.hasAnnotatedNamedQueryName());
-		assertTrue(method.hasFilterQuery());
+		assertThat(method.hasAnnotatedQuery()).isTrue();
+		assertThat(method.hasProjectionFields()).isFalse();
+		assertThat(method.hasFacetFields()).isFalse();
+		assertThat(method.hasAnnotatedNamedQueryName()).isFalse();
+		assertThat(method.hasFilterQuery()).isTrue();
 
-		assertEquals(2, method.getFilterQueries().size());
+		assertThat(method.getFilterQueries().size()).isEqualTo(2);
 	}
 
 	@Test
 	public void testWithoutQueryDefaultOperator() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameLike", String.class);
-		assertEquals(org.springframework.data.solr.core.query.Query.Operator.AND, method.getDefaultOperator());
+		assertThat(method.getDefaultOperator()).isEqualTo(org.springframework.data.solr.core.query.Query.Operator.AND);
 	}
 
 	@Test
 	public void testWithQueryDefaultOperator() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameStringWith", String.class);
-		assertEquals(org.springframework.data.solr.core.query.Query.Operator.NONE, method.getDefaultOperator());
+		assertThat(method.getDefaultOperator()).isEqualTo(org.springframework.data.solr.core.query.Query.Operator.NONE);
 	}
 
 	@Test
 	public void testQueryWithPositiveTimeAllowed() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findAllWithPositiveTimeRestriction", String.class);
-		assertEquals(Integer.valueOf(250), method.getTimeAllowed());
+		assertThat(method.getTimeAllowed()).isEqualTo(Integer.valueOf(250));
 	}
 
 	@Test
 	public void testQueryWithNegativeTimeAllowed() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findAllWithNegativeTimeRestriction", String.class);
-		assertNull(method.getTimeAllowed());
+		assertThat(method.getTimeAllowed()).isNull();
 	}
 
 	@Test
 	public void testQueryWithDefType() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByNameEndingWith", String.class);
-		assertEquals("lucene", method.getDefType());
+		assertThat(method.getDefType()).isEqualTo("lucene");
 	}
 
 	@Test
 	public void testQueryWithRequestHandler() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByText", String.class);
-		assertEquals("/instock", method.getRequestHandler());
+		assertThat(method.getRequestHandler()).isEqualTo("/instock");
 	}
 
 	@Test
 	public void testQueryWithEmptyHighlight() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextLike", String.class);
-		assertTrue(method.isHighlightQuery());
-		assertNull(method.getHighlightFormatter());
-		assertNull(method.getHighlightQuery());
-		assertNull(method.getHighlighSnipplets());
-		assertThat(method.getHighlightFieldNames(), empty());
-		assertNull(method.getHighlightFragsize());
-		assertNull(method.getHighlightPrefix());
-		assertNull(method.getHighlightPostfix());
+		assertThat(method.isHighlightQuery()).isTrue();
+		assertThat(method.getHighlightFormatter()).isNull();
+		assertThat(method.getHighlightQuery()).isNull();
+		assertThat(method.getHighlighSnipplets()).isNull();
+		assertThat(method.getHighlightFieldNames()).isEmpty();
+		assertThat(method.getHighlightFragsize()).isNull();
+		assertThat(method.getHighlightPrefix()).isNull();
+		assertThat(method.getHighlightPostfix()).isNull();
 	}
 
 	@Test
 	public void testQueryWithHighlightSingleField() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightSingleField", String.class);
-		assertThat(Collections.singletonList("field_1"), equalTo(method.getHighlightFieldNames()));
+		assertThat(Collections.singletonList("field_1")).isEqualTo(method.getHighlightFieldNames());
 	}
 
 	@Test
 	public void testQueryWithHighlightMultipleFields() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightMultipleFields", String.class);
-		assertThat(Arrays.asList("field_1", "field_2", "field_3"), equalTo(method.getHighlightFieldNames()));
+		assertThat(Arrays.asList("field_1", "field_2", "field_3")).isEqualTo(method.getHighlightFieldNames());
 	}
 
 	@Test
 	public void testQueryWithHighlightFormatter() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightFormatter", String.class);
-		assertEquals("simple", method.getHighlightFormatter());
+		assertThat(method.getHighlightFormatter()).isEqualTo("simple");
 	}
 
 	@Test
 	public void testQueryWithHighlightQuery() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightQuery", String.class);
-		assertEquals("field_1:value*", method.getHighlightQuery());
+		assertThat(method.getHighlightQuery()).isEqualTo("field_1:value*");
 	}
 
 	@Test
 	public void testQueryWithHighlightSnipplets() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightSnipplets", String.class);
-		assertEquals(Integer.valueOf(2), method.getHighlighSnipplets());
+		assertThat(method.getHighlighSnipplets()).isEqualTo(Integer.valueOf(2));
 	}
 
 	@Test
 	public void testQueryWithNegativeHighlightSnipplets() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextNegativeHighlightSnipplets", String.class);
-		assertNull(method.getHighlighSnipplets());
+		assertThat(method.getHighlighSnipplets()).isNull();
 	}
 
 	@Test
 	public void testQueryWithHighlightFragsize() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightFragsize", String.class);
-		assertEquals(Integer.valueOf(3), method.getHighlightFragsize());
+		assertThat(method.getHighlightFragsize()).isEqualTo(Integer.valueOf(3));
 	}
 
 	@Test
 	public void testQueryWithNegativeHighlightFragsize() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextNegativeHighlightFragsize", String.class);
-		assertNull(method.getHighlightFragsize());
+		assertThat(method.getHighlightFragsize()).isNull();
 	}
 
 	@Test
 	public void testQueryWithHighlightPrefix() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightPrefix", String.class);
-		assertEquals("{prefix}", method.getHighlightPrefix());
+		assertThat(method.getHighlightPrefix()).isEqualTo("{prefix}");
 	}
 
 	@Test
 	public void testQueryWithHighlightPostfix() throws Exception {
 		SolrQueryMethod method = getQueryMethodByName("findByTextHighlightPostfix", String.class);
-		assertEquals("{postfix}", method.getHighlightPostfix());
+		assertThat(method.getHighlightPostfix()).isEqualTo("{postfix}");
 	}
 
 	@Test // DATASOLR-144
 	public void testDeleteAttrbiteOfAnnotatedQueryIsDiscoveredCorrectlty() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("removeByAnnotatedQuery");
-		assertTrue(method.isDeleteQuery());
+		assertThat(method.isDeleteQuery()).isTrue();
 	}
 
 	@Test // DATASOLR-144
 	public void testDeleteAttrbiteOfAnnotatedQueryIsFalseByDefault() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByAnnotatedQuery", String.class);
-		assertFalse(method.isDeleteQuery());
+		assertThat(method.isDeleteQuery()).isFalse();
 	}
 
 	@Test // DATASOLR-160
 	public void testStatsForField() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStats", String.class);
-		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
+		assertThat(method.getFieldStats()).isEqualTo(Collections.singletonList("field1"));
 	}
 
 	@Test // DATASOLR-160
 	public void testStatsForFieldAndFacets() throws Exception {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class);
-		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
-		assertEquals(Collections.singletonList("field2"), method.getStatsFacets());
+		assertThat(method.getFieldStats()).isEqualTo(Collections.singletonList("field1"));
+		assertThat(method.getStatsFacets()).isEqualTo(Collections.singletonList("field2"));
 	}
 
 	@Test // DATASOLR-160
@@ -465,9 +463,9 @@ public class SolrQueryMethodTests {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class);
 		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
-		assertEquals(2, statsSelectiveFacets.size());
-		assertArrayEquals(new String[] { "field1_1", "field1_2" }, statsSelectiveFacets.get("field1"));
-		assertArrayEquals(new String[] { "field2_1", "field2_2" }, statsSelectiveFacets.get("field2"));
+		assertThat(statsSelectiveFacets.size()).isEqualTo(2);
+		assertThat(statsSelectiveFacets.get("field1")).isEqualTo(new String[] { "field1_1", "field1_2" });
+		assertThat(statsSelectiveFacets.get("field2")).isEqualTo(new String[] { "field2_1", "field2_2" });
 	}
 
 	@Test // DATASOLR-160
@@ -475,23 +473,23 @@ public class SolrQueryMethodTests {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats",
 				String.class);
-		assertEquals(Collections.singletonList("field1"), method.getFieldStats());
-		assertEquals(Arrays.asList("field2", "field3"), method.getStatsFacets());
+		assertThat(method.getFieldStats()).isEqualTo(Collections.singletonList("field1"));
+		assertThat(method.getStatsFacets()).isEqualTo(Arrays.asList("field2", "field3"));
 		Map<String, String[]> statsSelectiveFacets = method.getStatsSelectiveFacets();
-		assertEquals(1, statsSelectiveFacets.size());
-		assertArrayEquals(new String[] { "field4_1", "field4_2" }, statsSelectiveFacets.get("field4"));
+		assertThat(statsSelectiveFacets.size()).isEqualTo(1);
+		assertThat(statsSelectiveFacets.get("field4")).isEqualTo(new String[] { "field4_1", "field4_2" });
 	}
 
 	@Test // DATASOLR-160
 	public void testHasStatsDefinition() throws Exception {
 
-		assertFalse(getQueryMethodByName("findByNameWithEmptyStats", String.class).hasStatsDefinition());
+		assertThat(getQueryMethodByName("findByNameWithEmptyStats", String.class).hasStatsDefinition()).isFalse();
 
-		assertTrue(getQueryMethodByName("findByNameWithFieldStats", String.class).hasStatsDefinition());
-		assertTrue(getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class).hasStatsDefinition());
-		assertTrue(getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class).hasStatsDefinition());
-		assertTrue(getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class)
-				.hasStatsDefinition());
+		assertThat(getQueryMethodByName("findByNameWithFieldStats", String.class).hasStatsDefinition()).isTrue();
+		assertThat(getQueryMethodByName("findByNameWithFieldAndFacetStats", String.class).hasStatsDefinition()).isTrue();
+		assertThat(getQueryMethodByName("findByNameWithSelectiveFacetStats", String.class).hasStatsDefinition()).isTrue();
+		assertThat(getQueryMethodByName("findByNameWithFieldStatsAndFacetsStatsAndSelectiveFacetStats", String.class)
+				.hasStatsDefinition()).isTrue();
 	}
 
 	/**
@@ -502,23 +500,23 @@ public class SolrQueryMethodTests {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithDefaultSpellcheck", String.class);
 
-		assertTrue(method.hasSpellcheck());
+		assertThat(method.hasSpellcheck()).isTrue();
 		SpellcheckOptions options = method.getSpellcheckOptions();
 
-		assertThat(options.getDictionary(), is(nullValue()));
-		assertThat(options.getAccuracy(), is(nullValue()));
-		assertThat(options.getAlternativeTermCount(), is(nullValue()));
-		assertThat(options.getCollate(), is(false));
-		assertThat(options.getCollateExtendedResults(), is(false));
-		assertThat(options.getMaxCollationCollectDocs(), is(nullValue()));
-		assertThat(options.getCollateParams().size(), is(0));
-		assertThat(options.getCount(), is(nullValue()));
-		assertThat(options.getDictionary(), is(nullValue()));
-		assertThat(options.getMaxCollationEvaluations(), is(nullValue()));
-		assertThat(options.getMaxCollations(), is(nullValue()));
-		assertThat(options.getMaxResultsForSuggest(), is(nullValue()));
-		assertThat(options.getOnlyMorePopular(), is(false));
-		assertThat(options.getQuery(), is(nullValue()));
+		assertThat(options.getDictionary()).isNull();
+		assertThat(options.getAccuracy()).isNull();
+		assertThat(options.getAlternativeTermCount()).isNull();
+		assertThat(options.getCollate()).isFalse();
+		assertThat(options.getCollateExtendedResults()).isFalse();
+		assertThat(options.getMaxCollationCollectDocs()).isNull();
+		assertThat(options.getCollateParams().size()).isEqualTo(0);
+		assertThat(options.getCount()).isNull();
+		assertThat(options.getDictionary()).isNull();
+		assertThat(options.getMaxCollationEvaluations()).isNull();
+		assertThat(options.getMaxCollations()).isNull();
+		assertThat(options.getMaxResultsForSuggest()).isNull();
+		assertThat(options.getOnlyMorePopular()).isFalse();
+		assertThat(options.getQuery()).isNull();
 	}
 
 	/**
@@ -529,23 +527,23 @@ public class SolrQueryMethodTests {
 
 		SolrQueryMethod method = getQueryMethodByName("findByNameWithSpellcheckOptions", String.class);
 
-		assertTrue(method.hasSpellcheck());
+		assertThat(method.hasSpellcheck()).isTrue();
 		SpellcheckOptions options = method.getSpellcheckOptions();
 
-		assertThat(options.getAccuracy().doubleValue(), is(closeTo(0.5D, 0.0D)));
-		assertThat(options.getAlternativeTermCount(), is(10L));
-		assertThat(options.getCollate(), is(true));
-		assertThat(options.getCollateExtendedResults(), is(true));
-		assertThat(options.getMaxCollationCollectDocs(), is(10L));
-		assertThat(options.getCollateParams().size(), is(0));
-		assertThat(options.getCount(), is(100L));
-		assertThat(options.getDictionary(), is(equalTo(new String[] { "myDict" })));
-		assertThat(options.getMaxCollationEvaluations(), is(5L));
-		assertThat(options.getMaxCollations(), is(3L));
-		assertThat(options.getMaxResultsForSuggest(), is(7L));
-		assertThat(options.getOnlyMorePopular(), is(true));
-		assertThat(options.getQuery(), is(nullValue()));
-		assertThat(options.getExtendedResults(), is(true));
+		assertThat(options.getAccuracy().doubleValue()).isCloseTo(0.5D, offset(0.0D));
+		assertThat(options.getAlternativeTermCount()).isEqualTo(10L);
+		assertThat(options.getCollate()).isTrue();
+		assertThat(options.getCollateExtendedResults()).isTrue();
+		assertThat(options.getMaxCollationCollectDocs()).isEqualTo(10L);
+		assertThat(options.getCollateParams().size()).isEqualTo(0);
+		assertThat(options.getCount()).isEqualTo(100L);
+		assertThat(options.getDictionary()).isEqualTo(new String[] { "myDict" });
+		assertThat(options.getMaxCollationEvaluations()).isEqualTo(5L);
+		assertThat(options.getMaxCollations()).isEqualTo(3L);
+		assertThat(options.getMaxResultsForSuggest()).isEqualTo(7L);
+		assertThat(options.getOnlyMorePopular()).isTrue();
+		assertThat(options.getQuery()).isNull();
+		assertThat(options.getExtendedResults()).isTrue();
 	}
 
 	private SolrQueryMethod getQueryMethodByName(String name, Class<?>... parameters) throws Exception {

@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.repository.query;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,9 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.solr.common.params.HighlightParams;
-import org.hamcrest.collection.IsEmptyIterable;
-import org.hamcrest.core.IsEqual;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -109,7 +108,7 @@ public class SolrQueryTests {
 				captor.capture(), (Class<ProductBean>) Mockito.any());
 
 		HighlightOptions capturedOptions = captor.getValue().getHighlightOptions();
-		Assert.assertNotNull(capturedOptions);
+		assertThat(capturedOptions).isNotNull();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -124,16 +123,16 @@ public class SolrQueryTests {
 				captor.capture(), (Class<ProductBean>) Mockito.any());
 
 		HighlightOptions capturedOptions = captor.getValue().getHighlightOptions();
-		Assert.assertNotNull(capturedOptions);
-		Assert.assertEquals("<b>", capturedOptions.getSimplePrefix());
-		Assert.assertEquals("</b>", capturedOptions.getSimplePostfix());
-		Assert.assertEquals("name", capturedOptions.getFields().get(0).getName());
-		Assert.assertEquals("description", capturedOptions.getFields().get(1).getName());
-		Assert.assertEquals("simple", capturedOptions.getFormatter());
-		Assert.assertEquals(Integer.valueOf(10), capturedOptions.getFragsize());
-		Assert.assertEquals(Integer.valueOf(20), capturedOptions.getNrSnipplets());
-		Assert.assertEquals("name:with",
-				((SimpleStringCriteria) capturedOptions.getQuery().getCriteria()).getQueryString());
+		assertThat(capturedOptions).isNotNull();
+		assertThat(capturedOptions.getSimplePrefix()).isEqualTo("<b>");
+		assertThat(capturedOptions.getSimplePostfix()).isEqualTo("</b>");
+		assertThat(capturedOptions.getFields().get(0).getName()).isEqualTo("name");
+		assertThat(capturedOptions.getFields().get(1).getName()).isEqualTo("description");
+		assertThat(capturedOptions.getFormatter()).isEqualTo("simple");
+		assertThat(capturedOptions.getFragsize()).isEqualTo(Integer.valueOf(10));
+		assertThat(capturedOptions.getNrSnipplets()).isEqualTo(Integer.valueOf(20));
+		assertThat(((SimpleStringCriteria) capturedOptions.getQuery().getCriteria()).getQueryString())
+				.isEqualTo("name:with");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -148,8 +147,8 @@ public class SolrQueryTests {
 				captor.capture(), (Class<ProductBean>) Mockito.any());
 
 		HighlightOptions capturedOptions = captor.getValue().getHighlightOptions();
-		Assert.assertEquals("name:*spring*",
-				((SimpleStringCriteria) capturedOptions.getQuery().getCriteria()).getQueryString());
+		assertThat(((SimpleStringCriteria) capturedOptions.getQuery().getCriteria()).getQueryString())
+				.isEqualTo("name:*spring*");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -164,13 +163,13 @@ public class SolrQueryTests {
 				captor.capture(), (Class<ProductBean>) Mockito.any());
 
 		HighlightOptions capturedOptions = captor.getValue().getHighlightOptions();
-		Assert.assertNotNull(capturedOptions);
-		Assert.assertNull(capturedOptions.getSimplePrefix());
-		Assert.assertNull(capturedOptions.getSimplePrefix());
-		Assert.assertNull(capturedOptions.getSimplePostfix());
-		Assert.assertEquals("postingshighlighter", capturedOptions.getFormatter());
-		Assert.assertEquals("{pre}", capturedOptions.getHighlightParameterValue(HighlightParams.TAG_PRE));
-		Assert.assertEquals("{post}", capturedOptions.getHighlightParameterValue(HighlightParams.TAG_POST));
+		assertThat(capturedOptions).isNotNull();
+		assertThat(capturedOptions.getSimplePrefix()).isNull();
+		assertThat(capturedOptions.getSimplePrefix()).isNull();
+		assertThat(capturedOptions.getSimplePostfix()).isNull();
+		assertThat(capturedOptions.getFormatter()).isEqualTo("postingshighlighter");
+		assertThat(capturedOptions.<String> getHighlightParameterValue(HighlightParams.TAG_PRE)).isEqualTo("{pre}");
+		assertThat(capturedOptions.<String> getHighlightParameterValue(HighlightParams.TAG_POST)).isEqualTo("{post}");
 	}
 
 	@Test // DATASOLR-170
@@ -188,8 +187,8 @@ public class SolrQueryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(Mockito.eq("collection-1"), captor.capture(),
 				(Class<?>) Mockito.any());
 
-		Assert.assertThat(captor.getValue().getPageRequest().getPageNumber(), IsEqual.equalTo(0));
-		Assert.assertThat(captor.getValue().getPageRequest().getPageSize(), IsEqual.equalTo(5));
+		assertThat(captor.getValue().getPageRequest().getPageNumber()).isEqualTo(0);
+		assertThat(captor.getValue().getPageRequest().getPageSize()).isEqualTo(5);
 	}
 
 	@Test // DATASOLR-170
@@ -207,8 +206,8 @@ public class SolrQueryTests {
 		Mockito.verify(solrOperationsMock, Mockito.times(1)).queryForPage(Mockito.eq("collection-1"), captor.capture(),
 				(Class<?>) Mockito.any());
 
-		Assert.assertThat(captor.getValue().getPageRequest().getPageNumber(), IsEqual.equalTo(1));
-		Assert.assertThat(captor.getValue().getPageRequest().getPageSize(), IsEqual.equalTo(2));
+		assertThat(captor.getValue().getPageRequest().getPageNumber()).isEqualTo(1);
+		assertThat(captor.getValue().getPageRequest().getPageSize()).isEqualTo(2);
 	}
 
 	@Test // DATASOLR-170
@@ -247,18 +246,20 @@ public class SolrQueryTests {
 
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
 
-		Assert.assertEquals(2, capturedOptions.getFields().size());
-		Assert.assertTrue(
-				capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"), new SimpleField("field4"))));
+		assertThat(capturedOptions.getFields().size()).isEqualTo(2);
+		assertThat(
+				capturedOptions.getFields().containsAll(Arrays.asList(new SimpleField("field1"), new SimpleField("field4"))))
+						.isTrue();
 
-		Assert.assertEquals(2, capturedOptions.getFacets().size());
-		Assert.assertTrue(
-				capturedOptions.getFacets().containsAll(Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))));
+		assertThat(capturedOptions.getFacets().size()).isEqualTo(2);
+		assertThat(
+				capturedOptions.getFacets().containsAll(Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))))
+						.isTrue();
 
 		Collection<Field> selectiveFacetsField = capturedOptions.getSelectiveFacets().get(new SimpleField("field4"));
 		List<SimpleField> selectiveFacetsFields = Arrays.asList(new SimpleField("field4_1"), new SimpleField("field4_2"));
-		Assert.assertEquals(1, capturedOptions.getSelectiveFacets().size());
-		Assert.assertTrue(selectiveFacetsField.containsAll(selectiveFacetsFields));
+		assertThat(capturedOptions.getSelectiveFacets().size()).isEqualTo(1);
+		assertThat(selectiveFacetsField.containsAll(selectiveFacetsFields)).isTrue();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -274,14 +275,15 @@ public class SolrQueryTests {
 
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
 
-		Assert.assertEquals(1, capturedOptions.getFields().size());
-		Assert.assertTrue(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1"))));
+		assertThat(capturedOptions.getFields().size()).isEqualTo(1);
+		assertThat(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1")))).isTrue();
 
-		Assert.assertEquals(2, capturedOptions.getFacets().size());
-		Assert.assertTrue(
-				capturedOptions.getFacets().containsAll(Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))));
+		assertThat(capturedOptions.getFacets().size()).isEqualTo(2);
+		assertThat(
+				capturedOptions.getFacets().containsAll(Arrays.asList(new SimpleField("field2"), new SimpleField("field3"))))
+						.isTrue();
 
-		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
+		assertThat(capturedOptions.getSelectiveFacets().entrySet()).isEmpty();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -296,11 +298,11 @@ public class SolrQueryTests {
 
 		StatsOptions capturedOptions = captor.getValue().getStatsOptions();
 
-		Assert.assertEquals(1, capturedOptions.getFields().size());
-		Assert.assertTrue(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1"))));
+		assertThat(capturedOptions.getFields().size()).isEqualTo(1);
+		assertThat(capturedOptions.getFields().containsAll(Collections.singletonList(new SimpleField("field1")))).isTrue();
 
-		Assert.assertThat(capturedOptions.getFacets(), IsEmptyIterable.emptyIterable());
-		Assert.assertThat(capturedOptions.getSelectiveFacets().entrySet(), IsEmptyIterable.emptyIterable());
+		assertThat(capturedOptions.getFacets()).isEmpty();
+		assertThat(capturedOptions.getSelectiveFacets().entrySet()).isEmpty();
 	}
 
 	@Test // DATASOLR-402

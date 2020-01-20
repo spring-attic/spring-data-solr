@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +52,6 @@ public class ITestEnableSolrRepositoriesWithOptionalSolrServer extends AbstractI
 
 	@Test
 	public void bootstrapsRepository() {
-		assertThat(repository, is(notNullValue()));
+		assertThat(repository).isNotNull();
 	}
 }

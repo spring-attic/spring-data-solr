@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
@@ -63,11 +62,11 @@ public class ITestEnableSolrRepositories extends AbstractITestWithEmbeddedSolrSe
 
 	@Test
 	public void bootstrapsRepository() {
-		assertThat(repository, is(notNullValue()));
+		assertThat(repository).isNotNull();
 	}
 
 	@Test // DATASOLR-163
 	public void shouldRegisterMappingContextWhenNotPresent() {
-		assertThat(context.containsBean("solrMappingContext"), is(true));
+		assertThat(context.containsBean("solrMappingContext")).isTrue();
 	}
 }

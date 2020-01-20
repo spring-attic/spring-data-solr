@@ -15,12 +15,8 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsCollectionContaining.*;
-import static org.hamcrest.core.IsEqual.*;
-import static org.hamcrest.core.IsNull.*;
-import static org.hamcrest.number.IsCloseTo.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
 import static org.springframework.data.solr.core.schema.SchemaDefinition.CopyFieldDefinition.*;
 import static org.springframework.data.solr.core.schema.SchemaDefinition.FieldDefinition.*;
 
@@ -54,7 +50,7 @@ public class DefaultSchemaOperationsTests {
 
 	@Test // DATASOLR-313
 	public void readsSchemaNameCorrectly() {
-		assertThat(schemaOps.getSchemaName(), is(equalTo("example-data-driven-schema")));
+		assertThat(schemaOps.getSchemaName()).isEqualTo("example-data-driven-schema");
 	}
 
 	@Test // DATASOLR-313
@@ -62,10 +58,10 @@ public class DefaultSchemaOperationsTests {
 
 		SchemaDefinition schema = schemaOps.readSchema();
 
-		assertThat(schema.getFieldDefinition("_text_"),
-				is(equalTo(newFieldDefinition().named("_text_").typedAs("text_general").muliValued().indexed().create())));
-		assertThat(schema.getFieldDefinition("id"), is(equalTo(
-				FieldDefinition.newFieldDefinition().named("id").typedAs("string").stored().indexed().required().create())));
+		assertThat(schema.getFieldDefinition("_text_"))
+				.isEqualTo(newFieldDefinition().named("_text_").typedAs("text_general").muliValued().indexed().create());
+		assertThat(schema.getFieldDefinition("id")).isEqualTo(
+				FieldDefinition.newFieldDefinition().named("id").typedAs("string").stored().indexed().required().create());
 	}
 
 	@Test // DATASOLR-313
@@ -77,7 +73,7 @@ public class DefaultSchemaOperationsTests {
 
 		SchemaDefinition schema = schemaOps.readSchema();
 
-		assertThat(schema.getFieldDefinition(fd.getName()), is(equalTo(fd)));
+		assertThat(schema.getFieldDefinition(fd.getName())).isEqualTo(fd);
 	}
 
 	@Test // DATASOLR-313
@@ -88,7 +84,7 @@ public class DefaultSchemaOperationsTests {
 
 		SchemaDefinition schema = schemaOps.readSchema();
 
-		assertThat(schema.getCopyFields(), hasItem(cf));
+		assertThat(schema.getCopyFields()).contains(cf);
 	}
 
 	@Test // DATASOLR-313
@@ -101,8 +97,8 @@ public class DefaultSchemaOperationsTests {
 
 		SchemaDefinition schema = schemaOps.readSchema();
 
-		assertThat(schema.getCopyFields(),
-				hasItem(newCopyFieldDefinition().copyFrom("singleStringValue").to("dest1_s").create()));
+		assertThat(schema.getCopyFields())
+				.contains(newCopyFieldDefinition().copyFrom("singleStringValue").to("dest1_s").create());
 	}
 
 	@Test // DATASOLR-313
@@ -114,12 +110,12 @@ public class DefaultSchemaOperationsTests {
 
 		SchemaDefinition schema = schemaOps.readSchema();
 
-		assertThat(schema.getFieldDefinition("singleStringValue"), is(nullValue()));
+		assertThat(schema.getFieldDefinition("singleStringValue")).isNull();
 	}
 
 	@Test // DATASOLR-313
 	public void readsSchemaVersionCorrectly() {
-		assertThat(schemaOps.getSchemaVersion(), is(closeTo(1.6D, 0.1D)));
+		assertThat(schemaOps.getSchemaVersion()).isCloseTo(1.6D, offset(0.1D));
 	}
 
 	@Test(expected = SchemaModificationException.class) // DATASOLR-313

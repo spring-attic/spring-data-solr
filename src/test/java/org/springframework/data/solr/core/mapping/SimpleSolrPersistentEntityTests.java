@@ -15,13 +15,10 @@
  */
 package org.springframework.data.solr.core.mapping;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -42,8 +39,6 @@ public class SimpleSolrPersistentEntityTests {
 
 	private static final String CORE_NAME = "core1";
 
-	public @Rule ExpectedException expectedException = ExpectedException.none();
-
 	@SuppressWarnings("rawtypes") //
 	@Mock TypeInformation typeInfo;
 	@Mock SolrPersistentProperty property;
@@ -57,7 +52,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals(CORE_NAME, pe.getCollectionName());
+		assertThat(pe.getCollectionName()).isEqualTo(CORE_NAME);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -67,7 +62,7 @@ public class SimpleSolrPersistentEntityTests {
 		when(typeInfo.getType()).thenReturn(InheritingClass.class);
 
 		SimpleSolrPersistentEntity<InheritingClass> pe = new SimpleSolrPersistentEntity<>(typeInfo);
-		assertEquals(CORE_NAME, pe.getCollectionName());
+		assertThat(pe.getCollectionName()).isEqualTo(CORE_NAME);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,7 +73,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithoutSolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals("searchablebeanwithoutsolrdocumentannotation", pe.getCollectionName());
+		assertThat(pe.getCollectionName()).isEqualTo("searchablebeanwithoutsolrdocumentannotation");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -89,7 +84,7 @@ public class SimpleSolrPersistentEntityTests {
 
 		SimpleSolrPersistentEntity<SearchableBeanWithEmptySolrDocumentAnnotation> pe = new SimpleSolrPersistentEntity<>(
 				typeInfo);
-		assertEquals("searchablebeanwithemptysolrdocumentannotation", pe.getCollectionName());
+		assertThat(pe.getCollectionName()).isEqualTo("searchablebeanwithemptysolrdocumentannotation");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,17 +100,14 @@ public class SimpleSolrPersistentEntityTests {
 
 		entity.addPersistentProperty(property);
 
-		assertTrue(entity.hasScoreProperty());
-		assertEquals(property, entity.getScoreProperty());
-		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
+		assertThat(entity.hasScoreProperty()).isTrue();
+		assertThat(entity.getScoreProperty()).isEqualTo(property);
+		assertThat(entity.getScoreProperty().getFieldName()).isEqualTo("myScoreProperty");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test // DATASOLR-210
 	public void verifyShouldThrowExceptionWhenMoreThanOneScorePropertyDefined() {
-
-		expectedException.expect(MappingException.class);
-		expectedException.expectMessage("Ambiguous score field mapping detected!");
 
 		when(typeInfo.getType()).thenReturn(DocumentWithScore.class);
 		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
@@ -134,16 +126,13 @@ public class SimpleSolrPersistentEntityTests {
 		entity.addPersistentProperty(score);
 		entity.addPersistentProperty(anotherScore);
 
-		entity.verify();
+		assertThatExceptionOfType(MappingException.class).isThrownBy(() -> entity.verify())
+				.withMessageContaining("Ambiguous score field mapping detected!");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test // DATASOLR-202
 	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonMapPropety() {
-
-		expectedException.expect(MappingException.class);
-		expectedException.expectMessage("'dynFieldName' with mapped name '*_s'");
-		expectedException.expectMessage("Map");
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
 		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
@@ -159,16 +148,13 @@ public class SimpleSolrPersistentEntityTests {
 
 		entity.addPersistentProperty(property);
 
-		entity.verify();
+		assertThatExceptionOfType(MappingException.class).isThrownBy(() -> entity.verify())
+				.withMessageContaining("'dynFieldName' with mapped name '*_s'").withMessageContaining("Map");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test // DATASOLR-202
 	public void verifyShouldThrowExceptionWhenDynamicDefinedForNonWildcardPropety() {
-
-		expectedException.expect(MappingException.class);
-		expectedException.expectMessage("'dynFieldName' with mapped name 'someRandomFieldName'");
-		expectedException.expectMessage("wildcard");
 
 		when(typeInfo.getType()).thenReturn(SearchableBeanWithoutSolrDocumentAnnotation.class);
 		SimpleSolrPersistentEntity<DocumentWithScore> entity = new SimpleSolrPersistentEntity<>(typeInfo);
@@ -184,7 +170,9 @@ public class SimpleSolrPersistentEntityTests {
 
 		entity.addPersistentProperty(property);
 
-		entity.verify();
+		assertThatExceptionOfType(MappingException.class).isThrownBy(() -> entity.verify())
+				.withMessageContaining("'dynFieldName' with mapped name 'someRandomFieldName'")
+				.withMessageContaining("wildcard");
 	}
 
 	@Test // DATASOLR-463
@@ -193,7 +181,7 @@ public class SimpleSolrPersistentEntityTests {
 		when(typeInfo.getType()).thenReturn(DocumentWithSimpleSpEL.class);
 
 		SimpleSolrPersistentEntity<DocumentWithSimpleSpEL> pe = new SimpleSolrPersistentEntity<>(typeInfo);
-		assertEquals("35", pe.getCollectionName());
+		assertThat(pe.getCollectionName()).isEqualTo("35");
 	}
 
 	@Test // DATASOLR-463
@@ -250,9 +238,9 @@ public class SimpleSolrPersistentEntityTests {
 
 		entity.addPersistentProperty(property);
 
-		assertTrue(entity.hasScoreProperty());
-		assertEquals(property, entity.getScoreProperty());
-		assertEquals("myScoreProperty", entity.getScoreProperty().getFieldName());
+		assertThat(entity.hasScoreProperty()).isTrue();
+		assertThat(entity.getScoreProperty()).isEqualTo(property);
+		assertThat(entity.getScoreProperty().getFieldName()).isEqualTo("myScoreProperty");
 	}
 
 	@SolrDocument(solrCoreName = CORE_NAME)

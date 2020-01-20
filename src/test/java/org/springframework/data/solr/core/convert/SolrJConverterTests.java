@@ -15,12 +15,13 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Map;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -43,8 +44,8 @@ public class SolrJConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(convertable, solrDocument);
 
-		Assert.assertEquals(convertable.getStringProperty(), solrDocument.getFieldValue("stringProperty"));
-		Assert.assertEquals(convertable.getIntProperty(), solrDocument.getFieldValue("intProperty"));
+		assertThat(solrDocument.getFieldValue("stringProperty")).isEqualTo(convertable.getStringProperty());
+		assertThat(solrDocument.getFieldValue("intProperty")).isEqualTo(convertable.getIntProperty());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -57,9 +58,9 @@ public class SolrJConverterTests {
 		SolrInputDocument solrDocument = new SolrInputDocument();
 		converter.write(update, solrDocument);
 
-		Assert.assertEquals(update.getIdField().getValue(), solrDocument.getFieldValue(update.getIdField().getName()));
-		Assert.assertTrue(solrDocument.getFieldValue("since") instanceof Map);
-		Assert.assertEquals(1995, ((Map<String, Object>) solrDocument.getFieldValue("since")).get("set"));
+		assertThat(solrDocument.getFieldValue(update.getIdField().getName())).isEqualTo(update.getIdField().getValue());
+		assertThat(solrDocument.getFieldValue("since") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) solrDocument.getFieldValue("since")).get("set")).isEqualTo(1995);
 	}
 
 	@Test
@@ -70,20 +71,17 @@ public class SolrJConverterTests {
 
 		ConvertableBean convertable = converter.read(ConvertableBean.class, document);
 
-		Assert.assertEquals(document.getFieldValue("stringProperty"), convertable.getStringProperty());
-		Assert.assertEquals(document.getFieldValue("intProperty"), convertable.getIntProperty());
+		assertThat(convertable.getStringProperty()).isEqualTo(document.getFieldValue("stringProperty"));
+		assertThat(convertable.getIntProperty()).isEqualTo(document.getFieldValue("intProperty"));
 	}
 
 	public static class ConvertableBean {
 
-		@Field
-		String stringProperty;
+		@Field String stringProperty;
 
-		@Field
-		Integer intProperty;
+		@Field Integer intProperty;
 
-		public ConvertableBean() {
-		}
+		public ConvertableBean() {}
 
 		public ConvertableBean(String stringProperty, Integer intProperty) {
 			super();

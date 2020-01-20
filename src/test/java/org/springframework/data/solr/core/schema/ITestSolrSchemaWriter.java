@@ -15,9 +15,8 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Collections;
 
@@ -55,7 +54,7 @@ public class ITestSolrSchemaWriter {
 	public void getSchemaVersionShouldReturnVersionNumberCorrectly() {
 
 		Double version = schemaWriter.retrieveSchemaVersion("collection1");
-		assertThat(version, is(closeTo(1.6D, 0.1D)));
+		assertThat(version).isCloseTo(1.6D, offset(0.1D));
 	}
 
 	@Test // DATASOLR-72
@@ -68,7 +67,7 @@ public class ITestSolrSchemaWriter {
 	@Test // DATASOLR-72
 	public void loadSchema() {
 		SchemaDefinition def = schemaWriter.loadExistingSchema("collection1");
-		assertThat(def, notNullValue());
+		assertThat(def).isNotNull();
 	}
 
 	@Test // DATASOLR-72

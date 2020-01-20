@@ -15,13 +15,14 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,8 +72,8 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 
 	@Test
 	public void testGetFieldnameReturnsProperNameForAnnotationsIndexedAndField() throws IntrospectionException {
-		Assert.assertEquals(this.expectedFieldname,
-				getPersistentProperty(BeanWithSolrFieldAnnotation.class, this.propertyName).getFieldName());
+		assertThat(getPersistentProperty(BeanWithSolrFieldAnnotation.class, this.propertyName).getFieldName())
+				.isEqualTo(this.expectedFieldname);
 	}
 
 	private SimpleSolrPersistentProperty getPersistentProperty(Class<?> clazz, String propertyName)

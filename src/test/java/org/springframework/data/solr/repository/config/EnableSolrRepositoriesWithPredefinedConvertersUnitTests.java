@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.repository.config;
 
-import static org.hamcrest.core.IsSame.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.lang.reflect.Proxy;
 import java.util.Collections;
@@ -77,8 +76,8 @@ public class EnableSolrRepositoriesWithPredefinedConvertersUnitTests extends Abs
 				Proxy.getInvocationHandler(repo)).getPropertyValue("advised")).getTargetSource().getTarget();
 
 		assertThat(
-				((MappingSolrConverter) ((SolrTemplate) target.getSolrOperations()).getConverter()).getCustomConversions(),
-				sameInstance(CUSTOM_CONVERSIONS));
+				((MappingSolrConverter) (target.getSolrOperations()).getConverter()).getCustomConversions())
+						.isSameAs(CUSTOM_CONVERSIONS);
 	}
 
 	interface ProductRepository extends CrudRepository<ProductBean, String> {

@@ -15,14 +15,14 @@
  */
 package org.springframework.data.solr.core.convert;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrInputDocument;
-import org.hamcrest.collection.IsMapContaining;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.solr.core.convert.SolrjConverters.UpdateToSolrInputDocumentConverter;
 import org.springframework.data.solr.core.query.PartialUpdate;
@@ -41,8 +41,8 @@ public class UpdateToSolrInputDocumentConverterTests {
 
 		SolrInputDocument document = converter.convert(update);
 
-		Assert.assertEquals(update.getIdField().getValue(), document.getFieldValue(update.getIdField().getName()));
-		Assert.assertEquals(update.getVersion(), document.getFieldValue("_version_"));
+		assertThat(document.getFieldValue(update.getIdField().getName())).isEqualTo(update.getIdField().getValue());
+		assertThat(document.getFieldValue("_version_")).isEqualTo(update.getVersion());
 	}
 
 	@Test
@@ -51,8 +51,8 @@ public class UpdateToSolrInputDocumentConverterTests {
 
 		SolrInputDocument document = converter.convert(update);
 
-		Assert.assertEquals(update.getIdField().getValue(), document.getFieldValue(update.getIdField().getName()));
-		Assert.assertNull(document.getFieldValue("_version_"));
+		assertThat(document.getFieldValue(update.getIdField().getName())).isEqualTo(update.getIdField().getValue());
+		assertThat(document.getFieldValue("_version_")).isNull();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -63,8 +63,8 @@ public class UpdateToSolrInputDocumentConverterTests {
 
 		SolrInputDocument document = converter.convert(update);
 
-		Assert.assertTrue(document.getFieldValue("field_1") instanceof Map);
-		Assert.assertEquals("valueToSet", ((Map<String, Object>) document.getFieldValue("field_1")).get("set"));
+		assertThat(document.getFieldValue("field_1") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) document.getFieldValue("field_1")).get("set")).isEqualTo("valueToSet");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -75,8 +75,8 @@ public class UpdateToSolrInputDocumentConverterTests {
 
 		SolrInputDocument document = converter.convert(update);
 
-		Assert.assertTrue(document.getFieldValue("field_1") instanceof Map);
-		Assert.assertEquals("valueToAdd", ((Map<String, Object>) document.getFieldValue("field_1")).get("add"));
+		assertThat(document.getFieldValue("field_1") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) document.getFieldValue("field_1")).get("add")).isEqualTo("valueToAdd");
 	}
 
 	@Test
@@ -87,13 +87,13 @@ public class UpdateToSolrInputDocumentConverterTests {
 
 		SolrInputDocument document = converter.convert(update);
 
-		Assert.assertTrue(document.getFieldValue("field_1") instanceof Map);
-		Assert.assertEquals(1, ((Map<String, Object>) document.getFieldValue("field_1")).get("inc"));
+		assertThat(document.getFieldValue("field_1") instanceof Map).isTrue();
+		assertThat(((Map<String, Object>) document.getFieldValue("field_1")).get("inc")).isEqualTo(1);
 	}
 
 	@Test
 	public void testConvertNull() {
-		Assert.assertNull(converter.convert(null));
+		assertThat((Map) converter.convert(null)).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -113,7 +113,7 @@ public class UpdateToSolrInputDocumentConverterTests {
 		update.add("field_1", Collections.emptyList());
 
 		SolrInputDocument document = converter.convert(update);
-		Assert.assertThat((Map<String, Object>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", null));
+		assertThat((Map<String, Object>) document.getFieldValue("field_1")).containsEntry("set", null);
 	}
 
 	@Test
@@ -123,7 +123,7 @@ public class UpdateToSolrInputDocumentConverterTests {
 		update.add("field_1", null);
 
 		SolrInputDocument document = converter.convert(update);
-		Assert.assertThat((Map<String, Object>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", null));
+		assertThat((Map<String, Object>) document.getFieldValue("field_1")).containsEntry("set", null);
 	}
 
 	@Test
@@ -134,6 +134,6 @@ public class UpdateToSolrInputDocumentConverterTests {
 		update.add("field_1", values);
 
 		SolrInputDocument document = converter.convert(update);
-		Assert.assertThat((Map<String, List<String>>)document.getFieldValue("field_1"), IsMapContaining.hasEntry("set", values));
+		assertThat((Map<String, List<String>>) document.getFieldValue("field_1")).containsEntry("set", values);
 	}
 }

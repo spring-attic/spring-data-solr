@@ -15,9 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
-import org.hamcrest.Matchers;
-import org.hamcrest.collection.IsEmptyCollection;
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.solr.core.query.HighlightOptions.FieldWithHighlightParameters;
@@ -46,13 +45,12 @@ public class HighlightOptionsTests {
 
 	@Test
 	public void testEmptyOption() {
-		Assert.assertThat(options.getFields(), IsEmptyCollection.emptyCollectionOf(Field.class));
-		Assert.assertThat(options.getFieldsWithHighlightParameters(),
-				IsEmptyCollection.emptyCollectionOf(FieldWithHighlightParameters.class));
-		Assert.assertThat(options.getHighlightParameters(), IsEmptyCollection.emptyCollectionOf(HighlightParameter.class));
-		Assert.assertNull(options.getQuery());
-		Assert.assertFalse(options.hasFields());
-		Assert.assertFalse(options.hasQuery());
+		assertThat(options.getFields()).isEmpty();
+		assertThat(options.getFieldsWithHighlightParameters()).isEmpty();
+		assertThat(options.getHighlightParameters()).isEmpty();
+		assertThat(options.getQuery()).isNull();
+		assertThat(options.hasFields()).isFalse();
+		assertThat(options.hasQuery()).isFalse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -69,9 +67,9 @@ public class HighlightOptionsTests {
 	public void testWithMultipleFields() {
 		options.addField(FIELD_1);
 		options.addField(FIELD_2);
-		Assert.assertTrue(options.hasFields());
-		Assert.assertThat(options.getFields(), Matchers.contains(FIELD_1, FIELD_2));
-		Assert.assertThat(options.getFieldsWithHighlightParameters(), IsEmptyCollection.empty());
+		assertThat(options.hasFields()).isTrue();
+		assertThat(options.getFields()).containsExactly(FIELD_1, FIELD_2);
+		assertThat(options.getFieldsWithHighlightParameters()).isEmpty();
 	}
 
 	@Test
@@ -79,24 +77,24 @@ public class HighlightOptionsTests {
 		options.addField(FIELD_1);
 		options.addField(FIELD_2);
 		options.addField(FIELD_WITH_HIGHLIGHT_OPTIONS);
-		Assert.assertThat(options.getFields(), Matchers.contains(FIELD_1, FIELD_2, FIELD_WITH_HIGHLIGHT_OPTIONS));
-		Assert.assertThat(options.getFieldsWithHighlightParameters(), Matchers.contains(FIELD_WITH_HIGHLIGHT_OPTIONS));
+		assertThat(options.getFields()).containsExactly(FIELD_1, FIELD_2, FIELD_WITH_HIGHLIGHT_OPTIONS);
+		assertThat(options.getFieldsWithHighlightParameters()).containsExactly(FIELD_WITH_HIGHLIGHT_OPTIONS);
 	}
 
 	@Test
 	public void testHasQuery() {
 		options.setQuery(new SimpleQuery(new SimpleStringCriteria("*:*")));
-		Assert.assertTrue(options.hasQuery());
+		assertThat(options.hasQuery()).isTrue();
 	}
 
 	@Test
 	public void testAddParamters() {
 		options.addHighlightParameter(PARAMETER_NAME, PARAMETER_VALUE);
-		Assert.assertEquals(1, options.getHighlightParameters().size());
+		assertThat(options.getHighlightParameters().size()).isEqualTo(1);
 
 		HighlightParameter parameter = options.getHighlightParameters().iterator().next();
-		Assert.assertEquals(PARAMETER_NAME, parameter.getName());
-		Assert.assertEquals(PARAMETER_VALUE, parameter.getValue());
+		assertThat(parameter.getName()).isEqualTo(PARAMETER_NAME);
+		assertThat(parameter.getValue()).isEqualTo(PARAMETER_VALUE);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -107,23 +105,23 @@ public class HighlightOptionsTests {
 	@Test
 	public void testGetHighlighParameterValue() {
 		options.addHighlightParameter(PARAMETER_NAME, PARAMETER_VALUE);
-		Assert.assertEquals(1, options.getHighlightParameters().size());
+		assertThat(options.getHighlightParameters().size()).isEqualTo(1);
 		String parameterValue = options.getHighlightParameterValue(PARAMETER_NAME);
-		Assert.assertEquals(PARAMETER_VALUE, parameterValue);
+		assertThat(parameterValue).isEqualTo(PARAMETER_VALUE);
 	}
 
 	@Test
 	public void testGetHighlighParameterValueForParameterThatDoesNotExist() {
 		options.addHighlightParameter(PARAMETER_NAME, PARAMETER_VALUE);
-		Assert.assertEquals(1, options.getHighlightParameters().size());
-		Assert.assertNull(options.getHighlightParameterValue("ParameterThatDoesNotExist"));
+		assertThat(options.getHighlightParameters().size()).isEqualTo(1);
+		assertThat(options.<Object> getHighlightParameterValue("ParameterThatDoesNotExist")).isNull();
 	}
 
 	@Test
 	public void testGetHighlighParameterValueForNullParameterName() {
 		options.addHighlightParameter(PARAMETER_NAME, PARAMETER_VALUE);
-		Assert.assertEquals(1, options.getHighlightParameters().size());
-		Assert.assertNull(options.getHighlightParameterValue(null));
+		assertThat(options.getHighlightParameters().size()).isEqualTo(1);
+		assertThat(options.<Object> getHighlightParameterValue(null)).isNull();
 	}
 
 }

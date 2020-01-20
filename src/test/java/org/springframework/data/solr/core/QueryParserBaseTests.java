@@ -15,6 +15,8 @@
  */
 package org.springframework.data.solr.core;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,12 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Metrics;
@@ -51,8 +49,6 @@ import org.springframework.util.CollectionUtils;
  * @author Christoph Strobl
  */
 public class QueryParserBaseTests {
-
-	@Rule public ExpectedException thrown = ExpectedException.none();
 
 	private static final String SOME_VALUE = "some value";
 	private static final String INVALID_OPERATION_KEY = "invalid";
@@ -104,9 +100,9 @@ public class QueryParserBaseTests {
 	@Test
 	public void testWildcardProcessorCanProcess() {
 		WildcardProcessor processor = this.parser.new WildcardProcessor();
-		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.STARTS_WITH, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.ENDS_WITH, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new Predicate(OperationKey.CONTAINS, SOME_VALUE)));
+		assertThat(processor.canProcess(new Predicate(OperationKey.STARTS_WITH, SOME_VALUE))).isTrue();
+		assertThat(processor.canProcess(new Predicate(OperationKey.ENDS_WITH, SOME_VALUE))).isTrue();
+		assertThat(processor.canProcess(new Predicate(OperationKey.CONTAINS, SOME_VALUE))).isTrue();
 		assertProcessorCannotProcessInvalidOrNullOperationKey(processor);
 	}
 
@@ -114,8 +110,8 @@ public class QueryParserBaseTests {
 	@Test
 	public void testDefaultProcessorCanProcess() {
 		DefaultProcessor processor = this.parser.new DefaultProcessor();
-		Assert.assertTrue(processor.canProcess(new Predicate((String) null, SOME_VALUE)));
-		Assert.assertTrue(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null)));
+		assertThat(processor.canProcess(new Predicate((String) null, SOME_VALUE))).isTrue();
+		assertThat(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null))).isTrue();
 	}
 
 	@Test
@@ -139,37 +135,37 @@ public class QueryParserBaseTests {
 			}
 		};
 
-		Assert.assertNull(processor.process(null, null, null));
-		Assert.assertNull(processor.process(new Predicate("some key", null), null, null));
-		Assert.assertEquals("X", processor.process(new Predicate("some key", SOME_VALUE), null, null));
+		assertThat(processor.process(null, null, null)).isNull();
+		assertThat(processor.process(new Predicate("some key", null), null, null)).isNull();
+		assertThat(processor.process(new Predicate("some key", SOME_VALUE), null, null)).isEqualTo("X");
 	}
 
 	@Test
 	public void testFunctionFragmemtAppendsMultipleArgumentsCorrectly() {
 		Foo function = new Foo(Arrays.asList("one", "two"));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(one,two)"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(one,two)");
 	}
 
 	@Test
 	public void testFunctionFragmemtAppendsSingleArgumentCorrectly() {
 		Foo function = new Foo(Collections.singletonList("one"));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(one)"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(one)");
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresNullArguments() {
 		Foo function = new Foo(null);
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo()"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo()");
 	}
 
 	@Test
 	public void testFunctionFragmemtIgnoresEmptyArguments() {
 		Foo function = new Foo(Collections.emptyList());
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo()"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo()");
 	}
 
 	@Test
@@ -177,54 +173,54 @@ public class QueryParserBaseTests {
 		List<Object> args = new ArrayList<>(1);
 		args.add(null);
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Unable to parse 'null' within function arguments.");
-		parser.createFunctionFragment(new Foo(args), 0, null);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> parser.createFunctionFragment(new Foo(args), 0, null))
+				.withMessageContaining("Unable to parse 'null' within function arguments.");
 	}
 
 	@Test
 	public void testCreateFunctionFragementsWihtNetsedFunction() {
 		Foo function = new Foo(Collections.singletonList(new Bar(Collections.singletonList("nested"))));
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(bar(nested))"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(bar(nested))");
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsPointProperty() {
 		Foo function = new Foo(Collections.singletonList(new Point(37.767624D, -122.48526D)));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(37.767624,-122.48526)"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(37.767624,-122.48526)");
 	}
 
 	@Test
 	public void testCreateFunctionFragmentConvertsDistanceProperty() {
 		Foo function = new Foo(Collections.singletonList(new Distance(5, Metrics.KILOMETERS)));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(5.0)"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(5.0)");
 	}
 
 	@Test
 	public void testCreateFunctionFragmentUsesToStringForUnknowObject() {
 		Foo function = new Foo(Collections.singletonList(new FooBar()));
 
-		Assert.assertThat(parser.createFunctionFragment(function, 0, null), Is.is("{!func}foo(FooBar [])"));
+		assertThat(parser.createFunctionFragment(function, 0, null)).isEqualTo("{!func}foo(FooBar [])");
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresBlankAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(" ", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("{!func}foo()"));
+		assertThat(parser.createCalculatedFieldFragment(ff, null)).isEqualTo("{!func}foo()");
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentIgnoresNullAlias() {
 		SimpleCalculatedField ff = new SimpleCalculatedField(null, new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("{!func}foo()"));
+		assertThat(parser.createCalculatedFieldFragment(ff, null)).isEqualTo("{!func}foo()");
 	}
 
 	@Test
 	public void testCreateFunctionFieldFragmentPrependsAliasCorrectly() {
 		SimpleCalculatedField ff = new SimpleCalculatedField("alias", new Foo(null));
-		Assert.assertThat(parser.createCalculatedFieldFragment(ff, null), Is.is("alias:{!func}foo()"));
+		assertThat(parser.createCalculatedFieldFragment(ff, null)).isEqualTo("alias:{!func}foo()");
 	}
 
 	@Test // DATASOLR-121
@@ -245,20 +241,20 @@ public class QueryParserBaseTests {
 		decorator.setName(queriesList.get(1), "nameQuery1");
 		Map<String, Object> objectNames = decorator.getNamesAssociation();
 
-		Assert.assertEquals(functionList.get(0), objectNames.get("nameFunc0"));
-		Assert.assertEquals(functionList.get(1), objectNames.get("nameFunc1"));
-		Assert.assertEquals(queriesList.get(0), objectNames.get("nameQuery0"));
-		Assert.assertEquals(queriesList.get(1), objectNames.get("nameQuery1"));
+		assertThat(objectNames.get("nameFunc0")).isEqualTo(functionList.get(0));
+		assertThat(objectNames.get("nameFunc1")).isEqualTo(functionList.get(1));
+		assertThat(objectNames.get("nameQuery0")).isEqualTo(queriesList.get(0));
+		assertThat(objectNames.get("nameQuery1")).isEqualTo(queriesList.get(1));
 	}
 
 	private void assertProcessorCanProcess(PredicateProcessor processor, OperationKey key) {
-		Assert.assertTrue(processor.canProcess(new Predicate(key, SOME_VALUE)));
+		assertThat(processor.canProcess(new Predicate(key, SOME_VALUE))).isTrue();
 		assertProcessorCannotProcessInvalidOrNullOperationKey(processor);
 	}
 
 	private void assertProcessorCannotProcessInvalidOrNullOperationKey(PredicateProcessor processor) {
-		Assert.assertFalse(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null)));
-		Assert.assertFalse(processor.canProcess(new Predicate((String) null, null)));
+		assertThat(processor.canProcess(new Predicate(INVALID_OPERATION_KEY, null))).isFalse();
+		assertThat(processor.canProcess(new Predicate((String) null, null))).isFalse();
 	}
 
 	private static class Foo implements Function {

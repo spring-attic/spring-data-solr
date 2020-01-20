@@ -15,7 +15,8 @@
  */
 package org.springframework.data.solr.core.query;
 
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.Test;
 
 /**
@@ -28,8 +29,8 @@ public class PartialUpdateTests {
 		PartialUpdate update = new PartialUpdate("id", "123");
 		update.addValueToField("name", "value-to-add");
 
-		Assert.assertEquals(1, update.getUpdates().size());
-		Assert.assertEquals(UpdateAction.ADD, update.getUpdates().get(0).getAction());
+		assertThat(update.getUpdates().size()).isEqualTo(1);
+		assertThat(update.getUpdates().get(0).getAction()).isEqualTo(UpdateAction.ADD);
 	}
 
 	@Test
@@ -37,8 +38,8 @@ public class PartialUpdateTests {
 		PartialUpdate update = new PartialUpdate("id", "123");
 		update.setValueOfField("name", "value-to-set");
 
-		Assert.assertEquals(1, update.getUpdates().size());
-		Assert.assertEquals(UpdateAction.SET, update.getUpdates().get(0).getAction());
+		assertThat(update.getUpdates().size()).isEqualTo(1);
+		assertThat(update.getUpdates().get(0).getAction()).isEqualTo(UpdateAction.SET);
 	}
 
 	@Test
@@ -46,8 +47,8 @@ public class PartialUpdateTests {
 		PartialUpdate update = new PartialUpdate("id", "123");
 		update.increaseValueOfField("popularity", 2);
 
-		Assert.assertEquals(1, update.getUpdates().size());
-		Assert.assertEquals(UpdateAction.INC, update.getUpdates().get(0).getAction());
+		assertThat(update.getUpdates().size()).isEqualTo(1);
+		assertThat(update.getUpdates().get(0).getAction()).isEqualTo(UpdateAction.INC);
 	}
 
 }

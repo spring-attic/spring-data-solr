@@ -15,8 +15,7 @@
  */
 package org.springframework.data.solr.core;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -85,16 +84,16 @@ public class DefaultQueryParserTests {
 	public void testIs() {
 
 		Criteria criteria = new Criteria("field_1").is("is");
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:is", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:is");
 	}
 
 	@Test
 	public void testMultipleIs() {
 
 		Criteria criteria = new Criteria("field_1").is("is").is("another is");
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:(is \"another is\")", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(is \"another is\")");
 	}
 
 	@Test
@@ -102,8 +101,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").endsWith("end");
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:*end", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:*end");
 	}
 
 	@Test
@@ -111,8 +110,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").endsWith(Arrays.asList("one", "two", "three"));
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:(*one *two *three)", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(*one *two *three)");
 	}
 
 	@Test
@@ -120,8 +119,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start");
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:start*", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:start*");
 	}
 
 	@Test
@@ -129,8 +128,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").startsWith(Arrays.asList("one", "two", "three"));
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:(one* two* three*)", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(one* two* three*)");
 	}
 
 	@Test
@@ -138,8 +137,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").contains("contains");
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:*contains*", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:*contains*");
 	}
 
 	@Test
@@ -147,24 +146,25 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").contains(Arrays.asList("one", "two", "three"));
 
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:(*one* *two* *three*)", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(*one* *two* *three*)");
 	}
 
 	@Test
 	public void testExpression() {
 
 		Criteria criteria = new Criteria("field_1").expression("(have fun using +solr && expressions*)");
-		assertEquals("field_1:(have fun using +solr && expressions*)",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("field_1:(have fun using +solr && expressions*)");
 	}
 
 	@Test
 	public void testCriteriaChain() {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").contains("contains").is("is");
-		assertEquals("field_1", criteria.getField().getName());
-		assertEquals("field_1:(start* *end *contains* is)", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(criteria.getField().getName()).isEqualTo("field_1");
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("field_1:(start* *end *contains* is)");
 	}
 
 	@Test
@@ -172,140 +172,141 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start").endsWith("end").and("field_2").startsWith("2start")
 				.endsWith("2end");
-		assertEquals("field_1:(start* *end) AND field_2:(2start* *2end)",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:(start* *end) AND field_2:(2start* *2end)");
 	}
 
 	@Test
 	public void testOr() {
 
 		Criteria criteria = new Criteria("field_1").startsWith("start").or("field_2").endsWith("end").startsWith("start2");
-		assertEquals("field_1:start* OR field_2:(*end start2*)", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:start* OR field_2:(*end start2*)");
 	}
 
 	@Test
 	public void testCriteriaWithWhiteSpace() {
 
 		Criteria criteria = new Criteria("field_1").is("white space");
-		assertEquals("field_1:\"white space\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"white space\"");
 	}
 
 	@Test
 	public void testCriteriaWithDoubleQuotes() {
 
 		Criteria criteria = new Criteria("field_1").is("with \"quote");
-		assertEquals("field_1:\"with \\\"quote\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"with \\\"quote\"");
 	}
 
 	@Test // DATASOLR-437
 	public void testCriteriaWithANDKeyword() {
 
 		Criteria criteria = new Criteria("field_1").is("AND");
-		assertEquals("field_1:\"AND\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"AND\"");
 	}
 
 	@Test // DATASOLR-437
 	public void testCriteriaWithMultipleWorkdsContainingANDKeyword() {
 
 		Criteria criteria = new Criteria("field_1").is("this AND that");
-		assertEquals("field_1:\"this AND that\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"this AND that\"");
 	}
 
 	@Test // DATASOLR-437
 	public void testCriteriaWithORKeyword() {
 
 		Criteria criteria = new Criteria("field_1").is("OR");
-		assertEquals("field_1:\"OR\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"OR\"");
 	}
 
 	@Test // DATASOLR-437
 	public void testCriteriaWithNOTKeyword() {
 
 		Criteria criteria = new Criteria("field_1").is("NOT");
-		assertEquals("field_1:\"NOT\"", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"NOT\"");
 	}
 
 	@Test
 	public void testIsNot() {
 
 		Criteria criteria = new Criteria("field_1").is("value_1").not();
-		assertEquals("-field_1:value_1", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("-field_1:value_1");
 	}
 
 	@Test
 	public void testFuzzy() {
 
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1");
-		assertEquals("field_1:value_1~", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:value_1~");
 	}
 
 	@Test
 	public void testFuzzyWithDistance() {
 
 		Criteria criteria = new Criteria("field_1").fuzzy("value_1", 0.5f);
-		assertEquals("field_1:value_1~0.5", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:value_1~0.5");
 	}
 
 	@Test
 	public void testSloppy() {
 
 		Criteria criteria = new Criteria("field_1").sloppy("value1 value2", 2);
-		assertEquals("field_1:\"value1 value2\"~2", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\"value1 value2\"~2");
 	}
 
 	@Test
 	public void testBoost() {
 
 		Criteria criteria = new Criteria("field_1").is("value_1").boost(2f);
-		assertEquals("field_1:value_1^2.0", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:value_1^2.0");
 	}
 
 	@Test
 	public void testBoostMultipleValues() {
 
 		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f);
-		assertEquals("field_1:(value_1 value_2)^2.0", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(value_1 value_2)^2.0");
 	}
 
 	@Test
 	public void testBoostMultipleCriteriasValues() {
 		Criteria criteria = new Criteria("field_1").is("value_1").is("value_2").boost(2f).and("field_3").is("value_3");
-		assertEquals("field_1:(value_1 value_2)^2.0 AND field_3:value_3",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:(value_1 value_2)^2.0 AND field_3:value_3");
 	}
 
 	@Test
 	public void testBetween() {
 
 		Criteria criteria = new Criteria("field_1").between(100, 200);
-		assertEquals("field_1:[100 TO 200]", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:[100 TO 200]");
 	}
 
 	@Test
 	public void testBetweenExcludeLowerBound() {
 
 		Criteria criteria = new Criteria("field_1").between(100, 200, false, true);
-		assertEquals("field_1:{100 TO 200]", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:{100 TO 200]");
 	}
 
 	@Test
 	public void testBetweenExcludeUpperBound() {
 
 		Criteria criteria = new Criteria("field_1").between(100, 200, true, false);
-		assertEquals("field_1:[100 TO 200}", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:[100 TO 200}");
 	}
 
 	@Test
 	public void testBetweenWithoutUpperBound() {
 
 		Criteria criteria = new Criteria("field_1").between(100, null);
-		assertEquals("field_1:[100 TO *]", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:[100 TO *]");
 	}
 
 	@Test
 	public void testBetweenWithoutLowerBound() {
 		Criteria criteria = new Criteria("field_1").between(null, 200);
-		assertEquals("field_1:[* TO 200]", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:[* TO 200]");
 	}
 
 	@Test
@@ -315,22 +316,22 @@ public class DefaultQueryParserTests {
 		DateTime upperBound = new DateTime(2012, 8, 21, 19, 30, 0, DateTimeZone.UTC);
 
 		Criteria criteria = new Criteria("field_1").between(lowerBound, upperBound);
-		assertEquals("field_1:[2012\\-08\\-21T06\\:35\\:00.000Z TO 2012\\-08\\-21T19\\:30\\:00.000Z]",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("field_1:[2012\\-08\\-21T06\\:35\\:00.000Z TO 2012\\-08\\-21T19\\:30\\:00.000Z]");
 	}
 
 	@Test
 	public void testBetweenNegativeNumber() {
 
 		Criteria criteria = new Criteria("field_1").between(-200, -100);
-		assertEquals("field_1:[\\-200 TO \\-100]", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:[\\-200 TO \\-100]");
 	}
 
 	@Test
 	public void testIn() {
 
 		Criteria criteria = new Criteria("field_1").in(1, 2, 3, 5, 8, 13, 21);
-		assertEquals("field_1:(1 2 3 5 8 13 21)", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:(1 2 3 5 8 13 21)");
 	}
 
 	@Test
@@ -342,8 +343,8 @@ public class DefaultQueryParserTests {
 		calendar.setTimeInMillis(dateTime.getMillis());
 
 		Criteria criteria = new Criteria("dateField").is(calendar.getTime());
-		assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("dateField:2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 	@Test
@@ -352,8 +353,8 @@ public class DefaultQueryParserTests {
 		DateTime dateTime = new DateTime(2012, 8, 21, 6, 35, 0, DateTimeZone.UTC);
 
 		Criteria criteria = new Criteria("dateField").is(dateTime);
-		assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("dateField:2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 	@Test
@@ -363,23 +364,23 @@ public class DefaultQueryParserTests {
 				DateTimeZone.UTC);
 
 		Criteria criteria = new Criteria("dateField").is(dateTime);
-		assertEquals("dateField:2012\\-08\\-21T06\\:35\\:00.000Z",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("dateField:2012\\-08\\-21T06\\:35\\:00.000Z");
 	}
 
 	@Test
 	public void testIsWithNegativeNumner() {
 
 		Criteria criteria = new Criteria("field_1").is(-100);
-		assertEquals("field_1:\\-100", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:\\-100");
 	}
 
 	@Test
 	public void testNear() {
 
 		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556), new Distance(5));
-		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=5.0}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!bbox pt=48.303056,14.290556 sfield=field_1 d=5.0}");
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATASOLR-142
@@ -391,8 +392,8 @@ public class DefaultQueryParserTests {
 	public void testNearWithDistanceUnitMiles() {
 
 		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES));
-		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}");
 	}
 
 	@Test
@@ -400,8 +401,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").near(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!bbox pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}");
 	}
 
 	@Test
@@ -409,16 +410,16 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1")
 				.near(new Box(new Point(48.303056, 14.290556), new Point(48.303056, 14.290556)));
-		assertEquals("field_1:[48.303056,14.290556 TO 48.303056,14.290556]",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("field_1:[48.303056,14.290556 TO 48.303056,14.290556]");
 	}
 
 	@Test
 	public void testWithinWithDistanceUnitMiles() {
 
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556), new Distance(1, Metrics.MILES));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.609344 score=miles}");
 	}
 
 	@Test
@@ -426,8 +427,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}");
 	}
 
 	@Test(expected = IllegalArgumentException.class) // DATASOLR-142
@@ -440,23 +441,24 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1")
 				.within(new Circle(new Point(48.303056, 14.290556), new Distance(1, Metrics.KILOMETERS)));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=kilometers}");
 	}
 
 	@Test
 	public void testWithinWithNullDistance() {
 
 		Criteria criteria = new Criteria("field_1").within(new Point(48.303056, 14.290556), null);
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=0.0}");
 	}
 
 	@Test
 	public void testStringCriteria() {
 
 		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
-		assertEquals("field_1:value_1 AND field_2:value_2", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("field_1:value_1 AND field_2:value_2");
 	}
 
 	@Test
@@ -464,8 +466,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new SimpleStringCriteria("field_1:value_1 AND field_2:value_2");
 		criteria = criteria.and("field_3").is("value_3");
-		assertEquals("field_1:value_1 AND field_2:value_2 AND field_3:value_3",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:value_1 AND field_2:value_2 AND field_3:value_3");
 	}
 
 	@Test
@@ -480,7 +482,7 @@ public class DefaultQueryParserTests {
 			}
 
 		});
-		assertEquals("field_1:001", queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null)).isEqualTo("field_1:001");
 	}
 
 	@Test
@@ -488,7 +490,7 @@ public class DefaultQueryParserTests {
 
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -504,7 +506,7 @@ public class DefaultQueryParserTests {
 		int pageSize = 100;
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).setPageRequest(PageRequest.of(page, pageSize));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationPresent(solrQuery, page * pageSize, pageSize);
 		assertProjectionNotPresent(solrQuery);
@@ -519,7 +521,7 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addProjectionOnField("projection_1")
 				.addProjectionOnField(new SimpleField("projection_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionPresent(solrQuery, "projection_1,projection_2");
@@ -566,7 +568,7 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1"))
 				.setGroupOptions(new GroupOptions().addGroupByField("group_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -581,7 +583,7 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"))
 				.setFacetOptions(new FacetOptions("facet_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -596,7 +598,7 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"))
 				.setFacetOptions(new FacetOptions().addFacetOnPivot("field_1", "field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -611,7 +613,7 @@ public class DefaultQueryParserTests {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"))
 				.setFacetOptions(new FacetOptions("facet_1", "facet_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -626,7 +628,7 @@ public class DefaultQueryParserTests {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1")).setFacetOptions(
 				new FacetOptions().addFacetOnPivot("field_1", "field_2").addFacetOnPivot("field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -644,14 +646,14 @@ public class DefaultQueryParserTests {
 		query.setFacetOptions(facetOptions);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
 		assertDisMaxParamsNotPresent(solrQuery);
-		assertEquals(facetOptions.getFacetPrefix(), solrQuery.getParams("facet.prefix")[0]);
+		assertThat(solrQuery.getParams("facet.prefix")[0]).isEqualTo(facetOptions.getFacetPrefix());
 	}
 
 	@Test
@@ -664,25 +666,25 @@ public class DefaultQueryParserTests {
 		query.setFacetOptions(facetOptions);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertFactingPresent(solrQuery, "facet_1", "facet_2");
 		assertDisMaxParamsNotPresent(solrQuery);
-		assertEquals(fieldWithFacetParameters.getPrefix(),
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.prefix")[0]);
-		assertEquals(FacetParams.FACET_SORT_INDEX,
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.sort")[0]);
-		assertEquals(Integer.toString(fieldWithFacetParameters.getOffset()),
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.offset")[0]);
-		assertEquals(Integer.toString(fieldWithFacetParameters.getLimit()),
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.limit")[0]);
-		assertEquals(fieldWithFacetParameters.getMethod(),
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.method")[0]);
-		assertEquals(fieldWithFacetParameters.getMissing().toString(),
-				solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.missing")[0]);
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.prefix")[0])
+				.isEqualTo(fieldWithFacetParameters.getPrefix());
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.sort")[0])
+				.isEqualTo(FacetParams.FACET_SORT_INDEX);
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.offset")[0])
+				.isEqualTo(Integer.toString(fieldWithFacetParameters.getOffset()));
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.limit")[0])
+				.isEqualTo(Integer.toString(fieldWithFacetParameters.getLimit()));
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.method")[0])
+				.isEqualTo(fieldWithFacetParameters.getMethod());
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.missing")[0])
+				.isEqualTo(fieldWithFacetParameters.getMissing().toString());
 	}
 
 	@Test
@@ -695,7 +697,7 @@ public class DefaultQueryParserTests {
 		query.setFacetOptions(facetOptions);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("on", solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.zeros")[0]);
+		assertThat(solrQuery.getParams("f." + fieldWithFacetParameters.getName() + ".facet.zeros")[0]).isEqualTo("on");
 	}
 
 	@Test
@@ -704,11 +706,11 @@ public class DefaultQueryParserTests {
 		FacetQuery query = new SimpleFacetQuery(new Criteria("field_1").is("value_1"))
 				.setFacetOptions(new FacetOptions("facet_1").setFacetSort(FacetOptions.FacetSort.INDEX));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("index", solrQuery.getFacetSortString());
+		assertThat(solrQuery.getFacetSortString()).isEqualTo("index");
 
 		query.getFacetOptions().setFacetSort(FacetOptions.FacetSort.COUNT);
 		solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("count", solrQuery.getFacetSortString());
+		assertThat(solrQuery.getFacetSortString()).isEqualTo("count");
 	}
 
 	@Test
@@ -718,13 +720,13 @@ public class DefaultQueryParserTests {
 				new FacetOptions().addFacetQuery(new SimpleQuery(new SimpleStringCriteria("field_2:[* TO 5]"))));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertDisMaxParamsNotPresent(solrQuery);
-		assertArrayEquals(new String[] { "field_2:[* TO 5]" }, solrQuery.getFacetQuery());
+		assertThat(solrQuery.getFacetQuery()).isEqualTo(new String[] { "field_2:[* TO 5]" });
 	}
 
 	@Test
@@ -735,13 +737,13 @@ public class DefaultQueryParserTests {
 						.addFacetQuery(new SimpleQuery(new Criteria("field_3").startsWith("prefix"))));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
 		assertGroupingNotPresent(solrQuery);
 		assertDisMaxParamsNotPresent(solrQuery);
-		assertArrayEquals(new String[] { "field_2:[* TO 5]", "field_3:prefix*" }, solrQuery.getFacetQuery());
+		assertThat(solrQuery.getFacetQuery()).isEqualTo(new String[] { "field_2:[* TO 5]", "field_3:prefix*" });
 	}
 
 	@Test
@@ -752,8 +754,8 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		String[] filterQueries = solrQuery.getFilterQueries();
-		assertEquals(1, filterQueries.length);
-		assertEquals("filter_field:filter_value", filterQueries[0]);
+		assertThat(filterQueries.length).isEqualTo(1);
+		assertThat(filterQueries[0]).isEqualTo("filter_field:filter_value");
 	}
 
 	@Test
@@ -762,7 +764,7 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(new Criteria("field_1").is("value_1")).addFilterQuery(new SimpleQuery());
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
-		assertNull(solrQuery.getFilterQueries());
+		assertThat(solrQuery.getFilterQueries()).isNull();
 	}
 
 	@Test
@@ -771,7 +773,7 @@ public class DefaultQueryParserTests {
 		SimpleStringCriteria criteria = new SimpleStringCriteria("field_1:value_1");
 		Query query = new SimpleQuery(criteria);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery);
+		assertThat(solrQuery).isNotNull();
 		assertQueryStringPresent(solrQuery);
 		assertPaginationNotPresent(solrQuery);
 		assertProjectionNotPresent(solrQuery);
@@ -779,7 +781,7 @@ public class DefaultQueryParserTests {
 		assertFactingNotPresent(solrQuery);
 		assertDisMaxParamsNotPresent(solrQuery);
 
-		assertEquals(criteria.getQueryString(), solrQuery.getQuery());
+		assertThat(solrQuery.getQuery()).isEqualTo(criteria.getQueryString());
 	}
 
 	@Test
@@ -790,8 +792,8 @@ public class DefaultQueryParserTests {
 		query.addSort(null); // do this explicitly
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.getSortField());
-		assertTrue(solrQuery.getSorts().isEmpty());
+		assertThat(solrQuery.getSortField()).isNull();
+		assertThat(solrQuery.getSorts().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -801,8 +803,8 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(criteria);
 		query.addSort(Sort.by("field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("field_2 asc", solrQuery.getSortField());
-		assertEquals(1, solrQuery.getSorts().size());
+		assertThat(solrQuery.getSortField()).isEqualTo("field_2 asc");
+		assertThat(solrQuery.getSorts().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -812,8 +814,8 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(criteria);
 		query.addSort(Sort.by(Sort.Direction.DESC, "field_2"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("field_2 desc", solrQuery.getSortField());
-		assertEquals(1, solrQuery.getSorts().size());
+		assertThat(solrQuery.getSortField()).isEqualTo("field_2 desc");
+		assertThat(solrQuery.getSorts().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -823,8 +825,8 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(criteria);
 		query.addSort(Sort.by("field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("field_2 asc,field_3 asc", solrQuery.getSortField());
-		assertEquals(2, solrQuery.getSorts().size());
+		assertThat(solrQuery.getSortField()).isEqualTo("field_2 asc,field_3 asc");
+		assertThat(solrQuery.getSorts().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -834,8 +836,8 @@ public class DefaultQueryParserTests {
 		Query query = new SimpleQuery(criteria);
 		query.addSort(Sort.by(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("field_2 desc,field_3 desc", solrQuery.getSortField());
-		assertEquals(2, solrQuery.getSorts().size());
+		assertThat(solrQuery.getSortField()).isEqualTo("field_2 desc,field_3 desc");
+		assertThat(solrQuery.getSorts().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -846,8 +848,8 @@ public class DefaultQueryParserTests {
 		query.addSort(Sort.by("field_1"));
 		query.addSort(Sort.by(Sort.Direction.DESC, "field_2", "field_3"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("field_1 asc,field_2 desc,field_3 desc", solrQuery.getSortField());
-		assertEquals(3, solrQuery.getSorts().size());
+		assertThat(solrQuery.getSortField()).isEqualTo("field_1 asc,field_2 desc,field_3 desc");
+		assertThat(solrQuery.getSorts().size()).isEqualTo(3);
 	}
 
 	@Test
@@ -856,7 +858,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefaultOperator(Operator.OR);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("OR", solrQuery.get("q.op"));
+		assertThat(solrQuery.get("q.op")).isEqualTo("OR");
 	}
 
 	@Test
@@ -865,7 +867,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefaultOperator(Operator.AND);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("AND", solrQuery.get("q.op"));
+		assertThat(solrQuery.get("q.op")).isEqualTo("AND");
 	}
 
 	@Test
@@ -874,7 +876,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefaultOperator(Operator.NONE);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.get("q.op"));
+		assertThat(solrQuery.get("q.op")).isNull();
 	}
 
 	@Test
@@ -882,7 +884,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.get("q.op"));
+		assertThat(solrQuery.get("q.op")).isNull();
 	}
 
 	@Test
@@ -891,7 +893,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefaultOperator(null);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.get("q.op"));
+		assertThat(solrQuery.get("q.op")).isNull();
 	}
 
 	@Test
@@ -900,7 +902,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setTimeAllowed(100);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals(new Integer(100), solrQuery.getTimeAllowed());
+		assertThat(solrQuery.getTimeAllowed()).isEqualTo(new Integer(100));
 	}
 
 	@Test
@@ -908,7 +910,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.getTimeAllowed());
+		assertThat(solrQuery.getTimeAllowed()).isNull();
 	}
 
 	@Test
@@ -917,7 +919,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefType("lucene");
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery.get("defType"));
+		assertThat(solrQuery.get("defType")).isNotNull();
 	}
 
 	@Test
@@ -926,7 +928,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setDefType("edismax");
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery.get("defType"));
+		assertThat(solrQuery.get("defType")).isNotNull();
 	}
 
 	@Test
@@ -934,7 +936,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.get("defType"));
+		assertThat(solrQuery.get("defType")).isNull();
 	}
 
 	@Test
@@ -943,7 +945,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setRequestHandler("/foo");
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNotNull(solrQuery.get("qt"));
+		assertThat(solrQuery.get("qt")).isNotNull();
 	}
 
 	@Test
@@ -951,7 +953,7 @@ public class DefaultQueryParserTests {
 
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertNull(solrQuery.get("qt"));
+		assertThat(solrQuery.get("qt")).isNull();
 	}
 
 	@Test
@@ -961,7 +963,7 @@ public class DefaultQueryParserTests {
 		query.setJoin(Join.from("inner_id").to("outer_id"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("{!join from=inner_id to=outer_id}field_1:value_1", solrQuery.getQuery());
+		assertThat(solrQuery.getQuery()).isEqualTo("{!join from=inner_id to=outer_id}field_1:value_1");
 	}
 
 	@Test // DATASOLR-176
@@ -971,7 +973,8 @@ public class DefaultQueryParserTests {
 		query.setJoin(Join.from("inner_id").fromIndex("sourceIndex").to("outer_id"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals("{!join from=inner_id to=outer_id fromIndex=sourceIndex}field_1:value_1", solrQuery.getQuery());
+		assertThat(solrQuery.getQuery())
+				.isEqualTo("{!join from=inner_id to=outer_id fromIndex=sourceIndex}field_1:value_1");
 	}
 
 	@Test
@@ -981,8 +984,8 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(new HighlightOptions());
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertTrue(solrQuery.getHighlight());
-		assertArrayEquals(new String[] { Criteria.WILDCARD }, solrQuery.getHighlightFields());
+		assertThat(solrQuery.getHighlight()).isTrue();
+		assertThat(solrQuery.getHighlightFields()).isEqualTo(new String[] { Criteria.WILDCARD });
 	}
 
 	@Test
@@ -991,7 +994,7 @@ public class DefaultQueryParserTests {
 		SimpleHighlightQuery query = new SimpleHighlightQuery(new SimpleStringCriteria("field_1:value_1"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertFalse(solrQuery.getHighlight());
+		assertThat(solrQuery.getHighlight()).isFalse();
 	}
 
 	@Test
@@ -1003,7 +1006,7 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertArrayEquals(new String[] { "field_2", "field_3" }, solrQuery.getHighlightFields());
+		assertThat(solrQuery.getHighlightFields()).isEqualTo(new String[] { "field_2", "field_3" });
 	}
 
 	@Test
@@ -1015,7 +1018,7 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals(options.getFragsize().intValue(), solrQuery.getHighlightFragsize());
+		assertThat(solrQuery.getHighlightFragsize()).isEqualTo(options.getFragsize().intValue());
 	}
 
 	@Test
@@ -1027,7 +1030,7 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals(options.getFormatter(), solrQuery.getParams(HighlightParams.FORMATTER)[0]);
+		assertThat(solrQuery.getParams(HighlightParams.FORMATTER)[0]).isEqualTo(options.getFormatter());
 	}
 
 	@Test
@@ -1039,7 +1042,7 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals(options.getNrSnipplets().intValue(), solrQuery.getHighlightSnippets());
+		assertThat(solrQuery.getHighlightSnippets()).isEqualTo(options.getNrSnipplets().intValue());
 	}
 
 	@Test
@@ -1051,8 +1054,8 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertEquals(options.<String> getHighlightParameterValue(HighlightParams.SIMPLE_PRE),
-				solrQuery.getHighlightSimplePre());
+		assertThat(solrQuery.getHighlightSimplePre())
+				.isEqualTo(options.<String> getHighlightParameterValue(HighlightParams.SIMPLE_PRE));
 	}
 
 	@Test
@@ -1070,11 +1073,11 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertArrayEquals(new String[] { "field_2" }, solrQuery.getHighlightFields());
-		assertEquals(fieldWithHighlightParameters.getFormatter(),
-				solrQuery.getParams("f.field_2." + HighlightParams.FORMATTER)[0]);
-		assertEquals(fieldWithHighlightParameters.getFragsize().toString(),
-				solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0]);
+		assertThat(solrQuery.getHighlightFields()).isEqualTo(new String[] { "field_2" });
+		assertThat(solrQuery.getParams("f.field_2." + HighlightParams.FORMATTER)[0])
+				.isEqualTo(fieldWithHighlightParameters.getFormatter());
+		assertThat(solrQuery.getParams("f.field_2." + HighlightParams.FRAGSIZE)[0])
+				.isEqualTo(fieldWithHighlightParameters.getFragsize().toString());
 	}
 
 	@Test // DATASOLR-105
@@ -1084,8 +1087,8 @@ public class DefaultQueryParserTests {
 				.and(Criteria.where("field_2").is("bar").or("field_3").is("roo"))//
 				.or(Criteria.where("field_4").is("spring").and("field_5").is("data"));
 
-		assertEquals("field_1:foo AND (field_2:bar OR field_3:roo) OR (field_4:spring AND field_5:data)",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:foo AND (field_2:bar OR field_3:roo) OR (field_4:spring AND field_5:data)");
 	}
 
 	@Test // DATASOLR-105
@@ -1095,30 +1098,32 @@ public class DefaultQueryParserTests {
 				.and(Criteria.where("field_2").is("bar").is("lala").or("field_3").is("roo"))
 				.or(Criteria.where("field_4").is("spring").and("field_5").is("data"));
 
-		assertEquals("field_1:(foo bar) AND (field_2:(bar lala) OR field_3:roo) OR (field_4:spring AND field_5:data)",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:(foo bar) AND (field_2:(bar lala) OR field_3:roo) OR (field_4:spring AND field_5:data)");
 	}
 
 	@Test // DATASOLR-105
 	public void testMultipleAnd() {
 		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").is("bar").and("field_3").is("roo");
 
-		assertEquals("field_1:foo AND field_2:bar AND field_3:roo", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:foo AND field_2:bar AND field_3:roo");
 	}
 
 	@Test // DATASOLR-105
 	public void testMultipleOr() {
 		Criteria criteria = Criteria.where("field_1").is("foo").or("field_2").is("bar").or("field_3").is("roo");
 
-		assertEquals("field_1:foo OR field_2:bar OR field_3:roo", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:foo OR field_2:bar OR field_3:roo");
 	}
 
 	@Test // DATASOLR-105
 	public void testEmptyCriteriaShouldBeDefaultedToNotNUll() {
 		Criteria criteria = Criteria.where("field_1").is("foo").and("field_2").or("field_3");
 
-		assertEquals("field_1:foo AND field_2:[* TO *] OR field_3:[* TO *]",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null))
+				.isEqualTo("field_1:foo AND field_2:[* TO *] OR field_3:[* TO *]");
 	}
 
 	@Test // DATASOLR-105
@@ -1128,15 +1133,15 @@ public class DefaultQueryParserTests {
 				.and(Criteria.where("field_2").is("bar").and("field_3").is("roo")//
 						.and(Criteria.where("field_4").is("spring").and("field_5").is("data").or("field_6").is("solr")));
 
-		assertEquals("field_1:foo AND (field_2:bar AND field_3:roo AND (field_4:spring AND field_5:data OR field_6:solr))",
-				queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo(
+				"field_1:foo AND (field_2:bar AND field_3:roo AND (field_4:spring AND field_5:data OR field_6:solr))");
 	}
 
 	@Test // DATASOLR-168
 	public void testNotCritieraCarriedOnPorperlyForNullAndNotNull() {
 
 		Criteria criteria = new Criteria("param1").isNotNull().and("param2").isNull();
-		assertEquals("param1:[* TO *] AND -param2:[* TO *]", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("param1:[* TO *] AND -param2:[* TO *]");
 	}
 
 	@Test // DATASOLR-112
@@ -1163,7 +1168,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
-		assertEquals("field_1", solrQuery.get(StatsParams.STATS_FIELD));
+		assertThat(solrQuery.get(StatsParams.STATS_FIELD)).isEqualTo("field_1");
 	}
 
 	@Test // DATASOLR-160
@@ -1180,8 +1185,8 @@ public class DefaultQueryParserTests {
 
 		List<String> fields = Arrays.asList(solrQuery.getParams(StatsParams.STATS_FIELD));
 		Collections.sort(fields);
-		assertEquals(2, fields.size());
-		assertEquals(Arrays.asList("field_1", "field_2"), fields);
+		assertThat(fields.size()).isEqualTo(2);
+		assertThat(fields).isEqualTo(Arrays.asList("field_1", "field_2"));
 	}
 
 	@Test // DATASOLR-160
@@ -1198,8 +1203,8 @@ public class DefaultQueryParserTests {
 
 		List<String> facets = Arrays.asList(solrQuery.getParams(StatsParams.STATS_FACET));
 		Collections.sort(facets);
-		assertEquals(2, facets.size());
-		assertEquals(Arrays.asList("field_1", "field_2"), facets);
+		assertThat(facets.size()).isEqualTo(2);
+		assertThat(facets).isEqualTo(Arrays.asList("field_1", "field_2"));
 	}
 
 	@Test // DATASOLR-160
@@ -1217,10 +1222,10 @@ public class DefaultQueryParserTests {
 		String[] fields = solrQuery.getParams(StatsParams.STATS_FIELD);
 		String[] facets = solrQuery.getParams(StatsParams.STATS_FACET);
 
-		assertEquals(1, fields.length);
-		assertEquals(1, facets.length);
-		assertEquals("field_1", fields[0]);
-		assertEquals("field_2", facets[0]);
+		assertThat(fields.length).isEqualTo(1);
+		assertThat(facets.length).isEqualTo(1);
+		assertThat(fields[0]).isEqualTo("field_1");
+		assertThat(facets[0]).isEqualTo("field_2");
 	}
 
 	@Test // DATASOLR-160
@@ -1238,10 +1243,10 @@ public class DefaultQueryParserTests {
 		String[] fields = solrQuery.getParams(StatsParams.STATS_FIELD);
 		String[] facets = solrQuery.getParams(CommonParams.FIELD + ".field_1." + StatsParams.STATS_FACET);
 
-		assertEquals(1, fields.length);
-		assertEquals(1, facets.length);
-		assertEquals("field_1", fields[0]);
-		assertEquals("field_2", facets[0]);
+		assertThat(fields.length).isEqualTo(1);
+		assertThat(facets.length).isEqualTo(1);
+		assertThat(fields[0]).isEqualTo("field_1");
+		assertThat(facets[0]).isEqualTo("field_2");
 	}
 
 	@Test // DATASOLR-160
@@ -1264,11 +1269,11 @@ public class DefaultQueryParserTests {
 
 		Arrays.sort(fields);
 
-		assertEquals(3, fields.length);
-		assertArrayEquals(new String[] { "field_1", "field_2", "field_3" }, fields);
-		assertEquals("true", calc1[0]);
-		assertEquals("false", calc2[0]);
-		assertNull(calc3);
+		assertThat(fields.length).isEqualTo(3);
+		assertThat(fields).isEqualTo(new String[] { "field_1", "field_2", "field_3" });
+		assertThat(calc1[0]).isEqualTo("true");
+		assertThat(calc2[0]).isEqualTo("false");
+		assertThat(calc3).isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -1292,13 +1297,13 @@ public class DefaultQueryParserTests {
 				.asList(solrQuery.getParams(CommonParams.FIELD + ".field_1." + StatsParams.STATS_FACET));
 		String[] facets = solrQuery.getParams(StatsParams.STATS_FACET);
 
-		assertEquals(2, fields.size());
-		assertEquals(2, selectiveFacets.size());
-		assertEquals("field_1", fields.get(0));
-		assertEquals("field_2", fields.get(1));
-		assertEquals("field_1_1", selectiveFacets.get(0));
-		assertEquals("field_1_2", selectiveFacets.get(1));
-		assertEquals("field_3", facets[0]);
+		assertThat(fields.size()).isEqualTo(2);
+		assertThat(selectiveFacets.size()).isEqualTo(2);
+		assertThat(fields.get(0)).isEqualTo("field_1");
+		assertThat(fields.get(1)).isEqualTo("field_2");
+		assertThat(selectiveFacets.get(0)).isEqualTo("field_1_1");
+		assertThat(selectiveFacets.get(1)).isEqualTo("field_1_2");
+		assertThat(facets[0]).isEqualTo("field_3");
 	}
 
 	@Test // DATASOLR-121
@@ -1320,12 +1325,12 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		assertGroupFormatPresent(solrQuery, true);
-		assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
-		assertEquals("{!func}max(field_1,field_2)", solrQuery.get(GroupParams.GROUP_FUNC));
-		assertEquals("*:*", solrQuery.get(GroupParams.GROUP_QUERY));
-		assertEquals("field_3 desc", solrQuery.get(GroupParams.GROUP_SORT));
-		assertEquals("1", solrQuery.get(GroupParams.GROUP_OFFSET));
-		assertEquals("2", solrQuery.get(GroupParams.GROUP_LIMIT));
+		assertThat(solrQuery.get(GroupParams.GROUP_FIELD)).isEqualTo("field_1");
+		assertThat(solrQuery.get(GroupParams.GROUP_FUNC)).isEqualTo("{!func}max(field_1,field_2)");
+		assertThat(solrQuery.get(GroupParams.GROUP_QUERY)).isEqualTo("*:*");
+		assertThat(solrQuery.get(GroupParams.GROUP_SORT)).isEqualTo("field_3 desc");
+		assertThat(solrQuery.get(GroupParams.GROUP_OFFSET)).isEqualTo("1");
+		assertThat(solrQuery.get(GroupParams.GROUP_LIMIT)).isEqualTo("2");
 	}
 
 	@Test // DATASOLR-310
@@ -1344,8 +1349,8 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		assertGroupFormatPresent(solrQuery, true);
-		assertEquals("field_1", solrQuery.get(GroupParams.GROUP_FIELD));
-		assertEquals("-1", solrQuery.get(GroupParams.GROUP_LIMIT));
+		assertThat(solrQuery.get(GroupParams.GROUP_FIELD)).isEqualTo("field_1");
+		assertThat(solrQuery.get(GroupParams.GROUP_LIMIT)).isEqualTo("-1");
 	}
 
 	@Test // DATASOLR-121
@@ -1358,9 +1363,9 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		assertGroupFormatPresent(solrQuery, false);
-		assertNull(solrQuery.get(GroupParams.GROUP_SORT));
-		assertNull(solrQuery.get(GroupParams.GROUP_OFFSET));
-		assertNull(solrQuery.get(GroupParams.GROUP_LIMIT));
+		assertThat(solrQuery.get(GroupParams.GROUP_SORT)).isNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_OFFSET)).isNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_LIMIT)).isNull();
 	}
 
 	@Test // DATASOLR-121
@@ -1375,10 +1380,10 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		assertGroupFormatPresent(solrQuery, false);
-		assertArrayEquals(new String[] { "{!func}max(field_1,field_2)", "{!func}max(field_3,field_4)" },
-				solrQuery.getParams(GroupParams.GROUP_FUNC));
-		assertNull(solrQuery.getParams(GroupParams.GROUP_QUERY));
-		assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
+		assertThat(solrQuery.getParams(GroupParams.GROUP_FUNC))
+				.isEqualTo(new String[] { "{!func}max(field_1,field_2)", "{!func}max(field_3,field_4)" });
+		assertThat(solrQuery.getParams(GroupParams.GROUP_QUERY)).isNull();
+		assertThat(solrQuery.getParams(GroupParams.GROUP_FIELD)).isNull();
 	}
 
 	@Test // DATASOLR-121
@@ -1393,9 +1398,9 @@ public class DefaultQueryParserTests {
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
 		assertGroupFormatPresent(solrQuery, false);
-		assertArrayEquals(new String[] { "query1", "query2" }, solrQuery.getParams(GroupParams.GROUP_QUERY));
-		assertNull(solrQuery.getParams(GroupParams.GROUP_FUNC));
-		assertNull(solrQuery.getParams(GroupParams.GROUP_FIELD));
+		assertThat(solrQuery.getParams(GroupParams.GROUP_QUERY)).isEqualTo(new String[] { "query1", "query2" });
+		assertThat(solrQuery.getParams(GroupParams.GROUP_FUNC)).isNull();
+		assertThat(solrQuery.getParams(GroupParams.GROUP_FIELD)).isNull();
 	}
 
 	@Test // DATASOLR-196
@@ -1405,7 +1410,7 @@ public class DefaultQueryParserTests {
 		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
 		Criteria criteria = part1.connect().and(part2);
 
-		assertEquals("z:roo AND (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("z:roo AND (x:foo OR y:bar)");
 	}
 
 	@Test // DATASOLR-196
@@ -1415,7 +1420,7 @@ public class DefaultQueryParserTests {
 		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
 		Criteria criteria = part2.connect().and(part1);
 
-		assertEquals("(x:foo OR y:bar) AND z:roo", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("(x:foo OR y:bar) AND z:roo");
 	}
 
 	@Test // DATASOLR-196
@@ -1425,7 +1430,7 @@ public class DefaultQueryParserTests {
 		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
 		Criteria criteria = part1.connect().or(part2);
 
-		assertEquals("z:roo OR (x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("z:roo OR (x:foo OR y:bar)");
 	}
 
 	@Test // DATASOLR-196
@@ -1435,7 +1440,7 @@ public class DefaultQueryParserTests {
 		Criteria part2 = Criteria.where("x").is("foo").or("y").is("bar");
 		Criteria criteria = part2.connect().or(part1);
 
-		assertEquals("(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("(x:foo OR y:bar) OR z:roo");
 	}
 
 	@Test // DATASOLR-196
@@ -1446,7 +1451,7 @@ public class DefaultQueryParserTests {
 		Criteria criteria = part1.connect().and(part2).notOperator();
 
 		String expected = "-((text:fx* OR product_code:fx*) AND (text:option* OR product_code:option*))";
-		assertEquals(expected, queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo(expected);
 	}
 
 	@Test // DATASOLR-196
@@ -1457,7 +1462,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = part1.connect().or(part2);
 
-		assertEquals("z:roo OR -(x:foo OR y:bar)", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("z:roo OR -(x:foo OR y:bar)");
 	}
 
 	@Test // DATASOLR-196
@@ -1468,7 +1473,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = part2.connect().or(part1);
 
-		assertEquals("-(x:foo OR y:bar) OR z:roo", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("-(x:foo OR y:bar) OR z:roo");
 	}
 
 	@Test // DATASOLR-196
@@ -1479,7 +1484,7 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = part2.connect().and(part1).notOperator();
 
-		assertEquals("-(-(x:foo OR y:bar) AND z:roo)", queryParser.createQueryStringFromNode(criteria, null));
+		assertThat(queryParser.createQueryStringFromNode(criteria, null)).isEqualTo("-(-(x:foo OR y:bar) AND z:roo)");
 	}
 
 	@Test // DATASOLR-236
@@ -1492,8 +1497,8 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
-		assertEquals(-1, solrQuery.getFacetLimit());
-		assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
+		assertThat(solrQuery.getFacetLimit()).isEqualTo(-1);
+		assertThat(solrQuery.get(FacetParams.FACET_OFFSET)).isEqualTo(null);
 	}
 
 	@Test // DATASOLR-236
@@ -1506,8 +1511,8 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
-		assertEquals(-1, solrQuery.getFacetLimit());
-		assertEquals(null, solrQuery.get(FacetParams.FACET_OFFSET));
+		assertThat(solrQuery.getFacetLimit()).isEqualTo(-1);
+		assertThat(solrQuery.get(FacetParams.FACET_OFFSET)).isEqualTo(null);
 	}
 
 	@Test // DATASOLR-236
@@ -1520,8 +1525,8 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
 
-		assertEquals(-1, solrQuery.getFacetLimit());
-		assertEquals(Integer.valueOf(0), solrQuery.getInt(FacetParams.FACET_OFFSET));
+		assertThat(solrQuery.getFacetLimit()).isEqualTo(-1);
+		assertThat(solrQuery.getInt(FacetParams.FACET_OFFSET)).isEqualTo(Integer.valueOf(0));
 	}
 
 	@Test // DATASOLR-86
@@ -1553,45 +1558,45 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery, null);
 
-		assertTrue(facetOptions.hasFacets());
-		assertArrayEquals(new String[] {}, solrQuery.getFacetFields());
-		assertArrayEquals(new String[] { "field1", "field2", "field3", "field4", "field5" },
-				solrQuery.getParams(FacetParams.FACET_RANGE));
+		assertThat(facetOptions.hasFacets()).isTrue();
+		assertThat(solrQuery.getFacetFields()).isEqualTo(new String[] {});
+		assertThat(solrQuery.getParams(FacetParams.FACET_RANGE))
+				.isEqualTo(new String[] { "field1", "field2", "field3", "field4", "field5" });
 
-		assertEquals("4", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START));
-		assertEquals("2", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP));
-		assertEquals("8", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START)).isEqualTo("4");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP)).isEqualTo("2");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END)).isEqualTo("8");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("all");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER)).isEqualTo("all");
 
-		assertEquals("0.5", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START));
-		assertEquals("0.7", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP));
-		assertEquals("12.3", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
-		assertNull(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("outer", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("none", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START)).isEqualTo("0.5");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP)).isEqualTo("0.7");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END)).isEqualTo("12.3");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END)).isNull();
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("outer");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER)).isEqualTo("none");
 
-		assertEquals("4", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START));
-		assertEquals("2", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP));
-		assertEquals("8", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END));
-		assertNull("all", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("all", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START)).isEqualTo("4");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP)).isEqualTo("2");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END)).isEqualTo("8");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE)).as("all").isNull();
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER)).isEqualTo("all");
 
-		assertEquals("4", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START));
-		assertEquals("2", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP));
-		assertEquals("8", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("outer", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE));
-		assertNull("all", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START)).isEqualTo("4");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP)).isEqualTo("2");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END)).isEqualTo("8");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("outer");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER)).as("all").isNull();
 
-		assertEquals("4", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START));
-		assertEquals("2", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP));
-		assertEquals("8", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
-		assertNull("true", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END));
-		assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE));
-		assertNull("all", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START)).isEqualTo("4");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP)).isEqualTo("2");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END)).isEqualTo("8");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END)).as("true").isNull();
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE)).as("all").isNull();
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER)).as("all").isNull();
 	}
 
 	@Test // DATASOLR-86, DATASOLR-309
@@ -1623,46 +1628,46 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery, null);
 
-		assertTrue(facetOptions.hasFacets());
-		assertArrayEquals(new String[] {}, solrQuery.getFacetFields());
-		assertArrayEquals(new String[] { "field1", "field2", "field3", "field4", "field5" },
-				solrQuery.getParams(FacetParams.FACET_RANGE));
+		assertThat(facetOptions.hasFacets()).isTrue();
+		assertThat(solrQuery.getFacetFields()).isEqualTo(new String[] {});
+		assertThat(solrQuery.getParams(FacetParams.FACET_RANGE))
+				.isEqualTo(new String[] { "field1", "field2", "field3", "field4", "field5" });
 
 		// RANGE is being used on SolrJ even for DATE fields
-		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START));
-		assertEquals("+1DAY", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("all", solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_START)).isEqualTo("1970-01-01T00:00:00.100Z");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_GAP)).isEqualTo("+1DAY");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_END)).isEqualTo("1970-01-01T02:46:40Z");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("all");
+		assertThat(solrQuery.getFieldParam("field1", FacetParams.FACET_RANGE_OTHER)).isEqualTo("all");
 
-		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START));
-		assertEquals("+2DAY", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END));
-		assertNull(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("outer", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("none", solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_START)).isEqualTo("1970-01-01T00:00:00.100Z");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_GAP)).isEqualTo("+2DAY");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_END)).isEqualTo("1970-01-01T02:46:40Z");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_HARD_END)).isNull();
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("outer");
+		assertThat(solrQuery.getFieldParam("field2", FacetParams.FACET_RANGE_OTHER)).isEqualTo("none");
 
-		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START));
-		assertEquals("+2DAY", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END));
-		assertNull(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE));
-		assertEquals("none", solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_START)).isEqualTo("1970-01-01T00:00:00.100Z");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_GAP)).isEqualTo("+2DAY");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_END)).isEqualTo("1970-01-01T02:46:40Z");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_INCLUDE)).isNull();
+		assertThat(solrQuery.getFieldParam("field3", FacetParams.FACET_RANGE_OTHER)).isEqualTo("none");
 
-		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START));
-		assertEquals("+2DAY", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END));
-		assertEquals("true", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END));
-		assertEquals("outer", solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE));
-		assertNull(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_START)).isEqualTo("1970-01-01T00:00:00.100Z");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_GAP)).isEqualTo("+2DAY");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_END)).isEqualTo("1970-01-01T02:46:40Z");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_HARD_END)).isEqualTo("true");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_INCLUDE)).isEqualTo("outer");
+		assertThat(solrQuery.getFieldParam("field4", FacetParams.FACET_RANGE_OTHER)).isNull();
 
-		assertEquals("1970-01-01T00:00:00.100Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START));
-		assertEquals("+2DAY", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP));
-		assertEquals("1970-01-01T02:46:40Z", solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END));
-		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END));
-		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE));
-		assertNull(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER));
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_START)).isEqualTo("1970-01-01T00:00:00.100Z");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_GAP)).isEqualTo("+2DAY");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_END)).isEqualTo("1970-01-01T02:46:40Z");
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_HARD_END)).isNull();
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_INCLUDE)).isNull();
+		assertThat(solrQuery.getFieldParam("field5", FacetParams.FACET_RANGE_OTHER)).isNull();
 	}
 
 	@Test // DATASOLR-86
@@ -1673,10 +1678,10 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(facetQuery, null);
 
-		assertTrue(facetOptions.hasFacets());
-		assertArrayEquals(new String[] { "field1" }, solrQuery.getFacetFields());
-		assertNull(solrQuery.getParams(FacetParams.FACET_DATE));
-		assertNull(solrQuery.getParams(FacetParams.FACET_RANGE));
+		assertThat(facetOptions.hasFacets()).isTrue();
+		assertThat(solrQuery.getFacetFields()).isEqualTo(new String[] { "field1" });
+		assertThat(solrQuery.getParams(FacetParams.FACET_DATE)).isNull();
+		assertThat(solrQuery.getParams(FacetParams.FACET_RANGE)).isNull();
 	}
 
 	@Test // DATASOLR-324
@@ -1685,7 +1690,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery q = new SimpleQuery(AnyCriteria.any());
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(q, null);
-		assertThat(solrQuery.get("spellcheck"), is(nullValue()));
+		assertThat(solrQuery.get("spellcheck")).isNull();
 	}
 
 	@Test // DATASOLR-324
@@ -1695,7 +1700,7 @@ public class DefaultQueryParserTests {
 		q.setSpellcheckOptions(SpellcheckOptions.spellcheck());
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(q, null);
-		assertThat(solrQuery.get("spellcheck"), is(equalTo("on")));
+		assertThat(solrQuery.get("spellcheck")).isEqualTo("on");
 	}
 
 	@Test // DATASOLR-324
@@ -1705,9 +1710,9 @@ public class DefaultQueryParserTests {
 		q.setSpellcheckOptions(SpellcheckOptions.spellcheck().dictionaries("dict1", "dict2").count(5).extendedResults());
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(q, null);
-		assertThat(solrQuery.get("spellcheck"), is(equalTo("on")));
-		assertThat(solrQuery.getParams(SpellingParams.SPELLCHECK_DICT), is(new String[] { "dict1", "dict2" }));
-		assertThat(solrQuery.get(SpellingParams.SPELLCHECK_EXTENDED_RESULTS), is(equalTo("true")));
+		assertThat(solrQuery.get("spellcheck")).isEqualTo("on");
+		assertThat(solrQuery.getParams(SpellingParams.SPELLCHECK_DICT)).isEqualTo(new String[] { "dict1", "dict2" });
+		assertThat(solrQuery.get(SpellingParams.SPELLCHECK_EXTENDED_RESULTS)).isEqualTo("true");
 	}
 
 	@Test // DATASOLR-466
@@ -1715,7 +1720,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(new SimpleQuery(Criteria.where("renamedField").is("foo")),
 				Sample.class);
-		assertEquals("renamed-field:foo", solrQuery.getQuery());
+		assertThat(solrQuery.getQuery()).isEqualTo("renamed-field:foo");
 	}
 
 	@Test // DATASOLR-466
@@ -1723,7 +1728,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(new SimpleQuery(AnyCriteria.any())
 				.addFilterQuery(new SimpleFilterQuery(Criteria.where("renamedField").is("foo"))), Sample.class);
-		assertEquals("renamed-field:foo", solrQuery.getFilterQueries()[0]);
+		assertThat(solrQuery.getFilterQueries()[0]).isEqualTo("renamed-field:foo");
 	}
 
 	@Test // DATASOLR-466
@@ -1731,7 +1736,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser
 				.constructSolrQuery(new SimpleQuery(AnyCriteria.any()).addProjectionOnField("renamedField"), Sample.class);
-		assertEquals("renamed-field", solrQuery.getFields());
+		assertThat(solrQuery.getFields()).isEqualTo("renamed-field");
 	}
 
 	@Test // DATASOLR-466
@@ -1764,7 +1769,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(new SimpleFacetQuery(AnyCriteria.any()).setFacetOptions(
 				new FacetOptions().addFacetQuery(new SimpleQuery(Criteria.where("renamedField").is("foo")))), Sample.class);
-		assertEquals(solrQuery.getFacetQuery()[0], "renamed-field:foo");
+		assertThat("renamed-field:foo").isEqualTo(solrQuery.getFacetQuery()[0]);
 	}
 
 	@Test // DATASOLR-466
@@ -1772,7 +1777,7 @@ public class DefaultQueryParserTests {
 
 		SolrQuery solrQuery = queryParser
 				.constructSolrQuery(new SimpleQuery(AnyCriteria.any()).addSort(Sort.by("renamedField")), Sample.class);
-		assertEquals("renamed-field asc", solrQuery.getSortField());
+		assertThat(solrQuery.getSortField()).isEqualTo("renamed-field asc");
 	}
 
 	@Test // DATASOLR-466
@@ -1780,8 +1785,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("renamedField").within(new Point(48.303056, 14.290556),
 				new Distance(1, Metrics.KILOMETERS));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=renamed-field d=1.0 score=kilometers}",
-				queryParser.createQueryStringFromCriteria(criteria, Sample.class));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, Sample.class))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=renamed-field d=1.0 score=kilometers}");
 	}
 
 	@Test // DATASOLR-466
@@ -1791,7 +1796,7 @@ public class DefaultQueryParserTests {
 		query.setJoin(Join.from("field1").to("renamedField"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
-		assertEquals("{!join from=field1 to=renamed-field}field_1:value_1", solrQuery.getQuery());
+		assertThat(solrQuery.getQuery()).isEqualTo("{!join from=field1 to=renamed-field}field_1:value_1");
 	}
 
 	@Test // DATASOLR-466
@@ -1803,7 +1808,7 @@ public class DefaultQueryParserTests {
 		query.setHighlightOptions(options);
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
-		assertArrayEquals(new String[] { "field1", "renamed-field" }, solrQuery.getHighlightFields());
+		assertThat(solrQuery.getHighlightFields()).isEqualTo(new String[] { "field1", "renamed-field" });
 	}
 
 	@Test // DATASOLR-466
@@ -1818,7 +1823,7 @@ public class DefaultQueryParserTests {
 		groupOptions.addSort(Sort.by(Sort.Direction.DESC, "renamedField"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
-		assertEquals("renamed-field desc", solrQuery.get(GroupParams.GROUP_SORT));
+		assertThat(solrQuery.get(GroupParams.GROUP_SORT)).isEqualTo("renamed-field desc");
 	}
 
 	@Test // DATASOLR-466
@@ -1833,7 +1838,7 @@ public class DefaultQueryParserTests {
 		groupOptions.addGroupByFunction(MaxFunction.max("field1", "renamedField"));
 
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, Sample.class);
-		assertEquals("{!func}max(field1,renamed-field)", solrQuery.get(GroupParams.GROUP_FUNC));
+		assertThat(solrQuery.get(GroupParams.GROUP_FUNC)).isEqualTo("{!func}max(field1,renamed-field)");
 	}
 
 	@Test // DATASOLR-510
@@ -1841,8 +1846,8 @@ public class DefaultQueryParserTests {
 
 		Criteria criteria = new Criteria("field_1")
 				.within(new Circle(new Point(48.303056, 14.290556), new Distance(1, Metrics.NEUTRAL)));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0}");
 	}
 
 	@Test // DATASOLR-510
@@ -1860,69 +1865,69 @@ public class DefaultQueryParserTests {
 						return "distance";
 					}
 				})));
-		assertEquals("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=distance}",
-				queryParser.createQueryStringFromCriteria(criteria, null));
+		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
+				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=distance}");
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {
-		assertArrayEquals(expected, solrQuery.getParams(FacetParams.FACET_PIVOT));
+		assertThat(solrQuery.getParams(FacetParams.FACET_PIVOT)).isEqualTo(expected);
 	}
 
 	private void assertFactingPresent(SolrQuery solrQuery, String... expected) {
-		assertArrayEquals(expected, solrQuery.getFacetFields());
+		assertThat(solrQuery.getFacetFields()).isEqualTo(expected);
 	}
 
 	private void assertFactingNotPresent(SolrQuery solrQuery) {
-		assertNull(solrQuery.get(FacetParams.FACET_FIELD));
+		assertThat(solrQuery.get(FacetParams.FACET_FIELD)).isNull();
 	}
 
 	private void assertQueryStringPresent(SolrQuery solrQuery) {
-		assertNotNull(solrQuery.get(CommonParams.Q));
+		assertThat(solrQuery.get(CommonParams.Q)).isNotNull();
 	}
 
 	private void assertProjectionNotPresent(SolrQuery solrQuery) {
-		assertNull(solrQuery.getFields());
+		assertThat(solrQuery.getFields()).isNull();
 	}
 
 	private void assertProjectionPresent(SolrQuery solrQuery, String expected) {
 
-		assertNotNull(solrQuery.get(CommonParams.FL));
-		assertEquals(expected, solrQuery.get(CommonParams.FL));
+		assertThat(solrQuery.get(CommonParams.FL)).isNotNull();
+		assertThat(solrQuery.get(CommonParams.FL)).isEqualTo(expected);
 	}
 
 	private void assertPaginationNotPresent(SolrQuery solrQuery) {
 
-		assertNull(solrQuery.getStart());
-		assertNull(solrQuery.getRows());
+		assertThat(solrQuery.getStart()).isNull();
+		assertThat(solrQuery.getRows()).isNull();
 	}
 
 	private void assertPaginationPresent(SolrQuery solrQuery, int start, int rows) {
 
-		assertEquals(Integer.valueOf(start), solrQuery.getStart());
-		assertEquals(Integer.valueOf(rows), solrQuery.getRows());
+		assertThat(solrQuery.getStart()).isEqualTo(Integer.valueOf(start));
+		assertThat(solrQuery.getRows()).isEqualTo(Integer.valueOf(rows));
 	}
 
 	private void assertGroupingNotPresent(SolrQuery solrQuery) {
 
-		assertNull(solrQuery.get(GroupParams.GROUP));
-		assertNull(solrQuery.get(GroupParams.GROUP_FIELD));
-		assertNull(solrQuery.get(GroupParams.GROUP_MAIN));
+		assertThat(solrQuery.get(GroupParams.GROUP)).isNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_FIELD)).isNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_MAIN)).isNull();
 	}
 
 	private void assertGroupingPresent(SolrQuery solrQuery, String expected) {
 
-		assertNotNull(solrQuery.get(GroupParams.GROUP));
-		assertNotNull(solrQuery.get(GroupParams.GROUP_FIELD));
-		assertNotNull(solrQuery.get(GroupParams.GROUP_MAIN));
-		assertEquals(expected, solrQuery.get(GroupParams.GROUP_FIELD));
+		assertThat(solrQuery.get(GroupParams.GROUP)).isNotNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_FIELD)).isNotNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_MAIN)).isNotNull();
+		assertThat(solrQuery.get(GroupParams.GROUP_FIELD)).isEqualTo(expected);
 	}
 
 	private void assertGroupFormatPresent(SolrQuery solrQuery, boolean groupTotalCount) {
 
-		assertEquals("true", solrQuery.get(GroupParams.GROUP));
-		assertEquals("false", solrQuery.get(GroupParams.GROUP_MAIN));
-		assertEquals("grouped", solrQuery.get(GroupParams.GROUP_FORMAT));
-		assertEquals(String.valueOf(groupTotalCount), solrQuery.get(GroupParams.GROUP_TOTAL_COUNT));
+		assertThat(solrQuery.get(GroupParams.GROUP)).isEqualTo("true");
+		assertThat(solrQuery.get(GroupParams.GROUP_MAIN)).isEqualTo("false");
+		assertThat(solrQuery.get(GroupParams.GROUP_FORMAT)).isEqualTo("grouped");
+		assertThat(solrQuery.get(GroupParams.GROUP_TOTAL_COUNT)).isEqualTo(String.valueOf(groupTotalCount));
 	}
 
 	private void assertDisMaxParamsNotPresent(SolrQuery solrQuery) {

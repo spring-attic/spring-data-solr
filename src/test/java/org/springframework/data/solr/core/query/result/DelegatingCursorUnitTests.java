@@ -15,11 +15,7 @@
  */
 package org.springframework.data.solr.core.query.result;
 
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.core.IsEqual.*;
-import static org.hamcrest.core.IsNot.*;
-import static org.hamcrest.core.IsNull.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +43,7 @@ public class DelegatingCursorUnitTests {
 
 	@Test // DATASOLR-162
 	public void shouldNotHaveNextWhenNoElementsAvailable() {
-		assertThat(new DelegatingCursorFake<>(null).open().hasNext(), is(false));
+		assertThat(new DelegatingCursorFake<>(null).open().hasNext()).isFalse();
 	}
 
 	@Test(expected = NoSuchElementException.class) // DATASOLR-162
@@ -61,9 +57,9 @@ public class DelegatingCursorUnitTests {
 		PartialResult<String> result = new PartialResult<>("*", Arrays.asList("spring", "data", "solr"));
 		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Collections.singleton(result)).open();
 
-		assertThat(cursor.next(), equalTo("spring"));
-		assertThat(cursor.next(), equalTo("data"));
-		assertThat(cursor.next(), equalTo("solr"));
+		assertThat(cursor.next()).isEqualTo("spring");
+		assertThat(cursor.next()).isEqualTo("data");
+		assertThat(cursor.next()).isEqualTo("solr");
 	}
 
 	@Test // DATASOLR-162
@@ -75,7 +71,7 @@ public class DelegatingCursorUnitTests {
 		cursor.next();
 		cursor.next();
 		cursor.next();
-		assertThat(cursor.hasNext(), is(false));
+		assertThat(cursor.hasNext()).isFalse();
 	}
 
 	@Test // DATASOLR-162
@@ -87,9 +83,9 @@ public class DelegatingCursorUnitTests {
 		@SuppressWarnings("unchecked")
 		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Arrays.asList(result1, result2)).open();
 
-		assertThat(cursor.next(), equalTo("spring"));
-		assertThat(cursor.next(), equalTo("data"));
-		assertThat(cursor.next(), equalTo("solr"));
+		assertThat(cursor.next()).isEqualTo("spring");
+		assertThat(cursor.next()).isEqualTo("data");
+		assertThat(cursor.next()).isEqualTo("solr");
 	}
 
 	@Test // DATASOLR-162
@@ -104,7 +100,7 @@ public class DelegatingCursorUnitTests {
 		cursor.next();
 		cursor.next();
 		cursor.next();
-		assertThat(cursor.hasNext(), is(false));
+		assertThat(cursor.hasNext()).isFalse();
 	}
 
 	@Test // DATASOLR-162
@@ -117,17 +113,17 @@ public class DelegatingCursorUnitTests {
 		@SuppressWarnings("unchecked")
 		DelegatingCursor<String> cursor = new DelegatingCursorFake<>(Arrays.asList(result1, result2, result3)).open();
 
-		assertThat(cursor.hasNext(), is(true));
-		assertThat(cursor.isFinished(), is(false));
-		assertThat(cursor.next(), is("spring"));
+		assertThat(cursor.hasNext()).isTrue();
+		assertThat(cursor.isFinished()).isFalse();
+		assertThat(cursor.next()).isEqualTo("spring");
 
-		assertThat(cursor.hasNext(), is(true));
-		assertThat(cursor.isFinished(), is(false));
-		assertThat(cursor.next(), is("data"));
+		assertThat(cursor.hasNext()).isTrue();
+		assertThat(cursor.isFinished()).isFalse();
+		assertThat(cursor.next()).isEqualTo("data");
 
-		assertThat(cursor.hasNext(), is(true));
-		assertThat(cursor.isFinished(), is(true));
-		assertThat(cursor.next(), is("solr"));
+		assertThat(cursor.hasNext()).isTrue();
+		assertThat(cursor.isFinished()).isTrue();
+		assertThat(cursor.next()).isEqualTo("solr");
 	}
 
 	@Test // DATASOLR-162
@@ -139,11 +135,11 @@ public class DelegatingCursorUnitTests {
 
 		SolrQuery executedQuey = cursor.getLastUsedQuery();
 
-		assertThat(executedQuey, not(equalTo(initialQuery)));
-		assertThat(executedQuey.getQuery(), equalTo(initialQuery.getQuery()));
-		assertThat(executedQuey.get(CursorMarkParams.CURSOR_MARK_PARAM), equalTo(CursorMarkParams.CURSOR_MARK_START));
+		assertThat(executedQuey).isNotEqualTo(initialQuery);
+		assertThat(executedQuey.getQuery()).isEqualTo(initialQuery.getQuery());
+		assertThat(executedQuey.get(CursorMarkParams.CURSOR_MARK_PARAM)).isEqualTo(CursorMarkParams.CURSOR_MARK_START);
 
-		assertThat(initialQuery.get(CursorMarkParams.CURSOR_MARK_PARAM), nullValue());
+		assertThat(initialQuery.get(CursorMarkParams.CURSOR_MARK_PARAM)).isNull();
 	}
 
 	class DelegatingCursorFake<T> extends DelegatingCursor<T> {
