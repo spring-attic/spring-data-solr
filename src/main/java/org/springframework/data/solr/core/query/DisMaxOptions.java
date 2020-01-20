@@ -8,7 +8,7 @@ package org.springframework.data.solr.core.query;
 public class DisMaxOptions {
 
   private String altQuery;
-  private String queryFunction;
+  private String queryFields;
   private String minimumMatch;
   private String boostQuery;
   private String boostFunction;
@@ -18,13 +18,12 @@ public class DisMaxOptions {
   private String phraseFunction;
   private String defaultField;
 
-
   public String getAltQuery() {
     return altQuery;
   }
 
-  public String getQueryFunction() {
-    return queryFunction;
+  public String getQueryFields() {
+    return queryFields;
   }
 
   public String getMinimumMatch() {
@@ -59,12 +58,12 @@ public class DisMaxOptions {
     return defaultField;
   }
 
-  private DisMaxOptions(String altQuery, String queryFunction, String minimumMatch, String boostQuery,
-      String boostFunction, Integer phraseSlop, Integer querySlop, Double tie, String phraseFunction,
-      String defaultField) {
+  private DisMaxOptions(String altQuery, String queryFields, String minimumMatch, String boostQuery,
+          String boostFunction, Integer phraseSlop, Integer querySlop, Double tie, String phraseFunction,
+          String defaultField) {
 
     this.altQuery = altQuery;
-    this.queryFunction = queryFunction;
+    this.queryFields = queryFields;
     this.minimumMatch = minimumMatch;
     this.boostQuery = boostQuery;
     this.boostFunction = boostFunction;
@@ -79,7 +78,7 @@ public class DisMaxOptions {
   public static class Builder {
 
     private String altQuery;
-    private String queryFunction;
+    private String queryFields;
     private String minimumMatch;
     private String boostQuery;
     private String boostFunction;
@@ -98,7 +97,7 @@ public class DisMaxOptions {
     }
 
     public Builder queryFunction(String queryFunction) {
-      this.queryFunction = queryFunction;
+      this.queryFields = queryFunction;
       return this;
     }
 
@@ -143,8 +142,8 @@ public class DisMaxOptions {
     }
 
     public DisMaxOptions build() {
-      return new DisMaxOptions(altQuery, queryFunction, minimumMatch, boostQuery, boostFunction,
-          phraseSlop, querySlop, tie, phraseFunction, defaultField);
+      return new DisMaxOptions(altQuery, queryFields, minimumMatch, boostQuery, boostFunction, phraseSlop, querySlop,
+              tie, phraseFunction, defaultField);
     }
 
   }

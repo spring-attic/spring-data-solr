@@ -152,17 +152,19 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		setSolrParamIfPresent(solrQuery, DF, disMaxOptions.getDefaultField());
 
 		setSolrParamIfPresent(solrQuery, ALTQ, disMaxOptions.getAltQuery());
-		setSolrParamIfPresent(solrQuery, QF, disMaxOptions.getQueryFunction());
+		setSolrParamIfPresent(solrQuery, QF, disMaxOptions.getQueryFields());
 		setSolrParamIfPresent(solrQuery, MM, disMaxOptions.getMinimumMatch());
 
 		setSolrParamIfPresent(solrQuery, BQ, disMaxOptions.getBoostQuery());
 		setSolrParamIfPresent(solrQuery, BF, disMaxOptions.getBoostFunction());
 		setSolrParamIfPresent(solrQuery, PF, disMaxOptions.getPhraseFunction());
 
-		setSolrParamIfPresent(solrQuery, PS, disMaxOptions.getPhraseSlop() == null ? null :
-				String.valueOf(disMaxOptions.getPhraseSlop()));
-		setSolrParamIfPresent(solrQuery, QS, disMaxOptions.getQuerySlop() == null ? null : String.valueOf(disMaxOptions.getQuerySlop()));
-		setSolrParamIfPresent(solrQuery, TIE, disMaxOptions.getTie() == null ? null : String.valueOf(disMaxOptions.getTie()));
+		setSolrParamIfPresent(solrQuery, PS,
+				disMaxOptions.getPhraseSlop() == null ? null : String.valueOf(disMaxOptions.getPhraseSlop()));
+		setSolrParamIfPresent(solrQuery, QS,
+				disMaxOptions.getQuerySlop() == null ? null : String.valueOf(disMaxOptions.getQuerySlop()));
+		setSolrParamIfPresent(solrQuery, TIE,
+				disMaxOptions.getTie() == null ? null : String.valueOf(disMaxOptions.getTie()));
 	}
 
 	private static void setSolrParamIfPresent(SolrQuery solrQuery, String param, String value) {
