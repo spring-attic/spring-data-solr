@@ -260,7 +260,7 @@ final class ResultHelper {
 	private static Object getMappedId(Object o) {
 		if (ClassUtils.hasProperty(o.getClass(), "id")) {
 			try {
-				return FieldUtils.readDeclaredField(o, "id", true);
+				return FieldUtils.readField(o, "id", true);
 			} catch (IllegalAccessException e) {
 				throw new MappingException("Id property could not be accessed!", e);
 			}
