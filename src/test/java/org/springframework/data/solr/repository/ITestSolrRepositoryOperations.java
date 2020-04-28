@@ -669,7 +669,7 @@ public class ITestSolrRepositoryOperations {
 		beanWithText.setDescription("some text with name in it");
 		repo.save(beanWithText);
 
-		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("",
+		FacetAndHighlightPage<ProductBean> page = repo.findByNameFacetOnNameHighlightAllLimitToFields("*",
 				PageRequest.of(0, 10));
 		assertThat(page.getNumberOfElements()).isEqualTo(5);
 		assertThat(page.getFacetFields().size() > 0).isTrue();
