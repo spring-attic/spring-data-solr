@@ -1,6 +1,13 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.2.0.RC2 (2020-04-28)
+-----------------------------------------
+* DATASOLR-573 - Upgrade to Apache Solo 8.5.1.
+* DATASOLR-571 - Use JDK 14 for Java.NEXT CI testing.
+* DATASOLR-570 - Release 4.2 RC2 (Neumann).
+
+
 Changes in version 4.1.7.RELEASE (2020-04-28)
 ---------------------------------------------
 * DATASOLR-569 - Release 4.1.7 (Moore SR7).
@@ -1049,6 +1056,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
     * [DATASOLR-24] - Swith to data-commons 1.4.0.RELEASE
     * [DATASOLR-25] - Release 1.0.0.M1
     * [DATASOLR-26] - Align SolrOperations with other implementations
+
 
 
 
