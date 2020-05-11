@@ -18,24 +18,19 @@ package org.springframework.data.solr.core;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.FieldStatsInfo;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.GroupCommand;
-import org.apache.solr.client.solrj.response.GroupResponse;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.client.solrj.response.RangeFacet;
-import org.apache.solr.client.solrj.response.SpellCheckResponse;
-import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
+import org.apache.solr.client.solrj.response.json.BucketBasedJsonFacet;
+import org.apache.solr.client.solrj.response.json.BucketJsonFacet;
+import org.apache.solr.client.solrj.response.json.NestableJsonFacet;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.DirectFieldAccessor;
@@ -66,6 +61,7 @@ import org.springframework.util.StringUtils;
  * @author Francisco Spaeth
  * @author Venil Noronha
  * @author Vitezslav Zak
+ * @author Joe Linn
  */
 final class ResultHelper {
 
@@ -224,6 +220,79 @@ final class ResultHelper {
 			}
 		}
 		return facetResult;
+	}
+
+	/**
+	 * Parses any JSON facet results present in the given {@link QueryResponse}.
+	 * 
+	 * @param query the query which produced the given response
+	 * @param response the query responce received from Solr
+	 * @return a Map of JSON facet names to their parsed results
+	 */
+	static Map<String, JsonFacetResult> convertJsonFacetQueryResponseToFacetResultMap(FacetQuery query,
+			QueryResponse response) {
+		Assert.notNull(query, "Cannot convert response for 'null', query");
+
+		if (!hasFacets(query, response)) {
+			return new HashMap<>();
+		}
+
+		NestableJsonFacet jsonFacetingResponse = response.getJsonFacetingResponse();
+		return convertNestableFacetsToFacetResultMap(jsonFacetingResponse);
+	}
+
+	/**
+	 * Parses the given {@link NestableJsonFacet}, including any nested facets it contains.
+	 * 
+	 * @param facet a JSON facet result received from Solr
+	 * @return a Map of facet names to their results
+	 */
+	private static Map<String, JsonFacetResult> convertNestableFacetsToFacetResultMap(NestableJsonFacet facet) {
+		Map<String, JsonFacetResult> facetResults = new HashMap<>();
+
+		for (String statName : facet.getStatNames()) {
+			Object value = facet.getStatValue(statName);
+			if (value instanceof Number) {
+				facetResults.put(statName, new SingleStatJsonFacetResult(facet.getCount(), (Number) value));
+			}
+		}
+
+		for (String facetName : facet.getBucketBasedFacetNames()) {
+			BucketBasedJsonFacet childFacet = facet.getBucketBasedFacets(facetName);
+			List<BucketFacetEntry> resultBuckets = new ArrayList<>(childFacet.getBuckets().size());
+			for (BucketJsonFacet bucket : childFacet.getBuckets()) {
+				if (!hasChildFacets(bucket)) {
+					resultBuckets.add(new BucketFacetEntry(bucket.getVal(), bucket.getCount()));
+				} else {
+					resultBuckets.add(
+							new BucketFacetEntry(bucket.getVal(), bucket.getCount(), convertNestableFacetsToFacetResultMap(bucket)));
+				}
+			}
+			facetResults.put(facetName, new MultiBucketJsonFacetResult(facet.getCount(), resultBuckets));
+		}
+
+		for (String facetName : facet.getQueryFacetNames()) {
+			NestableJsonFacet childFacet = facet.getQueryFacet(facetName);
+			if (!hasChildFacets(childFacet)) {
+				facetResults.put(facetName, new SingleBucketJsonFacetResult(childFacet.getCount()));
+			} else {
+				facetResults.put(facetName,
+						new SingleBucketJsonFacetResult(childFacet.getCount(), convertNestableFacetsToFacetResultMap(childFacet)));
+			}
+		}
+
+		return facetResults;
+	}
+
+	/**
+	 * Determines whether or not the given facet result contains child facets
+	 * 
+	 * @param facet a {@link NestableJsonFacet} received from Solr
+	 * @return true if the given facet has child (nested) facets
+	 */
+	private static boolean hasChildFacets(NestableJsonFacet facet) {
+		return !facet.getBucketBasedFacetNames().isEmpty() || !facet.getStatNames().isEmpty()
+				|| !facet.getHeatmapFacetNames().isEmpty() || !facet.getQueryFacetNames().isEmpty();
 	}
 
 	static <T> List<HighlightEntry<T>> convertAndAddHighlightQueryResponseToResultPage(@Nullable QueryResponse response,

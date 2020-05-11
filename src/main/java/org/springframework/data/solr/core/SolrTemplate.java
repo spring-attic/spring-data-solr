@@ -91,6 +91,7 @@ import org.springframework.util.CollectionUtils;
  * @author Petar Tahchiev
  * @author Mark Paluch
  * @author Juan Manuel de Blas
+ * @author Joe Linn
  */
 public class SolrTemplate implements SolrOperations, InitializingBean, ApplicationContextAware {
 
@@ -461,6 +462,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 					ResultHelper.convertFacetQueryResponseToFacetPivotMap((FacetQuery) query, response));
 			page.addAllRangeFacetFieldResultPages(
 					ResultHelper.convertFacetQueryResponseToRangeFacetPageMap((FacetQuery) query, response));
+			page.addAllJsonFacetResults(
+					ResultHelper.convertJsonFacetQueryResponseToFacetResultMap((FacetQuery) query, response));
 		}
 
 		if (query.getSpellcheckOptions() != null) {

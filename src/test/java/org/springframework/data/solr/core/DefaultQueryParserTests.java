@@ -21,9 +21,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.beans.Field;
@@ -1821,6 +1825,65 @@ public class DefaultQueryParserTests {
 				})));
 		assertThat(queryParser.createQueryStringFromCriteria(criteria, null))
 				.isEqualTo("{!geofilt pt=48.303056,14.290556 sfield=field_1 d=1.0 score=distance}");
+	}
+
+	@Test // DATASOLR-564
+	public void testJsonTermsFacet() throws Exception {
+		JsonTermsFacet termsFacet = new JsonTermsFacet().<JsonTermsFacet> setName("categories")
+				.<JsonTermsFacet> setField("cat").setMethod(JsonTermsFacet.Method.DVHASH);
+		FacetOptions facetOptions = new FacetOptions().addJsonFacet(termsFacet);
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
+
+		assertThat(solrQuery).isNotNull();
+		String jsonFacetString = solrQuery.get("json.facet");
+		assertThat(jsonFacetString).isNotNull();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+		Map<String, Object> facetMap = objectMapper.readValue(jsonFacetString, mapType);
+
+		assertThat(facetMap).hasSize(1).containsKey("categories");
+		Map<String, Object> categories = (Map<String, Object>) facetMap.get("categories");
+		assertThat(categories)
+				.containsEntry("limit", 10)
+				.containsEntry("field", "cat")
+				.containsEntry("method", "dvhash")
+				.containsEntry("type", "terms");
+	}
+
+	@Test // DATASOLR-564
+	public void testJsonQueryFacet() throws Exception {
+		JsonQueryFacet jsonQueryFacet = new JsonQueryFacet("catFoo", Criteria.where("cat").is("foo"))
+				.addFacet(new JsonTermsFacet("pop", "popularity"));
+
+		FacetOptions facetOptions = new FacetOptions().addJsonFacet(jsonQueryFacet);
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+
+		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
+
+		assertThat(solrQuery).isNotNull();
+		String facetString = solrQuery.get("json.facet");
+		assertThat(facetString).isNotNull();
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		MapType mapType = objectMapper.getTypeFactory().constructMapType(HashMap.class, String.class, Object.class);
+		Map<String, Object> facetMap = objectMapper.readValue(facetString, mapType);
+
+		assertThat(facetMap).hasSize(1).containsKey(jsonQueryFacet.getName());
+		Map<String, Object> queryFacetMap = (Map<String, Object>) facetMap.get(jsonQueryFacet.getName());
+		assertThat(queryFacetMap)
+				.containsEntry("query", "cat:foo")
+				.containsEntry("type", "query")
+				.containsKey("facet");
+		Map<String, Object> nestedFacetsMap = (Map<String, Object>) queryFacetMap.get("facet");
+		assertThat(nestedFacetsMap).hasSize(1).containsKey("pop");
+		Map<String, Object> popularityFacetMap = (Map<String, Object>) nestedFacetsMap.get("pop");
+		assertThat(popularityFacetMap)
+				.containsEntry("field", "popularity")
+				.containsEntry("method", "smart")
+				.containsEntry("type", "terms");
 	}
 
 	private void assertPivotFactingPresent(SolrQuery solrQuery, String... expected) {

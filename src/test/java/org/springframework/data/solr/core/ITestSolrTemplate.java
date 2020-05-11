@@ -20,8 +20,6 @@ import static org.apache.solr.common.params.FacetParams.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.data.solr.core.query.Field.*;
 
-import lombok.Data;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,11 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.collect.Lists;
+import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.*;
+import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -61,13 +62,12 @@ import org.springframework.data.solr.core.query.Query.Operator;
 import org.springframework.data.solr.core.query.result.*;
 import org.springframework.data.solr.server.support.HttpSolrClientFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * @author Christoph Strobl
  * @author Andrey Paramonov
  * @author Francisco Spaeth
  * @author Radek Mensik
+ * @author Joe Linn
  */
 public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 
@@ -1334,6 +1334,176 @@ public class ITestSolrTemplate extends AbstractITestWithEmbeddedSolrServer {
 		solrTemplate.commit(COLLECTION_NAME);
 
 		assertThat(solrTemplate.count(COLLECTION_NAME, new SimpleQuery(AnyCriteria.any()))).isEqualTo(1L);
+	}
+
+	@Test // DATASOLR-564
+	public void testNestedJsonFacets() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", "foo");
+		bean1.setPopularity(4);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", "foo");
+		bean2.setPopularity(2);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", "bar");
+		bean3.setPopularity(4);
+		ExampleSolrBean bean4 = new ExampleSolrBean("id-4", "name4", "baz");
+		bean4.setPopularity(2);
+		ExampleSolrBean bean5 = new ExampleSolrBean("id-5", "name5", "baz");
+		bean5.setPopularity(10);
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3, bean4, bean5));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		JsonTermsFacet categoriesFacet = new JsonTermsFacet().<JsonTermsFacet> setName("categories").setField("cat");
+
+		JsonTermsFacet popularityTermsFacet = new JsonTermsFacet();
+		popularityTermsFacet.setName("popularityValues");
+		popularityTermsFacet.setField("popularity");
+		popularityTermsFacet.addFacet(categoriesFacet);
+
+		JsonRangeFacet popularityRangeFacet = new JsonRangeFacet().<JsonRangeFacet> setName("popularityRanges")
+				.<JsonRangeFacet> setField("popularity").addRange(new JsonRangeFacet.Range().setTo(5))
+				.addRange(new JsonRangeFacet.Range().setInclusiveFrom(false).setFrom(5).setTo(15));
+		categoriesFacet.addFacet(popularityRangeFacet);
+
+		JsonQueryFacet jsonQueryFacet = new JsonQueryFacet("catFoo", Criteria.where("cat").is("foo"));
+
+		FacetOptions facetOptions = new FacetOptions().addJsonFacet(categoriesFacet).addJsonFacet(popularityTermsFacet)
+				.addJsonFacet(jsonQueryFacet);
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+
+		Map<String, JsonFacetResult> jsonFacetResults = page.getJsonFacetResults();
+		assertThat(jsonFacetResults).isNotNull().hasSize(facetOptions.getJsonFacets().size())
+				.containsKeys(popularityTermsFacet.getName(), jsonQueryFacet.getName(), categoriesFacet.getName());
+
+		MultiBucketJsonFacetResult popularityTermsResult = (MultiBucketJsonFacetResult) jsonFacetResults
+				.get(popularityTermsFacet.getName());
+		assertThat(popularityTermsResult.getBuckets()).hasSize(3);
+		for (BucketFacetEntry bucket : popularityTermsResult.getBuckets()) {
+			assertThat(bucket.getValueAsNumber().intValue()).isGreaterThan(0);
+			assertThat(bucket.getValueCount()).isGreaterThan(0);
+		}
+
+		SingleBucketJsonFacetResult queryResult = (SingleBucketJsonFacetResult) jsonFacetResults
+				.get(jsonQueryFacet.getName());
+		assertThat(queryResult.getCount()).isEqualTo(2);
+
+		MultiBucketJsonFacetResult categoriesResult = (MultiBucketJsonFacetResult) jsonFacetResults
+				.get(categoriesFacet.getName());
+		assertThat(categoriesResult.getBuckets()).hasSize(3);
+		for (BucketFacetEntry bucket : categoriesResult.getBuckets()) {
+			assertThat(bucket.getFacets()).hasSize(1).containsKey(popularityRangeFacet.getName());
+			MultiBucketJsonFacetResult popularityRangeResult = (MultiBucketJsonFacetResult) bucket.getFacets()
+					.get(popularityRangeFacet.getName());
+			assertThat(popularityRangeResult.getBuckets()).hasSize(2);
+		}
+	}
+
+	@Test // DATASOLR-564
+	public void testJsonTermsFacet() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", "foo");
+		bean1.setPopularity(4);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", "foo");
+		bean2.setPopularity(2);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", "bar");
+		bean3.setPopularity(4);
+		ExampleSolrBean bean4 = new ExampleSolrBean("id-4", "name4", "baz");
+		bean4.setPopularity(2);
+		ExampleSolrBean bean5 = new ExampleSolrBean("id-5", "name5", "baz");
+		bean5.setPopularity(10);
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3, bean4, bean5));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		JsonTermsFacet termsFacet = new JsonTermsFacet().<JsonTermsFacet> setName("categories")
+				.<JsonTermsFacet> setField("cat").setMethod(JsonTermsFacet.Method.DVHASH);
+		FacetOptions facetOptions = new FacetOptions().addJsonFacet(termsFacet);
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+
+		Map<String, JsonFacetResult> jsonFacetResults = page.getJsonFacetResults();
+		assertThat(jsonFacetResults).isNotNull().hasSize(facetOptions.getJsonFacets().size())
+				.containsKeys(termsFacet.getName());
+
+		MultiBucketJsonFacetResult termsResults = (MultiBucketJsonFacetResult) jsonFacetResults.get(termsFacet.getName());
+		List<BucketFacetEntry> buckets = termsResults.getBuckets();
+		assertThat(buckets).hasSize(3);
+		for (BucketFacetEntry bucket : buckets) {
+			assertThat(bucket.getValueCount()).isGreaterThan(0).isLessThanOrEqualTo(2);
+		}
+	}
+
+	@Test // DATASOLR-564
+	public void testJsonQueryFacet() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", "foo");
+		bean1.setPopularity(4);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", "foo");
+		bean2.setPopularity(2);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", "bar");
+		bean3.setPopularity(4);
+		ExampleSolrBean bean4 = new ExampleSolrBean("id-4", "name4", "baz");
+		bean4.setPopularity(2);
+		ExampleSolrBean bean5 = new ExampleSolrBean("id-5", "name5", "baz");
+		bean5.setPopularity(10);
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3, bean4, bean5));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		JsonQueryFacet jsonQueryFacet = new JsonQueryFacet("catFoo", Criteria.where("cat").is("foo"))
+				.addFacet(new JsonTermsFacet("pop", "popularity"));
+
+		FacetOptions facetOptions = new FacetOptions().addJsonFacet(jsonQueryFacet);
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+
+		Map<String, JsonFacetResult> facetResults = page.getJsonFacetResults();
+		assertThat(facetResults).isNotNull().hasSize(1).containsKey("catFoo");
+		SingleBucketJsonFacetResult queryFacetResult = (SingleBucketJsonFacetResult) facetResults.get("catFoo");
+		assertThat(queryFacetResult.getCount()).isEqualTo(2);
+		assertThat(queryFacetResult.getFacets()).isNotNull().containsKey("pop").hasSize(1);
+		JsonFacetResult popularityFacet = queryFacetResult.getFacets().get("pop");
+		assertThat(popularityFacet.getCount()).isEqualTo(2);
+	}
+
+	@Test // DATASOLR-564
+	public void testJsonStatsFacet() {
+		ExampleSolrBean bean1 = new ExampleSolrBean("id-1", "name1", "foo");
+		bean1.setPopularity(4);
+		ExampleSolrBean bean2 = new ExampleSolrBean("id-2", "name2", "foo");
+		bean2.setPopularity(2);
+		ExampleSolrBean bean3 = new ExampleSolrBean("id-3", "name3", "bar");
+		bean3.setPopularity(4);
+		ExampleSolrBean bean4 = new ExampleSolrBean("id-4", "name4", "baz");
+		bean4.setPopularity(2);
+		ExampleSolrBean bean5 = new ExampleSolrBean("id-5", "name5", "baz");
+		bean5.setPopularity(10);
+
+		solrTemplate.saveBeans(COLLECTION_NAME, Arrays.asList(bean1, bean2, bean3, bean4, bean5));
+		solrTemplate.commit(COLLECTION_NAME);
+
+		FacetOptions facetOptions = new FacetOptions()
+				.addJsonFacet(new JsonStatFacet("sum", StatFacetFunction.sum("popularity")))
+				.addJsonFacet(new JsonStatFacet("avgSum", StatFacetFunction.avg(StatFacetFunction.sum("popularity"))))
+				.addJsonFacet(new JsonStatFacet("unique", StatFacetFunction.unique("popularity")))
+				.addJsonFacet(new JsonStatFacet("relatedness", StatFacetFunction.relatedness("$fore", "$back"))
+						.addParam("fore", Criteria.where("popularity").greaterThan(3))
+						.addParam("back", Criteria.where("cat").is("foo")));
+
+		// bug in solrj causes results of percentile ƒacet to not be parsed properly:
+		// https://issues.apache.org/jira/browse/SOLR-14006
+		// facetOptions.addJsonFacet(new JsonStatFacet("percentile", JsonStatFacet.percentile("popularity", 50, 90)));
+
+		SimpleFacetQuery query = new SimpleFacetQuery((AnyCriteria.any())).setFacetOptions(facetOptions);
+		FacetPage<ExampleSolrBean> page = solrTemplate.queryForFacetPage(COLLECTION_NAME, query, ExampleSolrBean.class);
+		Map<String, JsonFacetResult> facetResults = page.getJsonFacetResults();
+		assertThat(facetResults).hasSize(facetOptions.getJsonFacets().size())
+				.hasKeySatisfying(new Condition<>(s -> s.equals("sum"), null));
+		SingleStatJsonFacetResult uniqueResult = (SingleStatJsonFacetResult) facetResults.get("unique");
+		assertThat(uniqueResult.getValue()).isEqualTo(3);
+
+		// relatedness results are parsed as child stat facets by solrj
+		SingleBucketJsonFacetResult relatednessResult = (SingleBucketJsonFacetResult) facetResults.get("relatedness");
+		assertThat(relatednessResult).isNotNull();
+		assertThat(relatednessResult.getFacets()).hasSize(3);
 	}
 
 	private void executeAndCheckStatsRequest(StatsOptions statsOptions) {

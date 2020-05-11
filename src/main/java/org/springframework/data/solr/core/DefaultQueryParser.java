@@ -15,11 +15,19 @@
  */
 package org.springframework.data.solr.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -36,7 +44,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.solr.core.query.*;
-import org.springframework.data.solr.core.query.Criteria.Predicate;
 import org.springframework.data.solr.core.query.FacetOptions.FacetParameter;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithDateRangeParameters;
 import org.springframework.data.solr.core.query.FacetOptions.FieldWithFacetParameters;
@@ -65,10 +72,13 @@ import org.springframework.util.ObjectUtils;
  * @author Joachim Uhrlaß
  * @author Petar Tahchiev
  * @author Juan Manuel de Blas
+ * @author Joe Linn
  */
 public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultQueryParser.class);
+
+	private final ObjectMapper objectMapper;
 
 	/**
 	 * Create a new {@link DefaultQueryParser} using the provided {@link MappingContext} to map {@link Field fields} to
@@ -79,6 +89,11 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	 */
 	public DefaultQueryParser(@Nullable MappingContext mappingContext) {
 		super(mappingContext);
+		this.objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL)
+				.registerModule(new SimpleModule("solr")
+						.addSerializer(StatFacetFunction.class, new StatFacetFunctionSerializer(StatFacetFunction.class))
+						.addSerializer(Criteria.class, new CriteriaSerializer(Criteria.class))
+						.addSerializer(Enum.class, new LowerCaseEnumSerializer<>(Enum.class)));
 	}
 
 	/**
@@ -139,6 +154,7 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			appendFacetingQueries(solrQuery, query, domainType);
 			appendFacetingOnPivot(solrQuery, query, domainType);
 			appendRangeFacetingOnFields(solrQuery, query, domainType);
+			appendJsonFaceting(solrQuery, query);
 		}
 	}
 
@@ -441,6 +457,21 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 		}
 	}
 
+	/**
+	 * Serializes any configured JSON facets and adds them to the given {@link SolrQuery}.
+	 * 
+	 * @param solrQuery the Solr query to which JSON facets should be added
+	 * @param query query abstraction which may contain JSON facet configurations
+	 */
+	private void appendJsonFaceting(SolrQuery solrQuery, FacetQuery query) {
+		FacetOptions facetOptions = query.getFacetOptions();
+		try {
+			solrQuery.add("json.facet", objectMapper.writeValueAsString(facetOptions.getJsonFacets()));
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("Unable to serialize JSON facet(s).", e);
+		}
+	}
+
 	private void appendFieldFacetingByNumberRange(SolrQuery solrQuery, FieldWithNumericRangeParameters field,
 			@Nullable Class<?> domainType) {
 
@@ -565,5 +596,48 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 			}
 		}
 		return filterQueryStrings;
+	}
+
+	/**
+	 * Used when serializing JSON facets for transmission to Solr. Lowercases Enum names.
+	 */
+	private static class LowerCaseEnumSerializer<T extends Enum> extends StdSerializer<T> {
+		public LowerCaseEnumSerializer(Class<T> t) {
+			super(t);
+		}
+
+		@Override
+		public void serialize(Enum value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+			gen.writeString(value.name().toLowerCase());
+		}
+	}
+
+	/**
+	 * Used when serializing JSON facets for transmission to Solr. Calls
+	 * {@link #createQueryStringFromCriteria(Criteria, Class)} to serialize queries which are used within JSON facets.
+	 */
+	private class CriteriaSerializer extends StdSerializer<Criteria> {
+		protected CriteriaSerializer(Class<Criteria> t) {
+			super(t);
+		}
+
+		@Override
+		public void serialize(Criteria value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+			gen.writeString(createQueryStringFromCriteria(value, null));
+		}
+	}
+
+	/**
+	 * Used when serializing JSON facets for transmission to Solr. Serializes functions used in stats facets.
+	 */
+	private class StatFacetFunctionSerializer extends StdSerializer<StatFacetFunction> {
+		protected StatFacetFunctionSerializer(Class<StatFacetFunction> t) {
+			super(t);
+		}
+
+		@Override
+		public void serialize(StatFacetFunction value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+			gen.writeString(createFunctionFragment(value, 0, null));
+		}
 	}
 }
