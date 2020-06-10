@@ -1,6 +1,12 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.1.8.RELEASE (2020-06-10)
+---------------------------------------------
+* DATASOLR-578 - Remove Travis CI.
+* DATASOLR-575 - Release 4.1.8 (Moore SR8).
+
+
 Changes in version 4.0.18.RELEASE (2020-06-10)
 ----------------------------------------------
 * DATASOLR-583 - Upgrade to Apache Solr 7.7.3.
@@ -1069,6 +1075,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
     * [DATASOLR-24] - Swith to data-commons 1.4.0.RELEASE
     * [DATASOLR-25] - Release 1.0.0.M1
     * [DATASOLR-26] - Align SolrOperations with other implementations
+
 
 
 
