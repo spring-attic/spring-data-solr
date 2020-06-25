@@ -349,7 +349,7 @@ Page<Product> findByNameLike(Collection<String> name);
 [[solr.query-methods.at-query]]
 === Using the `@Query` Annotation
 
-Using named queries (see "`<<solr.query-methods.named-queries>>`") to declare queries for entities is a valid approach and works fine for a small number of queries. As the queries themselves are tied to the Java method that executes them, you actually can bind them directly by using the Spring Data Solr `@Query` annotation. The following example uses the `@Query` annotation to declare a query:
+Using named queries (see "`<<solr.query-methods.named-queries>>`") to declare queries for entities is a valid approach and works fine for a small number of queries. As the queries themselves are tied to the Java method that runs them, you actually can bind them directly by using the Spring Data Solr `@Query` annotation. The following example uses the `@Query` annotation to declare a query:
 
 .Declare query at the method using the `@Query` annotation.
 ====
