@@ -15,8 +15,6 @@
  */
 package org.springframework.data.solr.core.schema;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,8 +134,6 @@ public class SchemaDefinition {
 	 * @author Christoph Strobl
 	 * @since 1.3
 	 */
-	@Data
-	@NoArgsConstructor
 	public static class FieldDefinition implements SchemaField {
 
 		private @Nullable String name;
@@ -154,6 +150,8 @@ public class SchemaDefinition {
 		public FieldDefinition(String name) {
 			this.name = name;
 		}
+
+		public FieldDefinition() {}
 
 		public void setCopyFields(Collection<String> copyFields) {
 			this.copyFields = new ArrayList<>(copyFields);
@@ -210,6 +208,150 @@ public class SchemaDefinition {
 			} else {
 				return defaultValue;
 			}
+		}
+
+		@Nullable
+		public String getName() {
+			return this.name;
+		}
+
+		@Nullable
+		public String getType() {
+			return this.type;
+		}
+
+		public boolean isStored() {
+			return this.stored;
+		}
+
+		public boolean isIndexed() {
+			return this.indexed;
+		}
+
+		@Nullable
+		public Object getDefaultValue() {
+			return this.defaultValue;
+		}
+
+		public List<String> getCopyFields() {
+			return this.copyFields;
+		}
+
+		public List<Filter> getFilters() {
+			return this.filters;
+		}
+
+		public List<Tokenizer> getTokenizers() {
+			return this.tokenizers;
+		}
+
+		public boolean isMultiValued() {
+			return this.multiValued;
+		}
+
+		public boolean isRequired() {
+			return this.required;
+		}
+
+		public void setName(@Nullable String name) {
+			this.name = name;
+		}
+
+		public void setType(@Nullable String type) {
+			this.type = type;
+		}
+
+		public void setStored(boolean stored) {
+			this.stored = stored;
+		}
+
+		public void setIndexed(boolean indexed) {
+			this.indexed = indexed;
+		}
+
+		public void setDefaultValue(@Nullable Object defaultValue) {
+			this.defaultValue = defaultValue;
+		}
+
+		public void setFilters(List<Filter> filters) {
+			this.filters = filters;
+		}
+
+		public void setTokenizers(List<Tokenizer> tokenizers) {
+			this.tokenizers = tokenizers;
+		}
+
+		public void setMultiValued(boolean multiValued) {
+			this.multiValued = multiValued;
+		}
+
+		public void setRequired(boolean required) {
+			this.required = required;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof FieldDefinition)) {
+				return false;
+			}
+			FieldDefinition that = (FieldDefinition) o;
+			if (stored != that.stored) {
+				return false;
+			}
+			if (indexed != that.indexed) {
+				return false;
+			}
+			if (multiValued != that.multiValued) {
+				return false;
+			}
+			if (required != that.required) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(name, that.name)) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(type, that.type)) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(defaultValue, that.defaultValue)) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(copyFields, that.copyFields)) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(filters, that.filters)) {
+				return false;
+			}
+			return ObjectUtils.nullSafeEquals(tokenizers, that.tokenizers);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = ObjectUtils.nullSafeHashCode(name);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(type);
+			result = 31 * result + (stored ? 1 : 0);
+			result = 31 * result + (indexed ? 1 : 0);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(defaultValue);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(copyFields);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(filters);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(tokenizers);
+			result = 31 * result + (multiValued ? 1 : 0);
+			result = 31 * result + (required ? 1 : 0);
+			return result;
+		}
+
+		protected boolean canEqual(final Object other) {
+			return other instanceof FieldDefinition;
+		}
+
+		public String toString() {
+			return "SchemaDefinition.FieldDefinition(name=" + this.name + ", type=" + this.type + ", stored=" + this.stored
+					+ ", indexed=" + this.indexed + ", defaultValue=" + this.defaultValue + ", copyFields=" + this.copyFields
+					+ ", filters=" + this.filters + ", tokenizers=" + this.tokenizers + ", multiValued=" + this.multiValued
+					+ ", required=" + this.required + ")";
 		}
 
 		/**
@@ -284,11 +426,12 @@ public class SchemaDefinition {
 	 * @author Christoph Strobl
 	 * @since 1.3
 	 */
-	@Data
 	public static class CopyFieldDefinition implements SchemaField {
 
 		@Nullable String source;
 		List<String> destination = Collections.emptyList();
+
+		public CopyFieldDefinition() {}
 
 		public static CopyFieldDefinition fromMap(Map<String, Object> fieldValueMap) {
 
@@ -313,6 +456,53 @@ public class SchemaDefinition {
 		 */
 		public static Builder newCopyFieldDefinition() {
 			return new Builder();
+		}
+
+		@Nullable
+		public String getSource() {
+			return this.source;
+		}
+
+		public List<String> getDestination() {
+			return this.destination;
+		}
+
+		public void setSource(@Nullable String source) {
+			this.source = source;
+		}
+
+		public void setDestination(List<String> destination) {
+			this.destination = destination;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof CopyFieldDefinition)) {
+				return false;
+			}
+			CopyFieldDefinition that = (CopyFieldDefinition) o;
+			if (!ObjectUtils.nullSafeEquals(source, that.source)) {
+				return false;
+			}
+			return ObjectUtils.nullSafeEquals(destination, that.destination);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = ObjectUtils.nullSafeHashCode(source);
+			result = 31 * result + ObjectUtils.nullSafeHashCode(destination);
+			return result;
+		}
+
+		protected boolean canEqual(final Object other) {
+			return other instanceof CopyFieldDefinition;
+		}
+
+		public String toString() {
+			return "SchemaDefinition.CopyFieldDefinition(source=" + this.source + ", destination=" + this.destination + ")";
 		}
 
 		/**

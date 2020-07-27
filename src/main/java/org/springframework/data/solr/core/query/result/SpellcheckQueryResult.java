@@ -18,7 +18,7 @@ package org.springframework.data.solr.core.query.result;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.Data;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author Christoph Strobl
@@ -62,12 +62,70 @@ public interface SpellcheckQueryResult {
 	 * @author Christoph Strobl
 	 * @since 2.1
 	 */
-	@Data
 	class Alternative {
 
 		private final String term;
 		private final int termFrequency;
 		private final String suggestion;
 		private final int suggestionFrequency;
+
+		public Alternative(String term, int termFrequency, String suggestion, int suggestionFrequency) {
+			this.term = term;
+			this.termFrequency = termFrequency;
+			this.suggestion = suggestion;
+			this.suggestionFrequency = suggestionFrequency;
+		}
+
+		public String getTerm() {
+			return this.term;
+		}
+
+		public int getTermFrequency() {
+			return this.termFrequency;
+		}
+
+		public String getSuggestion() {
+			return this.suggestion;
+		}
+
+		public int getSuggestionFrequency() {
+			return this.suggestionFrequency;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (!(o instanceof Alternative)) {
+				return false;
+			}
+			Alternative that = (Alternative) o;
+			if (termFrequency != that.termFrequency) {
+				return false;
+			}
+			if (suggestionFrequency != that.suggestionFrequency) {
+				return false;
+			}
+			if (!ObjectUtils.nullSafeEquals(term, that.term)) {
+				return false;
+			}
+			return ObjectUtils.nullSafeEquals(suggestion, that.suggestion);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = ObjectUtils.nullSafeHashCode(term);
+			result = 31 * result + termFrequency;
+			result = 31 * result + ObjectUtils.nullSafeHashCode(suggestion);
+			result = 31 * result + suggestionFrequency;
+			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "Alternative{" + "term='" + term + '\'' + ", termFrequency=" + termFrequency + ", suggestion='"
+					+ suggestion + '\'' + ", suggestionFrequency=" + suggestionFrequency + '}';
+		}
 	}
 }
