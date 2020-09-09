@@ -15,12 +15,14 @@
  */
 package org.springframework.data.solr.core.mapping;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.beans.Field;
+
 import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
@@ -28,7 +30,6 @@ import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.solr.core.query.Criteria;
 import org.springframework.lang.Nullable;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -223,7 +224,7 @@ public class SimpleSolrPersistentProperty extends AnnotationBasedPersistentPrope
 
 		Indexed indexedAnnotation = getIndexAnnotation();
 		if (indexedAnnotation != null && indexedAnnotation.copyTo().length > 0) {
-			return CollectionUtils.arrayToList(indexedAnnotation.copyTo());
+			return Arrays.asList(indexedAnnotation.copyTo());
 		}
 		return Collections.emptyList();
 	}

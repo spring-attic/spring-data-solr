@@ -18,6 +18,7 @@ package org.springframework.data.solr.repository.query;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -575,7 +576,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 		String[] values = (String[]) AnnotationUtils.getValue(annotation, attribute);
 		if (values.length > 1 || (values.length == 1 && StringUtils.hasText(values[0]))) {
-			return CollectionUtils.arrayToList(values);
+			return Arrays.asList(values);
 		}
 		return Collections.emptyList();
 	}
@@ -589,7 +590,7 @@ public class SolrQueryMethod extends QueryMethod {
 
 		T[] values = (T[]) AnnotationUtils.getValue(annotation, attribute);
 
-		return CollectionUtils.arrayToList(values);
+		return (List) Arrays.asList(ObjectUtils.toObjectArray(values));
 	}
 
 	@Override
