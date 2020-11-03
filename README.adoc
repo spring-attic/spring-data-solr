@@ -3,6 +3,12 @@ image:https://spring.io/badges/spring-data-solr/snapshot.svg[Spring Data for Apa
 
 = Spring Data for Apache Solr image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
 
+[WARNING]
+====
+**This project is about to move to the https://github.com/spring-attic/[Spring Attic] and is not recommended for new projects. +
+The last Release (4.3.0) will, as part of the spring data release 2020.0, see patch updates till mid 2022.**
+====
+
 The primary goal of the https://projects.spring.io/spring-data[Spring Data] project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
 
 The Spring Data for Apache Solr project provides integration with the https://lucene.apache.org/solr/[Apache Solr] search engine
