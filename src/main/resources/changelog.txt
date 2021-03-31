@@ -1,6 +1,10 @@
 Spring Data Solr Changelog
 ==========================
 
+Changes in version 4.3.7 (2021-03-31)
+-------------------------------------
+
+
 Changes in version 4.3.6 (2021-03-17)
 -------------------------------------
 
@@ -1206,6 +1210,7 @@ Release Notes - Spring Data Solr - Version 1.0.0.M1 - 2012-10-31
     * [DATASOLR-24] - Swith to data-commons 1.4.0.RELEASE
     * [DATASOLR-25] - Release 1.0.0.M1
     * [DATASOLR-26] - Align SolrOperations with other implementations
+
 
 
 
