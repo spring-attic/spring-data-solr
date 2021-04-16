@@ -46,7 +46,7 @@ public @interface EnableSolrRepositories {
 
 	/**
 	 * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
-	 * {@code @EnableSolrRepositories("org.my.pkg")} instead of {@code @EnableSolrRpositories(basePackages="org.my.pkg")}.
+	 * {@code @EnableSolrRepositories("org.my.pkg")} instead of {@code @EnableSolrRepositories(basePackages="org.my.pkg")}.
 	 */
 	String[] value() default {};
 
