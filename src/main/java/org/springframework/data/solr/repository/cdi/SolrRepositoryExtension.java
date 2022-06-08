@@ -67,7 +67,7 @@ public class SolrRepositoryExtension extends CdiRepositoryExtensionSupport {
 		Bean<SolrOperations> solrOperationBeans = this.solrOperationsMap.get(qualifiers.toString());
 
 		if (solrOperationBeans == null) {
-			throw new UnsatisfiedResolutionException(String.format("Unable to resolve a bean for '%s' with qualifiers %s.",
+			throw new UnsatisfiedResolutionException(String.format("Unable to resolve a bean for '%s' with qualifiers %s",
 					SolrOperations.class.getName(), qualifiers));
 		}
 

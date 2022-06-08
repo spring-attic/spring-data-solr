@@ -43,19 +43,19 @@ public class IfFunction extends AbstractFunction {
 
 	public static Builder when(Field field) {
 
-		Assert.notNull(field, "Field cannot be 'null' in if clause.");
+		Assert.notNull(field, "Field cannot be 'null' in if clause");
 		return new Builder(field);
 	}
 
 	public static Builder when(String fieldname) {
 
-		Assert.hasText(fieldname, "Fieldname cannot be 'null' for if clause.");
+		Assert.hasText(fieldname, "Fieldname cannot be 'null' for if clause");
 		return when(new SimpleField(fieldname));
 	}
 
 	public static Builder when(Function function) {
 
-		Assert.notNull(function, "Function cannot be 'null' for if clause.");
+		Assert.notNull(function, "Function cannot be 'null' for if clause");
 		return new Builder(function);
 	}
 
@@ -82,7 +82,7 @@ public class IfFunction extends AbstractFunction {
 		 */
 		public Builder then(Object value) {
 
-			Assert.notNull(value, "True value cannot be 'null' for if operation.");
+			Assert.notNull(value, "True value cannot be 'null' for if operation");
 
 			function.addArgument(value);
 			return this;
@@ -94,7 +94,7 @@ public class IfFunction extends AbstractFunction {
 		 */
 		public IfFunction otherwise(Object value) {
 
-			Assert.notNull(value, "False value cannot be 'null' for if operation.");
+			Assert.notNull(value, "False value cannot be 'null' for if operation");
 
 			function.addArgument(value);
 			return function;

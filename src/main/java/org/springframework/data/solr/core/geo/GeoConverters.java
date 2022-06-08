@@ -79,7 +79,7 @@ public final class GeoConverters {
 		@Override
 		public String convert(org.springframework.data.geo.Distance source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			double value = source.getValue();
 			if (source.getMetric() == Metrics.MILES) {
@@ -100,7 +100,7 @@ public final class GeoConverters {
 		@Override
 		public String convert(org.springframework.data.geo.Point source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			String formattedString = StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getX()), "0")
 					+ "," + StringUtils.stripEnd(String.format(java.util.Locale.ENGLISH, "%f", source.getY()), "0");

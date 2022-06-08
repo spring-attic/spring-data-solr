@@ -32,7 +32,7 @@ public class SolrEntityInformationCreatorImpl implements SolrEntityInformationCr
 
 	public SolrEntityInformationCreatorImpl(
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
-		Assert.notNull(mappingContext, "MappingContext must not be null!");
+		Assert.notNull(mappingContext, "MappingContext must not be null");
 		this.mappingContext = mappingContext;
 	}
 

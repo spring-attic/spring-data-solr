@@ -47,7 +47,7 @@ public class SolrSchemaWriter {
 	}
 
 	protected void createSchema(SchemaDefinition schemaDefinition) {
-		throw new UnsupportedOperationException("The solr rest API does not allow schema creation.");
+		throw new UnsupportedOperationException("The solr rest API does not allow schema creation");
 	}
 
 	protected void updateSchema(SchemaDefinition schemaDefinition) {

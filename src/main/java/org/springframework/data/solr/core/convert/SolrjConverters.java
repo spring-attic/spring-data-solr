@@ -93,8 +93,8 @@ final class SolrjConverters {
 			if (source == null) {
 				return null;
 			}
-			Assert.notNull(source.getIdField(), "Id field must not be null!");
-			Assert.hasText(source.getIdField().getName(), "Name of Id field must not be null nor empty!");
+			Assert.notNull(source.getIdField(), "Id field must not be null");
+			Assert.hasText(source.getIdField().getName(), "Name of Id field must not be null nor empty");
 
 			SolrInputDocument solrInputDocument = new SolrInputDocument();
 			solrInputDocument.addField(source.getIdField().getName(), source.getIdField().getValue());

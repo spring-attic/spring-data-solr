@@ -39,7 +39,7 @@ public class QueryFunction extends AbstractFunction {
 	 */
 	public static QueryFunction query(Query query) {
 
-		Assert.notNull(query, "Cannot create query function for 'null' query.");
+		Assert.notNull(query, "Cannot create query function for 'null' query");
 		return new QueryFunction(query);
 	}
 
@@ -49,7 +49,7 @@ public class QueryFunction extends AbstractFunction {
 	 */
 	public static QueryFunction query(String queryString) {
 
-		Assert.hasText(queryString, "Cannot create query function for 'empty' queryString.");
+		Assert.hasText(queryString, "Cannot create query function for 'empty' queryString");
 		return query(new SimpleStringCriteria(queryString));
 	}
 
@@ -59,7 +59,7 @@ public class QueryFunction extends AbstractFunction {
 	 */
 	public static QueryFunction query(Criteria criteria) {
 
-		Assert.notNull(criteria, "Cannot create query function for 'null' criteria.");
+		Assert.notNull(criteria, "Cannot create query function for 'null' criteria");
 		return query(new SimpleQuery(criteria));
 	}
 

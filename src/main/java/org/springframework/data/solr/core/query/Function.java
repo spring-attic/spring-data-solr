@@ -66,7 +66,7 @@ public interface Function {
 			List<String> solrReadableArguments = new ArrayList<>();
 			for (Object arg : getArguments()) {
 
-				Assert.notNull(arg, "Unable to parse 'null' within function arguments.");
+				Assert.notNull(arg, "Unable to parse 'null' within function arguments");
 				solrReadableArguments.add(context.convert(arg));
 			}
 			sb.append(StringUtils.join(solrReadableArguments, ','));
@@ -90,7 +90,7 @@ public interface Function {
 
 	/**
 	 * The {@link Context} the {@link Function} is used in.
-	 * 
+	 *
 	 * @since 4.1
 	 */
 	interface Context {

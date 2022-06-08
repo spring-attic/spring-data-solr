@@ -38,7 +38,7 @@ public class HighlightEntry<T> {
 	 * @param entity must not be null
 	 */
 	public HighlightEntry(T entity) {
-		Assert.notNull(entity, "Entity must not be null!");
+		Assert.notNull(entity, "Entity must not be null");
 		this.entity = entity;
 	}
 
@@ -89,7 +89,7 @@ public class HighlightEntry<T> {
 		 * @param snipplets
 		 */
 		Highlight(Field field, @Nullable List<String> snipplets) {
-			Assert.notNull(field, "Field must not be null!");
+			Assert.notNull(field, "Field must not be null");
 
 			this.field = field;
 			this.snipplets = snipplets != null ? snipplets : Collections.emptyList();

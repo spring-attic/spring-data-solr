@@ -163,7 +163,7 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 
 			FileUtils.copyDirectory(configDir.getFile(), folder.getRoot());
 
-			LOGGER.debug("Copied {} files from {} to temp folder.", configDir.getFile().list().length,
+			LOGGER.debug("Copied {} files from {} to temp folder", configDir.getFile().list().length,
 					configDir.getFile().getPath());
 		}
 
@@ -197,7 +197,7 @@ public class EmbeddedSolrServer extends ExternalResource implements SolrClientFa
 		Method createAndLoadMethod = ClassUtils.getStaticMethod(CoreContainer.class, "createAndLoad", String.class,
 				File.class);
 
-		LOGGER.debug("Starting CoreContainer {} and loading cores.", solrHome);
+		LOGGER.debug("Starting CoreContainer {} and loading cores", solrHome);
 
 		if (createAndLoadMethod != null) {
 			coreContainer = (CoreContainer) ReflectionUtils.invokeMethod(createAndLoadMethod, null, solrHome,

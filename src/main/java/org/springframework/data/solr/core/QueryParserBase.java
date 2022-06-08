@@ -710,7 +710,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			return filterCriteriaValue(predicate.getValue());
 		}
@@ -730,7 +730,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 
 		@Override
 		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			return predicate.getValue().toString();
 		}
@@ -783,7 +783,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			String nearFragment;
 			Object[] args = (Object[]) predicate.getValue();
@@ -837,7 +837,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		public Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			Object[] args = (Object[]) predicate.getValue();
 			return createSpatialFunctionFragment(getMappedFieldName(field, domainType),
@@ -861,7 +861,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			Object[] args = (Object[]) predicate.getValue();
 			Float distance = (Float) args[1];
@@ -885,7 +885,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			Object[] args = (Object[]) predicate.getValue();
 			Integer distance = (Integer) args[1];
@@ -911,7 +911,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Override
 		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			Object filteredValue = filterCriteriaValue(predicate.getValue());
 			if (OperationKey.CONTAINS.getKey().equals(predicate.getKey())) {
@@ -941,7 +941,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		@Nullable
 		protected Object doProcess(@Nullable Predicate predicate, Field field, @Nullable Class<?> domainType) {
 
-			Assert.notNull(predicate, "Predicate must not be null!");
+			Assert.notNull(predicate, "Predicate must not be null");
 
 			return createFunctionFragment((Function) predicate.getValue(), 0, domainType, Target.QUERY);
 		}
@@ -1079,7 +1079,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 			@Override
 			public String convert(Object value) {
 
-				Assert.notNull(value, "Unable to parse 'null' within function arguments.");
+				Assert.notNull(value, "Unable to parse 'null' within function arguments");
 
 				if (value instanceof Function) {
 					return createFunctionFragment((Function) value, 1, domainType, target);

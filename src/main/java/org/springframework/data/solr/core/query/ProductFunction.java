@@ -83,7 +83,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder(Field field) {
 
-			Assert.notNull(field, "field must not be 'null'.");
+			Assert.notNull(field, "field must not be 'null'");
 			this.function = new ProductFunction(field);
 		}
 
@@ -92,7 +92,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder(Number value) {
 
-			Assert.notNull(value, "Argument 'value' must not be 'null'.");
+			Assert.notNull(value, "Argument 'value' must not be 'null'");
 			this.function = new ProductFunction(value);
 		}
 
@@ -101,7 +101,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder(Function function) {
 
-			Assert.notNull(function, "Argument 'function' must not be 'null'.");
+			Assert.notNull(function, "Argument 'function' must not be 'null'");
 			this.function = new ProductFunction(function);
 		}
 
@@ -111,7 +111,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder times(Field field) {
 
-			Assert.notNull(field, "Argument 'field' must not be 'null'.");
+			Assert.notNull(field, "Argument 'field' must not be 'null'");
 			this.function.addArgument(field);
 			return this;
 		}
@@ -122,7 +122,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder times(String fieldName) {
 
-			Assert.hasText(fieldName, "fieldName must not be 'empty'.");
+			Assert.hasText(fieldName, "fieldName must not be 'empty'");
 			return times(new SimpleField(fieldName));
 		}
 
@@ -132,7 +132,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder times(Number value) {
 
-			Assert.notNull(value, "Argument 'value' must not be 'null'.");
+			Assert.notNull(value, "Argument 'value' must not be 'null'");
 			this.function.addArgument(value);
 			return this;
 		}
@@ -143,7 +143,7 @@ public class ProductFunction extends AbstractFunction {
 		 */
 		public Builder times(Function function) {
 
-			Assert.notNull(function, "Argument 'function' must not be 'null'.");
+			Assert.notNull(function, "Argument 'function' must not be 'null'");
 			this.function.addArgument(function);
 			return this;
 		}

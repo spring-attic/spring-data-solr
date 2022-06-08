@@ -43,7 +43,7 @@ public class SimpleFacetPivotEntry extends FieldValueCountEntry implements Facet
 
 	public void setPivot(List<FacetPivotFieldEntry> pivot) {
 
-		Assert.notNull(pivot, "Pivot must not be null!");
+		Assert.notNull(pivot, "Pivot must not be null");
 		this.pivot = pivot;
 	}
 

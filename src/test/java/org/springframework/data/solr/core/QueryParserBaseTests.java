@@ -175,7 +175,7 @@ public class QueryParserBaseTests {
 
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> parser.createFunctionFragment(new Foo(args), 0, null))
-				.withMessageContaining("Unable to parse 'null' within function arguments.");
+				.withMessageContaining("Unable to parse 'null' within function arguments");
 	}
 
 	@Test

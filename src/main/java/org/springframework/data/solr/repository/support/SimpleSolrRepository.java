@@ -65,7 +65,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	 */
 	public SimpleSolrRepository(SolrOperations solrOperations, SolrEntityInformation<T, ?> metadata) {
 
-		Assert.notNull(metadata, "Metadata must not be null!");
+		Assert.notNull(metadata, "Metadata must not be null");
 
 		this.solrOperations = solrOperations;
 		this.entityInformation = metadata;
@@ -145,7 +145,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public <S extends T> S save(S entity, Duration commitWithin) {
-		Assert.notNull(entity, "Cannot save 'null' entity.");
+		Assert.notNull(entity, "Cannot save 'null' entity");
 		registerTransactionSynchronisationIfSynchronisationActive();
 		getSolrOperations().saveBean(solrCollectionName, entity, commitWithin);
 		commitIfTransactionSynchronisationIsInactive();
@@ -159,7 +159,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public <S extends T> Iterable<S> saveAll(Iterable<S> entities, Duration commitWithin) {
-		Assert.notNull(entities, "Cannot insert 'null' as a List.");
+		Assert.notNull(entities, "Cannot insert 'null' as a List");
 
 		if (!(entities instanceof Collection<?>)) {
 			throw new InvalidDataAccessApiUsageException("Entities have to be inside a collection");
@@ -178,7 +178,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public void deleteById(ID id) {
-		Assert.notNull(id, "Cannot delete entity with id 'null'.");
+		Assert.notNull(id, "Cannot delete entity with id 'null'");
 
 		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.deleteByIds(solrCollectionName, id.toString());
@@ -187,14 +187,14 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	@Override
 	public void delete(T entity) {
-		Assert.notNull(entity, "Cannot delete 'null' entity.");
+		Assert.notNull(entity, "Cannot delete 'null' entity");
 
 		deleteAll(Collections.singletonList(entity));
 	}
 
 	@Override
 	public void deleteAll(Iterable<? extends T> entities) {
-		Assert.notNull(entities, "Cannot delete 'null' list.");
+		Assert.notNull(entities, "Cannot delete 'null' list");
 
 		ArrayList<String> idsToDelete = new ArrayList<>();
 		for (T entity : entities) {
@@ -221,7 +221,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 	public Class<T> getEntityClass() {
 
 		if (!isEntityClassSet()) {
-			throw new InvalidDataAccessApiUsageException("Unable to resolve EntityClass. Please use according setter!");
+			throw new InvalidDataAccessApiUsageException("Unable to resolve EntityClass; Please use according setter");
 		}
 		return entityClass;
 	}
@@ -246,8 +246,8 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	private String extractIdFromSolrInputDocument(SolrInputDocument solrInputDocument) {
 		Assert.notNull(solrInputDocument.getField(idFieldName),
-				"Unable to find field '" + idFieldName + "' in SolrDocument.");
-		Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'.");
+				"Unable to find field '" + idFieldName + "' in SolrDocument");
+		Assert.notNull(solrInputDocument.getField(idFieldName).getValue(), "ID must not be 'null'");
 
 		return solrInputDocument.getField(idFieldName).getValue().toString();
 	}

@@ -100,8 +100,8 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 	 */
 	protected AbstractSolrQuery(@Nullable String collection, SolrOperations solrOperations,
 			SolrQueryMethod solrQueryMethod) {
-		Assert.notNull(solrOperations, "SolrOperations must not be null!");
-		Assert.notNull(solrQueryMethod, "SolrQueryMethod must not be null!");
+		Assert.notNull(solrOperations, "SolrOperations must not be null");
+		Assert.notNull(solrQueryMethod, "SolrQueryMethod must not be null");
 		this.solrOperations = solrOperations;
 		this.solrQueryMethod = solrQueryMethod;
 		this.collection = collection;
@@ -124,7 +124,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		}
 
 		if (isCountQuery() && isDeleteQuery()) {
-			throw new InvalidDataAccessApiUsageException("Cannot execute 'delete' and 'count' at the same time.");
+			throw new InvalidDataAccessApiUsageException("Cannot execute 'delete' and 'count' at the same time");
 		}
 
 		if (isCountQuery()) {
@@ -494,7 +494,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		private final Pageable pageable;
 
 		public PagedExecution(Pageable pageable) {
-			Assert.notNull(pageable, "Pageable must not be null!");
+			Assert.notNull(pageable, "Pageable must not be null");
 			this.pageable = pageable;
 		}
 
@@ -542,7 +542,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		protected FacetPage<?> executeFind(Query query) {
-			Assert.isInstanceOf(FacetQuery.class, query, "Query must be instance of FacetQuery!");
+			Assert.isInstanceOf(FacetQuery.class, query, "Query must be instance of FacetQuery");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetPage(collection, (FacetQuery) query, metadata.getJavaType());
@@ -563,7 +563,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 
 		@Override
 		protected HighlightPage<?> executeFind(Query query) {
-			Assert.isInstanceOf(HighlightQuery.class, query, "Query must be instanceof HighlightQuery!");
+			Assert.isInstanceOf(HighlightQuery.class, query, "Query must be instanceof HighlightQuery");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForHighlightPage(collection, (HighlightQuery) query, metadata.getJavaType());
@@ -585,7 +585,7 @@ public abstract class AbstractSolrQuery implements RepositoryQuery {
 		@Override
 		protected FacetAndHighlightPage<?> executeFind(Query query) {
 
-			Assert.isInstanceOf(FacetAndHighlightQuery.class, query, "Query must be instance of FacetAndHighlightQuery!");
+			Assert.isInstanceOf(FacetAndHighlightQuery.class, query, "Query must be instance of FacetAndHighlightQuery");
 
 			EntityMetadata<?> metadata = solrQueryMethod.getEntityInformation();
 			return solrOperations.queryForFacetAndHighlightPage(collection, (FacetAndHighlightQuery) query,

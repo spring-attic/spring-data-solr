@@ -132,7 +132,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	public MappingSolrConverter(
 			MappingContext<? extends SolrPersistentEntity<?>, SolrPersistentProperty> mappingContext) {
-		Assert.notNull(mappingContext, "MappingContext must not be null!");
+		Assert.notNull(mappingContext, "MappingContext must not be null");
 
 		this.mappingContext = mappingContext;
 	}
@@ -168,7 +168,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		if (source == null) {
 			return null;
 		}
-		Assert.notNull(targetTypeInformation, "TargetTypeInformation must not be null!");
+		Assert.notNull(targetTypeInformation, "TargetTypeInformation must not be null");
 		Class<S> rawType = targetTypeInformation.getType();
 
 		// in case there's a custom conversion for the document
@@ -231,7 +231,7 @@ public class MappingSolrConverter extends SolrConverterBase
 						accessor.setProperty(persistentProperty, c.iterator().next());
 					} else {
 						throw new MappingException(String.format(
-								"Cannot set multiple values %s read from '%s' to non collection property '%s'. Please check your mapping / schema defintion!",
+								"Cannot set multiple values %s read from '%s' to non collection property '%s'; Please check your mapping / schema defintion",
 								c, persistentProperty.getFieldName(), persistentProperty.getName()));
 					}
 				}
@@ -296,7 +296,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 			if (persistentProperty.containsWildcard() && !persistentProperty.isMap()) {
 				throw new IllegalArgumentException("Field '" + persistentProperty.getFieldName()
-						+ "' must not contain wildcards. Consider excluding Field from beeing indexed.");
+						+ "' must not contain wildcards; Consider excluding Field from beeing indexed");
 			}
 
 			if (persistentProperty.isMap() && persistentProperty.containsWildcard()) {
@@ -475,7 +475,7 @@ public class MappingSolrConverter extends SolrConverterBase
 				return null;
 			}
 
-			Assert.notNull(type, "TypeInformation must not be null!");
+			Assert.notNull(type, "TypeInformation must not be null");
 			Class<?> rawType = type.getType();
 			if (hasCustomReadTarget(value.getClass(), rawType)) {
 				return (T) convert(value, rawType);
@@ -598,7 +598,7 @@ public class MappingSolrConverter extends SolrConverterBase
 						}
 						values.put(key, (rawMapType.isArray() ? nestedValues.toArray() : nestedValues));
 					} else {
-						throw new IllegalArgumentException("Incompartible types found. Expected " + rawMapType + " for "
+						throw new IllegalArgumentException("Incompartible types found; Expected " + rawMapType + " for "
 								+ property.getName() + " with name " + property.getFieldName() + ", but found " + value.getClass());
 					}
 				} else {
@@ -636,7 +636,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 		@Nullable
 		private Object readCollection(Collection<?> source, TypeInformation<?> type, Object parent) {
-			Assert.notNull(type, "Type must not be null!");
+			Assert.notNull(type, "Type must not be null");
 
 			Class<?> collectionType = type.getType();
 			if (CollectionUtils.isEmpty(source)) {

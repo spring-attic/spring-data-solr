@@ -42,8 +42,8 @@ public class DefaultValueFunction extends AbstractFunction {
 	 */
 	public static DefaultValueFunction defaultValue(String fieldName, Object defaultValue) {
 
-		Assert.hasText(fieldName, "Fieldname must not be 'empty' for default value operation.");
-		Assert.notNull(defaultValue, "DefaultValue must not be 'null'.");
+		Assert.hasText(fieldName, "Fieldname must not be 'empty' for default value operation");
+		Assert.notNull(defaultValue, "DefaultValue must not be 'null'");
 
 		return defaultValue(new SimpleField(fieldName), defaultValue);
 	}
@@ -57,7 +57,7 @@ public class DefaultValueFunction extends AbstractFunction {
 	 */
 	public static DefaultValueFunction defaultValue(Field field, Object defaultValue) {
 
-		Assert.notNull(field, "Field must not be 'null' for default value operation.");
+		Assert.notNull(field, "Field must not be 'null' for default value operation");
 
 		return new DefaultValueFunction(field, defaultValue);
 	}
@@ -71,8 +71,8 @@ public class DefaultValueFunction extends AbstractFunction {
 	 */
 	public static DefaultValueFunction defaultValue(Function function, Object defaultValue) {
 
-		Assert.notNull(function, "Function must not be 'null' for default value operation.");
-		Assert.notNull(defaultValue, "DefaultValue must not be 'null'.");
+		Assert.notNull(function, "Function must not be 'null' for default value operation");
+		Assert.notNull(defaultValue, "DefaultValue must not be 'null'");
 
 		return new DefaultValueFunction(function, defaultValue);
 	}

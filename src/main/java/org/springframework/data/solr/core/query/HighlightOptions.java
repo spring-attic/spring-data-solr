@@ -46,7 +46,7 @@ public class HighlightOptions {
 	 * @return
 	 */
 	public HighlightOptions addField(Field field) {
-		Assert.notNull(field, "Field must not be null!");
+		Assert.notNull(field, "Field must not be null");
 		this.fields.add(field);
 		return this;
 	}
@@ -58,7 +58,7 @@ public class HighlightOptions {
 	 * @return
 	 */
 	public HighlightOptions addField(String fieldname) {
-		Assert.hasText(fieldname, "Fieldname must not be null nor empty!");
+		Assert.hasText(fieldname, "Fieldname must not be null nor empty");
 		return addField(new SimpleField(fieldname));
 	}
 
@@ -69,7 +69,7 @@ public class HighlightOptions {
 	 * @return
 	 */
 	public HighlightOptions addField(String... fieldnames) {
-		Assert.notNull(fieldnames, "Fieldnames must not be null!");
+		Assert.notNull(fieldnames, "Fieldnames must not be null");
 
 		for (String fieldname : fieldnames) {
 			addField(fieldname);
@@ -84,7 +84,7 @@ public class HighlightOptions {
 	 * @return
 	 */
 	public HighlightOptions addFields(Collection<String> fieldnames) {
-		Assert.notNull(fieldnames, "Fieldnames must not be null!");
+		Assert.notNull(fieldnames, "Fieldnames must not be null");
 
 		for (String fieldname : fieldnames) {
 			addField(fieldname);
@@ -232,7 +232,7 @@ public class HighlightOptions {
 	 * @return
 	 */
 	public HighlightOptions addHighlightParameter(HighlightParameter parameter) {
-		Assert.notNull(parameter, "Parameter must not be null!");
+		Assert.notNull(parameter, "Parameter must not be null");
 		this.parameterHolder.add(parameter);
 		return this;
 	}

@@ -69,7 +69,7 @@ public class MappingJacksonResponseParser extends ResponseParser {
 		try {
 			result.add("json", StreamUtils.copyToString(body, Charset.forName(encoding)));
 		} catch (IOException e) {
-			throw new InvalidDataAccessResourceUsageException("Unable to read json from stream.", e);
+			throw new InvalidDataAccessResourceUsageException("Unable to read json from stream", e);
 		}
 		return result;
 	}

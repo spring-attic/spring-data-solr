@@ -33,7 +33,7 @@ public class SolrSchemaResolver {
 
 	public SchemaDefinition resolveSchemaForEntity(SolrPersistentEntity<?> entity) {
 
-		Assert.notNull(entity, "Schema cannot be resolved for 'null'.");
+		Assert.notNull(entity, "Schema cannot be resolved for 'null'");
 
 		final SchemaDefinition schemaDefinition = new SchemaDefinition(entity.getCollectionName());
 

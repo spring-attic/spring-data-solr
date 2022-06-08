@@ -146,7 +146,7 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 				return criteria.within((Point) getBindableValue((BindableSolrParameter) parameters.next()),
 						(Distance) getBindableValue((BindableSolrParameter) parameters.next()));
 			default:
-				throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'.");
+				throw new InvalidDataAccessApiUsageException("Illegal criteria found '" + type + "'");
 		}
 	}
 
@@ -201,13 +201,13 @@ class SolrQueryCreator extends AbstractQueryCreator<Query, Query> {
 				return new String[0];
 			} else {
 				if (!(col.iterator().next() instanceof String)) {
-					throw new IllegalArgumentException("Parameter has to be a collection of String.");
+					throw new IllegalArgumentException("Parameter has to be a collection of String");
 				}
 				return ((Collection<String>) o).toArray(new String[col.size()]);
 			}
 		} else if (o.getClass().isArray()) {
 			if (!(o instanceof String[])) {
-				throw new IllegalArgumentException("Parameter has to be an array of String.");
+				throw new IllegalArgumentException("Parameter has to be an array of String");
 			}
 			return (String[]) o;
 		}

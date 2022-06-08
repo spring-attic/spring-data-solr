@@ -62,7 +62,7 @@ public class SolrJsonResponse extends SolrResponseBase {
 		} catch (
 
 		Exception e) {
-			throw new InvalidDataAccessResourceUsageException("Unable to parse json from response.", e);
+			throw new InvalidDataAccessResourceUsageException("Unable to parse json from response", e);
 		}
 	}
 

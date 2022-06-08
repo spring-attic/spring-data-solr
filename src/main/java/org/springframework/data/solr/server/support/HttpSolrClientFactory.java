@@ -52,7 +52,7 @@ public class HttpSolrClientFactory extends SolrClientFactoryBase {
 		Assert.notNull(solrClient, "SolrServer must not be null");
 
 		if (authPolicy != null) {
-			Assert.hasText(authPolicy, "AuthPolicy must not be null nor empty!");
+			Assert.hasText(authPolicy, "AuthPolicy must not be null nor empty");
 		}
 
 		this.credentials = credentials;

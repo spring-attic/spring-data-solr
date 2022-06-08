@@ -63,7 +63,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 	 */
 	public static Builder distanceFrom(String fieldName) {
 
-		Assert.hasText(fieldName, "FieldName must not be empty!");
+		Assert.hasText(fieldName, "FieldName must not be empty");
 		return distanceFrom(new SimpleField(fieldName));
 	}
 
@@ -75,7 +75,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 	 */
 	public static Builder distanceFrom(Field field) {
 
-		Assert.notNull(field, "Field cannot be 'null' for geodistance function.");
+		Assert.notNull(field, "Field cannot be 'null' for geodistance function");
 		return new Builder(field);
 	}
 
@@ -117,7 +117,7 @@ public class GeoDistanceFunction extends AbstractFunction {
 		 */
 		public Builder(Field field) {
 
-			Assert.notNull(field, "field must not be an null.");
+			Assert.notNull(field, "field must not be an null");
 			this.field = field;
 		}
 

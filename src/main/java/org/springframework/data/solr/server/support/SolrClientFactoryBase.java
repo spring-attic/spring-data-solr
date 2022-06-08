@@ -47,7 +47,7 @@ abstract class SolrClientFactoryBase implements SolrClientFactory, DisposableBea
 	@Override
 	public SolrClient getSolrClient() {
 
-		Assert.state(solrClient != null, "SolrClient has not been initialized.");
+		Assert.state(solrClient != null, "SolrClient has not been initialized");
 
 		return this.solrClient;
 	}

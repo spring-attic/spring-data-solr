@@ -52,7 +52,7 @@ public class SimpleFacetAndHighlightQuery extends SimpleQuery implements FacetAn
 	public final <T extends SolrDataQuery> T setFacetOptions(@Nullable FacetOptions facetOptions) {
 
 		if (facetOptions != null) {
-			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries.");
+			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries");
 		}
 		this.facetOptions = facetOptions;
 		return (T) this;

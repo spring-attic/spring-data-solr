@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
 /**
  * {@link DelegatingCursor} is a base {@link Cursor} implementation that temporarily holds data fetched in one run and
  * delegates iteration.
- * 
+ *
  * @author Christoph Strobl
  * @param <T>
  */
@@ -86,7 +86,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 		validateState();
 
 		if (!hasNext()) {
-			throw new NoSuchElementException("No more elements available for cursor " + getCursorMark() + ".");
+			throw new NoSuchElementException("No more elements available for cursor " + getCursorMark());
 		}
 
 		T next = moveNext(delegate);
@@ -96,7 +96,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 	/**
 	 * Move one position next in given source.
-	 * 
+	 *
 	 * @param source
 	 * @return
 	 */
@@ -115,7 +115,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 	/**
 	 * Read data from Solr.
-	 * 
+	 *
 	 * @param nativeQuery The query to execute already positioned at the next cursor mark.
 	 * @return
 	 */
@@ -150,7 +150,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 	public DelegatingCursor<T> open() {
 
 		if (!isReady()) {
-			throw new InvalidDataAccessApiUsageException("Cursor already " + state + ". Cannot (re)open it.");
+			throw new InvalidDataAccessApiUsageException("Cursor already " + state + "; Cannot (re)open it");
 		}
 
 		this.state = State.OPEN;
@@ -160,7 +160,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 	/**
 	 * Customization hook for {@link #open()}.
-	 * 
+	 *
 	 * @param cursorMark
 	 */
 	protected void doOpen(@Nullable String cursorMark) {
@@ -253,14 +253,14 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 	private void validateState() {
 		if (isReady() || isClosed()) {
-			throw new InvalidDataAccessApiUsageException("Cannot access closed cursor. Did you forget to call open()?");
+			throw new InvalidDataAccessApiUsageException("Cannot access closed cursor; Did you forget to call open()");
 		}
 	}
 
 	/**
 	 * {@link PartialResult} provided by a round trip to SolrClient loading data for an iteration. Also holds the cursor
 	 * mark to use next.
-	 * 
+	 *
 	 * @author Christoph Strobl
 	 * @param <T>
 	 */
@@ -276,7 +276,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 		/**
 		 * Get the next cursor mark to use.
-		 * 
+		 *
 		 * @return
 		 */
 		public String getNextCursorMark() {
@@ -285,7 +285,7 @@ public abstract class DelegatingCursor<T> implements Cursor<T> {
 
 		/**
 		 * Get items returned from server. <br/>
-		 * 
+		 *
 		 * @return never {@literal null}
 		 */
 		public Collection<T> getItems() {

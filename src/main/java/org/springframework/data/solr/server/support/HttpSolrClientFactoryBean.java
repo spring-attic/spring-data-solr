@@ -43,7 +43,7 @@ public class HttpSolrClientFactoryBean extends HttpSolrClientFactory
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		Assert.hasText(url, "Solr url must not be null nor empty!");
+		Assert.hasText(url, "Solr url must not be null nor empty");
 		initSolrClient();
 	}
 

@@ -61,7 +61,7 @@ public class SolrMappingEventPublisher implements ApplicationEventPublisher {
 	 */
 	public void publishEvent(Object event) {
 
-		Assert.notNull(event, "Event to publish must not be null!");
+		Assert.notNull(event, "Event to publish must not be null");
 
 		publishEvent(initGenericApplicationEvent(event));
 	}

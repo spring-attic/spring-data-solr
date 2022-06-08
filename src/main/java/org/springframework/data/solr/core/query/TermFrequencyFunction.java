@@ -60,7 +60,7 @@ public class TermFrequencyFunction extends AbstractFunction {
 		 */
 		public TermFrequencyFunction inField(String fieldName) {
 
-			Assert.hasText(fieldName, "fieldName for termfrequency must not be 'empty'.");
+			Assert.hasText(fieldName, "fieldName for termfrequency must not be 'empty'");
 			return inField(new SimpleField(fieldName));
 		}
 
@@ -70,7 +70,7 @@ public class TermFrequencyFunction extends AbstractFunction {
 		 */
 		public TermFrequencyFunction inField(Field field) {
 
-			Assert.notNull(field, "Field for termfrequency must not be 'null'.");
+			Assert.notNull(field, "Field for termfrequency must not be 'null'");
 			return new TermFrequencyFunction(field, this.term);
 		}
 	}

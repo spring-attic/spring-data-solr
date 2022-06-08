@@ -146,8 +146,8 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@SuppressWarnings("unchecked")
 	@Override
 	public final <T extends Query> T addProjectionOnField(Field field) {
-		Assert.notNull(field, "Field for projection must not be null.");
-		Assert.hasText(field.getName(), "Field.name for projection must not be null/empty.");
+		Assert.notNull(field, "Field for projection must not be null");
+		Assert.hasText(field.getName(), "Field.name for projection must not be null/empty");
 
 		this.projectionOnFields.add(field);
 		return (T) this;
@@ -159,7 +159,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	public final <T extends Query> T addProjectionOnFields(Field... fields) {
-		Assert.notEmpty(fields, "Cannot add projection on null/empty field list.");
+		Assert.notEmpty(fields, "Cannot add projection on null/empty field list");
 		for (Field field : fields) {
 			addProjectionOnField(field);
 		}
@@ -168,7 +168,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@SuppressWarnings("unchecked")
 	public final <T extends Query> T addProjectionOnFields(String... fieldnames) {
-		Assert.notEmpty(fieldnames, "Cannot add projection on null/empty field list.");
+		Assert.notEmpty(fieldnames, "Cannot add projection on null/empty field list");
 		for (String fieldname : fieldnames) {
 			addProjectionOnField(fieldname);
 		}
@@ -177,7 +177,7 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 
 	@Override
 	public final <T extends Query> T setPageRequest(Pageable pageable) {
-		Assert.notNull(pageable, "Pageable must not be null!");
+		Assert.notNull(pageable, "Pageable must not be null");
 
 		this.offset = pageable.getOffset();
 		this.rows = pageable.getPageSize();
@@ -202,8 +202,8 @@ public class SimpleQuery extends AbstractQuery implements Query, FilterQuery {
 	@Override
 	@Deprecated
 	public final <T extends Query> T addGroupByField(Field field) {
-		Assert.notNull(field, "Field for grouping must not be null.");
-		Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty.");
+		Assert.notNull(field, "Field for grouping must not be null");
+		Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty");
 
 		if (this.groupOptions == null) {
 			this.groupOptions = new GroupOptions();

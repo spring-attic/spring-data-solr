@@ -50,7 +50,7 @@ class ParameterHolder<T extends QueryParameter> implements Iterable<T> {
 	 * @param queryParameter must not be null
 	 */
 	public void add(T queryParameter) {
-		Assert.notNull(queryParameter, "QueryParameter must not be null!");
+		Assert.notNull(queryParameter, "QueryParameter must not be null");
 		this.parameters.put(queryParameter.getName(), queryParameter);
 	}
 

@@ -41,8 +41,8 @@ public class DefaultSchemaOperations implements SchemaOperations {
 
 	public DefaultSchemaOperations(String collection, SolrTemplate template) {
 
-		Assert.hasText(collection, "Collection must not be null or empty!");
-		Assert.notNull(template, "Template must not be null.");
+		Assert.hasText(collection, "Collection must not be null or empty");
+		Assert.notNull(template, "Template must not be null");
 
 		this.template = template;
 		this.collection = collection;
@@ -119,7 +119,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 			UpdateResponse response = new SchemaRequest.AddField(field.asMap()).process(solrClient, collection);
 			if (hasErrors(response)) {
 				throw new SchemaModificationException(
-						String.format("Adding field %s with args %s to collection %s failed with status %s. Server returned %s.",
+						String.format("Adding field %s with args %s to collection %s failed with status %s; Server returned %s",
 								field.getName(), field.asMap(), collection, response.getStatus(), response));
 			}
 			return Integer.valueOf(response.getStatus());
@@ -144,7 +144,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 
 			if (hasErrors(response)) {
 				throw new SchemaModificationException(String.format(
-						"Adding copy field %s with destinations %s to collection %s failed with status %s. Server returned %s.",
+						"Adding copy field %s with destinations %s to collection %s failed with status %s; Server returned %s",
 						field.getSource(), field.getDestination(), collection, response.getStatus(), response));
 			}
 
@@ -165,14 +165,14 @@ public class DefaultSchemaOperations implements SchemaOperations {
 				UpdateResponse response = new SchemaRequest.DeleteField(name).process(solrClient, collection);
 				if (hasErrors(response)) {
 					throw new SchemaModificationException(
-							String.format("Removing field with name %s from collection %s failed with status %s. Server returned %s.",
+							String.format("Removing field with name %s from collection %s failed with status %s; Server returned %s",
 									name, collection, response.getStatus(), response));
 				}
 
 				return Integer.valueOf(response.getStatus());
 			} catch (Exception e) {
 				throw new SchemaModificationException(
-						String.format("Removing field with name %s from collection %s failed.", name, collection));
+						String.format("Removing field with name %s from collection %s failed", name, collection));
 			}
 		});
 	}

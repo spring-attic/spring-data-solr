@@ -35,12 +35,12 @@ public class TermsResultPage implements TermsPage {
 	private Map<StringPageKey, List<TermsFieldEntry>> termsMap = new LinkedHashMap<>(1);
 
 	public final void addTermsResult(List<TermsFieldEntry> entries, Field field) {
-		Assert.notNull(field, "Cannot add terms for 'null' field.");
+		Assert.notNull(field, "Cannot add terms for 'null' field");
 		this.termsMap.put(new StringPageKey(field.getName()), entries);
 	}
 
 	public final void addTermsResult(List<TermsFieldEntry> entries, String fieldname) {
-		Assert.notNull(fieldname, "Cannot add terms for 'null' field.");
+		Assert.notNull(fieldname, "Cannot add terms for 'null' field");
 		this.termsMap.put(new StringPageKey(fieldname), entries);
 	}
 
@@ -57,7 +57,7 @@ public class TermsResultPage implements TermsPage {
 	}
 
 	public Iterable<TermsFieldEntry> getTerms(Field field) {
-		Assert.notNull(field, "Field cannot be null.");
+		Assert.notNull(field, "Field cannot be null");
 		return getTermsForField(field.getName());
 	}
 

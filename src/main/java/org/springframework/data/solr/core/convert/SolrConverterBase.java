@@ -41,7 +41,7 @@ public abstract class SolrConverterBase implements SolrConverter, InitializingBe
 	@Override
 	public Collection<SolrInputDocument> write(@Nullable Iterable<?> source) {
 
-		Assert.notNull(source, "Source must not be null!");
+		Assert.notNull(source, "Source must not be null");
 
 		List<SolrInputDocument> resultList = new ArrayList<>();
 		for (Object bean : source) {

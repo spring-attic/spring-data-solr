@@ -111,7 +111,7 @@ public class SolrRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extend
 	public void afterPropertiesSet() {
 
 		super.afterPropertiesSet();
-		Assert.isTrue((operations != null || solrClient != null), "SolrOperations or SolrClient must be configured!");
+		Assert.isTrue((operations != null || solrClient != null), "SolrOperations or SolrClient must be configured");
 	}
 
 	@Override

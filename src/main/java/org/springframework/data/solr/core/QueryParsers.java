@@ -91,7 +91,7 @@ public class QueryParsers {
 	 * @param parser
 	 */
 	public void registerParser(Class<? extends SolrDataQuery> clazz, QueryParser parser) {
-		Assert.notNull(parser, "Cannot register 'null' parser.");
+		Assert.notNull(parser, "Cannot register 'null' parser");
 		parserPairs.add(0, new QueryParserPair(clazz, parser));
 		cache.clear();
 	}

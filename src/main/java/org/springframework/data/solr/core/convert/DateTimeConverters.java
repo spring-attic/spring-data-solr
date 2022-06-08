@@ -61,7 +61,7 @@ public final class DateTimeConverters {
 		@Override
 		public String convert(ReadableInstant source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return (ClientUtils.escapeQueryChars(FORMATTER.print(source.getMillis())));
 		}
@@ -75,7 +75,7 @@ public final class DateTimeConverters {
 		@Override
 		public DateTime convert(String source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return DateTime.parse(source, FORMATTER_WITHOUT_MILLIS);
 		}
@@ -93,7 +93,7 @@ public final class DateTimeConverters {
 		@Override
 		public DateTime convert(Date source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return new DateTime(source.getTime());
 		}
@@ -112,7 +112,7 @@ public final class DateTimeConverters {
 		@Override
 		public Date convert(DateTime source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return source.toDate();
 		}
@@ -132,7 +132,7 @@ public final class DateTimeConverters {
 		@Override
 		public String convert(LocalDateTime source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return ClientUtils.escapeQueryChars(FORMATTER.print(source.toDateTime(DateTimeZone.UTC).getMillis()));
 		}
@@ -152,7 +152,7 @@ public final class DateTimeConverters {
 		@Override
 		public Date convert(LocalDateTime source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return source.toDate();
 		}
@@ -172,7 +172,7 @@ public final class DateTimeConverters {
 		@Override
 		public LocalDateTime convert(Date source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return new LocalDateTime(source.getTime());
 		}
@@ -192,7 +192,7 @@ public final class DateTimeConverters {
 		@Override
 		public String convert(Date source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			return ClientUtils.escapeQueryChars(FORMATTER.print(source.getTime()));
 		}

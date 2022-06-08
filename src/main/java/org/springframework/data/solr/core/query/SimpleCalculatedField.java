@@ -32,7 +32,7 @@ public class SimpleCalculatedField implements CalculatedField {
 	}
 
 	public SimpleCalculatedField(@Nullable String alias, Function function) {
-		Assert.notNull(function, "Function cannot be empty.");
+		Assert.notNull(function, "Function cannot be empty");
 
 		this.alias = alias;
 		this.function = function;

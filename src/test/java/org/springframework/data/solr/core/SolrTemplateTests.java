@@ -122,7 +122,7 @@ public class SolrTemplateTests {
 	public void testPingThrowsExceptionCorrectlyWhenMimeTypeDoesNotMatch() throws SolrServerException, IOException {
 
 		when(solrClientMock.ping()).thenThrow(new RemoteSolrException("localhost", 404,
-				"Error from server at http://localhost:8983: Expected mime type application/octet-stream but got text/html.",
+				"Error from server at http://localhost:8983: Expected mime type application/octet-stream but got text/html",
 				null));
 		solrTemplate.ping();
 	}

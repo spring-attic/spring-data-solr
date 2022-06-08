@@ -146,7 +146,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public SolrTemplate(SolrClientFactory solrClientFactory, @Nullable SolrConverter solrConverter,
 			@Nullable RequestMethod defaultRequestMethod) {
 
-		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'.");
+		Assert.notNull(solrClientFactory, "SolrClientFactory must not be 'null'");
 
 		this.solrClientFactory = solrClientFactory;
 		this.defaultRequestMethod = defaultRequestMethod != null ? defaultRequestMethod : RequestMethod.GET;
@@ -160,7 +160,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	 */
 	@Override
 	public <T> T execute(SolrCallback<T> action) {
-		Assert.notNull(action, "SolrCallback must not be null!");
+		Assert.notNull(action, "SolrCallback must not be null");
 
 		try {
 			SolrClient solrClient = this.getSolrClient();
@@ -198,9 +198,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public long count(String collection, SolrDataQuery query, @Nullable Class<?> domainType, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(method, "Method must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(method, "Method must not be 'null'");
 
 		return execute(solrClient -> {
 
@@ -242,7 +242,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public UpdateResponse delete(String collection, SolrDataQuery query, @Nullable Class<?> domainType) {
 
-		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(query, "Query must not be 'null'");
 
 		final String queryString = this.queryParsers.getForClass(query.getClass()).getQueryString(query, domainType);
 
@@ -252,7 +252,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public UpdateResponse deleteByIds(String collection, String id) {
 
-		Assert.notNull(id, "Cannot delete 'null' id.");
+		Assert.notNull(id, "Cannot delete 'null' id");
 
 		return execute(solrClient -> solrClient.deleteById(collection, id));
 	}
@@ -260,7 +260,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public UpdateResponse deleteByIds(String collection, Collection<String> ids) {
 
-		Assert.notNull(ids, "Cannot delete 'null' collection.");
+		Assert.notNull(ids, "Cannot delete 'null' collection");
 
 		return execute(solrClient -> solrClient.deleteById(collection, ids.stream().collect(Collectors.toList())));
 	}
@@ -277,9 +277,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> Optional<T> queryForObject(String collection, Query query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
 
 		query.setPageRequest(PageRequest.of(0, 1));
 		QueryResponse response = querySolr(collection, query, clazz, method);
@@ -308,9 +308,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> ScoredPage<T> queryForPage(String collection, Query query, Class<T> clazz) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
 
 		return doQueryForPage(collection, query, clazz, getDefaultRequestMethod());
 	}
@@ -322,10 +322,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public <T, S extends Page<T>> S query(String collection, Query query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(clazz, "Method must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
+		Assert.notNull(clazz, "Method must not be 'null'");
 
 		return (S) doQueryForPage(collection, query, clazz, method);
 	}
@@ -333,10 +333,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> ScoredPage<T> queryForPage(String collection, Query query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
+		Assert.notNull(method, "Method class must not be 'null'");
 
 		return doQueryForPage(collection, query, clazz, method);
 	}
@@ -349,10 +349,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> GroupPage<T> queryForGroupPage(String collection, Query query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
+		Assert.notNull(method, "Method class must not be 'null'");
 
 		return doQueryForPage(collection, query, clazz, method);
 	}
@@ -364,10 +364,10 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public <T> StatsPage<T> queryForStatsPage(String collection, Query query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
-		Assert.notNull(method, "Method class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
+		Assert.notNull(method, "Method class must not be 'null'");
 
 		return doQueryForPage(collection, query, clazz, method);
 	}
@@ -380,9 +380,9 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public <T> FacetPage<T> queryForFacetPage(String collection, FacetQuery query, Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
 
 		NamedObjectsFacetQuery namedObjectsQuery = new NamedObjectsFacetQuery(query);
 
@@ -400,8 +400,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public <T> HighlightPage<T> queryForHighlightPage(String collection, HighlightQuery query, Class<T> clazz,
 			RequestMethod method) {
 
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
 
 		NamedObjectsHighlightQuery namedObjectsQuery = new NamedObjectsHighlightQuery(query);
 		QueryResponse response = querySolr(collection, namedObjectsQuery, clazz, method);
@@ -419,8 +419,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	public <T> FacetAndHighlightPage<T> queryForFacetAndHighlightPage(String collection, FacetAndHighlightQuery query,
 			Class<T> clazz, RequestMethod method) {
 
-		Assert.notNull(query, "Query must not be 'null'.");
-		Assert.notNull(clazz, "Target class must not be 'null'.");
+		Assert.notNull(query, "Query must not be 'null'");
+		Assert.notNull(clazz, "Target class must not be 'null'");
 
 		NamedObjectsFacetAndHighlightQuery namedObjectsFacetAndHighlightQuery = new NamedObjectsFacetAndHighlightQuery(
 				query);
@@ -481,8 +481,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 	@Override
 	public TermsPage queryForTermsPage(String collection, TermsQuery query, RequestMethod method) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(query, "Query must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(query, "Query must not be 'null'");
 
 		QueryResponse response = querySolr(collection, query, null, method);
 
@@ -505,7 +505,7 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 			}
 		}
 
-		LOGGER.debug("Executing query '{}' against solr.", solrQuery);
+		LOGGER.debug("Executing query '{}' against solr", solrQuery);
 
 		return executeSolrQuery(collection, solrQuery, getSolrRequestMethod(requestMethod));
 	}
@@ -612,8 +612,8 @@ public class SolrTemplate implements SolrOperations, InitializingBean, Applicati
 
 	public <T> Optional<T> getById(String collection, Object id, Class<T> clazz) {
 
-		Assert.notNull(collection, "Collection must not be null!");
-		Assert.notNull(id, "Id must not be 'null'.");
+		Assert.notNull(collection, "Collection must not be null");
+		Assert.notNull(id, "Id must not be 'null'");
 
 		Collection<T> result = getByIds(collection, Collections.singletonList(id), clazz);
 		if (result.isEmpty()) {

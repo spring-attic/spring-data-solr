@@ -162,7 +162,7 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 	 */
 	private static class ScoreFieldUniquenessHandler implements PropertyHandler<SolrPersistentProperty> {
 
-		private static final String AMBIGUOUS_FIELD_MAPPING = "Ambiguous score field mapping detected! Both %s and %s marked as target for score value. Disambiguate using @Score annotation!";
+		private static final String AMBIGUOUS_FIELD_MAPPING = "Ambiguous score field mapping detected; Both %s and %s marked as target for score value; Disambiguate using @Score annotation";
 		private @Nullable SolrPersistentProperty scoreProperty;
 
 		/*
@@ -197,8 +197,8 @@ public class SimpleSolrPersistentEntity<T> extends BasicPersistentEntity<T, Solr
 
 		INSTANCE;
 
-		private static final String DYNAMIC_PROPERTY_NOT_A_MAP = "Invalid mapping information for property '%s' with mapped name '%s'. @Dynamic can only be applied on Map based types!";
-		private static final String DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD = "Invalid mapping information for property '%s' with mapped name '%s'. Dynamic property needs to specify wildcard.";
+		private static final String DYNAMIC_PROPERTY_NOT_A_MAP = "Invalid mapping information for property '%s' with mapped name '%s'; @Dynamic can only be applied on Map based types";
+		private static final String DYNAMIC_PROPERTY_NOT_CONTAINING_WILDCARD = "Invalid mapping information for property '%s' with mapped name '%s'; Dynamic property needs to specify wildcard";
 
 		@Override
 		public void doWithPersistentProperty(SolrPersistentProperty property) {

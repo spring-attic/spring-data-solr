@@ -54,7 +54,7 @@ public class SolrRepositoryBean<T> extends CdiRepositoryBean<T> {
 			BeanManager beanManager, Optional<CustomRepositoryImplementationDetector> detector) {
 		super(qualifiers, repositoryType, beanManager, detector);
 
-		Assert.notNull(operations, "Cannot create repository with 'null' for SolrOperations.");
+		Assert.notNull(operations, "Cannot create repository with 'null' for SolrOperations");
 		this.solrOperationsBean = operations;
 	}
 

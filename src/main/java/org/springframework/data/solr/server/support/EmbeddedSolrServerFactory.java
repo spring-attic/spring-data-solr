@@ -71,7 +71,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	 * @throws SAXException
 	 */
 	public EmbeddedSolrServerFactory(String solrHome) throws ParserConfigurationException, IOException, SAXException {
-		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty");
 		this.solrHome = solrHome;
 	}
 
@@ -162,7 +162,7 @@ public class EmbeddedSolrServerFactory implements SolrClientFactory, DisposableB
 	}
 
 	public void setSolrHome(String solrHome) {
-		Assert.hasText(solrHome, "SolrHome must not be null nor empty!");
+		Assert.hasText(solrHome, "SolrHome must not be null nor empty");
 		this.solrHome = solrHome;
 	}
 

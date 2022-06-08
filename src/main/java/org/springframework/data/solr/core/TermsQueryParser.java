@@ -46,7 +46,7 @@ public class TermsQueryParser extends QueryParserBase<TermsQuery> {
 
 	@Override
 	public SolrQuery doConstructSolrQuery(TermsQuery query, @Nullable Class<?> domainType) {
-		Assert.notNull(query, "Cannot construct solrQuery from null value.");
+		Assert.notNull(query, "Cannot construct solrQuery from null value");
 
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = getQueryString(query, domainType);

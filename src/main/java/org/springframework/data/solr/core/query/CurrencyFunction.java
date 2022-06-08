@@ -43,7 +43,7 @@ public class CurrencyFunction extends AbstractFunction {
 	 */
 	public static CurrencyFunction currency(String fieldName) {
 
-		Assert.hasText(fieldName, "FieldName must not be empty!");
+		Assert.hasText(fieldName, "FieldName must not be empty");
 		return currency(fieldName, null);
 	}
 
@@ -67,7 +67,7 @@ public class CurrencyFunction extends AbstractFunction {
 	 */
 	public static CurrencyFunction currency(Field field, @Nullable String currencyCode) {
 
-		Assert.notNull(field, "Field for currency function must not be 'null'.");
+		Assert.notNull(field, "Field for currency function must not be 'null'");
 
 		CurrencyFunction function = new CurrencyFunction(field);
 		if (StringUtils.hasText(currencyCode)) {
@@ -86,7 +86,7 @@ public class CurrencyFunction extends AbstractFunction {
 	 */
 	public static CurrencyFunction currency(String fieldName, @Nullable String currencyCode) {
 
-		Assert.hasText(fieldName, "FieldName for currency function must not be 'empty'.");
+		Assert.hasText(fieldName, "FieldName for currency function must not be 'empty'");
 		return currency(new SimpleField(fieldName), currencyCode);
 	}
 

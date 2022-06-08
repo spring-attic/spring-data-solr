@@ -34,7 +34,7 @@ public final class NumberConverters {
 		@Override
 		public String convert(Number source) {
 
-			Assert.notNull(source, "Source must not be null!");
+			Assert.notNull(source, "Source must not be null");
 
 			if (source.doubleValue() < 0d) {
 				return "\\" + source.toString();

@@ -87,7 +87,7 @@ public class ITestSimpleSolrRepository extends AbstractITestWithEmbeddedSolrServ
 
 			counter++;
 			if (counter > objectCount) {
-				fail("More beans return than added!");
+				fail("More beans return than added");
 			}
 		}
 

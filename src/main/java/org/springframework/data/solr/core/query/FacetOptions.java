@@ -65,8 +65,8 @@ public class FacetOptions {
 	 * @param fieldnames
 	 */
 	public FacetOptions(String... fieldnames) {
-		Assert.notNull(fieldnames, "Fields must not be null.");
-		Assert.noNullElements(fieldnames, "Cannot facet on null fieldname.");
+		Assert.notNull(fieldnames, "Fields must not be null");
+		Assert.noNullElements(fieldnames, "Cannot facet on null fieldname");
 
 		for (String fieldname : fieldnames) {
 			addFacetOnField(fieldname);
@@ -77,8 +77,8 @@ public class FacetOptions {
 	 * Creates new instance faceting on given fields
 	 */
 	public FacetOptions(Field... fields) {
-		Assert.notNull(fields, "Fields must not be null.");
-		Assert.noNullElements(fields, "Cannot facet on null field.");
+		Assert.notNull(fields, "Fields must not be null");
+		Assert.noNullElements(fields, "Cannot facet on null field");
 
 		for (Field field : fields) {
 			addFacetOnField(field);
@@ -91,8 +91,8 @@ public class FacetOptions {
 	 * @param facetQueries
 	 */
 	public FacetOptions(SolrDataQuery... facetQueries) {
-		Assert.notNull(facetQueries, "Facet Queries must not be null.");
-		Assert.noNullElements(facetQueries, "Cannot facet on null query.");
+		Assert.notNull(facetQueries, "Facet Queries must not be null");
+		Assert.noNullElements(facetQueries, "Cannot facet on null query");
 
 		this.facetQueries.addAll(Arrays.asList(facetQueries));
 	}
@@ -104,8 +104,8 @@ public class FacetOptions {
 	 * @return
 	 */
 	public final FacetOptions addFacetOnField(Field field) {
-		Assert.notNull(field, "Cannot facet on null field.");
-		Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname.");
+		Assert.notNull(field, "Cannot facet on null field");
+		Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname");
 
 		this.facetOnFields.add(field);
 		return this;
@@ -130,8 +130,8 @@ public class FacetOptions {
 	 * @since 1.5
 	 */
 	public final FacetOptions addFacetByRange(FieldWithRangeParameters<?, ?, ?> field) {
-		Assert.notNull(field, "Cannot range facet on null field.");
-		Assert.hasText(field.getName(), "Cannot range facet on field with null/empty fieldname.");
+		Assert.notNull(field, "Cannot range facet on null field");
+		Assert.hasText(field.getName(), "Cannot range facet on field with null/empty fieldname");
 
 		this.facetRangeOnFields.add(field);
 		return this;
@@ -144,11 +144,11 @@ public class FacetOptions {
 	 * @return
 	 */
 	public final FacetOptions addFacetOnPivot(Field... fields) {
-		Assert.notNull(fields, "Pivot Facets must not be null.");
+		Assert.notNull(fields, "Pivot Facets must not be null");
 
 		for (Field field : fields) {
-			Assert.notNull(field, "Cannot facet on null field.");
-			Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname.");
+			Assert.notNull(field, "Cannot facet on null field");
+			Assert.hasText(field.getName(), "Cannot facet on field with null/empty fieldname");
 		}
 
 		List<Field> list = Arrays.asList(fields);
@@ -176,7 +176,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public final FacetOptions addFacetOnFlieldnames(Collection<String> fieldnames) {
-		Assert.notNull(fieldnames, "Fieldnames must not be null!");
+		Assert.notNull(fieldnames, "Fieldnames must not be null");
 
 		for (String fieldname : fieldnames) {
 			addFacetOnField(fieldname);
@@ -191,7 +191,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public final FacetOptions addFacetQuery(SolrDataQuery query) {
-		Assert.notNull(query, "Facet Query must not be null.");
+		Assert.notNull(query, "Facet Query must not be null");
 
 		this.facetQueries.add(query);
 		return this;
@@ -235,7 +235,7 @@ public class FacetOptions {
 	 * @return
 	 */
 	public FacetOptions setFacetSort(FacetSort facetSort) {
-		Assert.notNull(facetSort, "FacetSort must not be null.");
+		Assert.notNull(facetSort, "FacetSort must not be null");
 
 		this.facetSort = facetSort;
 		return this;

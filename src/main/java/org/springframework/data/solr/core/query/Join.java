@@ -98,7 +98,7 @@ public class Join {
 		private Join join;
 
 		public Builder(Field from) {
-			Assert.notNull(from, "From must not be null!");
+			Assert.notNull(from, "From must not be null");
 
 			join = new Join();
 			join.from = from;
@@ -113,7 +113,7 @@ public class Join {
 		 * @return completed {@link Join}
 		 */
 		public Join to(Field to) {
-			Assert.notNull(to, "To must not be null!");
+			Assert.notNull(to, "To must not be null");
 
 			join.to = to;
 			return this.join;

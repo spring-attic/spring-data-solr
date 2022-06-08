@@ -56,7 +56,7 @@ public class Criteria extends Node {
 	 * @since 1.1
 	 */
 	public Criteria(Function function) {
-		Assert.notNull(function, "Cannot create Critiera for 'null' function.");
+		Assert.notNull(function, "Cannot create Critiera for 'null' function");
 		function(function);
 	}
 
@@ -341,7 +341,7 @@ public class Criteria extends Node {
 	 */
 	public Criteria fuzzy(String s, float levenshteinDistance) {
 		if (!Float.isNaN(levenshteinDistance) && (levenshteinDistance < 0 || levenshteinDistance > 1)) {
-			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0).");
+			throw new InvalidDataAccessApiUsageException("Levenshtein Distance has to be within its bounds (0.0 - 1.0)");
 		}
 		predicates.add(new Predicate(OperationKey.FUZZY, new Object[] { s, Float.valueOf(levenshteinDistance) }));
 		return this;
@@ -356,11 +356,11 @@ public class Criteria extends Node {
 	 */
 	public Criteria sloppy(String phrase, int distance) {
 		if (distance <= 0) {
-			throw new InvalidDataAccessApiUsageException("Slop distance has to be greater than 0.");
+			throw new InvalidDataAccessApiUsageException("Slop distance has to be greater than 0");
 		}
 
 		if (!StringUtils.contains(phrase, CRITERIA_VALUE_SEPERATOR)) {
-			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces.");
+			throw new InvalidDataAccessApiUsageException("Phrase must consist of multiple terms, separated with spaces");
 		}
 
 		predicates.add(new Predicate(OperationKey.SLOPPY, new Object[] { phrase, Integer.valueOf(distance) }));
@@ -386,7 +386,7 @@ public class Criteria extends Node {
 	 */
 	public Criteria boost(float boost) {
 		if (boost < 0) {
-			throw new InvalidDataAccessApiUsageException("Boost must not be negative.");
+			throw new InvalidDataAccessApiUsageException("Boost must not be negative");
 		}
 		this.boost = boost;
 		return this;
@@ -502,7 +502,7 @@ public class Criteria extends Node {
 	 * @return
 	 */
 	public Criteria within(Point location, @Nullable Distance distance) {
-		Assert.notNull(location, "Location must not be null!");
+		Assert.notNull(location, "Location must not be null");
 		assertPositiveDistanceValue(distance);
 		predicates.add(
 				new Predicate(OperationKey.WITHIN, new Object[] { location, distance != null ? distance : new Distance(0) }));
@@ -518,7 +518,7 @@ public class Criteria extends Node {
 	 */
 	public Criteria within(Circle circle) {
 
-		Assert.notNull(circle, "Circle for 'within' must not be 'null'.");
+		Assert.notNull(circle, "Circle for 'within' must not be 'null'");
 		return within(circle.getCenter(), circle.getRadius());
 	}
 
@@ -546,7 +546,7 @@ public class Criteria extends Node {
 	 * @throws InvalidDataAccessApiUsageException if distance is negative
 	 */
 	public Criteria near(Point location, @Nullable Distance distance) {
-		Assert.notNull(location, "Location must not be 'null' for near criteria.");
+		Assert.notNull(location, "Location must not be 'null' for near criteria");
 		assertPositiveDistanceValue(distance);
 
 		predicates.add(
@@ -566,7 +566,7 @@ public class Criteria extends Node {
 	 */
 	public Criteria near(Circle circle) {
 
-		Assert.notNull(circle, "Circle for 'near' must not be 'null'.");
+		Assert.notNull(circle, "Circle for 'near' must not be 'null'");
 		return near(circle.getCenter(), circle.getRadius());
 	}
 
@@ -579,7 +579,7 @@ public class Criteria extends Node {
 	 * @since 1.1
 	 */
 	public Criteria function(Function function) {
-		Assert.notNull(function, "Cannot add 'null' function to criteria.");
+		Assert.notNull(function, "Cannot add 'null' function to criteria");
 		predicates.add(new Predicate(OperationKey.FUNCTION, function));
 		return this;
 	}
@@ -619,14 +619,14 @@ public class Criteria extends Node {
 
 	private void assertPositiveDistanceValue(@Nullable Distance distance) {
 		if (distance != null && distance.getValue() < 0) {
-			throw new InvalidDataAccessApiUsageException("distance must not be negative.");
+			throw new InvalidDataAccessApiUsageException("distance must not be negative");
 		}
 	}
 
 	private void assertNoBlankInWildcardedQuery(String searchString, boolean leadingWildcard, boolean trailingWildcard) {
 		if (StringUtils.contains(searchString, CRITERIA_VALUE_SEPERATOR)) {
 			throw new InvalidDataAccessApiUsageException("Cannot constructQuery '" + (leadingWildcard ? "*" : "") + "\""
-					+ searchString + "\"" + (trailingWildcard ? "*" : "") + "'. Use epxression or mulitple clauses instead.");
+					+ searchString + "\"" + (trailingWildcard ? "*" : "") + "'; Use epxression or mulitple clauses instead");
 		}
 	}
 
@@ -634,7 +634,7 @@ public class Criteria extends Node {
 		if (values.length == 0 || (values.length > 1 && values[1] instanceof Collection)) {
 			throw new InvalidDataAccessApiUsageException(
 					"At least one element " + (values.length > 0 ? ("of argument of type " + values[1].getClass().getName()) : "")
-							+ " has to be present.");
+							+ " has to be present");
 		}
 	}
 

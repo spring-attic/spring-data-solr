@@ -97,7 +97,7 @@ public class DistanceFunction extends AbstractFunction {
 
 		public Builder(Power power) {
 
-			Assert.notNull(power, "Calculation type must not be 'null'.");
+			Assert.notNull(power, "Calculation type must not be 'null'");
 			function = new DistanceFunction(power);
 		}
 

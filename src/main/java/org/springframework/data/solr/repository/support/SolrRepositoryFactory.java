@@ -63,7 +63,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	private boolean schemaCreationSupport;
 
 	public SolrRepositoryFactory(SolrOperations solrOperations) {
-		Assert.notNull(solrOperations, "SolrOperations must not be null!");
+		Assert.notNull(solrOperations, "SolrOperations must not be null");
 
 		if (solrOperations instanceof SolrTemplate) {
 			addSchemaCreationFeaturesIfEnabled((SolrTemplate) solrOperations);
@@ -75,7 +75,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	}
 
 	public SolrRepositoryFactory(SolrClient solrClient) {
-		Assert.notNull(solrClient, "SolrClient must not be null!");
+		Assert.notNull(solrClient, "SolrClient must not be null");
 
 		this.solrOperations = createTemplate(solrClient, null);
 
@@ -86,7 +86,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	}
 
 	public SolrRepositoryFactory(SolrClient solrClient, SolrConverter converter) {
-		Assert.notNull(solrClient, "SolrClient must not be null!");
+		Assert.notNull(solrClient, "SolrClient must not be null");
 
 		this.solrOperations = createTemplate(solrClient, converter);
 
@@ -146,7 +146,7 @@ public class SolrRepositoryFactory extends RepositoryFactorySupport {
 	@Override
 	protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
 		if (isQueryDslRepository(metadata.getRepositoryInterface())) {
-			throw new IllegalArgumentException("QueryDsl Support has not been implemented yet.");
+			throw new IllegalArgumentException("QueryDsl Support has not been implemented yet");
 		}
 		return SimpleSolrRepository.class;
 	}

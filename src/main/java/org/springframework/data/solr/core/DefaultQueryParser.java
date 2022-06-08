@@ -91,8 +91,8 @@ public class DefaultQueryParser extends QueryParserBase<SolrDataQuery> {
 	@Override
 	public final SolrQuery doConstructSolrQuery(SolrDataQuery query, @Nullable Class<?> domainType) {
 
-		Assert.notNull(query, "Cannot construct solrQuery from null value.");
-		Assert.notNull(query.getCriteria(), "Query has to have a criteria.");
+		Assert.notNull(query, "Cannot construct solrQuery from null value");
+		Assert.notNull(query.getCriteria(), "Query has to have a criteria");
 
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setParam(CommonParams.Q, getQueryString(query, domainType));

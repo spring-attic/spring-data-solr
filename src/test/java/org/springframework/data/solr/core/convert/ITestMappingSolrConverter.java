@@ -258,7 +258,7 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		review1.author = "yonik";
 		review1.date = new Date();
 		review1.stars = 5;
-		review1.comment = "A great start to what looks like an epic series!";
+		review1.comment = "A great start to what looks like an epic series";
 		theWayOfKings.reviews.add(review1);
 
 		BookReview review2 = new BookReview();

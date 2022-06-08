@@ -66,7 +66,7 @@ public class SolrClientUtils {
 	 */
 	public static void close(SolrClient solrClient) {
 
-		Assert.notNull(solrClient, "SolrClient must not be null!");
+		Assert.notNull(solrClient, "SolrClient must not be null");
 
 		try {
 			if (solrClient instanceof Closeable) {

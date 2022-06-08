@@ -49,7 +49,7 @@ public class NotFunction extends AbstractFunction {
 	 */
 	public static NotFunction not(String fieldName) {
 
-		Assert.notNull(fieldName, "FieldName must not be null!");
+		Assert.notNull(fieldName, "FieldName must not be null");
 		return not(new SimpleField(fieldName));
 	}
 

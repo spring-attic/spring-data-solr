@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 
 /**
  * Trivial implementation of {@link FacetQuery}
- * 
+ *
  * @author Christoph Strobl
  */
 public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
@@ -44,7 +44,7 @@ public class SimpleFacetQuery extends SimpleQuery implements FacetQuery {
 	@Override
 	public final <T extends SolrDataQuery> T setFacetOptions(FacetOptions facetOptions) {
 		if (facetOptions != null) {
-			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries.");
+			Assert.isTrue(facetOptions.hasFacets(), "Cannot set facet options having neither fields nor queries");
 		}
 		this.facetOptions = facetOptions;
 		return (T) this;

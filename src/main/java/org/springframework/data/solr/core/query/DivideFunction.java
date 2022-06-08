@@ -41,7 +41,7 @@ public class DivideFunction extends AbstractFunction {
 	 */
 	public static Builder divide(Field field) {
 
-		Assert.notNull(field, "Field cannot be 'null' for divide function.");
+		Assert.notNull(field, "Field cannot be 'null' for divide function");
 		return new Builder(field);
 	}
 
@@ -53,7 +53,7 @@ public class DivideFunction extends AbstractFunction {
 	 */
 	public static Builder divide(String fieldName) {
 
-		Assert.hasText(fieldName, "Fieldname cannot be 'empty' for divide function.");
+		Assert.hasText(fieldName, "Fieldname cannot be 'empty' for divide function");
 		return divide(new SimpleField(fieldName));
 	}
 
@@ -114,7 +114,7 @@ public class DivideFunction extends AbstractFunction {
 		 */
 		public DivideFunction by(String fieldName) {
 
-			Assert.hasText(fieldName, "Fieldname for devide function must not be 'empty'.");
+			Assert.hasText(fieldName, "Fieldname for devide function must not be 'empty'");
 			return by(new SimpleField(fieldName));
 		}
 
@@ -124,13 +124,13 @@ public class DivideFunction extends AbstractFunction {
 		 */
 		public DivideFunction by(Field field) {
 
-			Assert.notNull(field, "Field must not be 'null'.");
+			Assert.notNull(field, "Field must not be 'null'");
 			return by((Object) field);
 		}
 
 		private DivideFunction by(Object divisor) {
 
-			Assert.notNull(divisor, "Cannot divide by 'null'.");
+			Assert.notNull(divisor, "Cannot divide by 'null'");
 			return new DivideFunction(dividend, divisor);
 		}
 	}

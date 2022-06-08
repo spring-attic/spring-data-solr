@@ -45,7 +45,7 @@ class AbstractQuery {
 	@SuppressWarnings("unchecked")
 	public final <T extends SolrDataQuery> T addCriteria(Criteria criteria) {
 
-		Assert.notNull(criteria, "Cannot add null criteria.");
+		Assert.notNull(criteria, "Cannot add null criteria");
 
 		if (this.criteria == null) {
 			this.criteria = criteria;

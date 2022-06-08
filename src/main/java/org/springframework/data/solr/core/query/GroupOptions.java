@@ -59,8 +59,8 @@ public class GroupOptions {
 	 */
 	public GroupOptions addGroupByField(Field field) {
 
-		Assert.notNull(field, "Field for grouping must not be null.");
-		Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty.");
+		Assert.notNull(field, "Field for grouping must not be null");
+		Assert.hasText(field.getName(), "Field.name for grouping must not be null/empty");
 		groupByFields.add(field);
 		return this;
 	}
@@ -82,7 +82,7 @@ public class GroupOptions {
 	 */
 	public GroupOptions addGroupByField(String fieldName) {
 
-		Assert.hasText(fieldName, "Field.name for grouping must not be null/empty.");
+		Assert.hasText(fieldName, "Field.name for grouping must not be null/empty");
 		groupByFields.add(new SimpleField(fieldName));
 		return this;
 	}
@@ -95,7 +95,7 @@ public class GroupOptions {
 	 */
 	public GroupOptions addGroupByFunction(Function function) {
 
-		Assert.notNull(function, "Function for grouping must not be null.");
+		Assert.notNull(function, "Function for grouping must not be null");
 		groupByFunctions.add(function);
 		return this;
 	}
@@ -117,7 +117,7 @@ public class GroupOptions {
 	 */
 	public GroupOptions addGroupByQuery(Query query) {
 
-		Assert.notNull(query, "Query for grouping must not be null.");
+		Assert.notNull(query, "Query for grouping must not be null");
 		groupByQuery.add(query);
 		return this;
 	}

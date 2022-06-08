@@ -127,7 +127,7 @@ public class SimpleSolrPersistentEntityTests {
 		entity.addPersistentProperty(anotherScore);
 
 		assertThatExceptionOfType(MappingException.class).isThrownBy(() -> entity.verify())
-				.withMessageContaining("Ambiguous score field mapping detected!");
+				.withMessageContaining("Ambiguous score field mapping detected");
 	}
 
 	@SuppressWarnings("unchecked")

@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 /**
  * Set of options available to get field statistics.
- * 
+ *
  * @author Francisco Spaeth
  * @since 1.4
  */
@@ -46,13 +46,13 @@ public class StatsOptions {
 
 	/**
 	 * Adds a field to the statistics to be requested.
-	 * 
+	 *
 	 * @param field
 	 * @return
 	 */
 	public FieldStatsOptions addField(Field field) {
 
-		Assert.notNull(field, "Field for statistics must not be 'null'.");
+		Assert.notNull(field, "Field for statistics must not be 'null'");
 
 		state.fields.add(field);
 		return new FieldStatsOptions(field, state);
@@ -60,13 +60,13 @@ public class StatsOptions {
 
 	/**
 	 * Adds a field via its name to the statistics to be requested.
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
 	public FieldStatsOptions addField(String fieldName) {
 
-		Assert.hasText(fieldName, "Fieldname for statistics must not be blank.");
+		Assert.hasText(fieldName, "Fieldname for statistics must not be blank");
 
 		return addField(new SimpleField(fieldName));
 	}
@@ -80,12 +80,12 @@ public class StatsOptions {
 
 	/**
 	 * Adds a facet on field to the statistics to be requested.
-	 * 
+	 *
 	 * @return
 	 */
 	public StatsOptions addFacet(Field field) {
 
-		Assert.notNull(field, "Facet field for statistics must not be 'null'.");
+		Assert.notNull(field, "Facet field for statistics must not be 'null'");
 
 		state.facets.add(field);
 		return this;
@@ -93,13 +93,13 @@ public class StatsOptions {
 
 	/**
 	 * Adds a facet on field to the statistics to be requested.
-	 * 
+	 *
 	 * @param fieldName
 	 * @return
 	 */
 	public StatsOptions addFacet(String fieldName) {
 
-		Assert.hasText(fieldName, "Fieldname for facet statistics must not be blank.");
+		Assert.hasText(fieldName, "Fieldname for facet statistics must not be blank");
 
 		return addFacet(new SimpleField(fieldName));
 	}
@@ -120,7 +120,7 @@ public class StatsOptions {
 
 	/**
 	 * Sets the distinct calculation for a given stats request.
-	 * 
+	 *
 	 * @param calcDistinct
 	 * @return
 	 */
@@ -154,7 +154,7 @@ public class StatsOptions {
 
 	/**
 	 * Set of options available to get field's statistics having a field as context.
-	 * 
+	 *
 	 * @author Francisco Spaeth
 	 * @sice 1.4
 	 */
@@ -169,7 +169,7 @@ public class StatsOptions {
 
 		/**
 		 * Adds a selective facet over stats result of the field being configured.
-		 * 
+		 *
 		 * @param field
 		 * @return
 		 */

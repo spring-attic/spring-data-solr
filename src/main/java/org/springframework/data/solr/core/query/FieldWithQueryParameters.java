@@ -35,7 +35,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 */
 	public FieldWithQueryParameters(String fieldname) {
 		super(fieldname);
-		Assert.hasText(fieldname, "Fieldname must not be null nor empty!");
+		Assert.hasText(fieldname, "Fieldname must not be null nor empty");
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class FieldWithQueryParameters<T extends QueryParameter> extends SimpleFi
 	 * @param parameter must not be null
 	 */
 	public void addQueryParameter(T parameter) {
-		Assert.notNull(parameter, "Parameter must not be null!");
+		Assert.notNull(parameter, "Parameter must not be null");
 		this.parameterHolder.add(parameter);
 	}
 

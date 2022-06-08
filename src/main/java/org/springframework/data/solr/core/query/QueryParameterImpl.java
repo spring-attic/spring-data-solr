@@ -34,7 +34,7 @@ public class QueryParameterImpl implements QueryParameter {
 	 */
 	public QueryParameterImpl(String name, @Nullable Object value) {
 		super();
-		Assert.notNull(name, "Name must not be null!");
+		Assert.notNull(name, "Name must not be null");
 
 		this.name = name;
 		this.value = value;

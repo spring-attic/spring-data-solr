@@ -262,7 +262,7 @@ final class ResultHelper {
 			try {
 				return FieldUtils.readDeclaredField(o, "id", true);
 			} catch (IllegalAccessException e) {
-				throw new MappingException("Id property could not be accessed!", e);
+				throw new MappingException("Id property could not be accessed", e);
 			}
 		}
 
@@ -272,11 +272,11 @@ final class ResultHelper {
 				try {
 					return FieldUtils.readField(field, o, true);
 				} catch (IllegalArgumentException | IllegalAccessException e) {
-					throw new MappingException("Id property could not be accessed!", e);
+					throw new MappingException("Id property could not be accessed", e);
 				}
 			}
 		}
-		throw new MappingException("Id property could not be found!");
+		throw new MappingException("Id property could not be found");
 	}
 
 	private static boolean hasFacets(FacetQuery query, QueryResponse response) {
