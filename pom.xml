@@ -3,44 +3,32 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.springframework.data</groupId>
-	<artifactId>spring-data-solr</artifactId>
+	<groupId>org.jakot</groupId>
+	<artifactId>jakot-data-solr</artifactId>
 	<version>4.4.0-SNAPSHOT</version>
 
-	<name>Spring Data Solr</name>
-	<description>Spring Data module providing support for Apache Solr repositories.</description>
-	<url>https://github.com/spring-projects/spring-data-solr</url>
+	<name>JaKot Data Solr</name>
+	<description>Further development of the project Spring Data Solr (forked). Spring Data module providing support for Apache Solr repositories.</description>
+	<url>https://github.com/org-jakot/jakot-data-solr</url>
 
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.5.0-SNAPSHOT</version>
+		<version>2.7.7</version>
 	</parent>
 
 	<properties>
-		<commons.collections>3.2.1</commons.collections>
-		<commons.lang>3.1</commons.lang>
-		<httpcomponents>4.3.1</httpcomponents>
-		<solr>8.5.2</solr>
-		<springdata.commons>2.5.0-SNAPSHOT</springdata.commons>
+		<commons.lang>3.12.0</commons.lang>
+		<solr>8.11.2</solr>
+		<springdata.commons>2.7.7</springdata.commons>
 		<java-module-name>spring.data.solr</java-module-name>
 	</properties>
 
 	<developers>
 		<developer>
-			<id>christophstrobl</id>
-			<name>Christoph Strobl</name>
+			<id>ilyako87</id>
+			<name>Ilya Kovalkov</name>
 			<timezone>+1</timezone>
-		</developer>
-		<developer>
-			<id>ogierke</id>
-			<name>Oliver Gierke</name>
-			<timezone>+1</timezone>
-		</developer>
-		<developer>
-			<id>mpollack</id>
-			<name>Mark Pollack</name>
-			<timezone>-5</timezone>
 		</developer>
 	</developers>
 
@@ -95,8 +83,8 @@
 
 		<!-- SOLR -->
 		<dependency>
-			<artifactId>solr-solrj</artifactId>
 			<groupId>org.apache.solr</groupId>
+			<artifactId>solr-solrj</artifactId>
 			<version>${solr}</version>
 			<exclusions>
 				<exclusion>
@@ -201,7 +189,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.3.168</version>
+			<version>1.4.200</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -213,6 +201,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
+			<version>2.1.0</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
@@ -250,92 +244,23 @@
 		</plugins>
 	</build>
 
-	<profiles>
-		<profile>
-
-			<id>ci</id>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-checkstyle-plugin</artifactId>
-						<configuration>
-							<checkstyleRules>
-								<module name="Checker">
-
-									<!-- Configure checker to use UTF-8 encoding -->
-									<property name="charset" value="UTF-8"/>
-
-									<module name="io.spring.nohttp.checkstyle.check.NoHttpCheck"/>
-								</module>
-							</checkstyleRules>
-							<includes>**/*</includes>
-							<excludes>.git/**/*,target/**/*,**/target/**/*,.idea/**/*,**/spring.schemas,**/*.svg,mvnw,mvnw.cmd,**/src/test/resources/*-schema/**/*,_site/**/*</excludes>
-							<sourceDirectories>./</sourceDirectories>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-
-		</profile>
-
-		<profile>
-			<id>solr8-next</id>
-			<repositories>
-				<repository>
-					<id>apache.snapshots</id>
-					<name>Apache Snapshot Repository</name>
-					<url>https://repository.apache.org/snapshots</url>
-					<releases>
-						<enabled>false</enabled>
-					</releases>
-				</repository>
-			</repositories>
-			<properties>
-				<solr>8.3.0-SNAPSHOT</solr>
-			</properties>
-		</profile>
-		<profile>
-			<id>solr9-next</id>
-			<repositories>
-				<repository>
-					<id>apache.snapshots</id>
-					<name>Apache Snapshot Repository</name>
-					<url>https://repository.apache.org/snapshots</url>
-					<releases>
-						<enabled>false</enabled>
-					</releases>
-				</repository>
-			</repositories>
-			<properties>
-				<solr>9.0.0-SNAPSHOT</solr>
-			</properties>
-		</profile>
-	</profiles>
+	<profiles/>
 
 	<issueManagement>
-		<system>JIRA</system>
-		<url>https://jira.spring.io/browse/DATASOLR</url>
+		<system>GitHub</system>
+		<url>https://github.com/org-jakot/jakot-data-solr/issues</url>
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/spring-projects/spring-data-solr</url>
-		<connection>scm:git:git://github.com/spring-projects/spring-data-solr.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:spring-projects/spring-data-solr.git</developerConnection>
+		<url>https://github.com/org-jakot/jakot-data-solr</url>
+		<connection>scm:git:git://github.com/org-jakot/jakot-data-solr.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:org-jakot/jakot-data-solr.git</developerConnection>
 	</scm>
 
 	<ciManagement>
-		<system>Bamboo</system>
-		<url>https://build.spring.io/browse/DATASOLR</url>
+		<system>GitHub</system>
+		<url>https://github.com/org-jakot/jakot-data-solr/actions</url>
 	</ciManagement>
-
-	<repositories>
-		<repository>
-			<id>spring-libs-snapshot</id>
-			<url>https://repo.spring.io/libs-snapshot</url>
-		</repository>
-	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>

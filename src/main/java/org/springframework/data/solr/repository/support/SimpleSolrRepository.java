@@ -17,10 +17,7 @@ package org.springframework.data.solr.repository.support;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -31,10 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTransactionSynchronizationAdapterBuilder;
 import org.springframework.data.solr.core.mapping.SimpleSolrMappingContext;
-import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.solr.core.query.SimpleFilterQuery;
-import org.springframework.data.solr.core.query.SimpleQuery;
-import org.springframework.data.solr.core.query.SolrPageRequest;
+import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.repository.SolrCrudRepository;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -82,7 +76,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		this(solrOperations, getEntityInformation(entityClass));
 	}
 
-	private static SolrEntityInformation getEntityInformation(Class type) {
+	private static <T, ID> SolrEntityInformation<T, ID> getEntityInformation(Class<T> type) {
 		return new SolrEntityInformationCreatorImpl(new SimpleSolrMappingContext()).getEntityInformation(type);
 	}
 
@@ -135,6 +129,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 
 	protected long count(org.springframework.data.solr.core.query.Query query) {
 		org.springframework.data.solr.core.query.Query countQuery = SimpleQuery.fromQuery(query);
+		Assert.notNull(countQuery, "countQuery cannot be 'null'");
 		return getSolrOperations().count(solrCollectionName, countQuery);
 	}
 
@@ -190,6 +185,26 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		Assert.notNull(entity, "Cannot delete 'null' entity");
 
 		deleteAll(Collections.singletonList(entity));
+	}
+
+	@Override
+	public void deleteAllById(final Iterable<? extends ID> ids) {
+
+		Assert.notNull(ids, "Cannot delete 'null' list.");
+
+		List<String> idStrings = new ArrayList<>();
+		for (ID id : ids) {
+			if (Objects.nonNull(id)) {
+				idStrings.add(String.valueOf(id));
+			}
+		}
+
+		if (idStrings.isEmpty()) {
+			return;
+		}
+		registerTransactionSynchronisationIfSynchronisationActive();
+		this.solrOperations.deleteByIds(solrCollectionName, idStrings);
+		commitIfTransactionSynchronisationIsInactive();
 	}
 
 	@Override

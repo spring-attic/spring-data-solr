@@ -36,7 +36,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMinAsString()).isEqualTo("13");
 		assertThat(stats.getMinAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMinAsDate()).as(null).isNull();
+		assertThat(stats.getMinAsDate()).as("null").isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -59,7 +59,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMaxAsString()).isEqualTo("13");
 		assertThat(stats.getMaxAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMaxAsDate()).as(null).isNull();
+		assertThat(stats.getMaxAsDate()).as("null").isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -88,7 +88,6 @@ public class SimpleStatsResultTests {
 	public void testMeanNumber() {
 
 		SimpleStatsResult stats = new SimpleStatsResult();
-		Date date = new Date();
 		stats.setMean(1L);
 
 		assertThat(stats.getMeanAsDouble()).isCloseTo(1D, offset(0D));

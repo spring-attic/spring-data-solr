@@ -20,9 +20,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
+import jakarta.activation.MimeType;
+import jakarta.activation.MimeTypeParseException;
 import org.apache.solr.client.solrj.ResponseParser;
 import org.apache.solr.common.util.NamedList;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
@@ -58,11 +57,6 @@ public class MappingJacksonResponseParser extends ResponseParser {
 	}
 
 	@Override
-	public String getVersion() {
-		return super.getVersion();
-	}
-
-	@Override
 	public NamedList<Object> processResponse(InputStream body, String encoding) {
 
 		NamedList<Object> result = new NamedList<>();
@@ -82,8 +76,8 @@ public class MappingJacksonResponseParser extends ResponseParser {
 	private static MimeType defaultMimeType() {
 		try {
 			return new MimeType("application", "json");
-		} catch (MimeTypeParseException o_O) {
-			throw new IllegalArgumentException(o_O);
+		} catch (final MimeTypeParseException e) {
+			throw new IllegalArgumentException(e);
 		}
 	}
 
