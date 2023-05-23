@@ -31,7 +31,8 @@ import org.springframework.data.solr.core.mapping.SimpleSolrPersistentProperty;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.repository.ProductBean;
 import org.springframework.data.solr.repository.query.SolrEntityInformation;
-import org.springframework.data.util.ClassTypeInformation;
+//import org.springframework.data.util.ClassTypeInformation;
+import org.springframework.data.util.TypeInformation;
 
 /**
  * @author Christoph Strobl
@@ -67,10 +68,10 @@ public class MappingSolrEntityInformationTests {
 
 	@Test
 	public void testIdType() throws NoSuchFieldException, SecurityException {
-		when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
+		when(persistentEntity.getTypeInformation()).thenReturn(TypeInformation.of(ProductBean.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ClassTypeInformation.from(ProductBean.class), ProductBean.class.getDeclaredField("id")),
+				Property.of(TypeInformation.of(ProductBean.class), ProductBean.class.getDeclaredField("id")),
 				persistentEntity, SimpleTypeHolder.DEFAULT);
 		when(persistentEntity.getRequiredIdProperty()).thenReturn(property);
 
@@ -81,10 +82,10 @@ public class MappingSolrEntityInformationTests {
 	@Test
 	public void testIdTypeWithLongIdFieldType() throws NoSuchFieldException, SecurityException {
 		when(persistentEntityWithLongIdFieldType.getTypeInformation())
-				.thenReturn(ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class));
+				.thenReturn(TypeInformation.of(ProductBeanWithLongIdFieldType.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ClassTypeInformation.from(ProductBeanWithLongIdFieldType.class),
+				Property.of(TypeInformation.of(ProductBeanWithLongIdFieldType.class),
 						ProductBeanWithLongIdFieldType.class.getDeclaredField("id")),
 				persistentEntityWithLongIdFieldType, SimpleTypeHolder.DEFAULT);
 		when(persistentEntityWithLongIdFieldType.getRequiredIdProperty()).thenReturn(property);
@@ -96,9 +97,9 @@ public class MappingSolrEntityInformationTests {
 
 	@Test
 	public void testGetIdAttribute() throws NoSuchFieldException, SecurityException {
-		when(persistentEntity.getTypeInformation()).thenReturn(ClassTypeInformation.from(ProductBean.class));
+		when(persistentEntity.getTypeInformation()).thenReturn(TypeInformation.of(ProductBean.class));
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ClassTypeInformation.from(ProductBean.class), ProductBean.class.getDeclaredField("id")),
+				Property.of(TypeInformation.of(ProductBean.class), ProductBean.class.getDeclaredField("id")),
 				persistentEntity, SimpleTypeHolder.DEFAULT);
 		when(persistentEntity.getRequiredIdProperty()).thenReturn(property);
 
@@ -109,10 +110,10 @@ public class MappingSolrEntityInformationTests {
 	@Test
 	public void testGetIdAttributeForAlternateFieldName() throws NoSuchFieldException, SecurityException {
 		when(persistentEntityWithAlternateFieldNameForId.getTypeInformation())
-				.thenReturn(ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class));
+				.thenReturn(TypeInformation.of(ProductBeanWithAlternateFieldNameForId.class));
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ClassTypeInformation.from(ProductBeanWithAlternateFieldNameForId.class),
+				Property.of(TypeInformation.of(ProductBeanWithAlternateFieldNameForId.class),
 						ProductBeanWithAlternateFieldNameForId.class.getDeclaredField("productId")),
 				persistentEntityWithAlternateFieldNameForId, SimpleTypeHolder.DEFAULT);
 		when(persistentEntityWithAlternateFieldNameForId.getRequiredIdProperty()).thenReturn(property);

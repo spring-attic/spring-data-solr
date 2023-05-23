@@ -40,7 +40,7 @@ import org.springframework.data.solr.repository.Query;
 import org.springframework.data.solr.repository.SelectiveStats;
 import org.springframework.data.solr.repository.Spellcheck;
 import org.springframework.data.solr.repository.Stats;
-import org.springframework.data.util.ClassTypeInformation;
+//import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
@@ -103,7 +103,7 @@ public class SolrQueryMethod extends QueryMethod {
 	}
 
 	TypeInformation<?> getReturnType() {
-		return ClassTypeInformation.fromReturnTypeOf(method);
+		return TypeInformation.fromReturnTypeOf(method);
 	}
 
 	/**

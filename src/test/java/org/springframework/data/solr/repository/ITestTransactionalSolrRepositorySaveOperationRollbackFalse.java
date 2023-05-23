@@ -16,6 +16,7 @@
 package org.springframework.data.solr.repository;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collections;
 
 import org.apache.solr.client.solrj.SolrClient;
@@ -62,14 +63,14 @@ public class ITestTransactionalSolrRepositorySaveOperationRollbackFalse extends 
 	public void testSave() {
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
-		repo.save(bean);
+		repo.save(bean, Duration.ZERO);
 	}
 
 	@Test
 	public void testSaveMultipleObjects() {
 		ProductBean bean = new ProductBean();
 		bean.setId(ID);
-		repo.saveAll(Collections.singletonList(bean));
+		repo.saveAll(Collections.singletonList(bean), Duration.ZERO);
 	}
 
 }

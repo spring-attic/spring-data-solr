@@ -36,7 +36,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMinAsString()).isEqualTo("13");
 		assertThat(stats.getMinAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMinAsDate()).as(null).isNull();
+		assertThat(stats.getMinAsDate()).isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -59,7 +59,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMaxAsString()).isEqualTo("13");
 		assertThat(stats.getMaxAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMaxAsDate()).as(null).isNull();
+		assertThat(stats.getMaxAsDate()).isNull();
 	}
 
 	@Test // DATASOLR-160

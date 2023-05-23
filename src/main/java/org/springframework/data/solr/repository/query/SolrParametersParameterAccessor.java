@@ -68,10 +68,10 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 		return new BindableSolrParameterIterator(parametersParameterAccessorDelegate.iterator());
 	}
 
-	@Override
-	public Optional<Class<?>> getDynamicProjection() {
-		return parametersParameterAccessorDelegate.getDynamicProjection();
-	}
+//	@Override
+//	public Optional<Class<?>> getDynamicProjection() {
+//		return parametersParameterAccessorDelegate.getDynamicProjection();
+//	}
 
 	@Override
 	public Class<?> findDynamicProjection() {

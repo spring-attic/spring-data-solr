@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.util.ClassTypeInformation;
+//import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
@@ -57,7 +57,7 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 	@Before
 	public void setUp() {
 
-		typeInformation = ClassTypeInformation.from(BeanWithSolrFieldAnnotation.class);
+		typeInformation = TypeInformation.of(BeanWithSolrFieldAnnotation.class);
 		persistentEntity = new SimpleSolrPersistentEntity<>(typeInformation);
 	}
 
@@ -81,7 +81,7 @@ public class SimpleSolrPersitentPropertyFieldNameTests {
 		PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, clazz);
 		java.lang.reflect.Field field = org.springframework.util.ReflectionUtils.findField(clazz, propertyName);
 
-		return new SimpleSolrPersistentProperty(Property.of(ClassTypeInformation.from(clazz), field, descriptor),
+		return new SimpleSolrPersistentProperty(Property.of(TypeInformation.of(clazz), field, descriptor),
 				persistentEntity, SimpleTypeHolder.DEFAULT);
 	}
 

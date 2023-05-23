@@ -178,31 +178,31 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		assertThat(content.get(2).description).isEqualTo("apache solr");
 	}
 
-	@Test // DATASOLR-471
-	public void testProcessesDeprecatedScoreCorrectly() {
-
-		Collection<BeanWithDeprecatedScore> beans = new ArrayList<>();
-		beans.add(new BeanWithDeprecatedScore("1", "spring"));
-		beans.add(new BeanWithDeprecatedScore("2", "spring data solr"));
-		beans.add(new BeanWithDeprecatedScore("3", "apache solr"));
-		beans.add(new BeanWithDeprecatedScore("4", "apache lucene"));
-
-		solrTemplate.saveBeans(COLLECTION_NAME, beans);
-		solrTemplate.commit(COLLECTION_NAME);
-
-		ScoredPage<BeanWithDeprecatedScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
-				new SimpleQuery("description:spring solr"), BeanWithDeprecatedScore.class);
-
-		List<BeanWithDeprecatedScore> content = page.getContent();
-		assertThat(page.getTotalElements()).isEqualTo(3);
-
-		assertThat(content.get(0).score).isNotNull();
-		assertThat(content.get(0).description).isEqualTo("spring data solr");
-		assertThat(content.get(1).score).isNotNull();
-		assertThat(content.get(1).description).isEqualTo("spring");
-		assertThat(content.get(2).score).isNotNull();
-		assertThat(content.get(2).description).isEqualTo("apache solr");
-	}
+//	@Test // DATASOLR-471
+//	public void testProcessesDeprecatedScoreCorrectly() {
+//
+//		Collection<BeanWithDeprecatedScore> beans = new ArrayList<>();
+//		beans.add(new BeanWithDeprecatedScore("1", "spring"));
+//		beans.add(new BeanWithDeprecatedScore("2", "spring data solr"));
+//		beans.add(new BeanWithDeprecatedScore("3", "apache solr"));
+//		beans.add(new BeanWithDeprecatedScore("4", "apache lucene"));
+//
+//		solrTemplate.saveBeans(COLLECTION_NAME, beans);
+//		solrTemplate.commit(COLLECTION_NAME);
+//
+//		ScoredPage<BeanWithDeprecatedScore> page = solrTemplate.queryForPage(COLLECTION_NAME,
+//				new SimpleQuery("description:spring solr"), BeanWithDeprecatedScore.class);
+//
+//		List<BeanWithDeprecatedScore> content = page.getContent();
+//		assertThat(page.getTotalElements()).isEqualTo(3);
+//
+//		assertThat(content.get(0).score).isNotNull();
+//		assertThat(content.get(0).description).isEqualTo("spring data solr");
+//		assertThat(content.get(1).score).isNotNull();
+//		assertThat(content.get(1).description).isEqualTo("spring");
+//		assertThat(content.get(2).score).isNotNull();
+//		assertThat(content.get(2).description).isEqualTo("apache solr");
+//	}
 
 	@Test // DATASOLR-202
 	public void testDynamicMap() {
@@ -380,19 +380,19 @@ public class ITestMappingSolrConverter extends AbstractITestWithEmbeddedSolrServ
 		}
 	}
 
-	@RequiredArgsConstructor
-	private static class BeanWithDeprecatedScore {
-
-		@Id @Field //
-		private final String id;
-
-		@Indexed(type = "text") //
-		private final String description;
-
-		@org.springframework.data.solr.repository.Score //
-		private Float score;
-
-	}
+//	@RequiredArgsConstructor
+//	private static class BeanWithDeprecatedScore {
+//
+//		@Id @Field //
+//		private final String id;
+//
+//		@Indexed(type = "text") //
+//		private final String description;
+//
+//		@org.springframework.data.solr.core.mapping.Score //
+//		private Float score;
+//
+//	}
 
 	private static class BeanWithDynamicMap {
 

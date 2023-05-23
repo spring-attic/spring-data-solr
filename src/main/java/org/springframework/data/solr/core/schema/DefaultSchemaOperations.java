@@ -67,7 +67,7 @@ public class DefaultSchemaOperations implements SchemaOperations {
 	@Override
 	public Double getSchemaVersion() {
 		return template.execute(
-				solrClient -> new Double(new SchemaRequest.SchemaVersion().process(solrClient, collection).getSchemaVersion()));
+				solrClient -> Double.valueOf(new SchemaRequest.SchemaVersion().process(solrClient, collection).getSchemaVersion()));
 	}
 
 	/*

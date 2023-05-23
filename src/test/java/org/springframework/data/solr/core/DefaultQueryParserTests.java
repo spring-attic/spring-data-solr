@@ -856,7 +856,7 @@ public class DefaultQueryParserTests {
 		SimpleQuery query = new SimpleQuery(new SimpleStringCriteria("field_1:value_1"));
 		query.setTimeAllowed(100);
 		SolrQuery solrQuery = queryParser.constructSolrQuery(query, null);
-		assertThat(solrQuery.getTimeAllowed()).isEqualTo(new Integer(100));
+		assertThat(solrQuery.getTimeAllowed()).isEqualTo(Integer.valueOf(100));
 	}
 
 	@Test

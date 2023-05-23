@@ -296,7 +296,7 @@ public class SimpleQueryTests {
 		assertThat(query.getTimeAllowed()).isNull();
 
 		query.setTimeAllowed(100);
-		assertThat(query.getTimeAllowed()).isEqualTo(new Integer(100));
+		assertThat(query.getTimeAllowed()).isEqualTo(Integer.valueOf(100));
 	}
 
 	@Test

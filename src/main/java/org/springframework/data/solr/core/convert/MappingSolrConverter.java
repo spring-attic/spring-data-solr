@@ -34,20 +34,22 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.CollectionFactory;
-import org.springframework.data.convert.EntityInstantiator;
-import org.springframework.data.convert.EntityInstantiators;
+//import org.springframework.data.convert.EntityInstantiator;
+//import org.springframework.data.convert.EntityInstantiators;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentPropertyAccessor;
 import org.springframework.data.mapping.PropertyHandler;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.ConvertingPropertyAccessor;
+import org.springframework.data.mapping.model.EntityInstantiator;
+import org.springframework.data.mapping.model.EntityInstantiators;
 import org.springframework.data.mapping.model.ParameterValueProvider;
 import org.springframework.data.mapping.model.PersistentEntityParameterValueProvider;
 import org.springframework.data.mapping.model.PropertyValueProvider;
 import org.springframework.data.solr.core.mapping.SolrPersistentEntity;
 import org.springframework.data.solr.core.mapping.SolrPersistentProperty;
 import org.springframework.data.solr.core.query.Criteria;
-import org.springframework.data.util.ClassTypeInformation;
+//import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -149,7 +151,7 @@ public class MappingSolrConverter extends SolrConverterBase
 		}
 
 		List<R> resultList = new ArrayList<>(source.size());
-		TypeInformation<R> typeInformation = ClassTypeInformation.from(type);
+		TypeInformation<R> typeInformation = TypeInformation.of(type);
 		for (SolrDocumentBase item : source) {
 			resultList.add(read(typeInformation, item));
 		}
@@ -159,7 +161,7 @@ public class MappingSolrConverter extends SolrConverterBase
 
 	@Override
 	public <R> R read(Class<R> type, SolrDocumentBase source) {
-		return read(ClassTypeInformation.from(type), source);
+		return read(TypeInformation.of(type), source);
 	}
 
 	@SuppressWarnings("unchecked")

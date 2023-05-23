@@ -29,7 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.util.ClassTypeInformation;
+//import org.springframework.data.util.ClassTypeInformation;
 import org.springframework.data.util.TypeInformation;
 
 /**
@@ -57,7 +57,7 @@ public class SimpleSolrPersistentPropertyTest {
 		when(typeInformation.getRequiredProperty("myScoreProperty")).thenReturn((TypeInformation) typeInformation);
 
 		SimpleSolrPersistentProperty property = new SimpleSolrPersistentProperty(
-				Property.of(ClassTypeInformation.from(BeanWithScore.class), field, propertyDescriptor), owner,
+				Property.of(TypeInformation.of(BeanWithScore.class), field, propertyDescriptor), owner,
 				simpleTypeHolder);
 
 		assertThat(property.isScoreProperty()).isTrue();

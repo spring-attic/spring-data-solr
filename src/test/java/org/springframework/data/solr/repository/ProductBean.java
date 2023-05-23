@@ -31,7 +31,7 @@ import org.springframework.data.solr.core.mapping.SolrDocument;
  */
 @SolrDocument(collection = "collection1")
 @Getter
-@Setter
+//@Setter
 @ToString
 public class ProductBean {
 
@@ -61,6 +61,9 @@ public class ProductBean {
 
 	@Field("content_type_s") private ContentType contentType;
 
+	public ProductBean() {
+	}
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();
@@ -86,6 +89,26 @@ public class ProductBean {
 			return false;
 		}
 		return true;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setAvailable(boolean available) {
+		this.available = available;
 	}
 
 	public enum ContentType {

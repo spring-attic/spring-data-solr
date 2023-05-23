@@ -86,13 +86,13 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return new SolrEntityInformationCreatorImpl(new SimpleSolrMappingContext()).getEntityInformation(type);
 	}
 
-	@Override
+	//@Override
 	public Optional<T> findById(ID id) {
 		return getSolrOperations().queryForObject(solrCollectionName,
 				new SimpleQuery(new Criteria(this.idFieldName).is(id)), getEntityClass());
 	}
 
-	@Override
+	//@Override
 	public Iterable<T> findAll() {
 		int itemCount = (int) this.count();
 		if (itemCount == 0) {
@@ -120,7 +120,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 				getEntityClass());
 	}
 
-	@Override
+	//@Override
 	public Iterable<T> findAllById(Iterable<ID> ids) {
 		org.springframework.data.solr.core.query.Query query = new SimpleQuery(new Criteria(this.idFieldName).in(ids));
 		query.setPageRequest(new SolrPageRequest(0, (int) count(query)));
@@ -138,7 +138,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return getSolrOperations().count(solrCollectionName, countQuery);
 	}
 
-	@Override
+	//@Override
 	public <S extends T> S save(S entity) {
 		return save(entity, Duration.ZERO);
 	}
@@ -152,7 +152,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return entity;
 	}
 
-	@Override
+	//@Override
 	public <S extends T> Iterable<S> saveAll(Iterable<S> entities) {
 		return saveAll(entities, Duration.ZERO);
 	}
@@ -171,12 +171,12 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		return entities;
 	}
 
-	@Override
+	//@Override
 	public boolean existsById(ID id) {
 		return findById(id).isPresent();
 	}
 
-	@Override
+	//@Override
 	public void deleteById(ID id) {
 		Assert.notNull(id, "Cannot delete entity with id 'null'");
 
@@ -185,14 +185,14 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
-	@Override
+	//@Override
 	public void delete(T entity) {
 		Assert.notNull(entity, "Cannot delete 'null' entity");
 
 		deleteAll(Collections.singletonList(entity));
 	}
 
-	@Override
+	//@Override
 	public void deleteAll(Iterable<? extends T> entities) {
 		Assert.notNull(entities, "Cannot delete 'null' list");
 
@@ -206,7 +206,7 @@ public class SimpleSolrRepository<T, ID extends Serializable> implements SolrCru
 		commitIfTransactionSynchronisationIsInactive();
 	}
 
-	@Override
+	//@Override
 	public void deleteAll() {
 		registerTransactionSynchronisationIfSynchronisationActive();
 		this.solrOperations.delete(solrCollectionName,

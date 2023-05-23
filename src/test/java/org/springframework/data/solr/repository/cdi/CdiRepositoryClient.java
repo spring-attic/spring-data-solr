@@ -15,7 +15,7 @@
  */
 package org.springframework.data.solr.repository.cdi;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * @author Christoph Strobl
