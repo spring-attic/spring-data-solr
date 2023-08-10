@@ -17,6 +17,8 @@ package org.springframework.data.solr.repository;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -29,6 +31,14 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface SolrCrudRepository<T, ID extends Serializable>
 		extends SolrRepository<T, ID>, PagingAndSortingRepository<T, ID> {
 
+	Optional<T> findById(ID id);
+
+	Iterable<T> findAll();
+
+	Iterable<T> findAllById(Iterable<ID> ids);
+
+	<S extends T> S save(S entity);
+
 	/**
 	 * Saves a given entity and commits withing given {@link Duration}.
 	 *
@@ -38,6 +48,8 @@ public interface SolrCrudRepository<T, ID extends Serializable>
 	 */
 	<S extends T> S save(S entity, Duration commitWithin);
 
+	<S extends T> Iterable<S> saveAll(Iterable<S> entities);
+
 	/**
 	 * Saves all given entities and commits withing given {@link Duration}.
 	 *
@@ -46,4 +58,14 @@ public interface SolrCrudRepository<T, ID extends Serializable>
 	 * @since 4.0
 	 */
 	<S extends T> Iterable<S> saveAll(Iterable<S> entities, Duration commitWithin);
+
+	boolean existsById(ID id);
+
+	void deleteById(ID id);
+
+	void delete(T entity);
+
+	void deleteAll(Iterable<? extends T> entities);
+
+	void deleteAll();
 }

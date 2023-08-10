@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.data.Offset.offset;
 
 import java.util.Date;
+import java.util.function.Supplier;
 
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMinAsString()).isEqualTo("13");
 		assertThat(stats.getMinAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMinAsDate()).as(null).isNull();
+		assertThat(stats.getMinAsDate()).as((Supplier<String>) null).isNull();
 	}
 
 	@Test // DATASOLR-160
@@ -59,7 +60,7 @@ public class SimpleStatsResultTests {
 
 		assertThat(stats.getMaxAsString()).isEqualTo("13");
 		assertThat(stats.getMaxAsDouble()).isEqualTo(Double.valueOf(13));
-		assertThat(stats.getMaxAsDate()).as(null).isNull();
+		assertThat(stats.getMaxAsDate()).as((Supplier<String>) null).isNull();
 	}
 
 	@Test // DATASOLR-160

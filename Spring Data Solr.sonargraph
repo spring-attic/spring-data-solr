@@ -114,6 +114,7 @@
             <element type="IncludeTypePattern" name="**"/>
             <element type="ExcludeTypePattern" name="java.**"/>
             <element type="ExcludeTypePattern" name="javax.**"/>
+            <element type="ExcludeTypePattern" name="jakarta.**"/>
         </element>
         <architecture>
             <element type="Subsystem" name="Spring">

@@ -18,15 +18,7 @@ package org.springframework.data.solr.core.convert;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.data.Offset.offset;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.common.SolrDocument;
@@ -968,7 +960,7 @@ public class MappingSolrConverterTests {
 	public void shouldConvertTypesWithinCollectionsOfMapCorrectly() {
 
 		SolrDocument document = new SolrDocument();
-		document.addField("fieldWithDateTimeInListOfMap_d", new Date(60264684000000L));
+		document.addField("fieldWithDateTimeInListOfMap_d", new DateTime(60264684000000L));
 
 		BeanWithWildcardsOnTypesThatRequireConversion target = converter
 				.read(BeanWithWildcardsOnTypesThatRequireConversion.class, document);

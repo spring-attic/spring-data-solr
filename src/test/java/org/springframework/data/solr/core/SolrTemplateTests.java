@@ -37,7 +37,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
+import org.apache.solr.client.solrj.impl.BaseHttpSolrClient;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest;
 import org.apache.solr.client.solrj.request.schema.SchemaRequest.SchemaVersion;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -121,7 +121,7 @@ public class SolrTemplateTests {
 	@Test(expected = DataAccessResourceFailureException.class) // DATASOLR-414
 	public void testPingThrowsExceptionCorrectlyWhenMimeTypeDoesNotMatch() throws SolrServerException, IOException {
 
-		when(solrClientMock.ping()).thenThrow(new RemoteSolrException("localhost", 404,
+		when(solrClientMock.ping()).thenThrow(new BaseHttpSolrClient.RemoteSolrException("localhost", 404,
 				"Error from server at http://localhost:8983: Expected mime type application/octet-stream but got text/html",
 				null));
 		solrTemplate.ping();

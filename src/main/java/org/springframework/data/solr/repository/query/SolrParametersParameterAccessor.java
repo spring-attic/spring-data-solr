@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 
@@ -41,6 +42,13 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 	@Override
 	public float getBoost(int index) {
 		return parameters.getBindableParameter(index).getBoost();
+	}
+
+	@Override
+	public ScrollPosition getScrollPosition() {
+
+		// TODO
+		return null;
 	}
 
 	@Override
@@ -68,10 +76,10 @@ public class SolrParametersParameterAccessor implements SolrParameterAccessor {
 		return new BindableSolrParameterIterator(parametersParameterAccessorDelegate.iterator());
 	}
 
-	@Override
+	/* TODO @Override
 	public Optional<Class<?>> getDynamicProjection() {
 		return parametersParameterAccessorDelegate.getDynamicProjection();
-	}
+	}*/
 
 	@Override
 	public Class<?> findDynamicProjection() {

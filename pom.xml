@@ -5,7 +5,7 @@
 
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-solr</artifactId>
-	<version>4.4.0-SNAPSHOT</version>
+	<version>5.1.0-SNAPSHOT</version>
 
 	<name>Spring Data Solr</name>
 	<description>Spring Data module providing support for Apache Solr repositories.</description>
@@ -14,16 +14,18 @@
 	<parent>
 		<groupId>org.springframework.data.build</groupId>
 		<artifactId>spring-data-parent</artifactId>
-		<version>2.5.0-SNAPSHOT</version>
+		<version>3.1.2</version>
 	</parent>
 
 	<properties>
 		<commons.collections>3.2.1</commons.collections>
-		<commons.lang>3.1</commons.lang>
-		<httpcomponents>4.3.1</httpcomponents>
-		<solr>8.5.2</solr>
-		<springdata.commons>2.5.0-SNAPSHOT</springdata.commons>
+		<commons.lang>3.12.0</commons.lang>
+		<solr>9.3.0</solr>
+		<springdata.commons>3.1.2</springdata.commons>
 		<java-module-name>spring.data.solr</java-module-name>
+		<jodatime>2.12.5</jodatime>
+		<jakarta.annotation-api>2.1.0</jakarta.annotation-api>
+		<cdi>4.0.1</cdi>
 	</properties>
 
 	<developers>
@@ -41,6 +43,11 @@
 			<id>mpollack</id>
 			<name>Mark Pollack</name>
 			<timezone>-5</timezone>
+		</developer>
+		<developer>
+			<id>lvigato</id>
+			<name>Luc Vigato</name>
+			<timezone>+1</timezone>
 		</developer>
 	</developers>
 
@@ -164,18 +171,29 @@
 		<dependency>
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-jcdi_2.0_spec</artifactId>
-			<version>1.0.1</version>
+			<version>1.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.interceptor</groupId>
 			<artifactId>javax.interceptor-api</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.enterprise</groupId>
-			<artifactId>cdi-api</artifactId>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.enterprise</groupId>
+			<artifactId>jakarta.enterprise.cdi-api</artifactId>
 			<version>${cdi}</version>
 			<scope>provided</scope>
 			<optional>true</optional>
@@ -183,7 +201,7 @@
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>javax.annotation-api</artifactId>
-			<version>${javax-annotation-api}</version>
+			<version>1.3.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -201,13 +219,14 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.3.168</version>
+			<version>2.2.220</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>4.0.1</version>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>5.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

@@ -18,8 +18,8 @@ package org.springframework.data.solr.repository.cdi;
 import java.io.IOException;
 
 import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.springframework.data.solr.core.SolrOperations;

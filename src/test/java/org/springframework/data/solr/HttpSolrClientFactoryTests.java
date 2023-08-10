@@ -39,11 +39,13 @@ public class HttpSolrClientFactoryTests {
 
 	@Before
 	public void setUp() {
+
 		solrClient = new HttpSolrClient.Builder().withBaseSolrUrl(URL).build();
 	}
 
 	@After
 	public void tearDown() {
+
 		solrClient = null;
 	}
 
