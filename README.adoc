@@ -1,11 +1,8 @@
-image:https://spring.io/badges/spring-data-solr/ga.svg[Spring Data for Apache Solr,link=https://projects.spring.io/spring-data-solr/#quick-start]
-image:https://spring.io/badges/spring-data-solr/snapshot.svg[Spring Data for Apache Solr,link=https://projects.spring.io/spring-data-solr/#quick-start]
-
-= Spring Data for Apache Solr image:https://jenkins.spring.io/buildStatus/icon?job=spring-data-solr%2Fmaster&subject=Build[link=https://jenkins.spring.io/view/SpringData/job/spring-data-solr/] https://gitter.im/spring-projects/spring-data[image:https://badges.gitter.im/spring-projects/spring-data.svg[Gitter]]
+= Spring Data for Apache Solr 
 
 [WARNING]
 ====
-**Spring Data for Apache Solr had been discontinued in early 2020 and exceeded its support timeline in February 2023. The team has laid out the reasons to discontinue the project https://spring.io/blog/2020/04/07/spring-data-for-apache-solr-discontinued[here]. Until the Project is finally moved to the https://github.com/spring-attic/[Spring Attic], the repository will remain in read-only mode having issues, comments and pull requests disabled. For current users of Spring Data Solr, we recommend to look into alternative search-engine-related modules like https://github.com/spring-projects/spring-data-elasticsearch[Spring Data Elasticsearch].**
+**Spring Data for Apache Solr had been discontinued in early 2020 and exceeded its support timeline in February 2023. The team has laid out the reasons to discontinue the project https://spring.io/blog/2020/04/07/spring-data-for-apache-solr-discontinued[here]. The repository is in read-only mode having issues, comments and pull requests disabled. For current users of Spring Data Solr, we recommend to look into alternative search-engine-related modules like https://github.com/spring-projects/spring-data-elasticsearch[Spring Data Elasticsearch].**
 ====
 
 The primary goal of the https://projects.spring.io/spring-data[Spring Data] project is to make it easier to build Spring-powered applications that use new data access technologies such as non-relational databases, map-reduce frameworks, and cloud based data services.
