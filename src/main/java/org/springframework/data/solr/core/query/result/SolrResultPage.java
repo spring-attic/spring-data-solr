@@ -43,6 +43,7 @@ import org.springframework.util.ObjectUtils;
  * @author Francisco Spaeth
  * @author David Webb
  * @author Petar Tahchiev
+ * @author Joe Linn
  */
 public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, HighlightPage<T>, FacetAndHighlightPage<T>,
 		ScoredPage<T>, GroupPage<T>, StatsPage<T>, SpellcheckedPage<T> {
@@ -52,6 +53,7 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 	private Map<PageKey, Page<FacetFieldEntry>> facetResultPages = new LinkedHashMap<>(1);
 	private Map<PageKey, List<FacetPivotFieldEntry>> facetPivotResultPages = new LinkedHashMap<>();
 	private Map<PageKey, Page<FacetFieldEntry>> facetRangeResultPages = new LinkedHashMap<>(1);
+	private Map<String, JsonFacetResult> jsonFacetResults = new LinkedHashMap<>();
 	private @Nullable Page<FacetQueryEntry> facetQueryResult;
 	private List<HighlightEntry<T>> highlighted = Collections.emptyList();
 	private @Nullable Float maxScore;
@@ -148,6 +150,15 @@ public class SolrResultPage<T> extends PageImpl<T> implements FacetPage<T>, High
 		for (Map.Entry<PivotField, List<FacetPivotFieldEntry>> entry : resultMap.entrySet()) {
 			addFacetPivotResultPage(entry.getValue(), entry.getKey());
 		}
+	}
+
+	public void addAllJsonFacetResults(Map<String, JsonFacetResult> resultMap) {
+		this.jsonFacetResults.putAll(resultMap);
+	}
+
+	@Override
+	public Map<String, JsonFacetResult> getJsonFacetResults() {
+		return jsonFacetResults;
 	}
 
 	@Override

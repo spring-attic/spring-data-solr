@@ -17,6 +17,7 @@ package org.springframework.data.solr.core.query.result;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.solr.core.query.Field;
@@ -27,6 +28,7 @@ import org.springframework.data.solr.core.query.PivotField;
  *
  * @param <T>
  * @author David Webb
+ * @author Joe Linn
  * @since 2.1.0
  */
 public interface FacetQueryResult<T> {
@@ -83,6 +85,11 @@ public interface FacetQueryResult<T> {
 	 * @return Collection holding faceting result pages
 	 */
 	Collection<Page<FacetFieldEntry>> getFacetResultPages();
+
+	/**
+	 * @return Map of JSON facet names to their results
+	 */
+	Map<String, JsonFacetResult> getJsonFacetResults();
 
 	/**
 	 * @return empty collection if not set

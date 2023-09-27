@@ -20,7 +20,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.params.FacetParams.FacetRangeInclude;
@@ -35,6 +37,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Christoph Strobl
  * @author Francisco Spaeth
+ * @author Joe Linn
  */
 public class FacetOptions {
 
@@ -50,6 +53,7 @@ public class FacetOptions {
 	private List<PivotField> facetOnPivotFields = new ArrayList<>(0);
 	private List<FieldWithRangeParameters<?, ?, ?>> facetRangeOnFields = new ArrayList<>(1);
 	private List<SolrDataQuery> facetQueries = new ArrayList<>(0);
+	private Map<String, JsonFacet> jsonFacets = new HashMap<>();
 
 	private int facetMinCount = DEFAULT_FACET_MIN_COUNT;
 	private int facetLimit = DEFAULT_FACET_LIMIT;
@@ -353,10 +357,10 @@ public class FacetOptions {
 	}
 
 	/**
-	 * @return true if any {@code facet.field} or {@code facet.query} set
+	 * @return true if any {@code facet.field} or {@code facet.query} or {@code json.facet} set
 	 */
 	public boolean hasFacets() {
-		return hasFields() || hasFacetQueries() || hasPivotFields() || hasFacetRages();
+		return hasFields() || hasFacetQueries() || hasPivotFields() || hasFacetRages() || hasJsonFacets();
 	}
 
 	/**
@@ -378,6 +382,31 @@ public class FacetOptions {
 
 		}
 		return result;
+	}
+
+	/**
+	 * @return any configured JSON facets
+	 */
+	public Map<String, JsonFacet> getJsonFacets() {
+		return jsonFacets;
+	}
+
+	/**
+	 * @return true if any JSON facets have been configured
+	 */
+	public boolean hasJsonFacets() {
+		return !jsonFacets.isEmpty();
+	}
+
+	/**
+	 * Adds a JSON facet ({@code json.facet})
+	 * 
+	 * @param facet the facet to be added
+	 * @return
+	 */
+	public FacetOptions addJsonFacet(JsonFacet facet) {
+		jsonFacets.put(facet.getName(), facet);
+		return this;
 	}
 
 	public static class FacetParameter extends QueryParameterImpl {

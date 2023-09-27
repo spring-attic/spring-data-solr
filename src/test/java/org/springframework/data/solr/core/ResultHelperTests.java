@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
@@ -35,8 +36,10 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.RangeFacet;
 import org.apache.solr.client.solrj.response.TermsResponse;
 import org.apache.solr.client.solrj.response.TermsResponse.Term;
+import org.apache.solr.client.solrj.response.json.NestableJsonFacet;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
+import org.apache.solr.common.util.SimpleOrderedMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -46,22 +49,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.solr.core.query.*;
-import org.springframework.data.solr.core.query.result.FacetFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetPivotFieldEntry;
-import org.springframework.data.solr.core.query.result.FacetQueryEntry;
-import org.springframework.data.solr.core.query.result.FieldStatsResult;
-import org.springframework.data.solr.core.query.result.GroupEntry;
-import org.springframework.data.solr.core.query.result.GroupResult;
-import org.springframework.data.solr.core.query.result.HighlightEntry;
+import org.springframework.data.solr.core.query.result.*;
 import org.springframework.data.solr.core.query.result.HighlightEntry.Highlight;
-import org.springframework.data.solr.core.query.result.SolrResultPage;
-import org.springframework.data.solr.core.query.result.StatsResult;
-import org.springframework.data.solr.core.query.result.TermsFieldEntry;
 
 /**
  * @author Christoph Strobl
  * @author Francisco Spaeth
  * @author Vitezslav Zak
+ * @author Joe Linn
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class ResultHelperTests {
@@ -771,6 +766,74 @@ public class ResultHelperTests {
 				response);
 		assertThat(result).isNotNull();
 		assertThat(result.size()).isEqualTo(1);
+	}
+
+	@Test // DATASOLR-564
+	public void testConvertJsonTermsFacetResult() {
+		NamedList<Object> terms = new NamedList<>();
+		terms.add("buckets", ImmutableList.of(createTermsFacetBucket("foo", 5), createTermsFacetBucket("bar", 20)));
+		NamedList<Object> parent = new NamedList<>();
+		parent.add("count", 25);
+		final String facetName = "termsFacet";
+		parent.add(facetName, terms);
+		NestableJsonFacet facet = new NestableJsonFacet(parent);
+
+		Mockito.when(response.getJsonFacetingResponse()).thenReturn(facet);
+
+		Map<String, JsonFacetResult> result = ResultHelper
+				.convertJsonFacetQueryResponseToFacetResultMap(createFacetQuery("foo"), response);
+		assertThat(result).isNotNull().hasSize(1).containsKey(facetName);
+		MultiBucketJsonFacetResult termsResult = (MultiBucketJsonFacetResult) result.get(facetName);
+		assertThat(termsResult).isNotNull();
+		assertThat(termsResult.getCount()).isEqualTo(25);
+		List<BucketFacetEntry> buckets = termsResult.getBuckets();
+		assertThat(buckets).hasSize(2);
+		BucketFacetEntry bucket1 = buckets.get(0);
+		assertThat(bucket1.getKey()).isEqualTo("foo");
+		assertThat(bucket1.getValueCount()).isEqualTo(5);
+		BucketFacetEntry bucket2 = buckets.get(1);
+		assertThat(bucket2.getKey()).isEqualTo("bar");
+		assertThat(bucket2.getValueCount()).isEqualTo(20);
+	}
+
+	@Test // DATASOLR-564
+	public void testConvertJsonStatsFacetResult() {
+		NamedList<Object> facetsList = new NamedList<>();
+		facetsList.add("count", 5);
+		facetsList.add("sum", 42d);
+		facetsList.add("unique", 3);
+
+		NamedList<Object> relatedness = new SimpleOrderedMap<>();
+		relatedness.add("relatedness", 4.2d);
+		relatedness.add("foreground_popularity", 1.5d);
+		relatedness.add("background_popularity", 1.1d);
+		facetsList.add("relatedness", relatedness);
+
+		NestableJsonFacet facet = new NestableJsonFacet(facetsList);
+		Mockito.when(response.getJsonFacetingResponse()).thenReturn(facet);
+
+		Map<String, JsonFacetResult> result = ResultHelper
+				.convertJsonFacetQueryResponseToFacetResultMap(createFacetQuery("bar"), response);
+		assertThat(result).isNotNull().hasSize(3).containsKeys("sum", "unique", "relatedness");
+		SingleStatJsonFacetResult sumResult = (SingleStatJsonFacetResult) result.get("sum");
+		assertThat(sumResult).isNotNull();
+		assertThat(sumResult.getValue().doubleValue()).isEqualTo(42d);
+		SingleStatJsonFacetResult uniqueResult = (SingleStatJsonFacetResult) result.get("unique");
+		assertThat(uniqueResult.getValue().intValue()).isEqualTo(3);
+		assertThat(uniqueResult.getCount()).isEqualTo(5);
+		SingleBucketJsonFacetResult relatednessResult = (SingleBucketJsonFacetResult) result.get("relatedness");
+		assertThat(relatednessResult.getFacets()).hasSize(3).containsKeys("relatedness", "foreground_popularity",
+				"background_popularity");
+		SingleStatJsonFacetResult relatednessStat = (SingleStatJsonFacetResult) relatednessResult.getFacets()
+				.get("relatedness");
+		assertThat(relatednessStat.getValue().doubleValue()).isEqualTo(4.2d);
+	}
+
+	private SimpleOrderedMap<Object> createTermsFacetBucket(String value, int count) {
+		SimpleOrderedMap<Object> bucket = new SimpleOrderedMap<>();
+		bucket.add("val", value);
+		bucket.add("count", count);
+		return bucket;
 	}
 
 	private NamedList<Object> createFieldStatNameList(Object min, Object max, Double sum, Long count, Long missing,
