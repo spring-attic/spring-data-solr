@@ -647,6 +647,7 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 	 * {@link BasePredicateProcessor#doProcess(Predicate, Field, Class)}
 	 *
 	 * @author Christoph Strobl
+	 * @author Rodrigo Vizbelis
 	 */
 	abstract class BasePredicateProcessor implements PredicateProcessor {
 
@@ -655,9 +656,9 @@ public abstract class QueryParserBase<QUERYTPYE extends SolrDataQuery> implement
 		protected final Set<String> BOOLEAN_OPERATORS = new HashSet<>(Arrays.asList("NOT", "AND", "OR"));
 
 		protected final String[] RESERVED_CHARS = { DOUBLEQUOTE, "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]",
-				"^", "~", "*", "?", ":", "\\" };
+				"^", "~", "*", "?", ":", "\\", "/" };
 		protected String[] RESERVED_CHARS_REPLACEMENT = { "\\" + DOUBLEQUOTE, "\\+", "\\-", "\\&\\&", "\\|\\|", "\\!",
-				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\" };
+				"\\(", "\\)", "\\{", "\\}", "\\[", "\\]", "\\^", "\\~", "\\*", "\\?", "\\:", "\\\\", "\\/" };
 
 		@Override
 		public Object process(@Nullable Predicate predicate, @Nullable Field field, @Nullable Class<?> domainType) {
