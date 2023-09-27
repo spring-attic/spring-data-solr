@@ -22,6 +22,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.After;
 import org.junit.Before;
@@ -35,39 +36,37 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class HttpSolrClientFactoryTests {
 
 	private static final String URL = "https://solr.server.url";
+	private static final String ZK = "localhost:9983";
 	private SolrClient solrClient;
+	private CloudSolrClient cloudSolrClient;
 
-	@Before
-	public void setUp() {
+	@Before public void setUp() {
 		solrClient = new HttpSolrClient.Builder().withBaseSolrUrl(URL).build();
+		cloudSolrClient = new CloudSolrClient.Builder().withZkHost(ZK).build();
 	}
 
-	@After
-	public void tearDown() {
+	@After public void tearDown() {
 		solrClient = null;
 	}
 
-	@Test
-	public void testInitFactory() {
+	@Test public void testInitFactory() {
 		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient);
 		assertThat(factory.getSolrClient()).isEqualTo(solrClient);
 		assertThat(((HttpSolrClient) factory.getSolrClient()).getBaseURL()).isEqualTo(URL);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInitFactoryWithNullServer() {
+	@Test(expected = IllegalArgumentException.class) public void testInitFactoryWithNullServer() {
 		new HttpSolrClientFactory(null);
 	}
 
-	@Test
-	public void testInitFactoryWithAuthentication() {
+	@Test public void testInitFactoryWithAuthentication() {
 		HttpSolrClientFactory factory = new HttpSolrClientFactory(solrClient,
 				new UsernamePasswordCredentials("username", "password"), "BASIC");
 
 		HttpClient solrHttpClient = ((HttpSolrClient) factory.getSolrClient()).getHttpClient();
 
-		CredentialsProvider provider = (CredentialsProvider) ReflectionTestUtils.getField(solrHttpClient,
-				"credentialsProvider");
+		CredentialsProvider provider = (CredentialsProvider) ReflectionTestUtils
+				.getField(solrHttpClient, "credentialsProvider");
 
 		assertThat(provider.getCredentials(AuthScope.ANY)).isNotNull();
 
@@ -78,8 +77,25 @@ public class HttpSolrClientFactoryTests {
 				.isEqualTo("password");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInitFactoryWithoutAuthenticationSchema() {
+	@Test public void testInitCloudFactoryWithAuthentication() {
+		HttpSolrClientFactory factory = new HttpSolrClientFactory(cloudSolrClient,
+				new UsernamePasswordCredentials("username", "password"), "BASIC");
+
+		HttpClient solrCloudClient = ((CloudSolrClient) factory.getSolrClient()).getHttpClient();
+
+		CredentialsProvider provider = (CredentialsProvider) ReflectionTestUtils
+				.getField(solrCloudClient, "credentialsProvider");
+
+		assertThat(provider.getCredentials(AuthScope.ANY)).isNotNull();
+
+		assertThat(((UsernamePasswordCredentials) provider.getCredentials(AuthScope.ANY)).getUserName())
+				.isEqualTo("username");
+
+		assertThat(((UsernamePasswordCredentials) provider.getCredentials(AuthScope.ANY)).getPassword())
+				.isEqualTo("password");
+	}
+
+	@Test(expected = IllegalArgumentException.class) public void testInitFactoryWithoutAuthenticationSchema() {
 		new HttpSolrClientFactory(solrClient, new UsernamePasswordCredentials("username", "password"), "");
 	}
 
